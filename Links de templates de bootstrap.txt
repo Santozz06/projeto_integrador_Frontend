@@ -1,0 +1,27 @@
+﻿Links de templates de bootstrap
+
+
+
+
+Designer (bootstrap 4)
+https://themewagon.github.io/videograph/
+
+
+template principal (bootstrap 4)
+https://themewagon.github.io/edumark/
+
+
+login (bootstrap 4)
+https://themewagon.com/themes/free-bootstrap-4-html5-admin-dashboard-template-dashtreme/
+
+
+login opção 2 (bootstrap 4)
+https://themewagon.github.io/oneschool/
+
+
+Tela inicial/home (Bootstrap 5)
+https://themewagon.com/themes/corona-free-responsive-bootstrap-4-html-5-admin-dashboard-template/
+
+
+Tela Settings (Bootstrap 5)
+https://themewagon.com/themes/dashui/
