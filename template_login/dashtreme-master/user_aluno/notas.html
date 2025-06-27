@@ -4,15 +4,15 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
   <title>Componentes Curriculares - Dashboard Acadêmico</title>
-  <link href="assets/css/pace.min.css" rel="stylesheet"/>
-  <script src="assets/js/pace.min.js"></script>
-  <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
-  <link href="assets/plugins/simplebar/css/simplebar.css" rel="stylesheet"/>
-  <link href="assets/css/bootstrap.min.css" rel="stylesheet"/>
-  <link href="assets/css/animate.css" rel="stylesheet"/>
-  <link href="assets/css/icons.css" rel="stylesheet"/>
-  <link href="assets/css/sidebar-menu.css" rel="stylesheet"/>
-  <link href="assets/css/app-style.css" rel="stylesheet"/>
+  <link href="../assets/css/pace.min.css" rel="stylesheet"/>
+  <script src="../assets/js/pace.min.js"></script>
+  <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
+  <link href="../assets/plugins/simplebar/css/simplebar.css" rel="stylesheet"/>
+  <link href="../assets/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="../assets/css/animate.css" rel="stylesheet"/>
+  <link href="../assets/css/icons.css" rel="stylesheet"/>
+  <link href="../assets/css/sidebar-menu.css" rel="stylesheet"/>
+  <link href="../assets/css/app-style.css" rel="stylesheet"/>
   <style>
     :root {
       --azul-principal: #2c5f9e;
@@ -67,8 +67,10 @@
     }
 
     .table-notas tr:hover {
-      background-color: #f5f7fa;
+      background-color: rgba(44, 95, 158, 0.1);
+      color: #000; 
     }
+
   </style>
 </head>
 
@@ -78,7 +80,7 @@
     <div id="sidebar-wrapper" data-simplebar>
       <div class="brand-logo">
         <a href="index.html">
-          <img src="assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
+          <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
           <h5 class="logo-text">Dashboard Acadêmico</h5>
         </a>
       </div>
@@ -86,8 +88,8 @@
         <li class="sidebar-header">NAVEGAÇÃO PRINCIPAL</li>
         <li><a href="index.html"><i class="zmdi zmdi-view-dashboard"></i> <span>Home</span></a></li>
         <li><a href="ensino.html"><i class="zmdi zmdi-assignment"></i> <span>Ensino</span></a></li>
-        <li><a href="frequencia.html"><i class="zmdi zmdi-calendar-note"></i> <span>Componente curricular</span></a></li>
-        <li><a href="boletim.html" class="active"><i class="zmdi zmdi-file-text"></i> <span>Notas</span></a></li>
+        <li><a href="componente_curricular.html"><i class="zmdi zmdi-calendar-note"></i> <span>Componente curricular</span></a></li>
+        <li><a href="notas.html" class="active"><i class="zmdi zmdi-file-text"></i> <span>Notas</span></a></li>
         <li><a href="calendario.html"><i class="zmdi zmdi-calendar"></i> <span>Calendário Acadêmico</span></a></li>
       </ul>
     </div>
@@ -104,7 +106,7 @@
           <li class="nav-item">
             <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
               <span class="user-profile">
-                <img src="assets/images/gallery/icon_usuarioBlack.png" class="img-circle" alt="user avatar">
+                <img src="../assets/images/gallery/icon_usuarioBlack.png" class="img-circle" alt="user avatar">
               </span>
             </a>
           </li>
@@ -131,22 +133,32 @@
                         <th>Componente Curricular</th>
                         <th>Local</th>
                         <th>Horário</th>
-                        <th>Chat</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr><td>Análise e Projeto de Sistemas</td><td>INFO - INT - 4º ANO</td><td>4M45 *</td><td><i class="zmdi zmdi-comments text-info mr-2"></i><i class="zmdi zmdi-mail-send text-secondary"></i></td></tr>
-                      <tr><td>Arte Educação</td><td>INFO - INT - 4º ANO</td><td>5M45 *</td><td><i class="zmdi zmdi-comments text-info mr-2"></i><i class="zmdi zmdi-mail-send text-secondary"></i></td></tr>
-                      <tr><td>Empreendedorismo em Informática</td><td>INFO - INT - 4º ANO</td><td>6M45 *</td><td><i class="zmdi zmdi-comments text-info mr-2"></i><i class="zmdi zmdi-mail-send text-secondary"></i></td></tr>
-                      <tr><td>Espanhol para Informática</td><td>INFO - INT - 4º ANO</td><td>4M12 *</td><td><i class="zmdi zmdi-comments text-info mr-2"></i><i class="zmdi zmdi-mail-send text-secondary"></i></td></tr>
-                      <tr><td>Filosofia II</td><td>INFO - INT - 4º ANO</td><td>5M12 *</td><td><i class="zmdi zmdi-comments text-info mr-2"></i><i class="zmdi zmdi-mail-send text-secondary"></i></td></tr>
-                      <tr><td>História II</td><td>INFO - INT - 4º ANO</td><td>3M45 *</td><td><i class="zmdi zmdi-comments text-info mr-2"></i><i class="zmdi zmdi-mail-send text-secondary"></i></td></tr>
-                      <tr><td>Língua Portuguesa e Literatura IV</td><td>INFO - INT - 4º ANO</td><td>2M45 5M3 *</td><td><i class="zmdi zmdi-comments text-info mr-2"></i><i class="zmdi zmdi-mail-send text-secondary"></i></td></tr>
-                      <tr><td>Matemática IV</td><td>INFO - INT - 4º ANO</td><td>3M123 *</td><td><i class="zmdi zmdi-comments text-info mr-2"></i><i class="zmdi zmdi-mail-send text-secondary"></i></td></tr>
-                      <tr><td>Programação para Dispositivos Móveis</td><td>INFO - INT - 4º ANO</td><td>6M123 *</td><td><i class="zmdi zmdi-comments text-info mr-2"></i><i class="zmdi zmdi-mail-send text-secondary"></i></td></tr>
-                      <tr><td>Programação para Internet II</td><td>INFO - INT - 4º ANO</td><td>6M123 *</td><td><i class="zmdi zmdi-comments text-info mr-2"></i><i class="zmdi zmdi-mail-send text-secondary"></i></td></tr>
-                      <tr><td>Projeto Integrador II</td><td>INFO - INT - 4º ANO</td><td>5M45 *</td><td><i class="zmdi zmdi-comments text-info mr-2"></i><i class="zmdi zmdi-mail-send text-secondary"></i></td></tr>
-                    </tbody>
+                      <tbody>
+                        <tr onclick="window.location.href='notas_pt.html'" style="cursor: pointer;">
+                          <td>Lingua Portuguesa</td><td>SALA 12 - Turma 160 - 6º ANO</td><td>4M45 *</td>
+                        </tr>
+                        <tr onclick="window.location.href='notas_matematica.html'" style="cursor: pointer;">
+                          <td>Matemática</td><td>SALA 12 - Turma 160 - 6º ANO</td><td>5M45 *</td>
+                        </tr>
+                        <tr onclick="window.location.href='notas_historia.html'" style="cursor: pointer;">
+                          <td>História</td><td>SALA 12 - Turma 160 - 6º ANO</td><td>6M45 *</td>
+                        </tr>
+                        <tr onclick="window.location.href='notas_ciencias.html'" style="cursor: pointer;">
+                          <td>Ciências</td><td>SALA 12 - Turma 160 - 6º ANO</td><td>4M12 *</td>
+                        </tr>
+                        <tr onclick="window.location.href='notas_arte.html'" style="cursor: pointer;">
+                          <td>Arte</td><td>SALA 12 - Turma 160 - 6º ANO</td><td>5M12 *</td>
+                        </tr>
+                        <tr onclick="window.location.href='notas_ed_fisica.html'" style="cursor: pointer;">
+                          <td>Educação Física</td><td>SALA 12 - Turma 160 - 6º ANO</td><td>3M45 *</td>
+                        </tr>
+                        <tr onclick="window.location.href='notas_ensino_religioso.html'" style="cursor: pointer;">
+                          <td>Ensino Religioso</td><td>SALA 12 - Turma 160 - 6º ANO</td><td>2M45 5M3 *</td>
+                        </tr>
+                      </tbody>                      
                   </table>
                 </div>
                 <div class="mt-2">
@@ -172,11 +184,11 @@
   </div>
 
   <!-- Scripts -->
-  <script src="assets/js/jquery.min.js"></script>
-  <script src="assets/js/popper.min.js"></script>
-  <script src="assets/js/bootstrap.min.js"></script>
-  <script src="assets/plugins/simplebar/js/simplebar.js"></script>
-  <script src="assets/js/sidebar-menu.js"></script>
-  <script src="assets/js/app-script.js"></script>
+  <script src="../assets/js/jquery.min.js"></script>
+  <script src="../assets/js/popper.min.js"></script>
+  <script src="../assets/js/bootstrap.min.js"></script>
+  <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
+  <script src="../assets/js/sidebar-menu.js"></script>
+  <script src="../assets/js/app-script.js"></script>
 </body>
 </html>
