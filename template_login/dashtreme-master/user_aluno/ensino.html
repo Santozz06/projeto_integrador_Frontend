@@ -1,67 +1,70 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <title>Ensino - Dashboard Acadêmico</title>
-  <link href="../assets/css/pace.min.css" rel="stylesheet"/>
+  <link href="../assets/css/pace.min.css" rel="stylesheet" />
   <script src="../assets/js/pace.min.js"></script>
   <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
-  <link href="../assets/plugins/simplebar/css/simplebar.css" rel="stylesheet"/>
-  <link href="../assets/css/bootstrap.min.css" rel="stylesheet"/>
-  <link href="../assets/css/animate.css" rel="stylesheet"/>
-  <link href="../assets/css/icons.css" rel="stylesheet"/>
-  <link href="../assets/css/sidebar-menu.css" rel="stylesheet"/>
-  <link href="../assets/css/app-style.css" rel="stylesheet"/>
+  <link href="../assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />
+  <link href="../assets/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="../assets/css/animate.css" rel="stylesheet" />
+  <link href="../assets/css/icons.css" rel="stylesheet" />
+  <link href="../assets/css/sidebar-menu.css" rel="stylesheet" />
+  <link href="../assets/css/app-style.css" rel="stylesheet" />
   <style>
     :root {
-      --azul-cabecalho: #2c5f9e; /* Azul mais suave e profissional */
-      --texto-preto: #333333; /* Preto mais suave que #000 */
+      --azul-cabecalho: #2c5f9e;
+      /* Azul mais suave e profissional */
+      --texto-preto: #333333;
+      /* Preto mais suave que #000 */
       --cinza-texto: #666666;
     }
-    
+
     .document-option {
       transition: all 0.3s ease;
       background-color: white;
     }
-    
+
     .document-option:hover {
       transform: translateY(-3px);
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
       border-color: var(--azul-cabecalho) !important;
     }
-    
+
     .badge-warning {
       background-color: #f6c23e;
       color: #fff;
     }
-    
+
     .badge-success {
       background-color: #1cc88a;
       color: #fff;
     }
-    
+
     .card-header {
       border-radius: 0.35rem 0.35rem 0 0 !important;
       background-color: var(--azul-cabecalho) !important;
     }
-    
+
     /* Alterando a cor do texto para preto */
     .document-option h5 {
       color: var(--texto-preto) !important;
       font-weight: 600;
     }
-    
+
     .document-option p {
       color: var(--cinza-texto) !important;
     }
-    
+
     /* Ajustes no cabeçalho */
     .card-header h4 {
       color: white !important;
       font-weight: 600;
     }
-    
+
     /* Ajustes gerais de espaçamento */
     .document-option {
       padding: 20px;
@@ -84,7 +87,8 @@
         <li class="sidebar-header">NAVEGAÇÃO PRINCIPAL</li>
         <li><a href="index.html"><i class="zmdi zmdi-view-dashboard"></i> <span>Home</span></a></li>
         <li><a href="ensino.html"><i class="zmdi zmdi-assignment"></i> <span>Ensino</span></a></li>
-        <li><a href="componente_curricular.html"><i class="zmdi zmdi-calendar-note"></i> <span>Componente curricular</span></a></li>
+        <li><a href="componente_curricular.html"><i class="zmdi zmdi-calendar-note"></i> <span>Componente
+              curricular</span></a></li>
         <li><a href="notas.html"><i class="zmdi zmdi-file-text"></i> <span>Notas</span></a></li>
         <li><a href="calendario.html"><i class="zmdi zmdi-calendar"></i> <span>Calendário Acadêmico</span></a></li>
       </ul>
@@ -123,26 +127,28 @@
               </div>
               <div class="card-body">
                 <!-- EMITIR BOLETIM -->
-                <div class="document-option mb-4 border rounded">
-                  <h5>EMITIR BOLETIM</h5>
-                  <p class="mb-2">Acesse seu boletim acadêmico atual</p>
-                  <span class="badge badge-warning">Pendente</span>
-                </div>
-                
+                <a href="boletim.html" class="text-decoration-none">
+                  <div class="document-option mb-4 border rounded">
+                    <h5>EMITIR BOLETIM</h5>
+                    <p class="mb-2">Acesse seu boletim acadêmico atual</p>
+                    <span class="badge badge-warning">Pendente</span>
+                  </div>
+                </a>
+
                 <!-- ATESTADO DE MATRÍCULA -->
                 <div class="document-option mb-4 border rounded">
                   <h5>ATESTADO DE MATRÍCULA</h5>
                   <p class="mb-2">Gere seu comprovante de matrícula</p>
                   <span class="badge badge-warning">Pendente</span>
                 </div>
-                
+
                 <!-- EMITIR HISTÓRICO -->
                 <div class="document-option mb-4 border rounded">
                   <h5>EMITIR HISTÓRICO</h5>
                   <p class="mb-2">Obtenha seu histórico escolar</p>
                   <span class="badge badge-warning">Pendente</span>
                 </div>
-                
+
                 <!-- ATESTADO DE FREQUÊNCIA -->
                 <div class="document-option mb-4 border rounded">
                   <h5>ATESTADO DE FREQUÊNCIA</h5>
@@ -173,4 +179,5 @@
   <script src="../assets/js/sidebar-menu.js"></script>
   <script src="../assets/js/app-script.js"></script>
 </body>
+
 </html>
