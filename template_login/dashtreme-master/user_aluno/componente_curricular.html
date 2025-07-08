@@ -1,58 +1,63 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <title>Ensino Fundamental - Dashboard Acadêmico</title>
-  <link href="../assets/css/pace.min.css" rel="stylesheet"/>
+  <link href="../assets/css/pace.min.css" rel="stylesheet" />
   <script src="../assets/js/pace.min.js"></script>
   <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
-  <link href="../assets/plugins/simplebar/css/simplebar.css" rel="stylesheet"/>
-  <link href="../assets/css/bootstrap.min.css" rel="stylesheet"/>
-  <link href="../assets/css/animate.css" rel="stylesheet"/>
-  <link href="../assets/css/icons.css" rel="stylesheet"/>
-  <link href="../assets/css/sidebar-menu.css" rel="stylesheet"/>
-  <link href="../assets/css/app-style.css" rel="stylesheet"/>
+  <link href="../assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />
+  <link href="../assets/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="../assets/css/animate.css" rel="stylesheet" />
+  <link href="../assets/css/icons.css" rel="stylesheet" />
+  <link href="../assets/css/sidebar-menu.css" rel="stylesheet" />
+  <link href="../assets/css/app-style.css" rel="stylesheet" />
   <style>
-     :root {
+    :root {
       --azul-principal: #2c5f9e;
+      --icone-visivel: #1e4a7e;
       --texto-escuro: #333333;
       --cinza-texto: #666666;
       --borda: #e0e0e0;
     }
-    
+
     .card-ensino {
       border-radius: 10px;
       border: 1px solid var(--borda);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
       transition: all 0.3s;
       cursor: pointer;
     }
-    
+
     .card-ensino:hover {
       transform: translateY(-5px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
-    
+
     .card-header-ensino {
       background-color: var(--azul-principal);
       color: white;
       border-radius: 10px 10px 0 0 !important;
       padding: 15px 20px;
     }
-    
+
     .materia-card {
       border-left: 4px solid var(--azul-principal);
       margin-bottom: 15px;
       transition: all 0.3s;
       padding: 15px;
+      display: flex;
+      align-items: center;
     }
-    
+
     .materia-card:hover {
-      background-color: #f8f9fa;
+      background-color: rgba(44, 95, 158, 0.05);
       transform: translateX(5px);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
     }
-    
+
     .btn-voltar {
       background-color: var(--azul-principal);
       color: white;
@@ -61,34 +66,32 @@
       border-radius: 5px;
       margin-top: 20px;
     }
-    
+
     .btn-voltar:hover {
       background-color: #1e4a7e;
       color: white;
     }
-    
-    .nivel-ensino {
-      font-size: 1.1rem;
-      color: var(--azul-principal);
-      font-weight: 600;
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid var(--borda);
+
+    .icone-img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      margin-right: 12px;
     }
-    
-    .icone-materia {
-      font-size: 1.5rem;
-      margin-right: 10px;
-      color: var(--azul-principal);
-    }
-    
+
     .badge-turma {
       background-color: #e9f0f8;
       color: var(--azul-principal);
       font-weight: 500;
       padding: 5px 10px;
       border-radius: 20px;
-      float: right;
+      margin-left: auto;
+    }
+
+    .materia-card h6 {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.5;
     }
   </style>
 </head>
@@ -107,7 +110,8 @@
         <li class="sidebar-header">NAVEGAÇÃO PRINCIPAL</li>
         <li><a href="index.html"><i class="zmdi zmdi-view-dashboard"></i> <span>Home</span></a></li>
         <li><a href="ensino.html" class="active"><i class="zmdi zmdi-assignment"></i> <span>Ensino</span></a></li>
-        <li><a href="componente_curricular.html"><i class="zmdi zmdi-calendar-note"></i> <span>Componente curricular</span></a></li>
+        <li><a href="componente_curricular.html"><i class="zmdi zmdi-calendar-note"></i> <span>Componente
+              curricular</span></a></li>
         <li><a href="notas.html"><i class="zmdi zmdi-file-text"></i> <span>Notas</span></a></li>
         <li><a href="calendario.html"><i class="zmdi zmdi-calendar"></i> <span>Calendário Acadêmico</span></a></li>
       </ul>
@@ -145,165 +149,99 @@
                 <h4 class="mb-0">Ensino Fundamental</h4>
               </div>
               <div class="card-body">
-                
-                <!-- Matérias do Ensino Fundamental Anos Iniciais -->
-                <div class="mb-5">
-                  <h5 class="nivel-ensino">Anos Iniciais (1º ao 5º ano)</h5>
-                  
-                  <div class="row">
-                    <!-- Língua Portuguesa -->
-                    <div class="col-md-6">
-                      <a href="componente_curricular.html?materia=portugues" class="text-decoration-none">
-                        <div class="materia-card">
-                          <i class="zmdi zmdi-book icone-materia"></i>
-                          <h6 class="d-inline-block font-weight-bold">Língua Portuguesa</h6>
-                          <span class="badge-turma">Turma A</span>
-                          <p class="mb-0 text-muted">Leitura, escrita e interpretação de textos</p>
-                        </div>
-                      </a>
-                    </div>
-                    
-                    <!-- Matemática -->
-                    <div class="col-md-6">
-                      <a href="componente_curricular.html?materia=matematica" class="text-decoration-none">
-                        <div class="materia-card">
-                          <i class="zmdi zmdi-calculator icone-materia"></i>
-                          <h6 class="d-inline-block font-weight-bold">Matemática</h6>
-                          <span class="badge-turma">Turma A</span>
-                          <p class="mb-0 text-muted">Números, operações e geometria básica</p>
-                        </div>
-                      </a>
-                    </div>
-                    
-                    <!-- Ciências -->
-                    <div class="col-md-6">
-                      <a href="componente_curricular.html?materia=ciencias" class="text-decoration-none">
-                        <div class="materia-card">
-                          <i class="zmdi zmdi-flask icone-materia"></i>
-                          <h6 class="d-inline-block font-weight-bold">Ciências</h6>
-                          <span class="badge-turma">Turma A</span>
-                          <p class="mb-0 text-muted">Natureza, seres vivos e experimentos</p>
-                        </div>
-                      </a>
-                    </div>
-                    
-                    <!-- História -->
-                    <div class="col-md-6">
-                      <a href="componente_curricular.html?materia=historia" class="text-decoration-none">
-                        <div class="materia-card">
-                          <i class="zmdi zmdi-globe-alt icone-materia"></i>
-                          <h6 class="d-inline-block font-weight-bold">História</h6>
-                          <span class="badge-turma">Turma A</span>
-                          <p class="mb-0 text-muted">Tempo, memória e identidade</p>
-                        </div>
-                      </a>
-                    </div>
+                <div class="row">
+                  <!-- Matérias do Ensino Fundamental (6 ao 9º ano) -->
+                  <div class="col-md-6">
+                    <a href="componenteCurricular_detalhes.html" class="text-decoration-none">
+                      <div class="materia-card">
+                        <img src="../user_aluno/imagens/icon_pt.png" class="icone-img" alt="Ícone">
+                        <h6 class="d-inline-block font-weight-bold">Língua Portuguesa</h6>
+                        <span class="badge-turma">Turma B</span>
+                      </div>
+                    </a>
+                  </div>
+
+                  <div class="col-md-6">
+                    <a href="componenteCurricular_detalhes.html" class="text-decoration-none">
+                      <div class="materia-card">
+                        <img src="../user_aluno/imagens/icon_matematica.png" class="icone-img" alt="Ícone">
+                        <h6 class="d-inline-block font-weight-bold">Matemática</h6>
+                        <span class="badge-turma">Turma B</span>
+                      </div>
+                    </a>
+                  </div>
+
+                  <div class="col-md-6">
+                    <a href="componenteCurricular_detalhes.html" class="text-decoration-none">
+                      <div class="materia-card">
+                        <img src="../user_aluno/imagens/icon_ciencias.png" class="icone-img" alt="Ícone">
+                        <h6 class="d-inline-block font-weight-bold">Ciências</h6>
+                        <span class="badge-turma">Turma B</span>
+                      </div>
+                    </a>
+                  </div>
+
+                  <div class="col-md-6">
+                    <a href="componenteCurricular_detalhes.html" class="text-decoration-none">
+                      <div class="materia-card">
+                        <img src="../user_aluno/imagens/icon_historia.png" class="icone-img" alt="Ícone">
+                        <h6 class="d-inline-block font-weight-bold">História</h6>
+                        <span class="badge-turma">Turma B</span>
+                      </div>
+                    </a>
+                  </div>
+
+                  <div class="col-md-6">
+                    <a href="componenteCurricular_detalhes.html" class="text-decoration-none">
+                      <div class="materia-card">
+                        <img src="../user_aluno/imagens/icon_geografia.png" class="icone-img" alt="Ícone">
+                        <h6 class="d-inline-block font-weight-bold">Geografia</h6>
+                        <span class="badge-turma">Turma B</span>
+                      </div>
+                    </a>
+                  </div>
+
+                  <div class="col-md-6">
+                    <a href="componenteCurricular_detalhes.html" class="text-decoration-none">
+                      <div class="materia-card">
+                        <img src="../user_aluno/imagens/icon_ingles.png" class="icone-img" alt="Ícone">
+                        <h6 class="d-inline-block font-weight-bold">Língua Inglesa</h6>
+                        <span class="badge-turma">Turma B</span>
+                      </div>
+                    </a>
+                  </div>
+
+                  <div class="col-md-6">
+                    <a href="componenteCurricular_detalhes.html" class="text-decoration-none">
+                      <div class="materia-card">
+                        <img src="../user_aluno/imagens/icon_edFisica.png" class="icone-img" alt="Ícone">
+                        <h6 class="d-inline-block font-weight-bold">Educação Física</h6>
+                        <span class="badge-turma">Turma B</span>
+                      </div>
+                    </a>
+                  </div>
+
+                  <div class="col-md-6">
+                    <a href="componenteCurricular_detalhes.html" class="text-decoration-none">
+                      <div class="materia-card">
+                        <img src="../user_aluno/imagens/icon_artes.png" class="icone-img" alt="Ícone">
+                        <h6 class="d-inline-block font-weight-bold">Artes</h6>
+                        <span class="badge-turma">Turma B</span>
+                      </div>
+                    </a>
+                  </div>
+
+                  <div class="col-md-6">
+                    <a href="componenteCurricular_detalhes.html" class="text-decoration-none">
+                      <div class="materia-card">
+                        <img src="../user_aluno/imagens/icon_ensinoReligioso.png" class="icone-img" alt="Ícone">
+                        <h6 class="d-inline-block font-weight-bold">Ensino Religioso</h6>
+                        <span class="badge-turma">Turma B</span>
+                      </div>
+                    </a>
                   </div>
                 </div>
-                
-                <!-- Matérias do Ensino Fundamental Anos Finais -->
-                <div class="mb-4">
-                  <h5 class="nivel-ensino">Anos Finais (6º ao 9º ano)</h5>
-                  
-                  <div class="row">
-                    <!-- Língua Portuguesa -->
-                    <div class="col-md-6">
-                      <a href="componente_curricular.html?materia=portugues" class="text-decoration-none">
-                        <div class="materia-card">
-                          <i class="zmdi zmdi-book icone-materia"></i>
-                          <h6 class="d-inline-block font-weight-bold">Língua Portuguesa</h6>
-                          <span class="badge-turma">Turma B</span>
-                          <p class="mb-0 text-muted">Gramática, literatura e produção textual</p>
-                        </div>
-                      </a>
-                    </div>
-                    
-                    <!-- Matemática -->
-                    <div class="col-md-6">
-                      <a href="componente_curricular.html?materia=matematica" class="text-decoration-none">
-                        <div class="materia-card">
-                          <i class="zmdi zmdi-calculator icone-materia"></i>
-                          <h6 class="d-inline-block font-weight-bold">Matemática</h6>
-                          <span class="badge-turma">Turma B</span>
-                          <p class="mb-0 text-muted">Álgebra, geometria e raciocínio lógico</p>
-                        </div>
-                      </a>
-                    </div>
-                    
-                    <!-- Ciências -->
-                    <div class="col-md-6">
-                      <a href="componente_curricular.html?materia=ciencias" class="text-decoration-none">
-                        <div class="materia-card">
-                          <i class="zmdi zmdi-flask icone-materia"></i>
-                          <h6 class="d-inline-block font-weight-bold">Ciências</h6>
-                          <span class="badge-turma">Turma B</span>
-                          <p class="mb-0 text-muted">Física, química e biologia básicas</p>
-                        </div>
-                      </a>
-                    </div>
-                    
-                    <!-- História -->
-                    <div class="col-md-6">
-                      <a href="componente_curricular.html?materia=historia" class="text-decoration-none">
-                        <div class="materia-card">
-                          <i class="zmdi zmdi-globe-alt icone-materia"></i>
-                          <h6 class="d-inline-block font-weight-bold">História</h6>
-                          <span class="badge-turma">Turma B</span>
-                          <p class="mb-0 text-muted">História do Brasil e mundial</p>
-                        </div>
-                      </a>
-                    </div>
-                    
-                    <!-- Geografia -->
-                    <div class="col-md-6">
-                      <a href="componente_curricular.html?materia=geografia" class="text-decoration-none">
-                        <div class="materia-card">
-                          <i class="zmdi zmdi-map icone-materia"></i>
-                          <h6 class="d-inline-block font-weight-bold">Geografia</h6>
-                          <span class="badge-turma">Turma B</span>
-                          <p class="mb-0 text-muted">Espaço geográfico e sociedade</p>
-                        </div>
-                      </a>
-                    </div>
-                    
-                    <!-- Inglês -->
-                    <div class="col-md-6">
-                      <a href="componente_curricular.html?materia=ingles" class="text-decoration-none">
-                        <div class="materia-card">
-                          <i class="zmdi zmdi-translate icone-materia"></i>
-                          <h6 class="d-inline-block font-weight-bold">Língua Inglesa</h6>
-                          <span class="badge-turma">Turma B</span>
-                          <p class="mb-0 text-muted">Comunicação em língua estrangeira</p>
-                        </div>
-                      </a>
-                    </div>
-                    
-                    <!-- Educação Física -->
-                    <div class="col-md-6">
-                      <a href="componente_curricular.html?materia=edfisica" class="text-decoration-none">
-                        <div class="materia-card">
-                          <i class="zmdi zmdi-run icone-materia"></i>
-                          <h6 class="d-inline-block font-weight-bold">Educação Física</h6>
-                          <span class="badge-turma">Turma B</span>
-                          <p class="mb-0 text-muted">Corpo, movimento e saúde</p>
-                        </div>
-                      </a>
-                    </div>
-                    
-                    <!-- Artes -->
-                    <div class="col-md-6">
-                      <a href="componente_curricular.html?materia=artes" class="text-decoration-none">
-                        <div class="materia-card">
-                          <i class="zmdi zmdi-palette icone-materia"></i>
-                          <h6 class="d-inline-block font-weight-bold">Artes</h6>
-                          <span class="badge-turma">Turma B</span>
-                          <p class="mb-0 text-muted">Expressão artística e cultural</p>
-                        </div>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-                
+
                 <!-- Botão Voltar -->
                 <div class="text-center">
                   <a href="index.html" class="btn btn-voltar">
@@ -334,4 +272,5 @@
   <script src="../assets/js/sidebar-menu.js"></script>
   <script src="../assets/js/app-script.js"></script>
 </body>
+
 </html>
