@@ -34,7 +34,7 @@
         }
 
         .form-section h5 {
-            color: #2c5f9e;
+            color: #71affa;
             margin-bottom: 20px;
             font-weight: 600;
         }
@@ -100,6 +100,35 @@
             border-width: 0 2px 2px 0;
             transform: rotate(45deg);
         }
+
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+
+        .invalid-feedback {
+            display: none;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 80%;
+            color: #dc3545;
+        }
+
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: 0.25rem;
+            display: none;
+        }
+
+        .form-section h5 {
+            color: #71affa;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
     </style>
 </head>
 
@@ -130,9 +159,9 @@
                     </a>
                     <ul class="sidebar-submenu">
                         <li><a href="cadastro.html#aluno"><i class="zmdi zmdi-accounts-alt"></i> Alunos</a></li>
-                        <li><a href="#"><i class="zmdi zmdi-group-work"></i> Turmas</a></li>
+                        <li><a href="cadastroTurmas.html"><i class="zmdi zmdi-group-work"></i> Turmas</a></li>
                         <li><a href="cadastro.html#servidor"><i class="zmdi zmdi-account-box"></i> Servidores</a></li>
-                        <li><a href="#"><i class="zmdi zmdi-link"></i> Gerenciar vínculos</a></li>
+                        <li><a href="gerenciarVinculos.html"><i class="zmdi zmdi-link"></i> Gerenciar vínculos</a></li>
                     </ul>
                 </li>
                 <li>
@@ -248,14 +277,13 @@
                     <div class="col-sm-9">
                         <h4 class="page-title">Cadastro de Alunos e Servidores</h4>
                     </div>
-                    <div class="col-sm-3">
-                        <div class="btn-group float-sm-right">
-                            <button type="button" class="btn btn-light waves-effect waves-light"><i
-                                    class="zmdi zmdi-refresh mr-1"></i> Atualizar</button>
-                        </div>
-                    </div>
                 </div>
                 <!-- End Breadcrumb-->
+
+                <!-- Mensagem de sucesso -->
+                <div class="alert-success" id="successMessage">
+                    <i class="zmdi zmdi-check-circle mr-2"></i> Cadastro realizado com sucesso!
+                </div>
 
                 <div class="card">
                     <div class="card-body">
@@ -275,37 +303,80 @@
                         <div class="tab-content pt-3">
                             <!-- Aba Aluno -->
                             <div class="tab-pane fade show active" id="aluno" role="tabpanel">
-                                <form>
-                                    <!-- Dados Pessoais -->
+                                <form id="formAluno">
+                                    <!-- Dados Pessoais - Aluno -->
                                     <div class="form-section">
                                         <h5>Dados Pessoais</h5>
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label>Nome Completo</label>
-                                                    <input type="text" class="form-control">
+                                                    <input type="text" class="form-control" id="nomeCompleto" required>
+                                                    <div class="invalid-feedback">Por favor, informe o nome completo
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label>Data de Nascimento</label>
-                                                    <input type="date" class="form-control">
+                                                    <input type="date" class="form-control" id="dataNascimento" required>
+                                                    <div class="invalid-feedback">Por favor, informe a data de
+                                                        nascimento</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Matrícula</label>
+                                                    <input type="text" class="form-control" id="matriculaAluno" required>
+                                                    <div class="invalid-feedback">Por favor, informe a matrícula</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Sexo</label>
+                                                    <select class="form-control" id="sexo" required>
+                                                        <option value="">Selecione...</option>
+                                                        <option>Masculino</option>
+                                                        <option>Feminino</option>
+                                                        <option>Outro</option>
+                                                        <option>Prefiro não informar</option>
+                                                    </select>
+                                                    <div class="invalid-feedback">Por favor, selecione o sexo</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Raça/Cor</label>
+                                                    <select class="form-control" id="racaCor" required>
+                                                        <option value="">Selecione...</option>
+                                                        <option>Branca</option>
+                                                        <option>Preta</option>
+                                                        <option>Parda</option>
+                                                        <option>Amarela</option>
+                                                        <option>Indígena</option>
+                                                        <option>Prefiro não informar</option>
+                                                    </select>
+                                                    <div class="invalid-feedback">Por favor, selecione a raça/cor</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label>Estado Civil</label>
-                                                    <select class="form-control">
+                                                    <select class="form-control" id="estadoCivil" required>
+                                                        <option value="">Selecione...</option>
                                                         <option>Solteiro(a)</option>
                                                         <option>Casado(a)</option>
                                                         <option>Divorciado(a)</option>
                                                         <option>Viúvo(a)</option>
                                                     </select>
+                                                    <div class="invalid-feedback">Por favor, selecione o estado civil
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-
                                     <!-- Nacionalidade -->
                                     <div class="form-section">
                                         <h5>Nacionalidade</h5>
@@ -313,20 +384,41 @@
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Nacionalidade</label>
-                                                    <input type="text" class="form-control" value="Brasileiro(a)">
+                                                    <select class="form-control" id="nacionalidade" required>
+                                                        <option value="" disabled selected>Selecione...</option>
+                                                        <option value="Brasileiro(a)">Brasileiro(a)</option>
+                                                        <option value="Argentino(a)">Argentino(a)</option>
+                                                        <option value="Uruguaio(a)">Uruguaio(a)</option>
+                                                        <option value="Chileno(a)">Chileno(a)</option>
+                                                        <option value="Americano(a)">Americano(a)</option>
+                                                        <option value="Canadense">Canadense</option>
+                                                        <option value="Espanhol(a)">Espanhol(a)</option>
+                                                        <option value="Português(a)">Português(a)</option>
+                                                        <option value="Italiano(a)">Italiano(a)</option>
+                                                        <option value="Alemão(ã)">Alemão(ã)</option>
+                                                        <option value="Francês(a)">Francês(a)</option>
+                                                        <option value="Japonês(a)">Japonês(a)</option>
+                                                        <option value="Chinês(a)">Chinês(a)</option>
+                                                        <option value="Outra">Outra nacionalidade</option>
+                                                    </select>
+                                                    <div class="invalid-feedback">Por favor, selecione a nacionalidade
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Naturalidade</label>
-                                                    <input type="text" class="form-control">
+                                                    <input type="text" class="form-control" id="naturalidade" required>
+                                                    <div class="invalid-feedback">Por favor, informe a naturalidade
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Filiação</label>
-                                                    <input type="text" class="form-control"
-                                                        placeholder="Nome da mãe/pai">
+                                                    <input type="text" class="form-control" id="filiacao"
+                                                        placeholder="Nome da mãe/pai" required>
+                                                    <div class="invalid-feedback">Por favor, informe a filiação</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -339,29 +431,40 @@
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>CPF</label>
-                                                    <input type="text" class="form-control"
-                                                        placeholder="000.000.000-00">
+                                                    <input type="text" class="form-control" id="cpf"
+                                                        placeholder="000.000.000-00" required>
+                                                    <div class="invalid-feedback">Por favor, informe o CPF</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Data de Expedição</label>
-                                                    <input type="date" class="form-control">
+                                                    <input type="date" class="form-control" id="dataExpedicao" required>
+                                                    <div class="invalid-feedback">Por favor, informe a data de
+                                                        expedição
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
                                                 <div class="form-group">
                                                     <label>UF</label>
-                                                    <select class="form-control">
+                                                    <select class="form-control" id="ufDocumento" required>
+                                                        <option value="">Selecione...</option>
                                                         <option>SP</option>
                                                         <!-- outros estados -->
                                                     </select>
+                                                    <div class="invalid-feedback">Por favor, selecione a UF
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
                                                 <div class="form-group">
                                                     <label>Órgão Expedidor</label>
-                                                    <input type="text" class="form-control" placeholder="SSP">
+                                                    <input type="text" class="form-control" id="orgaoExpedidor"
+                                                        placeholder="SSP" required>
+                                                    <div class="invalid-feedback">Por favor, informe o órgão
+                                                        expedidor
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -374,25 +477,31 @@
                                             <div class="col-md-2">
                                                 <div class="form-group">
                                                     <label>CEP</label>
-                                                    <input type="text" class="form-control" placeholder="00000-000">
+                                                    <input type="text" class="form-control" id="cep"
+                                                        placeholder="00000-000" required>
+                                                    <div class="invalid-feedback">Por favor, informe o CEP</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-5">
                                                 <div class="form-group">
                                                     <label>Logradouro</label>
-                                                    <input type="text" class="form-control">
+                                                    <input type="text" class="form-control" id="logradouro" required>
+                                                    <div class="invalid-feedback">Por favor, informe o
+                                                        logradouro</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-1">
                                                 <div class="form-group">
                                                     <label>Nº</label>
-                                                    <input type="text" class="form-control">
+                                                    <input type="text" class="form-control" id="numero" required>
+                                                    <div class="invalid-feedback">Por favor, informe o número
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Complemento</label>
-                                                    <input type="text" class="form-control">
+                                                    <input type="text" class="form-control" id="complemento">
                                                 </div>
                                             </div>
                                         </div>
@@ -400,22 +509,29 @@
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Bairro</label>
-                                                    <input type="text" class="form-control">
+                                                    <input type="text" class="form-control" id="bairro" required>
+                                                    <div class="invalid-feedback">Por favor, informe o bairro
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Município</label>
-                                                    <input type="text" class="form-control">
+                                                    <input type="text" class="form-control" id="municipio" required>
+                                                    <div class="invalid-feedback">Por favor, informe o município
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
                                                 <div class="form-group">
                                                     <label>UF</label>
-                                                    <select class="form-control">
+                                                    <select class="form-control" id="ufEndereco" required>
+                                                        <option value="">Selecione...</option>
                                                         <option>SP</option>
                                                         <!-- outros estados -->
                                                     </select>
+                                                    <div class="invalid-feedback">Por favor, selecione a UF
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -428,21 +544,26 @@
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Telefone</label>
-                                                    <input type="text" class="form-control"
+                                                    <input type="text" class="form-control" id="telefone"
                                                         placeholder="(00) 0000-0000">
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Celular</label>
-                                                    <input type="text" class="form-control"
-                                                        placeholder="(00) 00000-0000">
+                                                    <input type="text" class="form-control" id="celular"
+                                                        placeholder="(00) 00000-0000" required>
+                                                    <div class="invalid-feedback">Por favor, informe o celular
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>E-mail</label>
-                                                    <input type="email" class="form-control">
+                                                    <input type="email" class="form-control" id="email" required>
+                                                    <div class="invalid-feedback">Por favor, informe um e-mail
+                                                        válido
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -472,44 +593,44 @@
                                                 <div class="col-md-4">
                                                     <label class="checkbox-label">AEE (Atendimento Educacional
                                                         Especializado)
-                                                        <input type="checkbox">
+                                                        <input type="checkbox" id="aee">
                                                         <span class="checkmark"></span>
                                                     </label>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="checkbox-label">Sala de AEE
-                                                        <input type="checkbox">
+                                                        <input type="checkbox" id="salaAee">
                                                         <span class="checkmark"></span>
                                                     </label>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="checkbox-label">Monitor/Estagiário
-                                                        <input type="checkbox">
+                                                        <input type="checkbox" id="monitor">
                                                         <span class="checkmark"></span>
                                                     </label>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="checkbox-label">Intérprete de Libras
-                                                        <input type="checkbox">
+                                                        <input type="checkbox" id="interprete">
                                                         <span class="checkmark"></span>
                                                     </label>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="checkbox-label">Material adaptado
-                                                        <input type="checkbox">
+                                                        <input type="checkbox" id="materialAdaptado">
                                                         <span class="checkmark"></span>
                                                     </label>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="checkbox-label">Tecnologia assistiva
-                                                        <input type="checkbox">
+                                                        <input type="checkbox" id="tecnologiaAssistiva">
                                                         <span class="checkmark"></span>
                                                     </label>
                                                 </div>
                                                 <div class="col-md-12">
                                                     <div class="form-group">
                                                         <label>Outros (especificar)</label>
-                                                        <input type="text" class="form-control">
+                                                        <input type="text" class="form-control" id="outrasNecessidades">
                                                     </div>
                                                 </div>
                                             </div>
@@ -519,9 +640,11 @@
                                     <!-- Botões -->
                                     <div class="form-group row">
                                         <div class="col-sm-12 text-right">
-                                            <button type="button" class="btn btn-primary px-5"><i
-                                                    class="zmdi zmdi-save mr-1"></i> Salvar e vincular turma</button>
-                                            <button type="button" class="btn btn-light px-5">Cancelar</button>
+                                            <button type="button" id="btnSalvarEVincular" class="btn btn-primary px-5">
+                                                <i class="zmdi zmdi-save mr-1"></i> Salvar e vincular
+                                                turma</button>
+                                            <button type="button" class="btn btn-light px-5"
+                                                id="btnCancelarAluno">Cancelar</button>
                                         </div>
                                     </div>
                                 </form>
@@ -529,7 +652,7 @@
 
                             <!-- Aba Servidor -->
                             <div class="tab-pane fade" id="servidor" role="tabpanel">
-                                <form>
+                                <form id="formServidor">
                                     <!-- Dados Pessoais -->
                                     <div class="form-section">
                                         <h5>Dados Pessoais</h5>
@@ -537,24 +660,107 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label>Nome Completo</label>
-                                                    <input type="text" class="form-control">
+                                                    <input type="text" class="form-control" id="nomeCompleto" required>
+                                                    <div class="invalid-feedback">Por favor, informe o nome completo
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label>Data de Nascimento</label>
-                                                    <input type="date" class="form-control">
+                                                    <input type="date" class="form-control" id="dataNascimento" required>
+                                                    <div class="invalid-feedback">Por favor, informe a data de
+                                                        nascimento</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Sexo</label>
+                                                    <select class="form-control" id="sexo" required>
+                                                        <option value="">Selecione...</option>
+                                                        <option>Masculino</option>
+                                                        <option>Feminino</option>
+                                                        <option>Outro</option>
+                                                        <option>Prefiro não informar</option>
+                                                    </select>
+                                                    <div class="invalid-feedback">Por favor, selecione o sexo</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Raça/Cor</label>
+                                                    <select class="form-control" id="racaCor" required>
+                                                        <option value="">Selecione...</option>
+                                                        <option>Branca</option>
+                                                        <option>Preta</option>
+                                                        <option>Parda</option>
+                                                        <option>Amarela</option>
+                                                        <option>Indígena</option>
+                                                        <option>Prefiro não informar</option>
+                                                    </select>
+                                                    <div class="invalid-feedback">Por favor, selecione a raça/cor</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label>Estado Civil</label>
-                                                    <select class="form-control">
+                                                    <select class="form-control" id="estadoCivil" required>
+                                                        <option value="">Selecione...</option>
                                                         <option>Solteiro(a)</option>
                                                         <option>Casado(a)</option>
                                                         <option>Divorciado(a)</option>
                                                         <option>Viúvo(a)</option>
                                                     </select>
+                                                    <div class="invalid-feedback">Por favor, selecione o estado civil
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Nacionalidade-->
+                                    <div class="form-section">
+                                        <h5>Nacionalidade</h5>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Nacionalidade</label>
+                                                    <select class="form-control" id="nacionalidade" required>
+                                                        <option value="" disabled selected>Selecione...</option>
+                                                        <option value="Brasileiro(a)">Brasileiro(a)</option>
+                                                        <option value="Argentino(a)">Argentino(a)</option>
+                                                        <option value="Uruguaio(a)">Uruguaio(a)</option>
+                                                        <option value="Chileno(a)">Chileno(a)</option>
+                                                        <option value="Americano(a)">Americano(a)</option>
+                                                        <option value="Canadense">Canadense</option>
+                                                        <option value="Espanhol(a)">Espanhol(a)</option>
+                                                        <option value="Português(a)">Português(a)</option>
+                                                        <option value="Italiano(a)">Italiano(a)</option>
+                                                        <option value="Alemão(ã)">Alemão(ã)</option>
+                                                        <option value="Francês(a)">Francês(a)</option>
+                                                        <option value="Japonês(a)">Japonês(a)</option>
+                                                        <option value="Chinês(a)">Chinês(a)</option>
+                                                        <option value="Outra">Outra nacionalidade</option>
+                                                    </select>
+                                                    <div class="invalid-feedback">Por favor, selecione a nacionalidade
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Naturalidade</label>
+                                                    <input type="text" class="form-control" id="naturalidade" required>
+                                                    <div class="invalid-feedback">Por favor, informe a naturalidade
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Filiação</label>
+                                                    <input type="text" class="form-control" id="filiacao"
+                                                        placeholder="Nome da mãe/pai" required>
+                                                    <div class="invalid-feedback">Por favor, informe a filiação</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -567,49 +773,43 @@
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>CPF</label>
-                                                    <input type="text" class="form-control"
-                                                        placeholder="000.000.000-00">
+                                                    <input type="text" class="form-control" id="cpfServidor"
+                                                        placeholder="000.000.000-00" required>
+                                                    <div class="invalid-feedback">Por favor, informe o CPF</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>RG</label>
-                                                    <input type="text" class="form-control">
+                                                    <input type="text" class="form-control" id="rgServidor" required>
+                                                    <div class="invalid-feedback">Por favor, informe o RG</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
                                                 <div class="form-group">
                                                     <label>Órgão Expedidor</label>
-                                                    <input type="text" class="form-control" placeholder="SSP">
+                                                    <input type="text" class="form-control" id="orgaoExpedidorServidor"
+                                                        placeholder="SSP" required>
+                                                    <div class="invalid-feedback">Por favor, informe o órgão expedidor
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
                                                 <div class="form-group">
                                                     <label>UF</label>
-                                                    <select class="form-control">
+                                                    <select class="form-control" id="ufDocumentoServidor" required>
+                                                        <option value="">Selecione...</option>
                                                         <option>SP</option>
-                                                        <!-- outros estados -->
                                                     </select>
+                                                    <div class="invalid-feedback">Por favor, selecione a UF</div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-4">
                                                 <div class="form-group">
-                                                    <label>PIS/PASEP</label>
-                                                    <input type="text" class="form-control">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <div class="form-group">
                                                     <label>Título de Eleitor</label>
-                                                    <input type="text" class="form-control">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <div class="form-group">
-                                                    <label>Certificado Militar</label>
-                                                    <input type="text" class="form-control">
+                                                    <input type="text" class="form-control" id="tituloEleitor">
                                                 </div>
                                             </div>
                                         </div>
@@ -622,25 +822,31 @@
                                             <div class="col-md-2">
                                                 <div class="form-group">
                                                     <label>CEP</label>
-                                                    <input type="text" class="form-control" placeholder="00000-000">
+                                                    <input type="text" class="form-control" id="cepServidor"
+                                                        placeholder="00000-000" required>
+                                                    <div class="invalid-feedback">Por favor, informe o CEP</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-5">
                                                 <div class="form-group">
                                                     <label>Logradouro</label>
-                                                    <input type="text" class="form-control">
+                                                    <input type="text" class="form-control" id="logradouroServidor"
+                                                        required>
+                                                    <div class="invalid-feedback">Por favor, informe o logradouro</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-1">
                                                 <div class="form-group">
                                                     <label>Nº</label>
-                                                    <input type="text" class="form-control">
+                                                    <input type="text" class="form-control" id="numeroServidor"
+                                                        required>
+                                                    <div class="invalid-feedback">Por favor, informe o número</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Complemento</label>
-                                                    <input type="text" class="form-control">
+                                                    <input type="text" class="form-control" id="complementoServidor">
                                                 </div>
                                             </div>
                                         </div>
@@ -648,22 +854,28 @@
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Bairro</label>
-                                                    <input type="text" class="form-control">
+                                                    <input type="text" class="form-control" id="bairroServidor"
+                                                        required>
+                                                    <div class="invalid-feedback">Por favor, informe o bairro</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Município</label>
-                                                    <input type="text" class="form-control">
+                                                    <input type="text" class="form-control" id="municipioServidor"
+                                                        required>
+                                                    <div class="invalid-feedback">Por favor, informe o município</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
                                                 <div class="form-group">
                                                     <label>UF</label>
-                                                    <select class="form-control">
+                                                    <select class="form-control" id="ufEnderecoServidor" required>
+                                                        <option value="">Selecione...</option>
                                                         <option>SP</option>
                                                         <!-- outros estados -->
                                                     </select>
+                                                    <div class="invalid-feedback">Por favor, selecione a UF</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -676,21 +888,25 @@
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Telefone</label>
-                                                    <input type="text" class="form-control"
+                                                    <input type="text" class="form-control" id="telefoneServidor"
                                                         placeholder="(00) 0000-0000">
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Celular</label>
-                                                    <input type="text" class="form-control"
-                                                        placeholder="(00) 00000-0000">
+                                                    <input type="text" class="form-control" id="celularServidor"
+                                                        placeholder="(00) 00000-0000" required>
+                                                    <div class="invalid-feedback">Por favor, informe o celular</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>E-mail</label>
-                                                    <input type="email" class="form-control">
+                                                    <input type="email" class="form-control" id="emailServidor"
+                                                        required>
+                                                    <div class="invalid-feedback">Por favor, informe um e-mail válido
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -703,19 +919,24 @@
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Cargo/Função</label>
-                                                    <input type="text" class="form-control">
+                                                    <input type="text" class="form-control" id="cargoFuncao" required>
+                                                    <div class="invalid-feedback">Por favor, informe o cargo/função
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Matrícula</label>
-                                                    <input type="text" class="form-control">
+                                                    <input type="text" class="form-control" id="matricula" required>
+                                                    <div class="invalid-feedback">Por favor, informe a matrícula</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Data de Admissão</label>
-                                                    <input type="date" class="form-control">
+                                                    <input type="date" class="form-control" id="dataAdmissao" required>
+                                                    <div class="invalid-feedback">Por favor, informe a data de admissão
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -723,7 +944,8 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label>Formação Acadêmica</label>
-                                                    <select class="form-control">
+                                                    <select class="form-control" id="formacaoAcademica" required>
+                                                        <option value="">Selecione...</option>
                                                         <option>Ensino Médio Completo</option>
                                                         <option>Graduação Incompleta</option>
                                                         <option>Graduação Completa</option>
@@ -731,12 +953,16 @@
                                                         <option>Mestrado</option>
                                                         <option>Doutorado</option>
                                                     </select>
+                                                    <div class="invalid-feedback">Por favor, selecione a formação
+                                                        acadêmica</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label>Área de Atuação</label>
-                                                    <input type="text" class="form-control">
+                                                    <input type="text" class="form-control" id="areaAtuacao" required>
+                                                    <div class="invalid-feedback">Por favor, informe a área de atuação
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -745,9 +971,10 @@
                                     <!-- Botões -->
                                     <div class="form-group row">
                                         <div class="col-sm-12 text-right">
-                                            <button type="button" class="btn btn-primary px-5"><i
+                                            <button type="submit" class="btn btn-primary px-5"><i
                                                     class="zmdi zmdi-save mr-1"></i> Salvar</button>
-                                            <button type="button" class="btn btn-light px-5">Cancelar</button>
+                                            <button type="button" class="btn btn-light px-5"
+                                                id="btnCancelarServidor">Cancelar</button>
                                         </div>
                                     </div>
                                 </form>
@@ -757,15 +984,14 @@
                 </div>
 
             </div>
-            <!-- End container-fluid-->
 
-        </div><!--End content-wrapper-->
+        </div>
 
-        <!--Start Back To Top Button-->
+        <!--Overlay-->
+        <div class="overlay toggle-menu"></div>
+
         <a href="javaScript:void();" class="back-to-top"><i class="fa fa-angle-double-up"></i> </a>
-        <!--End Back To Top Button-->
 
-        <!--Start footer-->
         <footer class="footer">
             <div class="container">
                 <div class="text-center">
@@ -773,9 +999,8 @@
                 </div>
             </div>
         </footer>
-        <!--End footer-->
 
-    </div><!--End wrapper-->
+    </div>
 
     <!-- Bootstrap core JavaScript-->
     <script src="../assets/js/jquery.min.js"></script>
@@ -790,36 +1015,8 @@
     <script src="../assets/js/jquery.loading-indicator.js"></script>
     <!-- Custom scripts -->
     <script src="../assets/js/app-script.js"></script>
-    <script>
-        $(document).ready(function () {
-            // Ativa a aba correta baseada no hash da URL
-            function activateTabFromHash() {
-                const hash = window.location.hash;
-
-                if (hash === '#aluno') {
-                    $('.nav-tabs a[href="#aluno"]').tab('show');
-                }
-                else if (hash === '#servidor') {
-                    $('.nav-tabs a[href="#servidor"]').tab('show');
-                }
-            }
-
-            // Executa quando a página carrega
-            activateTabFromHash();
-
-            // Atualiza o hash quando as abas são alteradas manualmente
-            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-                window.location.hash = e.target.hash;
-                // Força o redesenho do menu para evitar problemas de layout
-                $('.sidebar-menu').perfectScrollbar('update');
-            });
-
-            // Trata mudanças no hash (quando usuário clica em links #aluno ou #servidor)
-            $(window).on('hashchange', function () {
-                activateTabFromHash();
-            });
-        });
-    </script>
+    <!-- referencia cadastro.js -->
+    <script src="../user_adm/cadastro.js"></script>
 
 </body>
 
