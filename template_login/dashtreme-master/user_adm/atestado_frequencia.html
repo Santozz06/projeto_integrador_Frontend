@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atestado de Frequência - Dashboard Acadêmico</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/app-style.css">
+    <link rel="stylesheet" href="../assets/css/icons.css">
+    <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
+    <style>
+        .filter-section {
+            background-color: transparent !important;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: none !important;
+        }
+
+        .student-list {
+            max-height: 500px;
+            overflow-y: auto;
+            background-color: transparent !important;
+            border-radius: 8px;
+            border: none !important;
+            padding: 0 !important;
+        }
+
+        .student-card {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: transparent !important;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            padding: 12px;
+            border: none !important;
+            box-shadow: none !important;
+            border-left: 3px solid transparent;
+        }
+
+        .student-card:hover {
+            background-color: rgba(0, 0, 0, 0.03) !important;
+            border-left: 3px solid rgba(33, 150, 243, 0.3);
+        }
+
+        .student-card.selected {
+            background-color: rgba(33, 150, 243, 0.08) !important;
+            border-left: 3px solid #2196F3;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .student-card h6 {
+            margin-bottom: 4px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .student-card small {
+            color: #555;
+        }
+
+        .student-card:hover h6 {
+            color: #2196F3;
+        }
+
+        .student-card.selected h6 {
+            color: #1565C0;
+        }
+
+        .btn-generate {
+            margin-top: 20px;
+        }
+
+        .no-print {
+            display: block;
+        }
+
+        .btn-custom-print {
+            background-color: #3498db !important;
+            color: white !important;
+            border: none !important;
+        }
+
+        .btn-custom-print:hover {
+            background-color: #2980b9 !important;
+        }
+
+        .year-option {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.05);
+            display: block;
+            text-decoration: none !important;
+        }
+
+        .year-option:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+            border-color: #2196F3;
+        }
+
+        .year-title {
+            font-weight: 600;
+            color: #333;
+            display: inline-block;
+        }
+
+        .year-status {
+            float: right;
+        }
+
+        .badge-info {
+            background-color: #36b9cc;
+            color: #fff;
+        }
+
+        .badge-success {
+            background-color: #1cc88a;
+            color: #fff;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-theme bg-theme1">
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
+            <div class="brand-logo">
+                <a href="home.html">
+                    <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
+                    <h5 class="logo-text">Dashboard Acadêmico</h5>
+                </a>
+            </div>
+            <ul class="sidebar-menu do-nicescrol">
+                <li class="sidebar-header">NAVEGAÇÃO PRINCIPAL</li>
+                <li>
+                    <a href="home.html">
+                        <i class="zmdi zmdi-view-dashboard"></i> <span>Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="cadastro.html">
+                        <i class="zmdi zmdi-accounts"></i> <span>Cadastro</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="cadastro.html#aluno"><i class="zmdi zmdi-accounts-alt"></i> Alunos</a></li>
+                        <li><a href="cadastroTurmas.html"><i class="zmdi zmdi-group-work"></i> Turmas</a></li>
+                        <li><a href="cadastro.html#servidor"><i class="zmdi zmdi-account-box"></i> Servidores</a></li>
+                        <li><a href="gerenciarVinculos.html"><i class="zmdi zmdi-link"></i> Gerenciar vínculos</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="relatorios.html">
+                        <i class="zmdi zmdi-chart"></i> <span>Relatórios</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="atestados.html">
+                        <i class="zmdi zmdi-file-text"></i> <span>Atestados</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="atestado_matricula.html"><i class="zmdi zmdi-assignment-account"></i> Atestado de matrícula</a></li>
+                        <li><a href="atestado_frequencia.html" class="active"><i class="zmdi zmdi-time-countdown"></i> Frequência</a></li>
+                        <li><a href="historico.html"><i class="zmdi zmdi-assignment"></i> Histórico</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="matricula.html">
+                        <i class="zmdi zmdi-assignment-check"></i> <span>Matrícula</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="#"><i class="zmdi zmdi-account-add"></i> Transferências</a></li>
+                        <li><a href="#"><i class="zmdi zmdi-refresh"></i> Rematrículas</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Topbar -->
+        <header class="topbar-nav">
+            <nav class="navbar navbar-expand fixed-top">
+                <ul class="navbar-nav mr-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link toggle-menu" href="javascript:void();">
+                            <i class="icon-menu menu-icon"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <form class="search-bar">
+                            <input type="text" class="form-control" placeholder="Pesquisar">
+                            <a href="javascript:void();"><i class="icon-magnifier"></i></a>
+                        </form>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav align-items-center right-nav-link">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
+                            <span class="user-profile"><img src="../assets/images/gallery/icon_usuarioBlack.png"
+                                    class="img-circle" alt="user avatar"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li class="dropdown-item user-details">
+                                <a href="javaScript:void();">
+                                    <div class="media">
+                                        <div class="avatar"><img class="align-self-start mr-3"
+                                                src="https://via.placeholder.com/110x110" alt="user avatar"></div>
+                                        <div class="media-body">
+                                            <h6 class="mt-2 user-title">Administrador</h6>
+                                            <p class="user-subtitle">admin@escola.com</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="dropdown-divider"></li>
+                            <li class="dropdown-item"><i class="icon-settings mr-2"></i> Configurações</li>
+                            <li class="dropdown-divider"></li>
+                            <li class="dropdown-item"><i class="icon-power mr-2"></i> Sair</li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Conteúdo principal -->
+        <div class="content-wrapper">
+            <div class="container-fluid">
+                <div class="card">
+                    <div class="card-body no-print">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="page-title"><i class="zmdi zmdi-time-countdown mr-2"></i> Atestado de Frequência</h4>
+                        </div>
+
+                        <!-- Filtros -->
+                        <div class="filter-section">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="ano-letivo">Ano Letivo</label>
+                                        <select class="form-control" id="ano-letivo">
+                                            <option>2025</option>
+                                            <option>2024</option>
+                                            <option>2023</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="serie">Série</label>
+                                        <select class="form-control" id="serie">
+                                            <option value="">Todas</option>
+                                            <option>1º Ano</option>
+                                            <option>2º Ano</option>
+                                            <option>3º Ano</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="turma">Turma</label>
+                                        <select class="form-control" id="turma">
+                                            <option value="">Selecione uma turma</option>
+                                            <option>Turma A</option>
+                                            <option>Turma B</option>
+                                            <option>Turma C</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lista de Alunos -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5>Alunos Matriculados</h5>
+                                <div class="card student-list">
+                                    <div class="card-body">
+                                        <div id="alunos-container">
+                                            <p class="text-white">Selecione uma turma para visualizar os alunos.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botão de Gerar -->
+                        <div class="text-center btn-generate">
+                            <button id="gerar-atestado" class="btn btn-custom-print" disabled>
+                                <i class="zmdi zmdi-file-text mr-2"></i> Gerar Atestado
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Container para o PDF (inicialmente oculto) -->
+                    <div id="pdf-container" style="display:none;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="overlay toggle-menu"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/jquery.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
+    <script src="../assets/js/sidebar-menu.js"></script>
+    <script src="../assets/js/app-script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Dados de exemplo 
+            const alunosPorTurma = {
+                "Turma A": [
+                    { 
+                        id: 1, 
+                        nome: "Ana Silva", 
+                        matricula: "20250001", 
+                        curso: "Ensino Médio Integrado ao Técnico em Informática", 
+                        frequencia: "85%",
+                        faltas: 12,
+                        presencas: 68,
+                        totalAulas: 80
+                    },
+                    { 
+                        id: 2, 
+                        nome: "Bruno Oliveira", 
+                        matricula: "20250002", 
+                        curso: "Ensino Médio Integrado ao Técnico em Informática",
+                        frequencia: "92%",
+                        faltas: 6,
+                        presencas: 74,
+                        totalAulas: 80
+                    }
+                ],
+                "Turma B": [
+                    { 
+                        id: 3, 
+                        nome: "Carlos Souza", 
+                        matricula: "20250003", 
+                        curso: "Ensino Médio Regular",
+                        frequencia: "78%",
+                        faltas: 17,
+                        presencas: 63,
+                        totalAulas: 80
+                    },
+                    { 
+                        id: 4, 
+                        nome: "Daniela Costa", 
+                        matricula: "20250004", 
+                        curso: "Ensino Médio Regular",
+                        frequencia: "95%",
+                        faltas: 4,
+                        presencas: 76,
+                        totalAulas: 80
+                    }
+                ]
+            };
+
+            // Variável para armazenar aluno selecionado
+            let alunoSelecionado = null;
+
+            // Carrega alunos quando uma turma é selecionada
+            $('#turma').change(function () {
+                const turmaSelecionada = $(this).val();
+                const alunosContainer = $('#alunos-container');
+
+                if (turmaSelecionada && alunosPorTurma[turmaSelecionada]) {
+                    alunosContainer.empty();
+
+                    alunosPorTurma[turmaSelecionada].forEach(aluno => {
+                        alunosContainer.append(`
+                            <div class="student-card p-3 mb-2" data-id="${aluno.id}">
+                                <h6>${aluno.nome}</h6>
+                                <small class="text-white">Matrícula: ${aluno.matricula} | Frequência: ${aluno.frequencia}</small>
+                            </div>
+                        `);
+                    });
+
+                    // Adiciona evento de clique nos cards de aluno
+                    $('.student-card').click(function () {
+                        $('.student-card').removeClass('selected');
+                        $(this).addClass('selected');
+
+                        const alunoId = $(this).data('id');
+                        alunoSelecionado = alunosPorTurma[turmaSelecionada].find(a => a.id == alunoId);
+
+                        $('#gerar-atestado').prop('disabled', false);
+                    });
+                } else {
+                    alunosContainer.html('<p class="text-white">Nenhum aluno encontrado para esta turma.</p>');
+                    $('#gerar-atestado').prop('disabled', true);
+                }
+            });
+
+            // Gera o atestado em PDF
+            $('#gerar-atestado').click(function () {
+                if (!alunoSelecionado) return;
+
+                const dataAtual = new Date();
+                const dia = String(dataAtual.getDate()).padStart(2, '0');
+                const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
+                const ano = dataAtual.getFullYear();
+                const dataFormatada = `${dia}/${mes}/${ano}`;
+
+                // Cria o conteúdo do PDF
+                const pdfContent = `
+                    <!DOCTYPE html>
+                    <html lang="pt-br">
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>Atestado de Frequência</title>
+                        <style>
+                            body {
+                                font-family: Arial, sans-serif;
+                                margin: 40px 60px;
+                                font-size: 16px;
+                                color: #000;
+                                line-height: 1.5;
+                            }
+                            .cabecalho { text-align: center; font-size: 14px; margin-bottom: 30px; line-height: 1.4; }
+                            .titulo { text-align: center; font-weight: bold; font-size: 20px; margin: 30px 0; text-transform: uppercase; }
+                            .texto { text-align: justify; line-height: 1.8; margin-bottom: 20px; }
+                            .dados { margin: 20px 0; line-height: 1.8; }
+                            .tabela-frequencia { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                            .tabela-frequencia th, .tabela-frequencia td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                            .tabela-frequencia th { background-color: #f2f2f2; }
+                            .rodape { margin-top: 40px; text-align: right; }
+                            .autenticidade { margin-top: 30px; font-size: 14px; text-align: center; }
+                            .codigo { font-weight: bold; margin-top: 10px; text-align: center; }
+                            strong { font-weight: bold; }
+                        </style>
+                    </head>
+                    <body>
+                        <div id="doc">
+                            <div class="cabecalho">
+                                República Federativa do Brasil<br>
+                                Ministério da Educação<br>
+                                Secretaria de Educação Profissional e Tecnológica<br>
+                                Instituto Federal de Educação, Ciência e Tecnologia<br>
+                                Campus Parobé
+                            </div>
+
+                            <div class="titulo">ATESTADO DE FREQUÊNCIA</div>
+
+                            <div class="texto">
+                                Atestamos, para os fins que se fizerem necessários, que o(a) estudante <strong>${alunoSelecionado.nome}</strong>, 
+                                matrícula nº <strong>${alunoSelecionado.matricula}</strong>, regularmente matriculado(a) no curso de 
+                                <strong>${alunoSelecionado.curso}</strong>, apresentou a seguinte frequência no ano letivo de 
+                                <strong>${$('#ano-letivo').val()}</strong>:
+                            </div>
+
+                            <table class="tabela-frequencia">
+                                <thead>
+                                    <tr>
+                                        <th>Total de Aulas</th>
+                                        <th>Presenças</th>
+                                        <th>Faltas</th>
+                                        <th>Frequência</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>${alunoSelecionado.totalAulas}</td>
+                                        <td>${alunoSelecionado.presencas}</td>
+                                        <td>${alunoSelecionado.faltas}</td>
+                                        <td>${alunoSelecionado.frequencia}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="texto">
+                                Este documento atesta que o(a) aluno(a) cumpriu com os requisitos de frequência mínima exigida pela legislação educacional vigente.
+                            </div>
+
+                            <div class="rodape">
+                                <strong>Parobé - RS, ${dataFormatada}</strong>
+                            </div>
+
+                            <div class="autenticidade">
+                                Para verificar a autenticidade deste documento, acesse:<br>
+                                <a href="http://meusite.com/autenticacao" target="_blank">http://meusite.com/autenticacao</a>
+                            </div>
+
+                            <div class="codigo">
+                                Código de verificação: <span>${gerarCodigoVerificacao()}</span>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `;
+
+                // Insere o conteúdo no container oculto
+                const pdfContainer = $('#pdf-container');
+                pdfContainer.html(pdfContent);
+
+                // Gera o PDF
+                const element = pdfContainer.find('#doc')[0];
+
+                html2pdf().set({
+                    margin: 10,
+                    filename: `atestado_frequencia_${alunoSelecionado.matricula}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { 
+                        scale: 2,
+                        logging: false,
+                        useCORS: true,
+                        backgroundColor: null
+                    },
+                    jsPDF: { 
+                        unit: 'mm', 
+                        format: 'a4', 
+                        orientation: 'portrait',
+                        hotfixes: ["px_scaling"]
+                    }
+                }).from(element).save().then(() => {
+                    document.body.style.fontFamily = window.getComputedStyle(document.body).fontFamily;
+                });
+            });
+
+            // Função para gerar código de verificação aleatório
+            function gerarCodigoVerificacao() {
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+                let result = '';
+                for (let i = 0; i < 12; i++) {
+                    if (i > 0 && i % 4 === 0) result += '-';
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return result;
+            }
+        });
+    </script>
+</body>
+</html>
