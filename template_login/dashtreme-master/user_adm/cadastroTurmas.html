@@ -90,59 +90,62 @@
                     </a>
                     <ul class="sidebar-submenu">
                         <li><a href="cadastro.html#aluno"><i class="zmdi zmdi-accounts-alt"></i> Alunos</a></li>
-                        <li><a href="cadastroTurmas.html" class="active"><i class="zmdi zmdi-group-work"></i> Turmas</a></li>
+                        <li><a href="cadastroTurmas.html" class="active"><i class="zmdi zmdi-group-work"></i> Turmas</a>
+                        </li>
                         <li><a href="cadastro.html#servidor"><i class="zmdi zmdi-account-box"></i> Servidores</a></li>
-                        <li><a href="gerenciarVinculos.html"zmdi zmdi-link"></i> Gerenciar vínculos</a></li>
+                        <li><a href="gerenciarVinculos.html"><i class="zmdi zmdi-link"></i> Gerenciar vínculos</a></li>
                     </ul>
                 </li>
-              <li>
-          <a href="relatorios.html">
-            <i class="zmdi zmdi-chart"></i> <span>Relatórios</span>
-          </a>
-        </li>
-        <li>
-          <a href="atestados.html">
-            <i class="zmdi zmdi-file-text"></i> <span>Atestados</span>
-            <i class="zmdi zmdi-caret-down float-right"></i>
-          </a>
-          <ul class="sidebar-submenu">
-            <li><a href="#"><i class="zmdi zmdi-assignment-account"></i> Atestado de matrícula</a></li>
-            <li><a href="#"><i class="zmdi zmdi-time-countdown"></i> Frequência</a></li>
-            <li><a href="#"><i class="zmdi zmdi-assignment"></i> Histórico</a></li>
-          </ul>
-        </li>
-        <li>
-          <a href="matricula.html">
-            <i class="zmdi zmdi-assignment-check"></i> <span>Matrícula</span>
-            <i class="zmdi zmdi-caret-down float-right"></i>
-          </a>
-          <ul class="sidebar-submenu">
-            <li><a href="#"><i class="zmdi zmdi-account-add"></i> Transferências</a></li>
-            <li><a href="#"><i class="zmdi zmdi-refresh"></i> Rematrículas</a></li>
-          </ul>
-        </li>
-        <li>
-          <a href="disciplinas.html">
-            <i class="zmdi zmdi-book"></i> <span>Disciplinas</span>
-            <i class="zmdi zmdi-caret-down float-right"></i>
-          </a>
-          <ul class="sidebar-submenu">
-            <li><a href="#"><i class="zmdi zmdi-plus-circle"></i> Cadastrar</a></li>
-            <li><a href="#"><i class="zmdi zmdi-check-circle"></i> Notas</a></li>
-          </ul>
-        </li>
-        <li>
-          <a href="academico.html">
-            <i class="zmdi zmdi-graduation-cap"></i> <span>Acadêmico</span>
-            <i class="zmdi zmdi-caret-down float-right"></i>
-          </a>
-          <ul class="sidebar-submenu">
-            <li><a href="#"><i class="zmdi zmdi-calendar"></i> Calendário</a></li>
-            <li><a href="#"><i class="zmdi zmdi-file"></i> Documentos</a></li>
-          </ul>
-        </li>
-      </ul>
-    </div>
+                <li>
+                    <a href="relatorios.html">
+                        <i class="zmdi zmdi-chart"></i> <span>Relatórios</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="atestados.html">
+                        <i class="zmdi zmdi-file-text"></i> <span>Atestados</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="atestado_matricula.html"><i class="zmdi zmdi-assignment-account"></i> Atestado de
+                                matrícula</a></li>
+                        <li><a href="atestado_frequencia.html"><i class="zmdi zmdi-time-countdown"></i> Frequência</a>
+                        </li>
+                        <li><a href="historico.html"><i class="zmdi zmdi-assignment"></i> Histórico</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="matricula.html">
+                        <i class="zmdi zmdi-assignment-check"></i> <span>Matrícula</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="#"><i class="zmdi zmdi-account-add"></i> Transferências</a></li>
+                        <li><a href="#"><i class="zmdi zmdi-refresh"></i> Rematrículas</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="disciplinas.html">
+                        <i class="zmdi zmdi-book"></i> <span>Disciplinas</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="#"><i class="zmdi zmdi-plus-circle"></i> Cadastrar</a></li>
+                        <li><a href="#"><i class="zmdi zmdi-check-circle"></i> Notas</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="academico.html">
+                        <i class="zmdi zmdi-graduation-cap"></i> <span>Acadêmico</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="#"><i class="zmdi zmdi-calendar"></i> Calendário</a></li>
+                        <li><a href="#"><i class="zmdi zmdi-file"></i> Documentos</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
 
         <!-- Topbar -->
         <header class="topbar-nav">
@@ -215,7 +218,8 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Nome da Turma</label>
-                                            <input type="text" class="form-control" id="nomeTurma" placeholder="Ex: 1º Ano A" required>
+                                            <input type="text" class="form-control" id="nomeTurma"
+                                                placeholder="Ex: 1º Ano A" required>
                                             <div class="invalid-feedback">Por favor, informe o nome da turma</div>
                                         </div>
                                     </div>
@@ -267,14 +271,17 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label>Capacidade de Alunos</label>
-                                            <input type="number" class="form-control" id="capacidadeAlunos" placeholder="Ex: 30" min="1" required>
-                                            <div class="invalid-feedback" id="capacidadeError">Por favor, informe a capacidade</div>
+                                            <input type="number" class="form-control" id="capacidadeAlunos"
+                                                placeholder="Ex: 30" min="1" required>
+                                            <div class="invalid-feedback" id="capacidadeError">Por favor, informe a
+                                                capacidade</div>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label>Sala/Local</label>
-                                            <input type="text" class="form-control" id="salaLocal" placeholder="Ex: Sala 101" required>
+                                            <input type="text" class="form-control" id="salaLocal"
+                                                placeholder="Ex: Sala 101" required>
                                             <div class="invalid-feedback">Por favor, informe a sala/local</div>
                                         </div>
                                     </div>
@@ -294,7 +301,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="overlay toggle-menu"></div>
 
         <a href="javaScript:void();" class="back-to-top"><i class="fa fa-angle-double-up"></i> </a>
@@ -328,23 +335,23 @@
             function validarFormulario() {
                 let valido = true;
                 const campos = ['nomeTurma', 'anoLetivo', 'turno', 'etapaSerie', 'capacidadeAlunos', 'salaLocal'];
-                
+
                 // Resetar validações
                 $('.is-invalid').removeClass('is-invalid');
                 $('.invalid-feedback').hide();
-                
+
                 // Validar cada campo
-                campos.forEach(function(campo) {
+                campos.forEach(function (campo) {
                     const elemento = $('#' + campo);
                     const valor = elemento.val();
-                    
+
                     if (campo === 'capacidadeAlunos') {
                         // Validação especial para capacidade
                         if (!valor || valor < 1) {
                             elemento.addClass('is-invalid');
                             $('#capacidadeError').text(
-                                !valor ? 'Por favor, informe a capacidade' : 
-                                'A capacidade deve ser maior que zero'
+                                !valor ? 'Por favor, informe a capacidade' :
+                                    'A capacidade deve ser maior que zero'
                             ).show();
                             valido = false;
                         }
@@ -357,22 +364,22 @@
                         }
                     }
                 });
-                
+
                 return valido;
             }
 
             // Ao tentar salvar
-            $('#formTurma').on('submit', function(e) {
+            $('#formTurma').on('submit', function (e) {
                 e.preventDefault();
-                
+
                 // Esconder mensagem de sucesso anterior
                 $('#successMessage').hide();
-                
+
                 // Validar formulário
                 if (validarFormulario()) {
                     // Formulário válido - mostrar mensagem de sucesso
                     $('#successMessage').fadeIn();
-                    
+
                     // Simular salvamento (apenas frontend)
                     console.log('Dados da turma:', {
                         nome: $('#nomeTurma').val(),
@@ -382,14 +389,14 @@
                         capacidade: $('#capacidadeAlunos').val(),
                         sala: $('#salaLocal').val()
                     });
-                    
+
                     // Rolando a página para mostrar a mensagem
                     $('html, body').animate({
                         scrollTop: 0
                     }, 500);
-                    
+
                     // Limpar formulário após 3 segundos (opcional)
-                    setTimeout(function() {
+                    setTimeout(function () {
                         $('#formTurma')[0].reset();
                         $('#successMessage').fadeOut();
                     }, 3000);
@@ -400,20 +407,21 @@
                     }, 500);
                 }
             });
-            
+
             // Limpar erros quando o usuário começar a digitar/selecionar
-            $('input, select').on('input change', function() {
+            $('input, select').on('input change', function () {
                 $(this).removeClass('is-invalid');
                 $(this).next('.invalid-feedback').hide();
             });
-            
+
             // Botão cancelar
-            $('#btnCancelar').click(function() {
-                if(confirm('Deseja realmente cancelar? Todas as alterações serão perdidas.')) {
+            $('#btnCancelar').click(function () {
+                if (confirm('Deseja realmente cancelar? Todas as alterações serão perdidas.')) {
                     window.location.href = 'cadastroTurma.html';
                 }
             });
         });
     </script>
 </body>
+
 </html>
