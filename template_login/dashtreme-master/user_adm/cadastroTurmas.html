@@ -61,6 +61,30 @@
             border-radius: 0.25rem;
             display: none;
         }
+
+        .btn-Salvar {
+            background-color: #1abc9c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+        }
+
+        .btn-Salvar:hover {
+            background-color: #16a085;
+        }
+
+        .btn-cancelar {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+        }
+
+        .btn-cancelar:hover {
+            background-color: #c0392b;
+        }
     </style>
 </head>
 
@@ -291,9 +315,9 @@
                             <!-- Botões -->
                             <div class="form-group row">
                                 <div class="col-sm-12 text-right">
-                                    <button type="submit" class="btn btn-primary px-5"><i
+                                    <button type="submit" class="btn btn-Salvar px-5"><i
                                             class="zmdi zmdi-save mr-1"></i> Salvar</button>
-                                    <button type="button" class="btn btn-light px-5" id="btnCancelar">Cancelar</button>
+                                    <button type="button" class="btn btn-cancelar px-5" id="btnCancelar">Cancelar</button>
                                 </div>
                             </div>
                         </form>
@@ -417,7 +441,7 @@
             // Botão cancelar
             $('#btnCancelar').click(function () {
                 if (confirm('Deseja realmente cancelar? Todas as alterações serão perdidas.')) {
-                    window.location.href = 'cadastroTurma.html';
+                    window.location.href = 'cadastroTurmas.html';
                 }
             });
         });
