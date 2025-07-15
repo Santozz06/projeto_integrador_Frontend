@@ -331,6 +331,11 @@
                 align-items: flex-start !important;
             }
         }
+
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.2) !important;
+            backdrop-filter: blur(10px);
+        }
     </style>
 </head>
 
@@ -395,7 +400,12 @@
                     <ul class="sidebar-submenu">
                         <li><a href="perfil.html"><i class="zmdi zmdi-account"></i> Perfil Acadêmico</a></li>
                         <li><a href="configuracoes.html"><i class="zmdi zmdi-wrench"></i> Configurações</a></li>
-                        <li><a href="assinatura.html"><i class="zmdi zmdi-edit"></i> Assinatura Digital</a></li>
+                        <li>
+                            <a href="https://www.gov.br/governodigital/pt-br/identidade/assinatura-eletronica"
+                                target="_blank">
+                                <i class="zmdi zmdi-edit"></i> Assinatura Digital
+                            </a>
+                        </li>
                     </ul>
                 </li>
             </ul>
@@ -438,7 +448,8 @@
                                 </a>
                             </li>
                             <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-settings mr-2"></i> Configurações</li>
+                            <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
+                                    Configurações</a></li>
                             <li class="dropdown-divider"></li>
                             <li class="dropdown-item"><i class="icon-power mr-2"></i> Sair</li>
                         </ul>

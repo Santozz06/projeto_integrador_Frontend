@@ -51,6 +51,29 @@
             background-color: #16a085;
         }
 
+        .btn-secondary {
+            background-color: #7f8c8d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #616a6b;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85em;
+            margin-right: 5px;
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
         .atividade-item {
             padding: 15px;
             margin-bottom: 15px;
@@ -131,9 +154,15 @@
                     <ul class="sidebar-submenu">
                         <li><a href="perfil.html"><i class="zmdi zmdi-account"></i> Perfil Acadêmico</a></li>
                         <li><a href="configuracoes.html"><i class="zmdi zmdi-wrench"></i> Configurações</a></li>
-                        <li><a href="assinatura.html"><i class="zmdi zmdi-edit"></i> Assinatura Digital</a></li>
+                        <li>
+                            <a href="https://www.gov.br/governodigital/pt-br/identidade/assinatura-eletronica"
+                                target="_blank">
+                                <i class="zmdi zmdi-edit"></i> Assinatura Digital
+                            </a>
+                        </li>
                     </ul>
-                </li>
+            </ul>
+            </li>
             </ul>
         </div>
 
@@ -174,7 +203,8 @@
                                 </a>
                             </li>
                             <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-settings mr-2"></i> Configurações</li>
+                            <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
+                                    Configurações</a></li>
                             <li class="dropdown-divider"></li>
                             <li class="dropdown-item"><i class="icon-power mr-2"></i> Sair</li>
                         </ul>
@@ -187,7 +217,6 @@
         <div class="content-wrapper">
             <div class="container-select">
                 <h2>Gerenciar Atividades</h2>
-
                 <div class="atividade-form">
                     <select id="filtroDisciplina">
                         <option value="Todas">Todas as Disciplinas</option>
@@ -203,72 +232,116 @@
                         <option value="História">História</option>
                         <option value="Geografia">Geografia</option>
                     </select>
-                    <button class="btn" onclick="adicionarAtividade()">Adicionar Atividade</button>
+                    <div class="btn-group" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-sm" id="btnSalvarAtividade" onclick="salvarAtividade()">Adicionar
+                            Atividade</button>
+                        <button class="btn btn-secondary btn-sm" id="btnCancelarEdicao" style="display: none;"
+                            onclick="cancelarEdicao()">Cancelar</button>
+                    </div>
+
                 </div>
 
                 <div id="listaAtividades"></div>
             </div>
+            <div class="overlay toggle-menu"></div>
         </div>
-        <div class="overlay toggle-menu"></div>
-    </div>
 
-    <script src="../assets/js/jquery.min.js"></script>
-    <script src="../assets/js/bootstrap.min.js"></script>
-    <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
-    <script src="../assets/js/sidebar-menu.js"></script>
-    <script src="../assets/js/app-script.js"></script>
-    <script>
-        $(function () {
-            $('.sidebar-menu').sidebarMenu();
-        });
+        <script src="../assets/js/jquery.min.js"></script>
+        <script src="../assets/js/bootstrap.min.js"></script>
+        <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
+        <script src="../assets/js/sidebar-menu.js"></script>
+        <script src="../assets/js/app-script.js"></script>
+        <script>
+            const atividades = [
+                { titulo: "Exercício de Gráficos", data: "2025-08-20", disciplina: "Matemática" },
+                { titulo: "Mapa do Brasil", data: "2025-08-21", disciplina: "Geografia" },
+            ];
 
-        const atividades = [
-            { titulo: "Exercício de Gráficos", data: "2025-08-20", disciplina: "Matemática" },
-            { titulo: "Mapa do Brasil", data: "2025-08-21", disciplina: "Geografia" },
-        ];
+            let indiceEditando = null;
 
-        function renderizarAtividades() {
-            const filtro = document.getElementById("filtroDisciplina").value;
-            const lista = document.getElementById("listaAtividades");
-            lista.innerHTML = "";
+            function renderizarAtividades() {
+                const filtro = document.getElementById("filtroDisciplina").value;
+                const lista = document.getElementById("listaAtividades");
+                lista.innerHTML = "";
 
-            const filtradas = atividades.filter(a => filtro === "Todas" || a.disciplina === filtro);
+                const filtradas = atividades.filter((a) => filtro === "Todas" || a.disciplina === filtro);
 
-            if (filtradas.length === 0) {
-                lista.innerHTML = '<p style="text-align:center; color:#bdc3c7; font-style:italic;">Nenhuma atividade encontrada</p>';
-                return;
-            }
+                if (filtradas.length === 0) {
+                    lista.innerHTML = '<p style="text-align:center; color:#bdc3c7; font-style:italic;">Nenhuma atividade encontrada</p>';
+                    return;
+                }
 
-            filtradas.forEach(a => {
-                const div = document.createElement("div");
-                div.className = "atividade-item";
-                div.innerHTML = `
+                filtradas.forEach((a, index) => {
+                    const div = document.createElement("div");
+                    div.className = "atividade-item";
+                    div.innerHTML = `
           <div class="atividade-titulo">${a.titulo}</div>
           <div class="atividade-info">${a.data} - ${a.disciplina}</div>
+          <div style="margin-top: 10px;">
+            <button class="btn btn-sm btn-primary" onclick="editarAtividade(${index})">Editar</button>
+            <button class="btn btn-sm btn-danger" onclick="removerAtividade(${index})">Remover</button>
+          </div>
         `;
-                lista.appendChild(div);
-            });
-        }
-
-        function adicionarAtividade() {
-            const titulo = document.getElementById("tituloAtividade").value.trim();
-            const data = document.getElementById("dataAtividade").value;
-            const disciplina = document.getElementById("disciplinaAtividade").value;
-
-            if (!titulo || !data) {
-                alert("Preencha todos os campos.");
-                return;
+                    lista.appendChild(div);
+                });
             }
 
-            atividades.push({ titulo, data, disciplina });
-            document.getElementById("tituloAtividade").value = "";
-            document.getElementById("dataAtividade").value = "";
-            renderizarAtividades();
-        }
+            function salvarAtividade() {
+                const titulo = document.getElementById("tituloAtividade").value.trim();
+                const data = document.getElementById("dataAtividade").value;
+                const disciplina = document.getElementById("disciplinaAtividade").value;
 
-        document.getElementById("filtroDisciplina").addEventListener("change", renderizarAtividades);
-        renderizarAtividades();
-    </script>
+                if (!titulo || !data) {
+                    alert("Preencha todos os campos.");
+                    return;
+                }
+
+                if (indiceEditando !== null) {
+                    atividades[indiceEditando] = { titulo, data, disciplina };
+                    indiceEditando = null;
+                    document.getElementById("btnSalvarAtividade").textContent = "Adicionar Atividade";
+                    document.getElementById("btnCancelarEdicao").style.display = "none";
+                } else {
+                    atividades.push({ titulo, data, disciplina });
+                }
+
+                limparFormulario();
+                renderizarAtividades();
+            }
+
+            function editarAtividade(index) {
+                const atividade = atividades[index];
+                document.getElementById("tituloAtividade").value = atividade.titulo;
+                document.getElementById("dataAtividade").value = atividade.data;
+                document.getElementById("disciplinaAtividade").value = atividade.disciplina;
+                document.getElementById("btnSalvarAtividade").textContent = "Atualizar Atividade";
+                document.getElementById("btnCancelarEdicao").style.display = "inline-block";
+                indiceEditando = index;
+            }
+
+            function removerAtividade(index) {
+                if (confirm("Deseja remover esta atividade?")) {
+                    atividades.splice(index, 1);
+                    renderizarAtividades();
+                    cancelarEdicao();
+                }
+            }
+
+            function cancelarEdicao() {
+                limparFormulario();
+                indiceEditando = null;
+                document.getElementById("btnSalvarAtividade").textContent = "Adicionar Atividade";
+                document.getElementById("btnCancelarEdicao").style.display = "none";
+            }
+
+            function limparFormulario() {
+                document.getElementById("tituloAtividade").value = "";
+                document.getElementById("dataAtividade").value = "";
+            }
+
+            document.getElementById("filtroDisciplina").addEventListener("change", renderizarAtividades);
+            renderizarAtividades();
+        </script>
 </body>
 
 </html>

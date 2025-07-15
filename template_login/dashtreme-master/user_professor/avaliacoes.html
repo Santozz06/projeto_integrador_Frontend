@@ -18,16 +18,15 @@
             padding: 0;
         }
 
-        /* Ajustes para o header fixo */
+        /* Header fixo */
         .topbar-nav {
             height: 60px;
             z-index: 1000;
         }
 
         .content-wrapper {
-            padding: 40px;
+            padding: 20px;
             padding-top: 80px;
-            /* Espaço para o header */
             min-height: calc(100vh - 60px);
         }
 
@@ -35,7 +34,7 @@
             max-width: 900px;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.05);
-            padding: 30px;
+            padding: 20px;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
@@ -44,41 +43,67 @@
             text-align: center;
             margin-bottom: 20px;
             color: #ffffff;
+            font-size: 1.5rem;
         }
-
 
         .form-select,
         .form-control {
             background-color: rgba(255, 255, 255, 0.1);
             color: #ffffff;
             border: 1px solid #71affe;
-            padding: 10px;
+            padding: 12px;
             border-radius: 8px;
             width: 100%;
-            margin-bottom: 20px;
-
+            margin-bottom: 15px;
+            font-size: 1rem;
         }
 
         .form-control::placeholder {
             color: #bdc3c7;
+            opacity: 0.7;
         }
 
+        /* Botões */
         .btn {
-            background-color: #1abc9c;
             color: #fff;
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+            text-align: center;
+            display: inline-block;
+            width: auto;
+            margin-bottom: 6px;
+            line-height: 1.2;
         }
 
-        .btn:hover {
+        .btn-primary {
+            background-color: #1abc9c;
+        }
+
+        .btn-primary:hover {
             background-color: #16a085;
         }
 
-        .turma-dados,
+        .btn-secondary {
+            background-color: #7f8c8d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #616a6b;
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
         .avaliacoes-container {
             margin-top: 30px;
             display: none;
@@ -86,7 +111,7 @@
 
         .card-section {
             background: rgba(255, 255, 255, 0.08);
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
         }
@@ -95,31 +120,8 @@
             border-bottom: 1px solid #71affe;
             padding-bottom: 10px;
             margin-bottom: 15px;
-            color: #71affe;
-        }
-
-        .aluno,
-        .avaliacao {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .aluno:last-child,
-        .avaliacao:last-child {
-            border-bottom: none;
-        }
-
-        .status,
-        .tipo {
-            color: #f1c40f;
-            font-size: 0.9em;
-        }
-
-        .data {
-            color: #bdc3c7;
-            font-size: 0.9em;
+            color: #ffffff;
+            font-size: 1.2rem;
         }
 
         .form-group {
@@ -128,8 +130,9 @@
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             color: #71affe;
+            font-size: 0.95rem;
         }
 
         select.form-select option {
@@ -140,41 +143,149 @@
             height: auto;
         }
 
-
-        .aluno:hover,
-        .avaliacao:hover {
-            background-color: rgba(255, 255, 255, 0.05);
+        /* Tabela */
+        .avaliacoes-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 0.9rem;
         }
 
-        @media (max-width: 768px) {
+        .avaliacoes-table th {
+            background-color: rgba(113, 175, 254, 0.3);
+            color: #ffffff;
+            padding: 12px 8px;
+            text-align: left;
+        }
+
+        .avaliacoes-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid rgba(113, 175, 254, 0.2);
+            vertical-align: middle;
+        }
+
+        .avaliacoes-table tr:hover {
+            background-color: rgba(113, 175, 254, 0.1);
+        }
+
+        /* Botões de ação */
+        .action-btn {
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            width: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Grupo de botões */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        .modal-content {
+            background: rgba(44, 62, 80, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 90%;
+            width: 400px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Responsivo */
+        @media (min-width: 768px) {
             .content-wrapper {
-                padding: 20px;
-                padding-top: 70px;
+                padding: 30px;
+                padding-top: 90px;
             }
 
             .container-select {
-                padding: 20px;
+                padding: 30px;
             }
 
-            .aluno,
-            .avaliacao {
-                flex-direction: column;
+            .btn-group {
+                flex-direction: row;
             }
 
-            .topbar-nav {
-                height: 55px;
+            .btn {
+                width: auto;
+                margin-bottom: 0;
             }
+
+            .action-btn {
+                width: auto;
+                padding: 6px 10px;
+                margin: 0 3px;
+            }
+
+            .avaliacoes-table {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .avaliacoes-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            .action-btn {
+                padding: 6px;
+                font-size: 0.7rem;
+            }
+
+            .card-section {
+                padding: 12px;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+            }
+        }
+
+        /* Acessibilidade */
+        button:focus,
+        input:focus,
+        select:focus {
+            outline: 2px solid #f1c40f;
+            outline-offset: 2px;
         }
     </style>
 </head>
 
 <body class="bg-theme bg-theme1">
     <div id="wrapper">
-        <!-- Sidebar -->
-        <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
+        <div id="sidebar-wrapper" data-simplebar>
             <div class="brand-logo">
                 <a href="home.html">
-                    <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
+                    <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon" />
                     <h5 class="logo-text">Dashboard Acadêmico</h5>
                 </a>
             </div>
@@ -183,7 +294,7 @@
                 <li><a href="home.html"><i class="zmdi zmdi-view-dashboard"></i> <span>Home</span></a></li>
                 <li><a href="turmas.html"><i class="zmdi zmdi-group-work"></i> <span>Turmas</span></a></li>
                 <li>
-                    <a href="plano_ensino.html" class="active">
+                    <a href="plano_ensino.html">
                         <i class="zmdi zmdi-assignment"></i> <span>Plano de Ensino</span>
                         <i class="zmdi zmdi-caret-down float-right"></i>
                     </a>
@@ -214,14 +325,19 @@
                     </ul>
                 </li>
                 <li>
-                    <a href="preferencias.html">
+                    <a href="preferencias.html" class="active">
                         <i class="zmdi zmdi-settings"></i> <span>Preferências</span>
                         <i class="zmdi zmdi-caret-down float-right"></i>
                     </a>
                     <ul class="sidebar-submenu">
                         <li><a href="perfil.html"><i class="zmdi zmdi-account"></i> Perfil Acadêmico</a></li>
                         <li><a href="configuracoes.html"><i class="zmdi zmdi-wrench"></i> Configurações</a></li>
-                        <li><a href="assinatura.html"><i class="zmdi zmdi-edit"></i> Assinatura Digital</a></li>
+                        <li>
+                            <a href="https://www.gov.br/governodigital/pt-br/identidade/assinatura-eletronica"
+                                target="_blank">
+                                <i class="zmdi zmdi-edit"></i> Assinatura Digital
+                            </a>
+                        </li>
                     </ul>
                 </li>
             </ul>
@@ -238,7 +354,7 @@
                     </li>
                     <li class="nav-item">
                         <form class="search-bar">
-                            <input type="text" class="form-control" placeholder="Pesquisar">
+                            <input type="text" class="form-control" placeholder="Pesquisar" />
                             <a href="javascript:void();"><i class="icon-magnifier"></i></a>
                         </form>
                     </li>
@@ -251,7 +367,7 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li class="dropdown-item user-details">
-                                <a href="javascript:void();">
+                                <a href="#">
                                     <div class="media">
                                         <div class="avatar"><img class="align-self-start mr-3"
                                                 src="https://via.placeholder.com/110x110" alt="user avatar"></div>
@@ -263,7 +379,8 @@
                                 </a>
                             </li>
                             <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-settings mr-2"></i> Configurações</li>
+                            <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
+                                    Configurações</a></li>
                             <li class="dropdown-divider"></li>
                             <li class="dropdown-item"><i class="icon-power mr-2"></i> Sair</li>
                         </ul>
@@ -284,11 +401,11 @@
                     <option value="turmaC">Turma C</option>
                 </select>
 
-                <button class="btn" onclick="carregarAvaliacoes()">Visualizar</button>
+                <button class="btn btn-primary" onclick="carregarAvaliacoes()">Visualizar</button>
 
                 <div id="avaliacoesContainer" class="avaliacoes-container">
                     <div class="card-section">
-                        <h4>Nova Avaliação</h4>
+                        <h4 id="formTitle">Nova Avaliação</h4>
                         <div class="form-group">
                             <label for="disciplina">Disciplina</label>
                             <input type="text" class="form-control" id="disciplina" placeholder="Ex: Matemática">
@@ -307,13 +424,41 @@
                             <label for="data">Data</label>
                             <input type="date" class="form-control" id="data">
                         </div>
-                        <button class="btn" onclick="adicionarAvaliacao()">Adicionar Avaliação</button>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" id="btnSalvar">Adicionar Avaliação</button>
+                            <button class="btn btn-secondary" id="btnCancelar">Cancelar</button>
+                        </div>
                     </div>
 
                     <div class="card-section">
                         <h4>Avaliações Registradas</h4>
-                        <div id="avaliacoesLista"></div>
+                        <div class="table-responsive">
+                            <table class="avaliacoes-table">
+                                <thead>
+                                    <tr>
+                                        <th>Disciplina</th>
+                                        <th>Tipo</th>
+                                        <th>Data</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="avaliacoesLista">
+                                    <!-- Avaliações serão inseridas aqui via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de confirmação -->
+        <div class="modal-overlay" id="confirmModal">
+            <div class="modal-content">
+                <h4 id="modalMessage">Tem certeza que deseja remover esta avaliação?</h4>
+                <div class="modal-actions">
+                    <button class="btn btn-primary" id="confirmYes">Sim</button>
+                    <button class="btn btn-secondary" id="confirmNo">Não</button>
                 </div>
             </div>
         </div>
@@ -334,42 +479,76 @@
 
         const avaliacoesFake = {
             turmaA: [
-                { disciplina: "Geografia", tipo: "Prova", data: "2025-11-20" },
-                { disciplina: "História", tipo: "Trabalho", data: "2025-11-22" },
+                { id: 1, disciplina: "Geografia", tipo: "Prova", data: "2025-11-20" },
+                { id: 2, disciplina: "História", tipo: "Trabalho", data: "2025-11-22" },
             ],
             turmaB: [
-                { disciplina: "Matemática", tipo: "Simulado", data: "2025-11-18" },
-                { disciplina: "Ciências", tipo: "Atividade Avaliativa", data: "2025-11-21" },
+                { id: 3, disciplina: "Matemática", tipo: "Simulado", data: "2025-11-18" },
+                { id: 4, disciplina: "Ciências", tipo: "Atividade Avaliativa", data: "2025-11-21" },
             ],
             turmaC: [
-                { disciplina: "Português", tipo: "Redação", data: "2025-11-23" }
+                { id: 5, disciplina: "Português", tipo: "Redação", data: "2025-11-23" }
             ]
         };
 
         let turmaAtual = "";
+        let editandoId = null;
+        let avaliacaoParaRemover = null;
+
+        // Elementos DOM
+        const btnSalvar = document.getElementById('btnSalvar');
+        const btnCancelar = document.getElementById('btnCancelar');
+        const formTitle = document.getElementById('formTitle');
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmYes = document.getElementById('confirmYes');
+        const confirmNo = document.getElementById('confirmNo');
+
+        // Event Listeners
+        btnSalvar.addEventListener('click', adicionarAvaliacao);
+        btnCancelar.addEventListener('click', cancelarAvaliacao);
+        confirmYes.addEventListener('click', confirmarRemocao);
+        confirmNo.addEventListener('click', fecharModal);
 
         function carregarAvaliacoes() {
             turmaAtual = document.getElementById("selectTurma").value;
-            if (!turmaAtual || !avaliacoesFake[turmaAtual]) return;
+            if (!turmaAtual || !avaliacoesFake[turmaAtual]) {
+                alert("Selecione uma turma válida");
+                return;
+            }
 
             const avalLista = document.getElementById("avaliacoesLista");
             avalLista.innerHTML = "";
 
             avaliacoesFake[turmaAtual].forEach(avaliacao => {
-                const dataFormatada = new Date(avaliacao.data).toLocaleDateString("pt-BR");
+                const dataFormatada = formatarData(avaliacao.data);
                 avalLista.innerHTML += `
-                    <div class="avaliacao">
-                        <span><strong>${avaliacao.disciplina}</strong> - <span class="tipo">${avaliacao.tipo}</span></span>
-                        <span class="data">${dataFormatada}</span>
-                    </div>`;
+                    <tr data-id="${avaliacao.id}">
+                        <td>${avaliacao.disciplina}</td>
+                        <td>${avaliacao.tipo}</td>
+                        <td>${dataFormatada}</td>
+                        <td>
+                            <button class="btn btn-primary action-btn" onclick="editarAvaliacao(${avaliacao.id})">
+                                <i class="zmdi zmdi-edit"></i> <span class="action-text">Editar</span>
+                            </button>
+                            <button class="btn btn-danger action-btn" onclick="solicitarRemocao(${avaliacao.id})">
+                                <i class="zmdi zmdi-delete"></i> <span class="action-text">Remover</span>
+                            </button>
+                        </td>
+                    </tr>`;
             });
 
             document.getElementById("avaliacoesContainer").style.display = "block";
+            cancelarAvaliacao();
+        }
+
+        function formatarData(dataString) {
+            const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+            return new Date(dataString).toLocaleDateString('pt-BR', options);
         }
 
         function adicionarAvaliacao() {
             if (!turmaAtual) {
-                alert("Selecione uma turma antes de adicionar uma avaliação.");
+                alert("Selecione uma turma antes de continuar.");
                 return;
             }
 
@@ -378,18 +557,95 @@
             const data = document.getElementById("data").value;
 
             if (!disciplina || !data) {
-                alert("Preencha todos os campos para adicionar a avaliação.");
+                alert("Preencha todos os campos obrigatórios.");
                 return;
             }
 
-            avaliacoesFake[turmaAtual].push({ disciplina, tipo, data });
+            if (editandoId) {
+                // Editar avaliação existente
+                const index = avaliacoesFake[turmaAtual].findIndex(a => a.id === editandoId);
+                if (index !== -1) {
+                    avaliacoesFake[turmaAtual][index] = {
+                        id: editandoId,
+                        disciplina,
+                        tipo,
+                        data
+                    };
+                }
+                editandoId = null;
+                btnSalvar.textContent = "Adicionar Avaliação";
+                formTitle.textContent = "Nova Avaliação";
+            } else {
+                // Adicionar nova avaliação
+                const novoId = avaliacoesFake[turmaAtual].length > 0
+                    ? Math.max(...avaliacoesFake[turmaAtual].map(a => a.id)) + 1
+                    : 1;
+                avaliacoesFake[turmaAtual].push({
+                    id: novoId,
+                    disciplina,
+                    tipo,
+                    data
+                });
+            }
 
-            // Limpa campos
-            document.getElementById("disciplina").value = "";
-            document.getElementById("data").value = "";
-
+            // Limpa campos e recarrega a lista
+            cancelarAvaliacao();
             carregarAvaliacoes();
         }
+
+        function cancelarAvaliacao() {
+            document.getElementById("disciplina").value = "";
+            document.getElementById("tipo").value = "Prova";
+            document.getElementById("data").value = "";
+            editandoId = null;
+            btnSalvar.textContent = "Adicionar Avaliação";
+            formTitle.textContent = "Nova Avaliação";
+            document.getElementById("disciplina").focus();
+        }
+
+        function editarAvaliacao(id) {
+            const avaliacao = avaliacoesFake[turmaAtual].find(a => a.id === id);
+            if (avaliacao) {
+                document.getElementById("disciplina").value = avaliacao.disciplina;
+                document.getElementById("tipo").value = avaliacao.tipo;
+                document.getElementById("data").value = avaliacao.data;
+                editandoId = id;
+                btnSalvar.textContent = "Atualizar Avaliação";
+                formTitle.textContent = "Editar Avaliação";
+                document.getElementById("disciplina").focus();
+
+                // Scroll para o formulário
+                document.querySelector('.card-section').scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        function solicitarRemocao(id) {
+            avaliacaoParaRemover = id;
+            document.getElementById('modalMessage').textContent = "Tem certeza que deseja remover esta avaliação?";
+            confirmModal.style.display = 'flex';
+        }
+
+        function confirmarRemocao() {
+            if (avaliacaoParaRemover) {
+                avaliacoesFake[turmaAtual] = avaliacoesFake[turmaAtual].filter(a => a.id !== avaliacaoParaRemover);
+                carregarAvaliacoes();
+                fecharModal();
+            }
+        }
+
+        function fecharModal() {
+            confirmModal.style.display = 'none';
+            avaliacaoParaRemover = null;
+        }
+
+        // Fechar modal ao clicar fora
+        window.addEventListener('click', (e) => {
+            if (e.target === confirmModal) {
+                fecharModal();
+            }
+        });
     </script>
 </body>
 
