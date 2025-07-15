@@ -118,12 +118,100 @@
         .stat-value {
             font-size: 24px;
             font-weight: 600;
-            color: #1abc9c;
+            color: #ffffff;
         }
 
         .stat-label {
             font-size: 0.9em;
             color: #bdc3c7;
+        }
+
+        @media (max-width: 992px) {
+            .quick-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .stat-item {
+                margin: 0;
+                width: 100%;
+            }
+
+            .dashboard-card {
+                padding: 20px;
+            }
+
+            .welcome-message {
+                padding: 15px;
+            }
+
+            .class-item,
+            .event-item {
+                padding: 10px;
+            }
+
+            .stat-value {
+                font-size: 20px;
+            }
+
+            .stat-label {
+                font-size: 0.85em;
+            }
+
+            .card-title {
+                font-size: 1.2em;
+            }
+
+            .welcome-title {
+                font-size: 1.2em;
+            }
+
+            .welcome-text {
+                font-size: 0.95em;
+            }
+
+            .navbar-nav .search-bar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .content-wrapper .row>div {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .quick-stats {
+                flex-direction: column;
+            }
+
+            .stat-item {
+                margin: 10px 0;
+            }
+
+            .dashboard-card {
+                margin-bottom: 20px;
+            }
+
+            .event-date,
+            .class-room,
+            .class-time {
+                font-size: 0.85em;
+            }
+
+            .class-name,
+            .event-title {
+                font-size: 1em;
+            }
+
+            .navbar .navbar-nav {
+                flex-direction: column;
+            }
+        }
+
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.2) !important;
+            backdrop-filter: blur(10px);
         }
     </style>
 </head>
@@ -166,7 +254,8 @@
                         <i class="zmdi zmdi-caret-down float-right"></i>
                     </a>
                     <ul class="sidebar-submenu">
-                        <li><a href="caderno_chamada.html"><i class="zmdi zmdi-accounts-list"></i> Caderno de Chamada</a></li>
+                        <li><a href="caderno_chamada.html"><i class="zmdi zmdi-accounts-list"></i> Caderno de
+                                Chamada</a></li>
                         <li><a href="ocorrencias.html"><i class="zmdi zmdi-alert-circle"></i> Ocorrências</a></li>
                     </ul>
                 </li>
@@ -247,8 +336,9 @@
                     <div class="col-lg-12">
                         <div class="welcome-message">
                             <h4 class="welcome-title">Bem-vindo, Professor!</h4>
-                            <p class="welcome-text">Aqui você pode gerenciar suas turmas, registrar presenças, lançar notas e acompanhar o desempenho dos alunos.</p>
-                            
+                            <p class="welcome-text">Aqui você pode gerenciar suas turmas, registrar presenças, lançar
+                                notas e acompanhar o desempenho dos alunos.</p>
+
                             <div class="quick-stats">
                                 <div class="stat-item">
                                     <div class="stat-value">5</div>
@@ -276,19 +366,19 @@
                     <div class="col-lg-6">
                         <div class="dashboard-card">
                             <h5 class="card-title"><i class="zmdi zmdi-time mr-2"></i> Horários e Salas de Aula</h5>
-                            
+
                             <div class="class-item">
                                 <div class="class-name">Matemática - Turma A</div>
                                 <div class="class-time">Segunda-feira, 7:30 - 9:40</div>
                                 <div class="class-room">Sala 10</div>
                             </div>
-                            
+
                             <div class="class-item">
                                 <div class="class-name">Geografia - Turma B</div>
                                 <div class="class-time">Terça-feira, 10:00 - 11:30</div>
                                 <div class="class-room">Sala 15</div>
                             </div>
-                            
+
                             <div class="class-item">
                                 <div class="class-name">História - Turma A</div>
                                 <div class="class-time">Quarta-feira, 13:00 - 14:30</div>
@@ -300,18 +390,19 @@
                     <!-- Avisos da Instituição -->
                     <div class="col-lg-6">
                         <div class="dashboard-card">
-                            <h5 class="card-title"><i class="zmdi zmdi-notifications-active mr-2"></i> Avisos da Instituição</h5>
-                            
+                            <h5 class="card-title"><i class="zmdi zmdi-notifications-active mr-2"></i> Avisos da
+                                Instituição</h5>
+
                             <div class="event-item">
                                 <div class="event-date">15/03/2024</div>
                                 <div class="event-title">Reunião pedagógica - Todos os professores</div>
                             </div>
-                            
+
                             <div class="event-item">
                                 <div class="event-date">20/03/2024</div>
                                 <div class="event-title">Prazo final para lançamento de notas do 1º bimestre</div>
                             </div>
-                            
+
                             <div class="empty-message">Nenhum outro aviso no momento</div>
                         </div>
                     </div>
@@ -322,17 +413,17 @@
                     <div class="col-lg-6">
                         <div class="dashboard-card">
                             <h5 class="card-title"><i class="zmdi zmdi-assignment mr-2"></i> Tarefas Pendentes</h5>
-                            
+
                             <div class="event-item">
                                 <div class="event-date">Para 18/03/2024</div>
                                 <div class="event-title">Preparar material para aula sobre Revolução Industrial</div>
                             </div>
-                            
+
                             <div class="event-item">
                                 <div class="event-date">Para 20/03/2024</div>
                                 <div class="event-title">Corrigir provas do 1º bimestre</div>
                             </div>
-                            
+
                             <div class="empty-message">Nenhuma outra tarefa pendente</div>
                         </div>
                     </div>
@@ -341,17 +432,17 @@
                     <div class="col-lg-6">
                         <div class="dashboard-card">
                             <h5 class="card-title"><i class="zmdi zmdi-calendar-note mr-2"></i> Eventos Próximos</h5>
-                            
+
                             <div class="event-item">
                                 <div class="event-date">12/03/2024</div>
                                 <div class="event-title">Conselho de Classe - Turma A</div>
                             </div>
-                            
+
                             <div class="event-item">
                                 <div class="event-date">25/03/2024</div>
                                 <div class="event-title">Feriado Municipal - Não haverá aula</div>
                             </div>
-                            
+
                             <div class="empty-message">Nenhum outro evento agendado</div>
                         </div>
                     </div>
@@ -372,32 +463,32 @@
         $(document).ready(function () {
             // Ativar tooltips
             $('[data-toggle="tooltip"]').tooltip();
-            
+
             // Carregar dados do professor
             $.ajax({
                 url: 'api/professor/dados',
                 method: 'GET',
-                success: function(data) {
+                success: function (data) {
                     $('.user-title').text(data.nome);
                     $('.welcome-title').text('Bem-vindo, ' + data.nome.split(' ')[0] + '!');
-                    
+
                     // Atualizar estatísticas
                     $('.stat-value').eq(0).text(data.turmas);
                     $('.stat-value').eq(1).text(data.alunos);
                     $('.stat-value').eq(2).text(data.disciplinas);
                 },
-                error: function() {
+                error: function () {
                     console.log('Erro ao carregar dados do professor');
                 }
             });
-            
+
             // Carregar horários
             $.ajax({
                 url: 'api/professor/horarios',
                 method: 'GET',
-                success: function(data) {
+                success: function (data) {
                     let html = '';
-                    data.forEach(function(aula) {
+                    data.forEach(function (aula) {
                         html += `
                             <div class="class-item">
                                 <div class="class-name">${aula.disciplina} - ${aula.turma}</div>
@@ -408,18 +499,18 @@
                     });
                     $('.dashboard-card').eq(0).find('.class-item').first().parent().html(html);
                 },
-                error: function() {
+                error: function () {
                     console.log('Erro ao carregar horários');
                 }
             });
-            
+
             // Carregar avisos
             $.ajax({
                 url: 'api/professor/avisos',
                 method: 'GET',
-                success: function(data) {
+                success: function (data) {
                     let html = '';
-                    data.forEach(function(aviso) {
+                    data.forEach(function (aviso) {
                         html += `
                             <div class="event-item">
                                 <div class="event-date">${aviso.data}</div>
@@ -429,11 +520,12 @@
                     });
                     $('.dashboard-card').eq(1).find('.event-item').first().parent().html(html);
                 },
-                error: function() {
+                error: function () {
                     console.log('Erro ao carregar avisos');
                 }
             });
         });
     </script>
 </body>
+
 </html>
