@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Atividades - Dashboard Acadêmico</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/app-style.css">
+    <link rel="stylesheet" href="../assets/css/icons.css">
+    <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
+    <style>
+        body {
+            background: linear-gradient(to right, #2c3e50, #3498db);
+            color: #ecf0f1;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container-select {
+            max-width: 900px;
+            margin: 40px auto;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .atividade-form select,
+        .atividade-form input[type="text"],
+        .atividade-form input[type="date"] {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid #71affe;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .btn {
+            background-color: #1abc9c;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #16a085;
+        }
+
+        .atividade-item {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .atividade-titulo {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .atividade-info {
+            font-size: 0.9em;
+            color: #ffffff;
+        }
+    </style>
+</head>
+
+<body class="bg-theme bg-theme1">
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" data-simplebar>
+            <div class="brand-logo">
+                <a href="home.html">
+                    <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
+                    <h5 class="logo-text">Dashboard Acadêmico</h5>
+                </a>
+            </div>
+            <ul class="sidebar-menu do-nicescrol">
+                <li class="sidebar-header">NAVEGAÇÃO PRINCIPAL</li>
+                <li>
+                    <a href="home.html">
+                        <i class="zmdi zmdi-view-dashboard"></i> <span>Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="turmas.html" class="active">
+                        <i class="zmdi zmdi-group-work"></i> <span>Turmas</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="plano_ensino.html">
+                        <i class="zmdi zmdi-assignment"></i> <span>Plano de Ensino</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="avaliacoes.html"><i class="zmdi zmdi-check-circle"></i> Avaliações</a></li>
+                        <li><a href="atividades.html"><i class="zmdi zmdi-assignment-check"></i> Atividades</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="presenca.html">
+                        <i class="zmdi zmdi-time-countdown"></i> <span>Presença</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="caderno_chamada.html"><i class="zmdi zmdi-accounts-list"></i> Caderno de
+                                Chamada</a></li>
+                        <li><a href="ocorrencias.html"><i class="zmdi zmdi-alert-circle"></i> Ocorrências</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="orientacoes.html">
+                        <i class="zmdi zmdi-bookmark"></i> <span>Orientações Acadêmicas</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="normas.html"><i class="zmdi zmdi-assignment"></i> Normas</a></li>
+                        <li><a href="calendario.html"><i class="zmdi zmdi-calendar"></i> Calendário</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="preferencias.html">
+                        <i class="zmdi zmdi-settings"></i> <span>Preferências</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="perfil.html"><i class="zmdi zmdi-account"></i> Perfil Acadêmico</a></li>
+                        <li><a href="configuracoes.html"><i class="zmdi zmdi-wrench"></i> Configurações</a></li>
+                        <li><a href="assinatura.html"><i class="zmdi zmdi-edit"></i> Assinatura Digital</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Topbar -->
+        <header class="topbar-nav">
+            <nav class="navbar navbar-expand fixed-top">
+                <ul class="navbar-nav mr-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link toggle-menu" href="javascript:void();">
+                            <i class="icon-menu menu-icon"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <form class="search-bar">
+                            <input type="text" class="form-control" placeholder="Pesquisar">
+                            <a href="javascript:void();"><i class="icon-magnifier"></i></a>
+                        </form>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav align-items-center right-nav-link">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
+                            <span class="user-profile"><img src="../assets/images/gallery/icon_usuarioBlack.png"
+                                    class="img-circle" alt="user avatar"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li class="dropdown-item user-details">
+                                <a href="#">
+                                    <div class="media">
+                                        <div class="avatar"><img class="align-self-start mr-3"
+                                                src="https://via.placeholder.com/110x110" alt="user avatar"></div>
+                                        <div class="media-body">
+                                            <h6 class="mt-2 user-title">Professor</h6>
+                                            <p class="user-subtitle">professor@escola.com</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="dropdown-divider"></li>
+                            <li class="dropdown-item"><i class="icon-settings mr-2"></i> Configurações</li>
+                            <li class="dropdown-divider"></li>
+                            <li class="dropdown-item"><i class="icon-power mr-2"></i> Sair</li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Conteúdo Principal -->
+        <div class="content-wrapper">
+            <div class="container-select">
+                <h2>Gerenciar Atividades</h2>
+
+                <div class="atividade-form">
+                    <select id="filtroDisciplina">
+                        <option value="Todas">Todas as Disciplinas</option>
+                        <option value="Matemática">Matemática</option>
+                        <option value="História">História</option>
+                        <option value="Geografia">Geografia</option>
+                    </select>
+
+                    <input type="text" id="tituloAtividade" placeholder="Título da atividade">
+                    <input type="date" id="dataAtividade">
+                    <select id="disciplinaAtividade">
+                        <option value="Matemática">Matemática</option>
+                        <option value="História">História</option>
+                        <option value="Geografia">Geografia</option>
+                    </select>
+                    <button class="btn" onclick="adicionarAtividade()">Adicionar Atividade</button>
+                </div>
+
+                <div id="listaAtividades"></div>
+            </div>
+        </div>
+        <div class="overlay toggle-menu"></div>
+    </div>
+
+    <script src="../assets/js/jquery.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
+    <script src="../assets/js/sidebar-menu.js"></script>
+    <script src="../assets/js/app-script.js"></script>
+    <script>
+        $(function () {
+            $('.sidebar-menu').sidebarMenu();
+        });
+
+        const atividades = [
+            { titulo: "Exercício de Gráficos", data: "2025-08-20", disciplina: "Matemática" },
+            { titulo: "Mapa do Brasil", data: "2025-08-21", disciplina: "Geografia" },
+        ];
+
+        function renderizarAtividades() {
+            const filtro = document.getElementById("filtroDisciplina").value;
+            const lista = document.getElementById("listaAtividades");
+            lista.innerHTML = "";
+
+            const filtradas = atividades.filter(a => filtro === "Todas" || a.disciplina === filtro);
+
+            if (filtradas.length === 0) {
+                lista.innerHTML = '<p style="text-align:center; color:#bdc3c7; font-style:italic;">Nenhuma atividade encontrada</p>';
+                return;
+            }
+
+            filtradas.forEach(a => {
+                const div = document.createElement("div");
+                div.className = "atividade-item";
+                div.innerHTML = `
+          <div class="atividade-titulo">${a.titulo}</div>
+          <div class="atividade-info">${a.data} - ${a.disciplina}</div>
+        `;
+                lista.appendChild(div);
+            });
+        }
+
+        function adicionarAtividade() {
+            const titulo = document.getElementById("tituloAtividade").value.trim();
+            const data = document.getElementById("dataAtividade").value;
+            const disciplina = document.getElementById("disciplinaAtividade").value;
+
+            if (!titulo || !data) {
+                alert("Preencha todos os campos.");
+                return;
+            }
+
+            atividades.push({ titulo, data, disciplina });
+            document.getElementById("tituloAtividade").value = "";
+            document.getElementById("dataAtividade").value = "";
+            renderizarAtividades();
+        }
+
+        document.getElementById("filtroDisciplina").addEventListener("change", renderizarAtividades);
+        renderizarAtividades();
+    </script>
+</body>
+
+</html>
