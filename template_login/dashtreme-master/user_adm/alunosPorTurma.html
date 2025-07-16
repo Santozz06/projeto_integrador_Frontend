@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="style.css">
     <style>
         .btn-custom-primary {
             background-color: #1abc9c !important;
@@ -70,6 +71,7 @@
         }
 
         @media print {
+
             .no-print,
             .sidebar-menu,
             .topbar-nav,
@@ -78,22 +80,26 @@
             #print-btn {
                 display: none !important;
             }
+
             body {
                 background: white !important;
                 color: black !important;
                 font-size: 12pt !important;
                 padding: 20px !important;
             }
+
             body,
             .text-muted,
             .small {
                 color: #000 !important;
                 opacity: 1 !important;
             }
+
             .matricula-text {
                 color: #000 !important;
                 font-weight: bold;
             }
+
             .student-card {
                 margin-bottom: 15px;
                 page-break-inside: avoid;
@@ -102,6 +108,11 @@
 
         .header-print {
             display: none;
+        }
+
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.2) !important;
+            backdrop-filter: blur(10px);
         }
     </style>
 </head>
@@ -147,8 +158,10 @@
                         <i class="zmdi zmdi-caret-down float-right"></i>
                     </a>
                     <ul class="sidebar-submenu">
-                        <li><a href="atestado_matricula.html"><i class="zmdi zmdi-assignment-account"></i> Atestado de matrícula</a></li>
-                        <li><a href="atestado_frequencia.html"><i class="zmdi zmdi-time-countdown"></i> Frequência</a></li>
+                        <li><a href="atestado_matricula.html"><i class="zmdi zmdi-assignment-account"></i> Atestado de
+                                matrícula</a></li>
+                        <li><a href="atestado_frequencia.html"><i class="zmdi zmdi-time-countdown"></i> Frequência</a>
+                        </li>
                         <li><a href="historico.html"><i class="zmdi zmdi-assignment"></i> Histórico</a></li>
                     </ul>
                 </li>
@@ -222,9 +235,10 @@
                                 </a>
                             </li>
                             <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-settings mr-2"></i> Configurações</li>
+                            <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
+                                    Configurações</a></li>
                             <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-power mr-2"></i> Sair</li>
+                            <li class="dropdown-item" id="logout-btn"><i class="icon-power mr-2"></i> Sair</li>
                         </ul>
                     </li>
                 </ul>
@@ -344,6 +358,7 @@
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="botaoSair.js"></script>
 
     <script>
         // Dados de exemplo 

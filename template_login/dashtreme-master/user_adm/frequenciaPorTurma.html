@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="style.css">
     <style>
         .btn-custom-primary {
             background-color: #1abc9c !important;
@@ -165,6 +166,10 @@
         .header-print {
             display: none;
         }
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.2) !important;
+            backdrop-filter: blur(10px);
+        }
     </style>
 </head>
 
@@ -282,9 +287,10 @@
                                 </a>
                             </li>
                             <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-settings mr-2"></i> Configurações</li>
+                          <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
+                                    Configurações</a></li>
                             <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-power mr-2"></i> Sair</li>
+                            <li class="dropdown-item" id="logout-btn"><i class="icon-power mr-2"></i> Sair</li>
                         </ul>
                     </li>
                 </ul>
@@ -397,6 +403,7 @@
     <script src="../assets/js/app-script.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+    <script src="botaoSair.js"></script>
 
     <script>
         // Dados de exemplo

@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="../assets/css/icons.css">
   <link rel="stylesheet" href="../assets/plugins/simplebar/css/simplebar.css">
   <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
+  <link rel="stylesheet" href="style.css">
   <style>
     .btn-custom-primary {
       background-color: #1abc9c !important;
@@ -42,6 +43,11 @@
 
     .search-box {
       margin-bottom: 20px;
+    }
+
+    .navbar {
+      background-color: rgba(0, 0, 0, 0.2) !important;
+      backdrop-filter: blur(10px);
     }
   </style>
 </head>
@@ -82,7 +88,8 @@
             <i class="zmdi zmdi-caret-down float-right"></i>
           </a>
           <ul class="sidebar-submenu">
-            <li><a href="atestado_matricula.html"><i class="zmdi zmdi-assignment-account"></i> Atestado de matrícula</a></li>
+            <li><a href="atestado_matricula.html"><i class="zmdi zmdi-assignment-account"></i> Atestado de matrícula</a>
+            </li>
             <li><a href="atestado_frequencia.html"><i class="zmdi zmdi-time-countdown"></i> Frequência</a></li>
             <li><a href="historico.html"><i class="zmdi zmdi-assignment"></i> Histórico</a></li>
           </ul>
@@ -119,6 +126,53 @@
         </li>
       </ul>
     </div>
+
+    <!-- Topbar -->
+    <header class="topbar-nav">
+      <nav class="navbar navbar-expand fixed-top">
+        <ul class="navbar-nav mr-auto align-items-center">
+          <li class="nav-item">
+            <a class="nav-link toggle-menu" href="javascript:void();">
+              <i class="icon-menu menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item">
+            <form class="search-bar">
+              <input type="text" class="form-control" placeholder="Pesquisar">
+              <a href="javascript:void();"><i class="icon-magnifier"></i></a>
+            </form>
+          </li>
+        </ul>
+
+        <ul class="navbar-nav align-items-center right-nav-link">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
+              <span class="user-profile"><img src="../assets/images/gallery/icon_usuarioBlack.png" class="img-circle"
+                  alt="user avatar"></span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-right">
+              <li class="dropdown-item user-details">
+                <a href="javaScript:void();">
+                  <div class="media">
+                    <div class="avatar"><img class="align-self-start mr-3" src="https://via.placeholder.com/110x110"
+                        alt="user avatar"></div>
+                    <div class="media-body">
+                      <h6 class="mt-2 user-title">Administrador</h6>
+                      <p class="user-subtitle">admin@escola.com</p>
+                    </div>
+                  </div>
+                </a>
+              </li>
+              <li class="dropdown-divider"></li>
+              <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
+                  Configurações</a></li>
+              <li class="dropdown-divider"></li>
+              <li class="dropdown-item" id="logout-btn"><i class="icon-power mr-2"></i> Sair</li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+    </header>
 
     <div class="content-wrapper">
       <div class="container-fluid">
@@ -167,8 +221,8 @@
 
       </div>
     </div>
-      <!--Overlay-->
-        <div class="overlay toggle-menu"></div>
+    <!--Overlay-->
+    <div class="overlay toggle-menu"></div>
 
     <footer class="footer">
       <div class="container">
@@ -184,6 +238,7 @@
   <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
   <script src="../assets/js/sidebar-menu.js"></script>
   <script src="../assets/js/app-script.js"></script>
+  <script src="botaoSair.js"></script>
   <script>
     $(document).ready(function () {
       $('#formBuscaAluno').on('submit', function (e) {

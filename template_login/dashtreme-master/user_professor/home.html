@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
+    <link rel="stylesheet" href="style.css">
     <style>
         body {
             background: linear-gradient(to right, #2c3e50, #3498db);
@@ -213,6 +214,29 @@
             background-color: rgba(0, 0, 0, 0.2) !important;
             backdrop-filter: blur(10px);
         }
+
+        /* Efeito para o botão Sair */
+        #logout-btn {
+            transition: all 0.3s ease;
+            border-radius: 4px;
+            padding: 8px 12px;
+        }
+
+        #logout-btn:hover {
+            background-color: #ff4444 !important;
+            /* Vermelho suave */
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 68, 68, 0.2);
+        }
+
+        #logout-btn i {
+            transition: all 0.3s ease;
+        }
+
+        #logout-btn:hover i {
+            transform: rotate(15deg);
+        }
     </style>
 </head>
 
@@ -277,8 +301,9 @@
                     <ul class="sidebar-submenu">
                         <li><a href="perfil.html"><i class="zmdi zmdi-account"></i> Perfil Acadêmico</a></li>
                         <li><a href="configuracoes.html"><i class="zmdi zmdi-wrench"></i> Configurações</a></li>
-                       <li>
-                            <a href="https://www.gov.br/governodigital/pt-br/identidade/assinatura-eletronica" target="_blank">
+                        <li>
+                            <a href="https://www.gov.br/governodigital/pt-br/identidade/assinatura-eletronica"
+                                target="_blank">
                                 <i class="zmdi zmdi-edit"></i> Assinatura Digital
                             </a>
                         </li>
@@ -327,7 +352,7 @@
                             <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
                                     Configurações</a></li>
                             <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-power mr-2"></i> Sair</li>
+                            <li class="dropdown-item" id="logout-btn"><i class="icon-power mr-2"></i> Sair</li>
                         </ul>
                     </li>
                 </ul>
@@ -463,73 +488,104 @@
     <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
-
+    <script src="botaoSair.js"></script>
     <script>
-        $(document).ready(function () {
-            // Ativar tooltips
-            $('[data-toggle="tooltip"]').tooltip();
+        // Verifica se o usuário está logado e no lugar certo
+        const expectedUserType = window.location.pathname.includes('professor') ? 'professor' :
+            window.location.pathname.includes('aluno') ? 'aluno' : 'admin';
 
-            // Carregar dados do professor
-            $.ajax({
-                url: 'api/professor/dados',
-                method: 'GET',
-                success: function (data) {
-                    $('.user-title').text(data.nome);
-                    $('.welcome-title').text('Bem-vindo, ' + data.nome.split(' ')[0] + '!');
+        if (localStorage.getItem('isLoggedIn') !== 'true' ||
+            localStorage.getItem('userType') !== expectedUserType) {
+            localStorage.clear();
+            window.location.href = '../login.html';
+        }
+        // Verificação de autenticação
+        document.addEventListener('DOMContentLoaded', function () {
+            // Verifica se o usuário está logado
+            if (localStorage.getItem('isLoggedIn') !== 'true') {
+                window.location.href = '../index.html';
+                return;
+            }
 
-                    // Atualizar estatísticas
-                    $('.stat-value').eq(0).text(data.turmas);
-                    $('.stat-value').eq(1).text(data.alunos);
-                    $('.stat-value').eq(2).text(data.disciplinas);
-                },
-                error: function () {
-                    console.log('Erro ao carregar dados do professor');
-                }
+            // Atualiza o nome do usuário no menu
+            const username = localStorage.getItem('username') || 'Professor';
+            $('.user-title').text(username);
+            $('.welcome-title').text(`Bem-vindo, ${username.split(' ')[0]}!`);
+
+            // Configura o botão de logout
+            $('.dropdown-item').last().on('click', function (e) {
+                e.preventDefault();
+                logout();
             });
 
-            // Carregar horários
-            $.ajax({
-                url: 'api/professor/horarios',
-                method: 'GET',
-                success: function (data) {
-                    let html = '';
-                    data.forEach(function (aula) {
-                        html += `
-                            <div class="class-item">
-                                <div class="class-name">${aula.disciplina} - ${aula.turma}</div>
-                                <div class="class-time">${aula.dia}, ${aula.horario}</div>
-                                <div class="class-room">${aula.sala}</div>
-                            </div>
-                        `;
-                    });
-                    $('.dashboard-card').eq(0).find('.class-item').first().parent().html(html);
-                },
-                error: function () {
-                    console.log('Erro ao carregar horários');
-                }
-            });
-
-            // Carregar avisos
-            $.ajax({
-                url: 'api/professor/avisos',
-                method: 'GET',
-                success: function (data) {
-                    let html = '';
-                    data.forEach(function (aviso) {
-                        html += `
-                            <div class="event-item">
-                                <div class="event-date">${aviso.data}</div>
-                                <div class="event-title">${aviso.titulo}</div>
-                            </div>
-                        `;
-                    });
-                    $('.dashboard-card').eq(1).find('.event-item').first().parent().html(html);
-                },
-                error: function () {
-                    console.log('Erro ao carregar avisos');
-                }
-            });
+            // Carrega dados do professor
+            loadProfessorData();
         });
+
+        // Função para carregar dados do professor
+        function loadProfessorData() {
+            // Simula dados do professor
+            const professorData = {
+                nome: localStorage.getItem('username') || 'Professor Exemplo',
+                turmas: 5,
+                alunos: 32,
+                disciplinas: 4
+            };
+
+            // Atualiza a interface
+            $('.user-title').text(professorData.nome);
+            $('.welcome-title').text('Bem-vindo, ' + professorData.nome.split(' ')[0] + '!');
+            $('.stat-value').eq(0).text(professorData.turmas);
+            $('.stat-value').eq(1).text(professorData.alunos);
+            $('.stat-value').eq(2).text(professorData.disciplinas);
+
+            // Simula carregamento de horários
+            const horarios = [
+                { disciplina: 'Matemática', turma: 'Turma A', dia: 'Segunda-feira', horario: '7:30 - 9:40', sala: 'Sala 10' },
+                { disciplina: 'Geografia', turma: 'Turma B', dia: 'Terça-feira', horario: '10:00 - 11:30', sala: 'Sala 15' },
+                { disciplina: 'História', turma: 'Turma A', dia: 'Quarta-feira', horario: '13:00 - 14:30', sala: 'Sala 10' }
+            ];
+
+            let html = '';
+            horarios.forEach(aula => {
+                html += `
+    <div class="class-item">
+        <div class="class-name">${aula.disciplina} - ${aula.turma}</div>
+        <div class="class-time">${aula.dia}, ${aula.horario}</div>
+        <div class="class-room">${aula.sala}</div>
+    </div>
+    `;
+            });
+            $('.dashboard-card').eq(0).find('.class-item').first().parent().html(html);
+
+            // Simula carregamento de avisos
+            const avisos = [
+                { data: '15/03/2024', titulo: 'Reunião pedagógica - Todos os professores' },
+                { data: '20/03/2024', titulo: 'Prazo final para lançamento de notas do 1º bimestre' }
+            ];
+
+            html = '';
+            avisos.forEach(aviso => {
+                html += `
+    <div class="event-item">
+        <div class="event-date">${aviso.data}</div>
+        <div class="event-title">${aviso.titulo}</div>
+    </div>
+    `;
+            });
+            html += '<div class="empty-message">Nenhum outro aviso no momento</div>';
+            $('.dashboard-card').eq(1).find('.event-item').first().parent().html(html);
+        }
+
+        // Função para logout
+        function logout() {
+            // Remove os dados de autenticação
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('username');
+
+            // Redireciona para a página de login
+            window.location.href = '../login.html';
+        }
     </script>
 </body>
 

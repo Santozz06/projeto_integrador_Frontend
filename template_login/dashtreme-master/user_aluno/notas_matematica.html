@@ -1,39 +1,41 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <title>Notas - Dashboard Acadêmico</title>
-  <link href="../assets/css/pace.min.css" rel="stylesheet"/>
+  <link href="../assets/css/pace.min.css" rel="stylesheet" />
   <script src="../assets/js/pace.min.js"></script>
   <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
-  <link href="../assets/plugins/simplebar/css/simplebar.css" rel="stylesheet"/>
-  <link href="../assets/css/bootstrap.min.css" rel="stylesheet"/>
-  <link href="../assets/css/animate.css" rel="stylesheet"/>
-  <link href="../assets/css/icons.css" rel="stylesheet"/>
-  <link href="../assets/css/sidebar-menu.css" rel="stylesheet"/>
-  <link href="../assets/css/app-style.css" rel="stylesheet"/>
+  <link href="../assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />
+  <link href="../assets/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="../assets/css/animate.css" rel="stylesheet" />
+  <link href="../assets/css/icons.css" rel="stylesheet" />
+  <link href="../assets/css/sidebar-menu.css" rel="stylesheet" />
+  <link href="../assets/css/app-style.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
   <style>
-     :root {
+    :root {
       --azul-principal: #2c5f9e;
       --texto-escuro: #333333;
       --cinza-texto: #666666;
       --borda: #e0e0e0;
     }
-    
+
     .card-componente {
       border-radius: 10px;
       border: 1px solid var(--borda);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     }
-    
+
     .card-header-componente {
       background-color: var(--azul-principal);
       color: white;
       border-radius: 10px 10px 0 0 !important;
       padding: 15px 20px;
     }
-    
+
     .btn-voltar {
       background-color: var(--azul-principal);
       color: white;
@@ -42,17 +44,17 @@
       border-radius: 5px;
       margin-top: 20px;
     }
-    
+
     .btn-voltar:hover {
       background-color: #1e4a7e;
       color: white;
     }
-    
+
     .table-notas {
       width: 100%;
       border-collapse: collapse;
     }
-    
+
     .table-notas th {
       background-color: #f8f9fa;
       color: var(--azul-principal);
@@ -60,37 +62,37 @@
       text-align: left;
       border-bottom: 2px solid var(--borda);
     }
-    
+
     .table-notas td {
       padding: 12px 15px;
       border-bottom: 1px solid var(--borda);
     }
-    
+
     .table-notas tr:hover {
       background-color: transparent;
     }
-    
+
     .rp-column {
       color: #dc3545;
       font-weight: 500;
     }
-    
+
     .resultado-aprovado {
       color: #28a745;
       font-weight: 600;
     }
-    
+
     .resultado-reprovado {
       color: #dc3545;
       font-weight: 600;
     }
-    
+
     .btn-acoes {
       display: flex;
       justify-content: space-between;
       margin-top: 20px;
     }
-    
+
     .btn-imprimir {
       background-color: white;
       color: var(--azul-principal);
@@ -98,11 +100,11 @@
       padding: 10px 25px;
       border-radius: 5px;
     }
-    
+
     .btn-imprimir:hover {
       background-color: #f0f4f9;
     }
-    
+
     /* Estilo para informações do aluno */
     .info-aluno {
       background-color: #f8fafc;
@@ -111,17 +113,17 @@
       margin-bottom: 20px;
       border-left: 4px solid var(--azul-principal);
     }
-    
+
     .info-aluno h5 {
       color: var(--azul-principal);
       margin-bottom: 10px;
     }
-    
+
     .info-aluno p {
       margin-bottom: 5px;
       color: var(--texto-escuro);
     }
-    
+
     /* Estilo para o nome da matéria */
     .nome-materia {
       font-size: 1.2rem;
@@ -130,6 +132,11 @@
       margin-bottom: 20px;
       padding-bottom: 10px;
       border-bottom: 1px solid var(--borda);
+    }
+
+    .navbar {
+      background-color: rgba(0, 0, 0, 0.2) !important;
+      backdrop-filter: blur(10px);
     }
   </style>
 </head>
@@ -148,27 +155,49 @@
         <li class="sidebar-header">NAVEGAÇÃO PRINCIPAL</li>
         <li><a href="index.html"><i class="zmdi zmdi-view-dashboard"></i> <span>Home</span></a></li>
         <li><a href="ensino.html"><i class="zmdi zmdi-assignment"></i> <span>Ensino</span></a></li>
-        <li><a href="componente_curricular.html"><i class="zmdi zmdi-calendar-note"></i> <span>Componente curricular</span></a></li>
+        <li><a href="componente_curricular.html"><i class="zmdi zmdi-calendar-note"></i> <span>Componente
+              curricular</span></a></li>
         <li><a href="notas.html" class="active"><i class="zmdi zmdi-file-text"></i> <span>Notas</span></a></li>
         <li><a href="calendario.html"><i class="zmdi zmdi-calendar"></i> <span>Calendário Acadêmico</span></a></li>
       </ul>
     </div>
 
     <!-- Topbar -->
-    <header class="topbar-nav">
+   <header class="topbar-nav">
       <nav class="navbar navbar-expand fixed-top">
         <ul class="navbar-nav mr-auto align-items-center">
           <li class="nav-item">
-            <a class="nav-link toggle-menu" href="javascript:void();"><i class="icon-menu menu-icon"></i></a>
+            <a class="nav-link toggle-menu" href="javascript:void();">
+              <i class="icon-menu menu-icon"></i>
+            </a>
           </li>
         </ul>
+
         <ul class="navbar-nav align-items-center right-nav-link">
           <li class="nav-item">
             <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
-              <span class="user-profile">
-                <img src="../assets/images/gallery/icon_usuarioBlack.png" class="img-circle" alt="user avatar">
-              </span>
+              <span class="user-profile"><img src="../assets/images/gallery/icon_usuarioBlack.png" class="img-circle"
+                  alt="user avatar"></span>
             </a>
+            <ul class="dropdown-menu dropdown-menu-right">
+              <li class="dropdown-item user-details">
+                <a href="javaScript:void();">
+                  <div class="media">
+                    <div class="avatar"><img class="align-self-start mr-3" src="https://via.placeholder.com/110x110"
+                        alt="user avatar"></div>
+                    <div class="media-body">
+                      <h6 class="mt-2 user-title" id="nomeAluno">Nome do Aluno</h6>
+                      <p class="user-subtitle" id="nomeInstituicao">Nome da Instituição</p>
+                    </div>
+                  </div>
+                </a>
+              </li>
+              <li class="dropdown-divider"></li>
+             <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
+                                    Configurações</a></li>
+              <li class="dropdown-divider"></li>
+              <li class="dropdown-item" id="logout-btn"><i class="icon-power mr-2"></i> Sair</li>
+            </ul>
           </li>
         </ul>
       </nav>
@@ -193,12 +222,12 @@
                   <p><strong>Matrícula:</strong> 20230001</p>
                   <p><strong>Período:</strong> 2023.1</p>
                 </div>
-                
+
                 <!-- Nome da Matéria Fixa -->
                 <div class="nome-materia">
                   Matemática
                 </div>
-                
+
                 <!-- Tabela de Notas -->
                 <div class="table-responsive">
                   <table class="table-notas">
@@ -228,12 +257,12 @@
                     </tbody>
                   </table>
                 </div>
-                
+
                 <!-- Legenda -->
                 <div class="mt-3">
                   <small><strong>Legenda:</strong> Rp = Recuperação Paralela</small>
                 </div>
-                
+
                 <!-- Botões de Ação -->
                 <div class="btn-acoes">
                   <a href="notas.html" class="btn btn-voltar">
@@ -263,11 +292,12 @@
   <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
   <script src="../assets/js/sidebar-menu.js"></script>
   <script src="../assets/js/app-script.js"></script>
-  
+  <script src="botaoSair.js"></script>
   <script>
-    $(document).ready(function() {
-  
+    $(document).ready(function () {
+
     });
   </script>
 </body>
+
 </html>

@@ -25,6 +25,7 @@
   <link href="../assets/css/sidebar-menu.css" rel="stylesheet" />
   <!-- Custom Style-->
   <link href="../assets/css/app-style.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
   <style>
     /* ALUNOS - Azul médio */
     .btn-alunos {
@@ -75,6 +76,95 @@
       color: #fff;
       border: none;
     }
+
+    .navbar {
+      background-color: rgba(0, 0, 0, 0.2) !important;
+      backdrop-filter: blur(10px);
+    }
+
+    /* Estilos para as notificações */
+    .dropdown-notifications {
+      width: 350px;
+      padding: 0;
+    }
+
+    .dropdown-notifications .dropdown-header {
+      padding: 1rem;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .dropdown-notifications .dropdown-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .dropdown-notifications .dropdown-item {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #e9ecef;
+      transition: all 0.3s;
+    }
+
+    .dropdown-notifications .dropdown-item:hover {
+      background-color: #f8f9fa;
+    }
+
+    .dropdown-notifications .dropdown-item .media {
+      align-items: center;
+    }
+
+    .dropdown-notifications .dropdown-item .notify-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      color: white;
+    }
+
+    .dropdown-notifications .dropdown-item .notify-details {
+      flex: 1;
+    }
+
+    .dropdown-notifications .dropdown-item .notify-title {
+      margin-bottom: 0.25rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .dropdown-notifications .dropdown-item .notify-time {
+      font-size: 0.75rem;
+      color: #6c757d;
+    }
+
+    .dropdown-notifications .dropdown-footer {
+      padding: 0.75rem;
+      text-align: center;
+      border-top: 1px solid #e9ecef;
+    }
+
+    .dropdown-notifications .dropdown-footer a {
+      color: #6c757d;
+      font-size: 0.875rem;
+    }
+
+    .dropdown-notifications .dropdown-footer a:hover {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .bg-primary-light {
+      background-color: rgba(55, 125, 255, 0.1);
+    }
+
+    .bg-success-light {
+      background-color: rgba(40, 167, 69, 0.1);
+    }
+
+    .bg-warning-light {
+      background-color: rgba(255, 193, 7, 0.1);
+    }
   </style>
 
 </head>
@@ -83,6 +173,7 @@
 
 
   <div id="wrapper">
+
 
 
     <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
@@ -122,7 +213,8 @@
             <i class="zmdi zmdi-caret-down float-right"></i>
           </a>
           <ul class="sidebar-submenu">
-            <li><a href="atestado_matricula.html"><i class="zmdi zmdi-assignment-account"></i> Atestado de matrícula</a></li>
+            <li><a href="atestado_matricula.html"><i class="zmdi zmdi-assignment-account"></i> Atestado de matrícula</a>
+            </li>
             <li><a href="atestado_frequencia.html"><i class="zmdi zmdi-time-countdown"></i> Frequência</a></li>
             <li><a href="historico.html"><i class="zmdi zmdi-assignment"></i> Histórico</a></li>
           </ul>
@@ -160,7 +252,6 @@
       </ul>
     </div>
 
-
     <header class="topbar-nav">
       <nav class="navbar navbar-expand fixed-top">
         <ul class="navbar-nav mr-auto align-items-center">
@@ -178,12 +269,63 @@
         </ul>
 
         <ul class="navbar-nav align-items-center right-nav-link">
-          <li class="nav-item dropdown-lg">
-            <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" id="navbarDropdownMenuLink"
+              role="button" data-toggle="dropdown">
               <span class="alert-count">3</span>
               <i class="icon-bell"></i>
             </a>
+            <div class="dropdown-menu dropdown-menu-right dropdown-notifications"
+              aria-labelledby="navbarDropdownMenuLink">
+              <div class="dropdown-header">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0">Notificações</h6>
+                  <small class="text-muted">3 novas</small>
+                </div>
+                <a href="javascript:void(0)" id="marcarTodasComoLidas" class="text-primary small">Marcar todas como
+                  lidas</a>
+              </div>
+              <div class="dropdown-list">
+                <a href="#" class="dropdown-item">
+                  <div class="media">
+                    <div class="notify-icon bg-primary">
+                      <i class="zmdi zmdi-account-add"></i>
+                    </div>
+                    <div class="media-body">
+                      <h6 class="notify-title">Novo aluno matriculado</h6>
+                      <p class="notify-time">Há 5 minutos</p>
+                    </div>
+                  </div>
+                </a>
+                <a href="#" class="dropdown-item">
+                  <div class="media">
+                    <div class="notify-icon bg-success">
+                      <i class="zmdi zmdi-calendar-check"></i>
+                    </div>
+                    <div class="media-body">
+                      <h6 class="notify-title">Reunião pedagógica hoje</h6>
+                      <p class="notify-time">Há 1 hora</p>
+                    </div>
+                  </div>
+                </a>
+                <a href="#" class="dropdown-item">
+                  <div class="media">
+                    <div class="notify-icon bg-warning">
+                      <i class="zmdi zmdi-alert-circle"></i>
+                    </div>
+                    <div class="media-body">
+                      <h6 class="notify-title">Documentação pendente</h6>
+                      <p class="notify-time">Ontem</p>
+                    </div>
+                  </div>
+                </a>
+              </div>
+              <div class="dropdown-footer">
+                <a href="#">Ver todas as notificações</a>
+              </div>
+            </div>
           </li>
+
           <li class="nav-item">
             <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
               <span class="user-profile"><img src="../assets/images/gallery/icon_usuarioBlack.png" class="img-circle"
@@ -203,9 +345,10 @@
                 </a>
               </li>
               <li class="dropdown-divider"></li>
-              <li class="dropdown-item"><i class="icon-settings mr-2"></i> Configurações</li>
+              <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
+                  Configurações</a></li>
               <li class="dropdown-divider"></li>
-              <li class="dropdown-item"><i class="icon-power mr-2"></i> Sair</li>
+              <li class="dropdown-item" id="logout-btn"><i class="icon-power mr-2"></i> Sair</li>
             </ul>
           </li>
         </ul>
@@ -369,9 +512,78 @@
   <script src="../assets/js/jquery.loading-indicator.js"></script>
   <!-- Custom scripts -->
   <script src="../assets/js/app-script.js"></script>
+  <script src="botaoSair.js"></script>
 
   <script>
+    // Verifica se o usuário está logado e no lugar certo
+    const expectedUserType = window.location.pathname.includes('professor') ? 'professor' :
+      window.location.pathname.includes('aluno') ? 'aluno' : 'admin';
+
+    if (localStorage.getItem('isLoggedIn') !== 'true' ||
+      localStorage.getItem('userType') !== expectedUserType) {
+      localStorage.clear();
+      window.location.href = '../login.html';
+    }
     $(document).ready(function () {
+      // Simular notificações
+      const notificacoes = [
+        {
+          id: 1,
+          tipo: 'primary',
+          icone: 'zmdi-account-add',
+          titulo: 'Novo aluno matriculado',
+          tempo: 'Há 5 minutos',
+          lida: false
+        },
+        {
+          id: 2,
+          tipo: 'success',
+          icone: 'zmdi-calendar-check',
+          titulo: 'Reunião pedagógica hoje',
+          tempo: 'Há 1 hora',
+          lida: false
+        },
+        {
+          id: 3,
+          tipo: 'warning',
+          icone: 'zmdi-alert-circle',
+          titulo: 'Documentação pendente',
+          tempo: 'Ontem',
+          lida: false
+        }
+      ];
+
+      // Atualizar contador de notificações
+      function atualizarContador() {
+        const naoLidas = notificacoes.filter(n => !n.lida).length;
+        $('.alert-count').text(naoLidas);
+        if (naoLidas === 0) {
+          $('.alert-count').hide();
+        } else {
+          $('.alert-count').show();
+        }
+      }
+
+      // Marcar todas como lidas
+      $('#marcarTodasComoLidas').click(function () {
+        notificacoes.forEach(n => n.lida = true);
+        atualizarContador();
+        $(this).closest('.dropdown-menu').find('.dropdown-item').addClass('lida');
+        $(this).text('Todas marcadas como lidas');
+      });
+
+      // Marcar notificação individual como lida ao clicar
+      $(document).on('click', '.dropdown-item', function () {
+        const index = $(this).index() - 1; // -1 porque o primeiro item é o cabeçalho
+        if (index >= 0 && index < notificacoes.length) {
+          notificacoes[index].lida = true;
+          atualizarContador();
+          $(this).addClass('lida');
+        }
+      });
+
+      // Inicializar
+      atualizarContador();
     });
   </script>
 </body>

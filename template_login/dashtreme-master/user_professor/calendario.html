@@ -14,6 +14,7 @@
     <link href="../assets/css/icons.css" rel="stylesheet" />
     <link href="../assets/css/sidebar-menu.css" rel="stylesheet" />
     <link href="../assets/css/app-style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css">
 
     <!-- FullCalendar CSS -->
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
@@ -451,7 +452,7 @@
                             <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
                                     Configurações</a></li>
                             <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-power mr-2"></i> Sair</li>
+                            <li class="dropdown-item" id="logout-btn"><i class="icon-power mr-2"></i> Sair</li>
                         </ul>
                     </li>
                 </ul>
@@ -652,7 +653,7 @@
         <script src='https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js'></script>
         <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
         <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/pt-br.js'></script>
-
+        <script src="botaoSair.js"></script>
         <!-- JS Customizado -->
         <script>
             // Escopo global

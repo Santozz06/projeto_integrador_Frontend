@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
   <meta charset="UTF-8">
   <title>Atestado de Matrícula</title>
@@ -10,7 +11,8 @@
       font-size: 16px;
       color: #000;
       line-height: 1.5;
-      opacity: 0; /* Inicia invisível */
+      opacity: 0;
+      /* Inicia invisível */
       transition: opacity 0.1s;
     }
 
@@ -62,13 +64,20 @@
     }
 
     @media print {
-      body { 
+      body {
         margin: 0;
-        opacity: 1; /* Garante visibilidade na impressão */
+        opacity: 1;
+        /* Garante visibilidade na impressão */
       }
+    }
+
+    .navbar {
+      background-color: rgba(0, 0, 0, 0.2) !important;
+      backdrop-filter: blur(10px);
     }
   </style>
 </head>
+
 <body onload="gerarPDF()">
 
   <div id="doc">
@@ -84,7 +93,10 @@
     <div class="titulo">ATESTADO DE MATRÍCULA</div>
 
     <div class="texto">
-      Atestamos, para os fins que se fizerem necessários, que o(a) estudante abaixo identificado(a) possui vínculo regular de matrícula nesta Instituição de Ensino no curso de <strong>[CURSO]</strong>, de nível <strong>[TÉCNICO / SUPERIOR]</strong>, modalidade <strong>[PRESENCIAL / EAD]</strong>, no turno <strong>[MATUTINO / VESPERTINO / NOTURNO / INTEGRAL]</strong>, conforme registro acadêmico atualizado.
+      Atestamos, para os fins que se fizerem necessários, que o(a) estudante abaixo identificado(a) possui vínculo
+      regular de matrícula nesta Instituição de Ensino no curso de <strong>[CURSO]</strong>, de nível <strong>[TÉCNICO /
+        SUPERIOR]</strong>, modalidade <strong>[PRESENCIAL / EAD]</strong>, no turno <strong>[MATUTINO / VESPERTINO /
+        NOTURNO / INTEGRAL]</strong>, conforme registro acadêmico atualizado.
     </div>
 
     <div class="dados">
@@ -114,7 +126,7 @@
     function gerarPDF() {
       // Mantém a página invisível
       document.body.style.opacity = '0';
-      
+
       const element = document.getElementById('doc');
       html2pdf().set({
         margin: 10,
@@ -134,4 +146,5 @@
   </script>
 
 </body>
+
 </html>

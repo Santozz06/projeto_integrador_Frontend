@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
   <meta charset="UTF-8">
   <title>Atestado de Frequência</title>
@@ -57,13 +58,19 @@
     }
 
     @media print {
-      body { 
+      body {
         margin: 0;
         opacity: 1;
       }
     }
+
+    .navbar {
+      background-color: rgba(0, 0, 0, 0.2) !important;
+      backdrop-filter: blur(10px);
+    }
   </style>
 </head>
+
 <body onload="gerarPDF()">
 
   <div id="doc">
@@ -80,14 +87,17 @@
 
     <div class="texto">
       Atestamos, para os fins a que se fizerem necessários, que <strong>Nome aluno(a)</strong>,
-      CPF nº <strong>123.456.789-10</strong>, possui vínculo regular de estudante nesta instituição sob o nº de matrícula
+      CPF nº <strong>123.456.789-10</strong>, possui vínculo regular de estudante nesta instituição sob o nº de
+      matrícula
       <strong>0000000</strong>.
-        modalidade <strong>presencial</strong>, no turno <strong>Matutino</strong>, ofertado pela <strong>NOME DA INSTITUIÇÃO</strong>.
+      modalidade <strong>presencial</strong>, no turno <strong>Matutino</strong>, ofertado pela <strong>NOME DA
+        INSTITUIÇÃO</strong>.
     </div>
 
     <div class="texto">
       Atestamos ainda, que <strong>Aluno(a)</strong> apresenta frequência global de <strong>n%</strong>
-      (x por cento) no período letivo <strong id="ano-letivo">2025</strong> (<strong>13/02/2025</strong> à <strong>12/12/2025</strong>).
+      (x por cento) no período letivo <strong id="ano-letivo">2025</strong> (<strong>13/02/2025</strong> à
+      <strong>12/12/2025</strong>).
     </div>
 
     <div class="rodape">
@@ -109,19 +119,19 @@
     // Pega o ano da URL
     const urlParams = new URLSearchParams(window.location.search);
     const ano = urlParams.get('ano') || '2025';
-    
+
     // Atualiza os dados dinâmicos
     document.getElementById('ano-letivo').textContent = ano;
     document.getElementById('codigo-verificacao').textContent = `FREQ-${ano}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
-    
+
     // Formata a data atual
     const hoje = new Date();
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     document.getElementById('data-emissao').textContent = hoje.toLocaleDateString('pt-BR', options);
-    
+
     function gerarPDF() {
       document.body.style.opacity = '0';
-      
+
       const element = document.getElementById('doc');
       html2pdf().set({
         margin: 10,
@@ -141,4 +151,5 @@
     }
   </script>
 </body>
+
 </html>

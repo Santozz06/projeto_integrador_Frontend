@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
+    <link rel="stylesheet" href="style.css">
     <style>
         body {
             background: linear-gradient(to right, #2c3e50, #3498db);
@@ -194,7 +195,7 @@
                             <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
                                     Configurações</a></li>
                             <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-power mr-2"></i> Sair</li>
+                            <li class="dropdown-item" id="logout-btn"><i class="icon-power mr-2"></i> Sair</li>
                         </ul>
                     </li>
                 </ul>
@@ -248,6 +249,7 @@
     <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
+    <script src="botaoSair.js"></script>
     <script>
         $(function () {
             $('.sidebar-menu').sidebarMenu();

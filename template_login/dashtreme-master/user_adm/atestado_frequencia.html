@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
+    <link rel="stylesheet" href="style.css">
     <style>
         .filter-section {
             background-color: transparent !important;
@@ -129,6 +130,11 @@
                 display: none !important;
             }
         }
+
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.2) !important;
+            backdrop-filter: blur(10px);
+        }
     </style>
 </head>
 
@@ -172,8 +178,10 @@
                         <i class="zmdi zmdi-caret-down float-right"></i>
                     </a>
                     <ul class="sidebar-submenu">
-                        <li><a href="atestado_matricula.html"><i class="zmdi zmdi-assignment-account"></i> Atestado de matrícula</a></li>
-                        <li><a href="atestado_frequencia.html" class="active"><i class="zmdi zmdi-time-countdown"></i> Frequência</a></li>
+                        <li><a href="atestado_matricula.html"><i class="zmdi zmdi-assignment-account"></i> Atestado de
+                                matrícula</a></li>
+                        <li><a href="atestado_frequencia.html" class="active"><i class="zmdi zmdi-time-countdown"></i>
+                                Frequência</a></li>
                         <li><a href="historico.html"><i class="zmdi zmdi-assignment"></i> Histórico</a></li>
                     </ul>
                 </li>
@@ -246,9 +254,10 @@
                                 </a>
                             </li>
                             <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-settings mr-2"></i> Configurações</li>
+                            <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
+                                    Configurações</a></li>
                             <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><i class="icon-power mr-2"></i> Sair</li>
+                            <li class="dropdown-item" id="logout-btn"><i class="icon-power mr-2"></i> Sair</li>
                         </ul>
                     </li>
                 </ul>
@@ -261,7 +270,8 @@
                 <div class="card">
                     <div class="card-body no-print">
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h4 class="page-title"><i class="zmdi zmdi-time-countdown mr-2"></i> Atestado de Frequência</h4>
+                            <h4 class="page-title"><i class="zmdi zmdi-time-countdown mr-2"></i> Atestado de Frequência
+                            </h4>
                         </div>
 
                         <!-- Filtros -->
@@ -339,25 +349,26 @@
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="botaoSair.js"></script>
     <script>
         $(document).ready(function () {
             // Dados de exemplo 
             const alunosPorTurma = {
                 "Turma A": [
-                    { 
-                        id: 1, 
-                        nome: "Ana Silva", 
-                        matricula: "20250001", 
-                        curso: "Ensino Médio Integrado ao Técnico em Informática", 
+                    {
+                        id: 1,
+                        nome: "Ana Silva",
+                        matricula: "20250001",
+                        curso: "Ensino Médio Integrado ao Técnico em Informática",
                         frequencia: "85%",
                         faltas: 12,
                         presencas: 68,
                         totalAulas: 80
                     },
-                    { 
-                        id: 2, 
-                        nome: "Bruno Oliveira", 
-                        matricula: "20250002", 
+                    {
+                        id: 2,
+                        nome: "Bruno Oliveira",
+                        matricula: "20250002",
                         curso: "Ensino Médio Integrado ao Técnico em Informática",
                         frequencia: "92%",
                         faltas: 6,
@@ -366,20 +377,20 @@
                     }
                 ],
                 "Turma B": [
-                    { 
-                        id: 3, 
-                        nome: "Carlos Souza", 
-                        matricula: "20250003", 
+                    {
+                        id: 3,
+                        nome: "Carlos Souza",
+                        matricula: "20250003",
                         curso: "Ensino Médio Regular",
                         frequencia: "78%",
                         faltas: 17,
                         presencas: 63,
                         totalAulas: 80
                     },
-                    { 
-                        id: 4, 
-                        nome: "Daniela Costa", 
-                        matricula: "20250004", 
+                    {
+                        id: 4,
+                        nome: "Daniela Costa",
+                        matricula: "20250004",
                         curso: "Ensino Médio Regular",
                         frequencia: "95%",
                         faltas: 4,
@@ -533,15 +544,15 @@
                     margin: 10,
                     filename: `atestado_frequencia_${alunoSelecionado.matricula}.pdf`,
                     image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { 
+                    html2canvas: {
                         scale: 2,
                         logging: false,
                         useCORS: true,
                         backgroundColor: null
                     },
-                    jsPDF: { 
-                        unit: 'mm', 
-                        format: 'a4', 
+                    jsPDF: {
+                        unit: 'mm',
+                        format: 'a4',
                         orientation: 'portrait',
                         hotfixes: ["px_scaling"]
                     }
@@ -563,4 +574,5 @@
         });
     </script>
 </body>
+
 </html>
