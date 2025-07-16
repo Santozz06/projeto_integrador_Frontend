@@ -1,31 +1,29 @@
-  // Verifica se o usuário está logado e no lugar certo
-    const expectedUserType = window.location.pathname.includes('professor') ? 'professor' :
-      window.location.pathname.includes('aluno') ? 'aluno' : 'admin';
+// botaoSair.js
 
-    if (localStorage.getItem('isLoggedIn') !== 'true' ||
-      localStorage.getItem('userType') !== expectedUserType) {
-      localStorage.clear();
-      window.location.href = '../login.html';
-    }
+// Lógica de verificação de sessão
+(function () {
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  const userType = localStorage.getItem('userType');
 
-    function logout() {
-      // Remove os dados de autenticação
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('userType');
-      localStorage.removeItem('username');
+  if (!isLoggedIn || !userType) {
+    window.location.href = '../login.html';
+    return;
+  }
 
-      // Adiciona o alerta antes do redirecionamento
-      alert('Você saiu do sistema!');
-      window.location.href = '../login.html';
-    }
+  // Verifica se a pasta atual é compatível com o tipo de usuário
+  const path = window.location.pathname.toLowerCase();
 
-    // Vincula ao botão "Sair"
-    document.addEventListener('DOMContentLoaded', function () {
-      const logoutBtn = document.getElementById('logout-btn');
-      if (logoutBtn) {
-        logoutBtn.addEventListener('click', function (e) {
-          e.preventDefault();
-          logout();
-        });
-      }
-    });
+  if (
+    (userType === 'admin' && !path.includes('/user_adm/')) ||
+    (userType === 'professor' && !path.includes('/user_professor/')) ||
+    (userType === 'aluno' && !path.includes('/user_aluno/'))
+  ) {
+    window.location.href = '../login.html';
+  }
+})();
+
+// Lógica do botão de sair
+document.getElementById('logout-btn')?.addEventListener('click', function () {
+  localStorage.clear();
+  window.location.href = '../login.html';
+});
