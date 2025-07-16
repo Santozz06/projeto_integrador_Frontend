@@ -139,7 +139,7 @@
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('userType', userType);
 
-        // Redirecionamentos absolutos (ajuste conforme sua estrutura)
+        // Redirecionamentos absolutos 
         const redirectPages = {
           'professor': 'user_professor/home.html',
           'aluno': 'user_aluno/index.html',
@@ -147,7 +147,7 @@
         };
 
         window.location.href = redirectPages[userType];
-      }, 300); // Delay pequeno para evitar conflitos
+      }, 300); 
     }
 
     // Configuração inicial

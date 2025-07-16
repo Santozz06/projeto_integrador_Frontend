@@ -165,6 +165,25 @@
     .bg-warning-light {
       background-color: rgba(255, 193, 7, 0.1);
     }
+
+    /* Estilos para os botões em mobile */
+    @media (max-width: 768px) {
+      .btn-round {
+        width: 100%;
+        margin-bottom: 15px;
+        padding: 12px;
+        font-size: 14px;
+      }
+
+      .btn-round i {
+        font-size: 24px;
+        margin-bottom: 5px;
+      }
+
+      .card-body .row.text-center>div {
+        padding: 0 8px;
+      }
+    }
   </style>
 
 </head>
@@ -419,7 +438,7 @@
                     </a>
                   </div>
                   <div class="col-6 col-md-3">
-                    <a href="#" class="btn btn-round btn-turmas">
+                    <a href="cadastroTurmas.html" class="btn btn-round btn-turmas">
                       <i class="zmdi zmdi-group-work fa-2x"></i><br> Turmas
                     </a>
                   </div>
@@ -429,7 +448,7 @@
                     </a>
                   </div>
                   <div class="col-6 col-md-3">
-                    <a href="#" class="btn btn-round btn-calendario">
+                    <a href="calendario.html" class="btn btn-round btn-calendario">
                       <i class="zmdi zmdi-calendar fa-2x"></i><br> Calendário
                     </a>
                   </div>

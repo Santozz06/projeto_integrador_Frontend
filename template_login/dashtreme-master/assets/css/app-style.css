@@ -930,26 +930,26 @@ body.bg-theme15 {
 
 .btn-secondary {
 	color: #fff;
-	background-color: #94614f;
-	border-color: #94614f
+	background-color: #e74c3c;
+	border-color: #e74c3c
 }
 .btn-secondary:hover {
 	color: #fff;
-	background-color: #82503f;
-	border-color: #82503f
+	background-color: #e74c3c;
+	border-color: #e74c3c
 }
 .btn-secondary.focus, .btn-secondary:focus {
 	box-shadow:none;
 }
 .btn-secondary.disabled, .btn-secondary:disabled {
 	color: #fff;
-	background-color: #82503f;
-	border-color: #82503f
+	background-color: #e74c3c;
+	border-color: #e74c3c
 }
 .btn-secondary:not(:disabled):not(.disabled).active, .btn-secondary:not(:disabled):not(.disabled):active, .show>.btn-secondary.dropdown-toggle {
 	color: #fff;
-	background-color: #82503f;
-	border-color: #82503f
+	background-color: #e74c3c;
+	border-color: #e74c3c
 }
 .btn-secondary:not(:disabled):not(.disabled).active:focus, .btn-secondary:not(:disabled):not(.disabled):active:focus, .show>.btn-secondary.dropdown-toggle:focus {
 	box-shadow:none;
