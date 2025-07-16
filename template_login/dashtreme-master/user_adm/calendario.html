@@ -139,7 +139,7 @@
         #calendar {
             background-color: rgba(255, 255, 255, 0.03);
             border-radius: 8px;
-            padding: 10px;
+            a padding: 10px;
         }
 
         #calendar {
@@ -294,19 +294,47 @@
 
         @media (max-width: 991.98px) {
             .content-wrapper {
-                padding-top: 60px;
+                padding-top: 70px;
+                margin-left: 0 !important;
             }
 
             #sidebar-wrapper {
-                width: 70px;
-                overflow: hidden;
+                position: fixed;
+                left: -250px;
+                top: 0;
+                width: 250px;
+                height: 100%;
+                background-color: #000000;
+                transition: all 0.3s ease-in-out;
+                z-index: 9999;
+            }
+
+            #wrapper.menu-toggled #sidebar-wrapper {
+                left: 0;
+            }
+
+            .overlay.toggle-menu {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background-color: #000000;
+                z-index: 9998;
+            }
+
+            #wrapper.menu-toggled .overlay.toggle-menu {
+                display: block;
             }
 
             .brand-logo h5,
             .sidebar-menu li span {
-                display: none;
+                display: inline-block;
             }
         }
+
+
 
         @media (max-width: 767.98px) {
             .row {
@@ -456,7 +484,7 @@
                                 </a>
                             </li>
                             <li class="dropdown-divider"></li>
-                             <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
+                            <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
                                     Configurações</a></li>
                             <li class="dropdown-divider"></li>
                             <li class="dropdown-item" id="logout-btn"><i class="icon-power mr-2"></i> Sair</li>
@@ -706,6 +734,10 @@
             }
 
             $(document).ready(function () {
+                $('.toggle-menu').click(function () {
+                    $('#wrapper').toggleClass('menu-toggled');
+                });
+
                 // Inicializa calendário
                 var calendarEl = document.getElementById('calendar');
                 var calendar = new FullCalendar.Calendar(calendarEl, {
