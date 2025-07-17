@@ -111,11 +111,11 @@ $(document).ready(function () {
     function validarFormularioServidor() {
         let valido = true;
         const campos = [
-            'nomeCompletoServidor', 'dataNascimentoServidor', 'estadoCivilServidor',
-            'cpfServidor', 'rgServidor', 'orgaoExpedidorServidor', 'ufDocumentoServidor',
-            'cepServidor', 'logradouroServidor', 'numeroServidor', 'bairroServidor',
-            'municipioServidor', 'ufEnderecoServidor', 'celularServidor', 'emailServidor',
-            'cargoFuncao', 'matricula', 'dataAdmissao', 'formacaoAcademica', 'areaAtuacao'
+            'nomeCompletoServidor', 'dataNascimentoServidor', 'sexoServidor', 'racaCorServidor','estadoCivilServidor',
+            'nacionalidadeServidor', 'naturalidadeServidor', 'filiacaoServidor','cpfServidor', 'rgServidor', 'orgaoExpedidorServidor', 'ufDocumentoServidor',
+            'cepServidor', 'logradouroServidor', 'numeroServidor', 'complementoServidor','bairroServidor',
+            'tituloEleitor','municipioServidor', 'ufEnderecoServidor', 'celularServidor', 'emailServidor',
+            'cargoFuncao', 'matriculaServidor', 'dataAdmissao', 'formacaoAcademica', 'areaAtuacao'
         ];
 
         // Resetar validações
@@ -198,22 +198,20 @@ $(document).ready(function () {
     // Ao tentar salvar formulário de servidor
     $('#formServidor').on('submit', function (e) {
         e.preventDefault();
+        console.log("Formulário servidor submetido"); // Debug
 
-        // Esconder mensagem de sucesso anterior
         $('#successMessage').hide();
+        console.log("Mensagem escondida"); // Debug
 
-        // Validar formulário
         if (validarFormularioServidor()) {
-            // Formulário válido - mostrar mensagem de sucesso
+            console.log("Formulário válido, mostrando mensagem"); // Debug
             $('#successMessage').fadeIn();
 
-            // Rolando a página para mostrar a mensagem
             $('html, body').animate({
                 scrollTop: 0
             }, 500);
-
         } else {
-            // Rolando para o primeiro erro
+            console.log("Formulário inválido"); // Debug
             $('html, body').animate({
                 scrollTop: $('.is-invalid').first().offset().top - 100
             }, 500);
