@@ -17,6 +17,11 @@
             color: #ecf0f1;
         }
 
+        .content-wrapper {
+            padding: 20px;
+            padding-top: 80px;
+        }
+
         .dashboard-card {
             background: rgba(255, 255, 255, 0.05);
             padding: 25px;
@@ -127,28 +132,53 @@
             color: #bdc3c7;
         }
 
+
+        .welcome-message {
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
         @media (max-width: 992px) {
+
+            .content-wrapper {
+                padding-top: 70px;
+            }
+
+            .navbar-nav .search-bar {
+                display: flex !important;
+                width: 100%;
+                margin: 10px 0;
+                order: 2;
+            }
+
             .quick-stats {
                 flex-direction: column;
                 gap: 15px;
+                margin-top: 15px;
             }
 
             .stat-item {
-                margin: 0;
                 width: 100%;
+                margin: 0;
+                padding: 12px;
             }
 
             .dashboard-card {
-                padding: 20px;
+                padding: 18px;
+                margin-bottom: 20px;
             }
 
+            /* Mensagem de boas-vindas */
             .welcome-message {
                 padding: 15px;
+                margin-bottom: 20px;
             }
 
             .class-item,
             .event-item {
-                padding: 10px;
+                padding: 12px;
+                margin-bottom: 12px;
             }
 
             .stat-value {
@@ -161,6 +191,7 @@
 
             .card-title {
                 font-size: 1.2em;
+                margin-bottom: 15px;
             }
 
             .welcome-title {
@@ -171,42 +202,75 @@
                 font-size: 0.95em;
             }
 
-            .navbar-nav .search-bar {
-                display: none;
+            .navbar-expand .navbar-nav {
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+
+            .navbar .nav-item {
+                margin: 2px 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-wrapper {
+                padding-top: 60px;
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+
+            .dashboard-card {
+                padding: 15px;
+            }
+
+            .class-item,
+            .event-item {
+                padding: 10px;
+            }
+
+            .row>div[class*="col-"] {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+
+            .search-bar {
+                width: 100%;
+                margin: 8px 0;
+            }
+
+            .search-bar .form-control {
+                font-size: 14px;
             }
         }
 
         @media (max-width: 576px) {
-            .content-wrapper .row>div {
-                width: 100%;
-                max-width: 100%;
+
+            .content-wrapper {
+                padding-top: 55px;
+                padding-left: 10px;
+                padding-right: 10px;
+                padding-bottom: 10px;
             }
 
-            .quick-stats {
-                flex-direction: column;
+            .stat-value {
+                font-size: 18px;
             }
 
-            .stat-item {
-                margin: 10px 0;
+            .card-title {
+                font-size: 1.1em;
             }
 
-            .dashboard-card {
-                margin-bottom: 20px;
+            .class-item,
+            .event-item {
+                padding: 8px 10px;
+                margin-bottom: 10px;
             }
 
             .event-date,
-            .class-room,
-            .class-time {
-                font-size: 0.85em;
-            }
-
-            .class-name,
-            .event-title {
-                font-size: 1em;
-            }
-
-            .navbar .navbar-nav {
-                flex-direction: column;
+            .class-time,
+            .class-room {
+                font-size: 0.8em;
             }
         }
 
