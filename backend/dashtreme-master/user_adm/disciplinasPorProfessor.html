@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disciplinas por Professor - Dashboard Acadêmico</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/app-style.css">
+    <link rel="stylesheet" href="../assets/css/icons.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .teacher-photo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e0e0e0;
+        }
+
+        .filter-section {
+            background-color: transparent !important;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .btn-custom-print {
+            background-color: #3498db !important;
+            color: white !important;
+            border: none !important;
+        }
+
+        .btn-custom-print:hover {
+            background-color: #2980b9 !important;
+        }
+
+        .discipline-badge {
+            background-color: #e3f2fd;
+            color: #1976d2;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+
+        @media print {
+
+            .no-print,
+            #sidebar-wrapper,
+            .topbar-nav,
+            .dataTables_filter,
+            .dataTables_paginate,
+            .dataTables_info,
+            .dataTables_length {
+                display: none !important;
+            }
+
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 12pt !important;
+                margin: 0;
+                padding: 1cm;
+            }
+
+            .content-wrapper {
+                margin: 0 !important;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+
+            th,
+            td {
+                border: 1px solid #000 !important;
+                padding: 6px 10px !important;
+                font-size: 11pt;
+                color: #000 !important;
+            }
+
+            .teacher-photo {
+                display: none !important;
+            }
+
+            .discipline-badge {
+                border: 1px solid #ccc !important;
+                padding: 2px 5px !important;
+            }
+        }
+
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.2) !important;
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+
+<body class="bg-theme bg-theme1">
+    <div id="wrapper">
+        <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
+            <div class="brand-logo">
+                <a href="home.html">
+                    <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
+                    <h5 class="logo-text">Dashboard Acadêmico</h5>
+                </a>
+            </div>
+            <ul class="sidebar-menu do-nicescrol">
+                <li class="sidebar-header">NAVEGAÇÃO PRINCIPAL</li>
+                <li>
+                    <a href="home.html">
+                        <i class="zmdi zmdi-view-dashboard"></i> <span>Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="cadastro.html">
+                        <i class="zmdi zmdi-accounts"></i> <span>Cadastro</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="cadastro.html#aluno"><i class="zmdi zmdi-accounts-alt"></i> Alunos</a></li>
+                        <li><a href="cadastroTurmas.html" class="active"><i class="zmdi zmdi-group-work"></i> Turmas</a>
+                        </li>
+                        <li><a href="cadastro.html#servidor"><i class="zmdi zmdi-account-box"></i> Servidores</a></li>
+                        <li><a href="gerenciarVinculos.html"><i class="zmdi zmdi-link"></i> Gerenciar vínculos</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="relatorios.html">
+                        <i class="zmdi zmdi-chart"></i> <span>Relatórios</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="atestados.html">
+                        <i class="zmdi zmdi-file-text"></i> <span>Atestados</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="atestado_matricula.html"><i class="zmdi zmdi-assignment-account"></i> Atestado de
+                                matrícula</a></li>
+                        <li><a href="atestado_frequencia.html"><i class="zmdi zmdi-time-countdown"></i> Frequência</a>
+                        </li>
+                        <li><a href="historico.html"><i class="zmdi zmdi-assignment"></i> Histórico</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="matricula.html">
+                        <i class="zmdi zmdi-assignment-check"></i> <span>Matrícula</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="transferencias.html"><i class="zmdi zmdi-account-add"></i> Transferências</a></li>
+                        <li><a href="rematriculas.html"><i class="zmdi zmdi-refresh"></i> Rematrículas</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="disciplinas.html">
+                        <i class="zmdi zmdi-book"></i> <span>Disciplinas</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="cadastrar.html"><i class="zmdi zmdi-plus-circle"></i> Cadastrar</a></li>
+                        <li><a href="notas.html"><i class="zmdi zmdi-check-circle"></i> Notas</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="academico.html">
+                        <i class="zmdi zmdi-graduation-cap"></i> <span>Acadêmico</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="calendario.html"><i class="zmdi zmdi-calendar"></i> Calendário</a></li>
+                        <li><a href="documentos.html"><i class="zmdi zmdi-file"></i> Documentos</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <header class="topbar-nav">
+            <nav class="navbar navbar-expand fixed-top">
+                <ul class="navbar-nav mr-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link toggle-menu" href="javascript:void();">
+                            <i class="icon-menu menu-icon"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <form class="search-bar">
+                            <input type="text" class="form-control" placeholder="Pesquisar">
+                            <a href="javascript:void();"><i class="icon-magnifier"></i></a>
+                        </form>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav align-items-center right-nav-link">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
+                            <span class="user-profile"><img src="../assets/images/gallery/icon_usuarioBlack.png"
+                                    class="img-circle" alt="user avatar"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li class="dropdown-item user-details">
+                                <a href="javaScript:void();">
+                                    <div class="media">
+                                        <div class="avatar"><img class="align-self-start mr-3"
+                                                src="https://via.placeholder.com/110x110" alt="user avatar"></div>
+                                        <div class="media-body">
+                                            <h6 class="mt-2 user-title">Administrador</h6>
+                                            <p class="user-subtitle">admin@escola.com</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="dropdown-divider"></li>
+                            <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
+                                    Configurações</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li class="dropdown-item" id="logout-btn"><i class="icon-power mr-2"></i> Sair</li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="container-fluid">
+                <div class="card" style="background-color: transparent;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+                            <h4 class="page-title"><i class="zmdi zmdi-book mr-2"></i> Disciplinas por Professor</h4>
+                            <button id="print-btn" class="btn btn-custom-print">
+                                <i class="zmdi zmdi-print mr-2"></i>Imprimir Relatório
+                            </button>
+                        </div>
+
+                        <div class="filter-section no-print">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="periodo-filter">Período Letivo</label>
+                                        <select class="form-control" id="periodo-filter">
+                                            <option value="">2024 - 1º Semestre</option>
+                                            <option>2023 - 2º Semestre</option>
+                                            <option>2023 - 1º Semestre</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="professor-filter">Professor</label>
+                                        <select class="form-control" id="professor-filter">
+                                            <option value="">Todos Professores</option>
+                                            <option>Maria da Silva</option>
+                                            <option>João Oliveira</option>
+                                            <option>Ana Santos</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="disciplina-filter">Disciplina</label>
+                                        <select class="form-control" id="disciplina-filter">
+                                            <option value="">Todas Disciplinas</option>
+                                            <option>Matemática</option>
+                                            <option>Português</option>
+                                            <option>Ciências</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="disciplines-table">
+                                <thead>
+                                    <tr>
+                                        <th>Professor</th>
+                                        <th>Matrícula</th>
+                                        <th>Disciplinas</th>
+                                        <th>Turmas</th>
+                                        <th>Carga Horária</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <img src="../user_adm/imagens/icon_sor.png" class="teacher-photo mr-2"
+                                                alt="Professor" onerror="this.src='../assets/images/default-user.png'">
+                                            Maria da Silva
+                                        </td>
+                                        <td>PROF2023001</td>
+                                        <td>
+                                            <span class="badge discipline-badge">Matemática</span>
+                                            <span class="badge discipline-badge">Geometria</span>
+                                        </td>
+                                        <td>1ºA, 2ºB, 3ºC</td>
+                                        <td>20h/semana</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <img src="../user_adm/imagens/icon_sor.png" class="teacher-photo mr-2"
+                                                alt="Professor" onerror="this.src='../assets/images/default-user.png'">
+                                            João Oliveira
+                                        </td>
+                                        <td>PROF2023002</td>
+                                        <td>
+                                            <span class="badge discipline-badge">Ciências</span>
+                                            <span class="badge discipline-badge">Biologia</span>
+                                        </td>
+                                        <td>1ºB, 2ºC</td>
+                                        <td>15h/semana</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <img src="../user_adm/imagens/icon_sor.png" class="teacher-photo mr-2"
+                                                alt="Professor" onerror="this.src='../assets/images/default-user.png'">
+                                            Ana Santos
+                                        </td>
+                                        <td>PROF2023003</td>
+                                        <td>
+                                            <span class="badge discipline-badge">Português</span>
+                                            <span class="badge discipline-badge">Literatura</span>
+                                        </td>
+                                        <td>1ºC, 2ºA, 3ºB</td>
+                                        <td>18h/semana</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="overlay toggle-menu"></div>
+    </div>
+
+    <script src="../assets/js/jquery.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
+    <script src="../assets/js/sidebar-menu.js"></script>
+    <script src="../assets/js/app-script.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+    <script src="botaoSair.js"></script>
+    <script>
+        $(document).ready(function () {
+            const table = $('#disciplines-table').DataTable({
+                responsive: true,
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/pt-BR.json'
+                },
+                dom: '<"top"f>rt<"bottom"lip><"clear">'
+            });
+
+            // Filtros
+            $('#professor-filter, #disciplina-filter').change(function () {
+                table.draw();
+            });
+
+            // Filtro personalizado
+            $.fn.dataTable.ext.search.push(
+                function (settings, data) {
+                    const professor = $('#professor-filter').val();
+                    const disciplina = $('#disciplina-filter').val();
+                    const rowProfessor = data[0];
+                    const rowDisciplinas = data[2];
+
+                    return (!professor || rowProfessor.includes(professor)) &&
+                        (!disciplina || rowDisciplinas.includes(disciplina));
+                }
+            );
+
+            $('#print-btn').click(function () {
+                const originalTitle = document.title;
+                document.title = 'Disciplinas por Professor - Dashboard Acadêmico';
+
+                $('.no-print').hide();
+                $('body').addClass('printing');
+
+                setTimeout(() => {
+                    window.print();
+                    $('.no-print').show();
+                    $('body').removeClass('printing');
+                    document.title = originalTitle;
+                }, 300);
+            });
+        });
+    </script>
+</body>
+
+</html>

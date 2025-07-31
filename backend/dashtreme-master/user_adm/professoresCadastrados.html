@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Professores - Dashboard Acadêmico</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/app-style.css">
+    <link rel="stylesheet" href="../assets/css/icons.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
+    <link rel="stylesheet" href="style.css">
+
+
+    <style>
+        .teacher-photo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e0e0e0;
+        }
+
+        .filter-section {
+            background-color: transparent !important;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .btn-custom-print {
+            background-color: #3498db !important;
+            color: white !important;
+            border: none !important;
+        }
+
+        .btn-custom-print:hover {
+            background-color: #2980b9 !important;
+        }
+
+        @media print {
+
+            .no-print,
+            #sidebar-wrapper,
+            .topbar-nav,
+            .dataTables_filter,
+            .dataTables_paginate,
+            .dataTables_info,
+            .dataTables_length {
+                display: none !important;
+            }
+
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 12pt !important;
+                margin: 0;
+                padding: 1cm;
+            }
+
+            .content-wrapper {
+                margin: 0 !important;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+
+            th,
+            td {
+                border: 1px solid #000 !important;
+                padding: 6px 10px !important;
+                font-size: 11pt;
+                color: #000 !important;
+            }
+
+            .teacher-photo {
+                display: none !important;
+            }
+        }
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.2) !important;
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+
+<body class="bg-theme bg-theme1">
+    <div id="wrapper">
+        <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
+            <div class="brand-logo">
+                <a href="home.html">
+                    <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
+                    <h5 class="logo-text">Dashboard Acadêmico</h5>
+                </a>
+            </div>
+            <ul class="sidebar-menu do-nicescrol">
+                <li class="sidebar-header">NAVEGAÇÃO PRINCIPAL</li>
+                <li>
+                    <a href="home.html">
+                        <i class="zmdi zmdi-view-dashboard"></i> <span>Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="cadastro.html">
+                        <i class="zmdi zmdi-accounts"></i> <span>Cadastro</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="cadastro.html#aluno"><i class="zmdi zmdi-accounts-alt"></i> Alunos</a></li>
+                        <li><a href="cadastroTurmas.html" class="active"><i class="zmdi zmdi-group-work"></i> Turmas</a>
+                        </li>
+                        <li><a href="cadastro.html#servidor"><i class="zmdi zmdi-account-box"></i> Servidores</a></li>
+                        <li><a href="gerenciarVinculos.html"><i class="zmdi zmdi-link"></i> Gerenciar vínculos</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="relatorios.html">
+                        <i class="zmdi zmdi-chart"></i> <span>Relatórios</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="atestados.html">
+                        <i class="zmdi zmdi-file-text"></i> <span>Atestados</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="atestado_matricula.html"><i class="zmdi zmdi-assignment-account"></i> Atestado de matrícula</a></li>
+                        <li><a href="atestado_frequencia.html"><i class="zmdi zmdi-time-countdown"></i> Frequência</a></li>
+                        <li><a href="historico.html"><i class="zmdi zmdi-assignment"></i> Histórico</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="matricula.html">
+                        <i class="zmdi zmdi-assignment-check"></i> <span>Matrícula</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="transferencias.html"><i class="zmdi zmdi-account-add"></i> Transferências</a></li>
+                        <li><a href="rematriculas.html"><i class="zmdi zmdi-refresh"></i> Rematrículas</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="disciplinas.html">
+                        <i class="zmdi zmdi-book"></i> <span>Disciplinas</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="cadastrar.html"><i class="zmdi zmdi-plus-circle"></i> Cadastrar</a></li>
+                        <li><a href="notas.html"><i class="zmdi zmdi-check-circle"></i> Notas</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="academico.html">
+                        <i class="zmdi zmdi-graduation-cap"></i> <span>Acadêmico</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="calendario.html"><i class="zmdi zmdi-calendar"></i> Calendário</a></li>
+                        <li><a href="documentos.html"><i class="zmdi zmdi-file"></i> Documentos</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <header class="topbar-nav">
+            <nav class="navbar navbar-expand fixed-top">
+                <ul class="navbar-nav mr-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link toggle-menu" href="javascript:void();">
+                            <i class="icon-menu menu-icon"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <form class="search-bar">
+                            <input type="text" class="form-control" placeholder="Pesquisar">
+                            <a href="javascript:void();"><i class="icon-magnifier"></i></a>
+                        </form>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav align-items-center right-nav-link">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
+                            <span class="user-profile"><img src="../assets/images/gallery/icon_usuarioBlack.png"
+                                    class="img-circle" alt="user avatar"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li class="dropdown-item user-details">
+                                <a href="javaScript:void();">
+                                    <div class="media">
+                                        <div class="avatar"><img class="align-self-start mr-3"
+                                                src="https://via.placeholder.com/110x110" alt="user avatar"></div>
+                                        <div class="media-body">
+                                            <h6 class="mt-2 user-title">Administrador</h6>
+                                            <p class="user-subtitle">admin@escola.com</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="dropdown-divider"></li>
+                            <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
+                                    Configurações</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li class="dropdown-item" id="logout-btn"><i class="icon-power mr-2"></i> Sair</li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+
+
+        <div class="content-wrapper">
+            <div class="container-fluid">
+                <div class="card" style="background-color: transparent;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+                            <h4 class="page-title"><i class="zmdi zmdi-account-box mr-2"></i> Relatório de Professores
+                            </h4>
+                            <button id="print-btn" class="btn btn-custom-print">
+                                <i class="zmdi zmdi-print mr-2"></i>Imprimir Relatório
+                            </button>
+                        </div>
+
+                        <div class="filter-section no-print">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="department-filter">Departamento</label>
+                                        <select class="form-control" id="department-filter">
+                                            <option value="">Todos</option>
+                                            <option>Matemática</option>
+                                            <option>Ciências</option>
+                                            <option>Língua Portuguesa</option>
+                                            <option>História</option>
+                                            <option>Geografia</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="status-filter">Status</label>
+                                        <select class="form-control" id="status-filter">
+                                            <option value="">Todos</option>
+                                            <option>Ativo</option>
+                                            <option>Inativo</option>
+                                            <option>Afastado</option>
+                                            <option>Licença</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="teachers-table">
+                                <thead>
+                                    <tr>
+                                        <th>Foto</th>
+                                        <th>Nome</th>
+                                        <th>Matrícula</th>
+                                        <th>Departamento</th>
+                                        <th>Status</th>
+                                        <th>Turmas Vinculadas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><img src="../user_adm/imagens/icon_sor.png" class="teacher-photo"
+                                                alt="Professor" onerror="this.src='../assets/images/default-user.png'">
+                                        </td>
+                                        <td>Maria da Silva</td>
+                                        <td>PROF2023001</td>
+                                        <td>Matemática</td>
+                                        <td>Ativo</td>
+                                        <td>1º A, 2º B</td>
+                                    </tr>
+                                    <tr>
+                                        <td><img src="../user_adm/imagens/icon_sor.png" class="teacher-photo"
+                                                alt="Professor" onerror="this.src='../assets/images/default-user.png'">
+                                        </td>
+                                        <td>João Oliveira</td>
+                                        <td>PROF2023002</td>
+                                        <td>Ciências</td>
+                                        <td>Ativo</td>
+                                        <td>3º A, 4º B</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="overlay toggle-menu"></div>
+    </div>
+     
+
+    <script src="../assets/js/jquery.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
+    <script src="../assets/js/sidebar-menu.js"></script>
+    <script src="../assets/js/app-script.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+    <script src="botaoSair.js"></script>
+    <script>
+        $(document).ready(function () {
+            const table = $('#teachers-table').DataTable({
+                responsive: true,
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/pt-BR.json'
+                },
+                dom: '<"top"f>rt<"bottom"lip><"clear">'
+            });
+
+            $('#department-filter, #status-filter').change(function () {
+                table.draw();
+            });
+
+            $.fn.dataTable.ext.search.push(
+                function (settings, data) {
+                    const dept = $('#department-filter').val();
+                    const status = $('#status-filter').val();
+                    const rowDept = data[3];
+                    const rowStatus = data[4];
+
+                    return (!dept || rowDept.includes(dept)) && (!status || rowStatus.includes(status));
+                }
+            );
+
+            $('#print-btn').click(function () {
+                const images = document.querySelectorAll('img.teacher-photo');
+                let allLoaded = true;
+
+                images.forEach(img => {
+                    if (!img.complete || img.naturalWidth === 0) {
+                        allLoaded = false;
+                    }
+                });
+
+                if (!allLoaded) {
+                    alert("Espere as imagens carregarem completamente antes de imprimir.");
+                    return;
+                }
+
+                const originalTitle = document.title;
+                document.title = 'Relatório de Professores - Dashboard Acadêmico';
+
+                $('.no-print').hide();
+                $('body').addClass('printing');
+
+                setTimeout(() => {
+                    window.print();
+                    $('.no-print').show();
+                    $('body').removeClass('printing');
+                    document.title = originalTitle;
+                }, 300);
+            });
+        });
+    </script>
+</body>
+
+</html>

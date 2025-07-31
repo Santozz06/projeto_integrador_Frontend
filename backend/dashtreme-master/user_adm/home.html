@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description" content="Dashboard Acadêmico - Administrador" />
+  <meta name="author" content="" />
+  <title>Dashboard Acadêmico - Admin</title>
+  <!-- loader-->
+  <link href="../assets/css/pace.min.css" rel="stylesheet" />
+  <script src="../assets/js/pace.min.js"></script>
+  <!--favicon-->
+  <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
+  <!-- simplebar CSS-->
+  <link href="../assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />
+  <!-- Bootstrap core CSS-->
+  <link href="../assets/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- animate CSS-->
+  <link href="../assets/css/animate.css" rel="stylesheet" type="text/css" />
+  <!-- Icons CSS-->
+  <link href="../assets/css/icons.css" rel="stylesheet" type="text/css" />
+  <!-- Sidebar CSS-->
+  <link href="../assets/css/sidebar-menu.css" rel="stylesheet" />
+  <!-- Custom Style-->
+  <link href="../assets/css/app-style.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+  <style>
+    /* ALUNOS - Azul médio */
+    .btn-alunos {
+      background-color: #377dff;
+      color: white;
+      border: none;
+    }
+
+    .btn-alunos:hover {
+      background-color: #2b6edb;
+    }
+
+    /* TURMAS - Verde azulado */
+    .btn-turmas {
+      background-color: #1abc9c;
+      color: white;
+      border: none;
+    }
+
+    .btn-turmas:hover {
+      background-color: #16a085;
+    }
+
+    /* SERVIDORES - Azul escuro */
+    .btn-servidores {
+      background-color: #3498db;
+      color: white;
+      border: none;
+    }
+
+    .btn-servidores:hover {
+      background-color: #2980b9;
+    }
+
+    /* CALENDÁRIO - Roxo claro */
+    .btn-calendario {
+      background-color: #8e44ad;
+      color: white;
+      border: none;
+    }
+
+    .btn-calendario:hover {
+      background-color: #6c3483;
+    }
+
+    .alert-warning {
+      background-color: #9b59b6;
+      color: #fff;
+      border: none;
+    }
+
+    .navbar {
+      background-color: rgba(0, 0, 0, 0.2) !important;
+      backdrop-filter: blur(10px);
+    }
+
+    /* Estilos para as notificações */
+    .dropdown-notifications {
+      width: 350px;
+      padding: 0;
+    }
+
+    .dropdown-notifications .dropdown-header {
+      padding: 1rem;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .dropdown-notifications .dropdown-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .dropdown-notifications .dropdown-item {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #e9ecef;
+      transition: all 0.3s;
+    }
+
+    .dropdown-notifications .dropdown-item:hover {
+      background-color: #f8f9fa;
+    }
+
+    .dropdown-notifications .dropdown-item .media {
+      align-items: center;
+    }
+
+    .dropdown-notifications .dropdown-item .notify-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      color: white;
+    }
+
+    .dropdown-notifications .dropdown-item .notify-details {
+      flex: 1;
+    }
+
+    .dropdown-notifications .dropdown-item .notify-title {
+      margin-bottom: 0.25rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .dropdown-notifications .dropdown-item .notify-time {
+      font-size: 0.75rem;
+      color: #6c757d;
+    }
+
+    .dropdown-notifications .dropdown-footer {
+      padding: 0.75rem;
+      text-align: center;
+      border-top: 1px solid #e9ecef;
+    }
+
+    .dropdown-notifications .dropdown-footer a {
+      color: #6c757d;
+      font-size: 0.875rem;
+    }
+
+    .dropdown-notifications .dropdown-footer a:hover {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .bg-primary-light {
+      background-color: rgba(55, 125, 255, 0.1);
+    }
+
+    .bg-success-light {
+      background-color: rgba(40, 167, 69, 0.1);
+    }
+
+    .bg-warning-light {
+      background-color: rgba(255, 193, 7, 0.1);
+    }
+
+    /* Estilos para os botões em mobile */
+    @media (max-width: 768px) {
+      .btn-round {
+        width: 100%;
+        margin-bottom: 15px;
+        padding: 12px;
+        font-size: 14px;
+      }
+
+      .btn-round i {
+        font-size: 24px;
+        margin-bottom: 5px;
+      }
+
+      .card-body .row.text-center>div {
+        padding: 0 8px;
+      }
+    }
+  </style>
+
+</head>
+
+<body class="bg-theme bg-theme1">
+
+
+  <div id="wrapper">
+
+
+
+    <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
+      <div class="brand-logo">
+        <a href="home.html">
+          <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
+          <h5 class="logo-text">Dashboard Acadêmico</h5>
+        </a>
+      </div>
+      <ul class="sidebar-menu do-nicescrol">
+        <li class="sidebar-header">NAVEGAÇÃO PRINCIPAL</li>
+        <li>
+          <a href="home.html" class="active">
+            <i class="zmdi zmdi-view-dashboard"></i> <span>Home</span>
+          </a>
+        </li>
+        <li>
+          <a href="cadastro.html">
+            <i class="zmdi zmdi-accounts"></i> <span>Cadastro</span>
+            <i class="zmdi zmdi-caret-down float-right"></i>
+          </a>
+          <ul class="sidebar-submenu">
+            <li><a href="cadastro.html#aluno"><i class="zmdi zmdi-accounts-alt"></i> Alunos</a></li>
+            <li><a href="cadastroTurmas.html"><i class="zmdi zmdi-group-work"></i> Turmas</a></li>
+            <li><a href="cadastro.html#servidor"><i class="zmdi zmdi-account-box"></i> Servidores</a></li>
+            <li><a href="gerenciarVinculos.html"><i class="zmdi zmdi-link"></i> Gerenciar vínculos</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="relatorios.html">
+            <i class="zmdi zmdi-chart"></i> <span>Relatórios</span>
+          </a>
+        </li>
+        <li>
+          <a href="atestados.html">
+            <i class="zmdi zmdi-file-text"></i> <span>Atestados</span>
+            <i class="zmdi zmdi-caret-down float-right"></i>
+          </a>
+          <ul class="sidebar-submenu">
+            <li><a href="atestado_matricula.html"><i class="zmdi zmdi-assignment-account"></i> Atestado de matrícula</a>
+            </li>
+            <li><a href="atestado_frequencia.html"><i class="zmdi zmdi-time-countdown"></i> Frequência</a></li>
+            <li><a href="historico.html"><i class="zmdi zmdi-assignment"></i> Histórico</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="matricula.html">
+            <i class="zmdi zmdi-assignment-check"></i> <span>Matrícula</span>
+            <i class="zmdi zmdi-caret-down float-right"></i>
+          </a>
+          <ul class="sidebar-submenu">
+            <li><a href="transferencias.html"><i class="zmdi zmdi-account-add"></i> Transferências</a></li>
+            <li><a href="rematriculas.html"><i class="zmdi zmdi-refresh"></i> Rematrículas</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="disciplinas.html">
+            <i class="zmdi zmdi-book"></i> <span>Disciplinas</span>
+            <i class="zmdi zmdi-caret-down float-right"></i>
+          </a>
+          <ul class="sidebar-submenu">
+            <li><a href="cadastrar.html"><i class="zmdi zmdi-plus-circle"></i> Cadastrar</a></li>
+            <li><a href="notas.html"><i class="zmdi zmdi-check-circle"></i> Notas</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="academico.html">
+            <i class="zmdi zmdi-graduation-cap"></i> <span>Acadêmico</span>
+            <i class="zmdi zmdi-caret-down float-right"></i>
+          </a>
+          <ul class="sidebar-submenu">
+            <li><a href="calendario.html"><i class="zmdi zmdi-calendar"></i> Calendário</a></li>
+            <li><a href="documentos.html"><i class="zmdi zmdi-file"></i> Documentos</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <header class="topbar-nav">
+      <nav class="navbar navbar-expand fixed-top">
+        <ul class="navbar-nav mr-auto align-items-center">
+          <li class="nav-item">
+            <a class="nav-link toggle-menu" href="javascript:void();">
+              <i class="icon-menu menu-icon"></i>
+            </a>
+          </li>
+          <li class="nav-item">
+            <form class="search-bar">
+              <input type="text" class="form-control" placeholder="Pesquisar">
+              <a href="javascript:void();"><i class="icon-magnifier"></i></a>
+            </form>
+          </li>
+        </ul>
+
+        <ul class="navbar-nav align-items-center right-nav-link">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" id="navbarDropdownMenuLink"
+              role="button" data-toggle="dropdown">
+              <span class="alert-count">3</span>
+              <i class="icon-bell"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right dropdown-notifications"
+              aria-labelledby="navbarDropdownMenuLink">
+              <div class="dropdown-header">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0">Notificações</h6>
+                  <small class="text-muted">3 novas</small>
+                </div>
+                <a href="javascript:void(0)" id="marcarTodasComoLidas" class="text-primary small">Marcar todas como
+                  lidas</a>
+              </div>
+              <div class="dropdown-list">
+                <a href="#" class="dropdown-item">
+                  <div class="media">
+                    <div class="notify-icon bg-primary">
+                      <i class="zmdi zmdi-account-add"></i>
+                    </div>
+                    <div class="media-body">
+                      <h6 class="notify-title">Novo aluno matriculado</h6>
+                      <p class="notify-time">Há 5 minutos</p>
+                    </div>
+                  </div>
+                </a>
+                <a href="#" class="dropdown-item">
+                  <div class="media">
+                    <div class="notify-icon bg-success">
+                      <i class="zmdi zmdi-calendar-check"></i>
+                    </div>
+                    <div class="media-body">
+                      <h6 class="notify-title">Reunião pedagógica hoje</h6>
+                      <p class="notify-time">Há 1 hora</p>
+                    </div>
+                  </div>
+                </a>
+                <a href="#" class="dropdown-item">
+                  <div class="media">
+                    <div class="notify-icon bg-warning">
+                      <i class="zmdi zmdi-alert-circle"></i>
+                    </div>
+                    <div class="media-body">
+                      <h6 class="notify-title">Documentação pendente</h6>
+                      <p class="notify-time">Ontem</p>
+                    </div>
+                  </div>
+                </a>
+              </div>
+              <div class="dropdown-footer">
+                <a href="#">Ver todas as notificações</a>
+              </div>
+            </div>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
+              <span class="user-profile"><img src="../assets/images/gallery/icon_usuarioBlack.png" class="img-circle"
+                  alt="user avatar"></span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-right">
+              <li class="dropdown-item user-details">
+                <a href="javaScript:void();">
+                  <div class="media">
+                    <div class="avatar"><img class="align-self-start mr-3" src="https://via.placeholder.com/110x110"
+                        alt="user avatar"></div>
+                    <div class="media-body">
+                      <h6 class="mt-2 user-title" id="nomeAdmin">Nome do Administrador</h6>
+                      <p class="user-subtitle" id="nomeInstituicao">Nome da Instituição</p>
+                    </div>
+                  </div>
+                </a>
+              </li>
+              <li class="dropdown-divider"></li>
+              <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
+                  Configurações</a></li>
+              <li class="dropdown-divider"></li>
+              <li class="dropdown-item" id="logout-btn"><i class="icon-power mr-2"></i> Sair</li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+
+    <div class="clearfix"></div>
+
+    <div class="content-wrapper">
+      <div class="container-fluid">
+
+
+        <div class="row">
+          <div class="col-12 col-lg-8">
+            <div class="card">
+              <div class="card-header text-white" style="background-color: var(--azul-cabecalho);">
+                <h5 class="text-white">Painel do Administrador</h5>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="card bg-light-primary">
+                      <div class="card-body">
+                        <h6 class="card-title">Ano Letivo Atual</h6>
+                        <h4 class="mb-0">2025</h4>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="card bg-light-success">
+                      <div class="card-body">
+                        <h6 class="card-title">Total de Matrículas</h6>
+                        <h4 class="mb-0">1,245</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-lg-4">
+            <div class="card">
+              <div class="card-header">
+                <h5>Avisos Importantes</h5>
+              </div>
+              <div class="card-body">
+                <div class="alert alert-warning">
+                  <strong>Data limite:</strong> A documentação Y deve ser enviada para a direção até 15/03/2025
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mt-4">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h5>Acesso Rápido</h5>
+              </div>
+              <div class="card-body">
+                <div class="row text-center">
+                  <div class="col-6 col-md-3">
+                    <a href="cadastro.html#aluno" class="btn btn-round btn-alunos">
+                      <i class="zmdi zmdi-accounts-alt fa-2x"></i><br> Alunos
+                    </a>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <a href="cadastroTurmas.html" class="btn btn-round btn-turmas">
+                      <i class="zmdi zmdi-group-work fa-2x"></i><br> Turmas
+                    </a>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <a href="cadastro.html#servidor" class="btn btn-round btn-servidores">
+                      <i class="zmdi zmdi-account-box fa-2x"></i><br> Servidores
+                    </a>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <a href="calendario.html" class="btn btn-round btn-calendario">
+                      <i class="zmdi zmdi-calendar fa-2x"></i><br> Calendário
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloco de Últimas Movimentações -->
+        <div class="row mt-4">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h5>Últimas Movimentações</h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Data</th>
+                        <th>Aluno</th>
+                        <th>Tipo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>10/03/2025</td>
+                        <td>João Silva</td>
+                        <td><span class="badge badge-success">Matrícula</span></td>
+                      </tr>
+                      <tr>
+                        <td>08/03/2025</td>
+                        <td>Maria Souza</td>
+                        <td><span class="badge badge-info">Transferência</span></td>
+                      </tr>
+                      <tr>
+                        <td>05/03/2025</td>
+                        <td>Carlos Oliveira</td>
+                        <td><span class="badge badge-primary">Rematrícula</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!--start overlay-->
+        <div class="overlay toggle-menu"></div>
+      </div>
+    </div>
+
+
+    <!--Start footer-->
+    <footer class="footer">
+      <div class="container">
+        <div class="text-center">
+          Copyright © 2023 Dashboard Acadêmico
+        </div>
+      </div>
+    </footer>
+    <!--End footer-->
+
+  </div>
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="../assets/js/jquery.min.js"></script>
+  <script src="../assets/js/popper.min.js"></script>
+  <script src="../assets/js/bootstrap.min.js"></script>
+
+  <!-- simplebar js -->
+  <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
+  <!-- sidebar-menu js -->
+  <script src="../assets/js/sidebar-menu.js"></script>
+  <!-- loader scripts -->
+  <script src="../assets/js/jquery.loading-indicator.js"></script>
+  <!-- Custom scripts -->
+  <script src="../assets/js/app-script.js"></script>
+  <script src="botaoSair.js"></script>
+
+  <script>
+    // Verifica se o usuário está logado e no lugar certo
+    const expectedUserType = window.location.pathname.includes('professor') ? 'professor' :
+      window.location.pathname.includes('aluno') ? 'aluno' : 'admin';
+
+    if (localStorage.getItem('isLoggedIn') !== 'true' ||
+      localStorage.getItem('userType') !== expectedUserType) {
+      localStorage.clear();
+      window.location.href = '../login.html';
+    }
+    $(document).ready(function () {
+      // Simular notificações
+      const notificacoes = [
+        {
+          id: 1,
+          tipo: 'primary',
+          icone: 'zmdi-account-add',
+          titulo: 'Novo aluno matriculado',
+          tempo: 'Há 5 minutos',
+          lida: false
+        },
+        {
+          id: 2,
+          tipo: 'success',
+          icone: 'zmdi-calendar-check',
+          titulo: 'Reunião pedagógica hoje',
+          tempo: 'Há 1 hora',
+          lida: false
+        },
+        {
+          id: 3,
+          tipo: 'warning',
+          icone: 'zmdi-alert-circle',
+          titulo: 'Documentação pendente',
+          tempo: 'Ontem',
+          lida: false
+        }
+      ];
+
+      // Atualizar contador de notificações
+      function atualizarContador() {
+        const naoLidas = notificacoes.filter(n => !n.lida).length;
+        $('.alert-count').text(naoLidas);
+        if (naoLidas === 0) {
+          $('.alert-count').hide();
+        } else {
+          $('.alert-count').show();
+        }
+      }
+
+      // Marcar todas como lidas
+      $('#marcarTodasComoLidas').click(function () {
+        notificacoes.forEach(n => n.lida = true);
+        atualizarContador();
+        $(this).closest('.dropdown-menu').find('.dropdown-item').addClass('lida');
+        $(this).text('Todas marcadas como lidas');
+      });
+
+      // Marcar notificação individual como lida ao clicar
+      $(document).on('click', '.dropdown-item', function () {
+        const index = $(this).index() - 1; // -1 porque o primeiro item é o cabeçalho
+        if (index >= 0 && index < notificacoes.length) {
+          notificacoes[index].lida = true;
+          atualizarContador();
+          $(this).addClass('lida');
+        }
+      });
+
+      // Inicializar
+      atualizarContador();
+    });
+  </script>
+</body>
+
+</html>

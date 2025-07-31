@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Disciplinas - Dashboard Acadêmico</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/app-style.css">
+    <link rel="stylesheet" href="../assets/css/icons.css">
+    <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: linear-gradient(to right, #2c3e50, #3498db);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #ecf0f1;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            margin: 40px auto;
+        }
+
+        .form-group label {
+            color: #71affe;
+            font-weight: 600;
+        }
+
+        .form-control {
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 1px solid #71affe;
+            color: #fff;
+            border-radius: 6px;
+        }
+
+        .form-control:focus {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border-color: #1abc9c;
+            box-shadow: 0 0 0 0.2rem rgba(26, 188, 156, 0.25);
+        }
+
+        .btn-salvar {
+            background-color: #1abc9c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+        }
+
+        .btn-salvar:hover {
+            background-color: #16a085;
+        }
+
+        .btn-cancelar {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+        }
+
+        .btn-cancelar:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-voltar {
+            background-color: #7f8c8d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+        }
+
+        .btn-voltar:hover {
+            background-color: #616a6b;
+        }
+
+        .section-title {
+            color: #71affe;
+            border-bottom: 2px solid #71affe;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+
+        input::placeholder,
+        select,
+        textarea {
+            color: #ecf0f1;
+        }
+
+        option {
+            color: #e4dfdf;
+        }
+
+        select.form-control option {
+            background-color: rgba(45, 65, 91, 0.9);
+            color: #ecf0f1;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        .bold-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.2) !important;
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+
+<body class="bg-theme bg-theme1">
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
+            <div class="brand-logo">
+                <a href="home.html">
+                    <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
+                    <h5 class="logo-text">Dashboard Acadêmico</h5>
+                </a>
+            </div>
+            <ul class="sidebar-menu do-nicescrol">
+                <li class="sidebar-header">NAVEGAÇÃO PRINCIPAL</li>
+                <li>
+                    <a href="home.html">
+                        <i class="zmdi zmdi-view-dashboard"></i> <span>Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="cadastro.html">
+                        <i class="zmdi zmdi-accounts"></i> <span>Cadastro</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="cadastro.html#aluno"><i class="zmdi zmdi-accounts-alt"></i> Alunos</a></li>
+                        <li><a href="cadastroTurmas.html"><i class="zmdi zmdi-group-work"></i> Turmas</a></li>
+                        <li><a href="cadastro.html#servidor"><i class="zmdi zmdi-account-box"></i> Servidores</a></li>
+                        <li><a href="gerenciarVinculos.html"><i class="zmdi zmdi-link"></i> Gerenciar vínculos</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="relatorios.html">
+                        <i class="zmdi zmdi-chart"></i> <span>Relatórios</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="atestados.html">
+                        <i class="zmdi zmdi-file-text"></i> <span>Atestados</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="atestado_matricula.html"><i class="zmdi zmdi-assignment-account"></i> Atestado de
+                                matrícula</a></li>
+                        <li><a href="atestado_frequencia.html"><i class="zmdi zmdi-time-countdown"></i> Frequência</a>
+                        </li>
+                        <li><a href="historico.html"><i class="zmdi zmdi-assignment"></i> Histórico</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="matricula.html">
+                        <i class="zmdi zmdi-assignment-check"></i> <span>Matrícula</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="transferencias.html"><i class="zmdi zmdi-account-add"></i> Transferências</a></li>
+                        <li><a href="rematriculas.html"><i class="zmdi zmdi-refresh"></i> Rematrículas</a></li>
+                    </ul>
+                <li>
+                    <a href="disciplinas.html">
+                        <i class="zmdi zmdi-book"></i> <span>Disciplinas</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="cadastrar.html" class="active"><i class="zmdi zmdi-plus-circle"></i> Cadastrar</a>
+                        </li>
+                        <li><a href="notas.html"><i class="zmdi zmdi-check-circle"></i> Notas</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="academico.html">
+                        <i class="zmdi zmdi-graduation-cap"></i> <span>Acadêmico</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="calendario.html"><i class="zmdi zmdi-calendar"></i> Calendário</a></li>
+                        <li><a href="documentos.html"><i class="zmdi zmdi-file"></i> Documentos</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Topbar -->
+        <header class="topbar-nav">
+            <nav class="navbar navbar-expand fixed-top">
+                <ul class="navbar-nav mr-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link toggle-menu" href="javascript:void();">
+                            <i class="icon-menu menu-icon"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <form class="search-bar">
+                            <input type="text" class="form-control" placeholder="Pesquisar">
+                            <a href="javascript:void();"><i class="icon-magnifier"></i></a>
+                        </form>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav align-items-center right-nav-link">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
+                            <span class="user-profile"><img src="../assets/images/gallery/icon_usuarioBlack.png"
+                                    class="img-circle" alt="user avatar"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li class="dropdown-item user-details">
+                                <a href="javaScript:void();">
+                                    <div class="media">
+                                        <div class="avatar"><img class="align-self-start mr-3"
+                                                src="https://via.placeholder.com/110x110" alt="user avatar"></div>
+                                        <div class="media-body">
+                                            <h6 class="mt-2 user-title">Administrador</h6>
+                                            <p class="user-subtitle">admin@escola.com</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="dropdown-divider"></li>
+                            <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
+                                    Configurações</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li class="dropdown-item" id="logout-btn"><i class="icon-power mr-2"></i> Sair</li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Conteúdo principal -->
+        <div class="content-wrapper">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card" style="background-color: transparent; border: none; box-shadow: none;">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h4 class="page-title"><i class="zmdi zmdi-plus-circle mr-2"></i> Cadastrar
+                                        Disciplina</h4>
+                                </div>
+
+                                <!-- Formulário de cadastro de disciplina -->
+                                <div class="form-container">
+                                    <form id="form-disciplina">
+                                        <!-- Seção Dados da Disciplina -->
+                                        <div class="form-section">
+                                            <h5 class="section-title">DADOS DA DISCIPLINA</h5>
+                                            <div class="form-group">
+                                                <div class="bold-title">Disciplina</div>
+                                                <input type="text" id="nome-disciplina" class="form-control"
+                                                    placeholder="Nome da disciplina">
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="bold-title">Carga horária</div>
+                                                <input type="number" id="carga-horaria" class="form-control"
+                                                    placeholder="Horas totais">
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="bold-title">Professor</div>
+                                                <select id="professor" class="form-control">
+                                                    <option value="">Selecione o professor</option>
+                                                    <option value="1">Prof. João Silva</option>
+                                                    <option value="2">Prof. Maria Souza</option>
+                                                    <option value="3">Prof. Carlos Oliveira</option>
+                                                    <option value="4">Prof. Ana Pereira</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="bold-title">Etapa/série</div>
+                                                <select id="etapa-serie" class="form-control">
+                                                    <option value="">Selecione a etapa/série</option>
+                                                    <option value="1">1º Ano</option>
+                                                    <option value="2">2º Ano</option>
+                                                    <option value="3">3º Ano</option>
+                                                    <option value="4">4º Ano</option>
+                                                    <option value="5">5º Ano</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Botões -->
+                                        <div class="btn-group">
+                                            <button type="submit" class="btn-salvar" id="btn-salvar">Salvar</button>
+                                            <button type="button" class="btn-cancelar"
+                                                id="btn-cancelar">Cancelar</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="overlay toggle-menu"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/jquery.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
+    <script src="../assets/js/sidebar-menu.js"></script>
+    <script src="../assets/js/app-script.js"></script>
+    <script src="botaoSair.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Validação e envio do formulário
+            $('#form-disciplina').submit(function (e) {
+                e.preventDefault();
+
+                if (validarFormulario()) {
+                    const disciplina = {
+                        nome: $('#nome-disciplina').val(),
+                        cargaHoraria: $('#carga-horaria').val(),
+                        professor: $('#professor option:selected').text(),
+                        professorId: $('#professor').val(),
+                        etapaSerie: $('#etapa-serie option:selected').text(),
+                        etapaSerieId: $('#etapa-serie').val()
+                    };
+
+                    console.log('Dados da disciplina:', disciplina);
+                    alert('Disciplina cadastrada com sucesso!');
+                    limparFormulario();
+                }
+            });
+
+            // Botão Cancelar
+            $('#btn-cancelar').click(function () {
+                if (confirm('Deseja realmente cancelar? Todos os dados não salvos serão perdidos.')) {
+                    limparFormulario();
+                }
+            });
+
+            // Validação do formulário
+            function validarFormulario() {
+                if ($('#nome-disciplina').val() === '') {
+                    alert('Por favor, informe o nome da disciplina');
+                    return false;
+                }
+                if ($('#carga-horaria').val() === '' || $('#carga-horaria').val() <= 0) {
+                    alert('Por favor, informe uma carga horária válida');
+                    return false;
+                }
+                if ($('#professor').val() === '') {
+                    alert('Por favor, selecione o professor');
+                    return false;
+                }
+                if ($('#etapa-serie').val() === '') {
+                    alert('Por favor, selecione a etapa/série');
+                    return false;
+                }
+                return true;
+            }
+
+            // Limpar formulário
+            function limparFormulario() {
+                $('#nome-disciplina').val('');
+                $('#carga-horaria').val('');
+                $('#professor').val('');
+                $('#etapa-serie').val('');
+            }
+        });
+    </script>
+
+</body>
+
+</html>

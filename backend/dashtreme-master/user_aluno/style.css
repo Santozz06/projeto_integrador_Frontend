@@ -1,0 +1,50 @@
+/* Efeito para o botão Sair */
+#logout-btn {
+  transition: all 0.3s ease;
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+
+#logout-btn:hover {
+  background-color: #ff4444 !important;
+  /* Vermelho suave */
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 68, 68, 0.2);
+}
+
+#logout-btn i {
+  transition: all 0.3s ease;
+}
+
+#logout-btn:hover i {
+  transform: rotate(15deg);
+}
+
+/* Correção para os itens do dropdown */
+.dropdown-item {
+  padding: 8px 16px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.dropdown-item i {
+  margin-right: 10px !important;
+  width: 20px !important;
+  text-align: center !important;
+}
+
+/* Especificamente para o botão Sair */
+#logout-btn {
+  display: flex !important;
+  align-items: center !important;
+  padding: 8px 16px !important;
+  margin: 0 !important;
+  width: 100% !important;
+  border-radius: 0 !important;
+}
+
+#logout-btn:hover {
+  background-color: #ff4444 !important;
+  color: white !important;
+}
