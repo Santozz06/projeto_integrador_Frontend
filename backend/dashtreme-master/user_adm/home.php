@@ -197,7 +197,7 @@
 
     <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
       <div class="brand-logo">
-        <a href="home.html">
+        <a href="home.php">
           <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
           <h5 class="logo-text">Dashboard Acadêmico</h5>
         </a>
@@ -448,7 +448,7 @@
                     </a>
                   </div>
                   <div class="col-6 col-md-3">
-                    <a href="calendario.html" class="btn btn-round btn-calendario">
+                    <a href="calendario.php" class="btn btn-round btn-calendario">
                       <i class="zmdi zmdi-calendar fa-2x"></i><br> Calendário
                     </a>
                   </div>
@@ -534,15 +534,6 @@
   <script src="botaoSair.js"></script>
 
   <script>
-    // Verifica se o usuário está logado e no lugar certo
-    const expectedUserType = window.location.pathname.includes('professor') ? 'professor' :
-      window.location.pathname.includes('aluno') ? 'aluno' : 'admin';
-
-    if (localStorage.getItem('isLoggedIn') !== 'true' ||
-      localStorage.getItem('userType') !== expectedUserType) {
-      localStorage.clear();
-      window.location.href = '../login.html';
-    }
     $(document).ready(function () {
       // Simular notificações
       const notificacoes = [
