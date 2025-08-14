@@ -166,6 +166,7 @@
                 background-color: white !important;
             }
         }
+
         .navbar {
             background-color: rgba(0, 0, 0, 0.2) !important;
             backdrop-filter: blur(10px);
@@ -174,215 +175,94 @@
 </head>
 
 <body class="bg-theme bg-theme1">
-    <div id="wrapper">
-        <!-- Sidebar -->
-        <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
-            <div class="brand-logo">
-                <a href="home.html">
-                    <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
-                    <h5 class="logo-text">Dashboard Acadêmico</h5>
-                </a>
-            </div>
-            <ul class="sidebar-menu do-nicescrol">
-                <li class="sidebar-header">NAVEGAÇÃO PRINCIPAL</li>
-                <li>
-                    <a href="home.html">
-                        <i class="zmdi zmdi-view-dashboard"></i> <span>Home</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="cadastro.html">
-                        <i class="zmdi zmdi-accounts"></i> <span>Cadastro</span>
-                        <i class="zmdi zmdi-caret-down float-right"></i>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="cadastro.html#aluno"><i class="zmdi zmdi-accounts-alt"></i> Alunos</a></li>
-                        <li><a href="cadastroTurmas.html"><i class="zmdi zmdi-group-work"></i> Turmas</a></li>
-                        <li><a href="cadastro.html#servidor"><i class="zmdi zmdi-account-box"></i> Servidores</a></li>
-                        <li><a href="gerenciarVinculos.html"><i class="zmdi zmdi-link"></i> Gerenciar vínculos</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="relatorios.html">
-                        <i class="zmdi zmdi-chart"></i> <span>Relatórios</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="atestados.html">
-                        <i class="zmdi zmdi-file-text"></i> <span>Atestados</span>
-                        <i class="zmdi zmdi-caret-down float-right"></i>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="atestado_matricula.html"><i class="zmdi zmdi-assignment-account"></i> Atestado de
-                                matrícula</a></li>
-                        <li><a href="atestado_frequencia.html" class="active"><i class="zmdi zmdi-time-countdown"></i>
-                                Frequência</a></li>
-                        <li><a href="historico.html"><i class="zmdi zmdi-assignment"></i> Histórico</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="matricula.html">
-                        <i class="zmdi zmdi-assignment-check"></i> <span>Matrícula</span>
-                        <i class="zmdi zmdi-caret-down float-right"></i>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="transferencias.html"><i class="zmdi zmdi-account-add"></i> Transferências</a></li>
-                        <li><a href="rematriculas.html"><i class="zmdi zmdi-refresh"></i> Rematrículas</a></li>
-                    </ul>
-                <li>
-                    <a href="disciplinas.html">
-                        <i class="zmdi zmdi-book"></i> <span>Disciplinas</span>
-                        <i class="zmdi zmdi-caret-down float-right"></i>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="cadastrar.html"><i class="zmdi zmdi-plus-circle"></i> Cadastrar</a></li>
-                        <li><a href="notas.html"><i class="zmdi zmdi-check-circle"></i> Notas</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="academico.html">
-                        <i class="zmdi zmdi-graduation-cap"></i> <span>Acadêmico</span>
-                        <i class="zmdi zmdi-caret-down float-right"></i>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="calendario.html"><i class="zmdi zmdi-calendar"></i> Calendário</a></li>
-                        <li><a href="documentos.html"><i class="zmdi zmdi-file"></i> Documentos</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
+    <?php
+    require("menu_padrão.php");
+    ?>
 
-        <!-- Topbar -->
-        <header class="topbar-nav">
-            <nav class="navbar navbar-expand fixed-top">
-                <ul class="navbar-nav mr-auto align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link toggle-menu" href="javascript:void();">
-                            <i class="icon-menu menu-icon"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <form class="search-bar">
-                            <input type="text" class="form-control" placeholder="Pesquisar">
-                            <a href="javascript:void();"><i class="icon-magnifier"></i></a>
-                        </form>
-                    </li>
-                </ul>
+    <!-- Conteúdo principal -->
+    <div class="content-wrapper">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-body no-print">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="page-title"><i class="zmdi zmdi-assignment mr-2"></i> Histórico Escolar</h4>
+                    </div>
 
-                <ul class="navbar-nav align-items-center right-nav-link">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
-                            <span class="user-profile"><img src="../assets/images/gallery/icon_usuarioBlack.png"
-                                    class="img-circle" alt="user avatar"></span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li class="dropdown-item user-details">
-                                <a href="javaScript:void();">
-                                    <div class="media">
-                                        <div class="avatar"><img class="align-self-start mr-3"
-                                                src="https://via.placeholder.com/110x110" alt="user avatar"></div>
-                                        <div class="media-body">
-                                            <h6 class="mt-2 user-title">Administrador</h6>
-                                            <p class="user-subtitle">admin@escola.com</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
-                                    Configurações</a></li>
-                            <li class="dropdown-divider"></li>
-                            <li class="dropdown-item" id="logout-btn"><i class="icon-power mr-2"></i> Sair</li>
-                        </ul>
-                    </li>
-                </ul>
-            </nav>
-        </header>
-
-        <!-- Conteúdo principal -->
-        <div class="content-wrapper">
-            <div class="container-fluid">
-                <div class="card">
-                    <div class="card-body no-print">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h4 class="page-title"><i class="zmdi zmdi-assignment mr-2"></i> Histórico Escolar</h4>
-                        </div>
-
-                        <!-- Filtros -->
-                        <div class="filter-section">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="ano-letivo">Ano Letivo</label>
-                                        <select class="form-control" id="ano-letivo">
-                                            <option>2025</option>
-                                            <option>2024</option>
-                                            <option>2023</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="serie">Série</label>
-                                        <select class="form-control" id="serie">
-                                            <option value="">Todas</option>
-                                            <option>1º Ano</option>
-                                            <option>2º Ano</option>
-                                            <option>3º Ano</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="turma">Turma</label>
-                                        <select class="form-control" id="turma">
-                                            <option value="">Selecione uma turma</option>
-                                            <option>Turma A</option>
-                                            <option>Turma B</option>
-                                            <option>Turma C</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Lista de Alunos -->
+                    <!-- Filtros -->
+                    <div class="filter-section">
                         <div class="row">
-                            <div class="col-md-12">
-                                <h5>Alunos Matriculados</h5>
-                                <div class="card student-list">
-                                    <div class="card-body">
-                                        <div id="alunos-container">
-                                            <p class="text-white">Selecione uma turma para visualizar os alunos.</p>
-                                        </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="ano-letivo">Ano Letivo</label>
+                                    <select class="form-control" id="ano-letivo">
+                                        <option>2025</option>
+                                        <option>2024</option>
+                                        <option>2023</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="serie">Série</label>
+                                    <select class="form-control" id="serie">
+                                        <option value="">Todas</option>
+                                        <option>1º Ano</option>
+                                        <option>2º Ano</option>
+                                        <option>3º Ano</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="turma">Turma</label>
+                                    <select class="form-control" id="turma">
+                                        <option value="">Selecione uma turma</option>
+                                        <option>Turma A</option>
+                                        <option>Turma B</option>
+                                        <option>Turma C</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Alunos -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5>Alunos Matriculados</h5>
+                            <div class="card student-list">
+                                <div class="card-body">
+                                    <div id="alunos-container">
+                                        <p class="text-white">Selecione uma turma para visualizar os alunos.</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Botão de Visualizar -->
-                        <div class="text-center btn-generate">
-                            <button id="visualizar-historico" class="btn btn-custom-print" disabled>
-                                <i class="zmdi zmdi-eye mr-2"></i> Visualizar Histórico
-                            </button>
-                        </div>
                     </div>
 
-                    <!-- Container para o Histórico -->
-                    <div id="historico-container" class="historico-container">
-
-                    </div>
-
-                    <!-- Botão de Imprimir -->
-                    <div class="text-center btn-generate no-print" id="btn-print-container" style="display: none;">
-                        <button id="imprimir-historico" class="btn btn-custom-print">
-                            <i class="zmdi zmdi-print mr-2"></i> Imprimir Histórico
+                    <!-- Botão de Visualizar -->
+                    <div class="text-center btn-generate">
+                        <button id="visualizar-historico" class="btn btn-custom-print" disabled>
+                            <i class="zmdi zmdi-eye mr-2"></i> Visualizar Histórico
                         </button>
                     </div>
                 </div>
+
+                <!-- Container para o Histórico -->
+                <div id="historico-container" class="historico-container">
+
+                </div>
+
+                <!-- Botão de Imprimir -->
+                <div class="text-center btn-generate no-print" id="btn-print-container" style="display: none;">
+                    <button id="imprimir-historico" class="btn btn-custom-print">
+                        <i class="zmdi zmdi-print mr-2"></i> Imprimir Histórico
+                    </button>
+                </div>
             </div>
         </div>
-        <div class="overlay toggle-menu"></div>
+    </div>
+    <div class="overlay toggle-menu"></div>
     </div>
 
     <!-- Scripts -->
@@ -484,7 +364,7 @@
                 if (!alunoSelecionado) return;
 
                 // Redireciona para a página do histórico com os parâmetros do aluno
-                window.location.href = `visualizarHistorico.html?nome=${encodeURIComponent(alunoSelecionado.nome)}` +
+                window.location.href = `visualizarHistorico.php?nome=${encodeURIComponent(alunoSelecionado.nome)}` +
                     `&matricula=${alunoSelecionado.matricula}` +
                     `&inep=${alunoSelecionado.inep}` +
                     `&nascimento=${encodeURIComponent(alunoSelecionado.nascimento)}` +

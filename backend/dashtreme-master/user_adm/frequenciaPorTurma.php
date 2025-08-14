@@ -166,6 +166,7 @@
         .header-print {
             display: none;
         }
+
         .navbar {
             background-color: rgba(0, 0, 0, 0.2) !important;
             backdrop-filter: blur(10px);
@@ -174,226 +175,107 @@
 </head>
 
 <body class="bg-theme bg-theme1">
-    <div id="wrapper">
-        <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
-            <div class="brand-logo">
-                <a href="home.html">
-                    <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
-                    <h5 class="logo-text">Dashboard Acadêmico</h5>
-                </a>
+    <?php
+    require("menu_padrão.php");
+    ?>
+
+
+    <!-- Conteúdo principal -->
+    <div class="content-wrapper">
+        <div class="container-fluid">
+            <div class="header-print">
+                <img src="../assets/images/logo-icon.png" alt="Logo" style="height: 50px;">
+                <h3>Relatório de Frequência por Turma</h3>
+                <p id="print-date" class="text-muted"></p>
             </div>
-            <ul class="sidebar-menu do-nicescrol">
-                <li class="sidebar-header">NAVEGAÇÃO PRINCIPAL</li>
-                <li>
-                    <a href="home.html">
-                        <i class="zmdi zmdi-view-dashboard"></i> <span>Home</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="cadastro.html">
-                        <i class="zmdi zmdi-accounts"></i> <span>Cadastro</span>
-                        <i class="zmdi zmdi-caret-down float-right"></i>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="cadastro.html#aluno"><i class="zmdi zmdi-accounts-alt"></i> Alunos</a></li>
-                        <li><a href="cadastroTurmas.html" class="active"><i class="zmdi zmdi-group-work"></i> Turmas</a>
-                        </li>
-                        <li><a href="cadastro.html#servidor"><i class="zmdi zmdi-account-box"></i> Servidores</a></li>
-                        <li><a href="gerenciarVinculos.html"><i class="zmdi zmdi-link"></i> Gerenciar vínculos</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="relatorios.html">
-                        <i class="zmdi zmdi-chart"></i> <span>Relatórios</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="atestados.html">
-                        <i class="zmdi zmdi-file-text"></i> <span>Atestados</span>
-                        <i class="zmdi zmdi-caret-down float-right"></i>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="atestado_matricula.html"><i class="zmdi zmdi-assignment-account"></i> Atestado de matrícula</a></li>
-                        <li><a href="atestado_frequencia.html"><i class="zmdi zmdi-time-countdown"></i> Frequência</a></li>
-                        <li><a href="historico.html"><i class="zmdi zmdi-assignment"></i> Histórico</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="matricula.html">
-                        <i class="zmdi zmdi-assignment-check"></i> <span>Matrícula</span>
-                        <i class="zmdi zmdi-caret-down float-right"></i>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="transferencias.html"><i class="zmdi zmdi-account-add"></i> Transferências</a></li>
-                        <li><a href="rematriculas.html"><i class="zmdi zmdi-refresh"></i> Rematrículas</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="disciplinas.html">
-                        <i class="zmdi zmdi-book"></i> <span>Disciplinas</span>
-                        <i class="zmdi zmdi-caret-down float-right"></i>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="cadastrar.html"><i class="zmdi zmdi-plus-circle"></i> Cadastrar</a></li>
-                        <li><a href="notas.html"><i class="zmdi zmdi-check-circle"></i> Notas</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="academico.html">
-                        <i class="zmdi zmdi-graduation-cap"></i> <span>Acadêmico</span>
-                        <i class="zmdi zmdi-caret-down float-right"></i>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="calendario.html"><i class="zmdi zmdi-calendar"></i> Calendário</a></li>
-                        <li><a href="documentos.html"><i class="zmdi zmdi-file"></i> Documentos</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
 
-        <header class="topbar-nav">
-            <nav class="navbar navbar-expand fixed-top">
-                <ul class="navbar-nav mr-auto align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link toggle-menu" href="javascript:void();">
-                            <i class="icon-menu menu-icon"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <form class="search-bar">
-                            <input type="text" class="form-control" placeholder="Pesquisar">
-                            <a href="javascript:void();"><i class="icon-magnifier"></i></a>
-                        </form>
-                    </li>
-                </ul>
-
-                <ul class="navbar-nav align-items-center right-nav-link">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
-                            <span class="user-profile"><img src="../assets/images/gallery/icon_usuarioBlack.png"
-                                    class="img-circle" alt="user avatar"></span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li class="dropdown-item user-details">
-                                <a href="javaScript:void();">
-                                    <div class="media">
-                                        <div class="avatar"><img class="align-self-start mr-3"
-                                                src="https://via.placeholder.com/110x110" alt="user avatar"></div>
-                                        <div class="media-body">
-                                            <h6 class="mt-2 user-title">Administrador</h6>
-                                            <p class="user-subtitle">admin@escola.com</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li class="dropdown-divider"></li>
-                          <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
-                                    Configurações</a></li>
-                            <li class="dropdown-divider"></li>
-                            <li class="dropdown-item" id="logout-btn"><i class="icon-power mr-2"></i> Sair</li>
-                        </ul>
-                    </li>
-                </ul>
-            </nav>
-        </header>
-
-
-        <!-- Conteúdo principal -->
-        <div class="content-wrapper">
-            <div class="container-fluid">
-                <div class="header-print">
-                    <img src="../assets/images/logo-icon.png" alt="Logo" style="height: 50px;">
-                    <h3>Relatório de Frequência por Turma</h3>
-                    <p id="print-date" class="text-muted"></p>
+            <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+                <h4 class="page-title"><i class="zmdi zmdi-time-countdown mr-2"></i> Frequência por Turma</h4>
+                <div>
+                    <button id="print-btn" class="btn btn-custom-secondary">
+                        <i class="zmdi zmdi-print mr-2"></i>Imprimir/PDF
+                    </button>
                 </div>
+            </div>
 
-                <div class="d-flex justify-content-between align-items-center mb-3 no-print">
-                    <h4 class="page-title"><i class="zmdi zmdi-time-countdown mr-2"></i> Frequência por Turma</h4>
-                    <div>
-                        <button id="print-btn" class="btn btn-custom-secondary">
-                            <i class="zmdi zmdi-print mr-2"></i>Imprimir/PDF
-                        </button>
-                    </div>
-                </div>
-
-                <div class="filter-section no-print">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="year-select">Ano Letivo</label>
-                                <select class="form-control" id="year-select">
-                                    <option>2023</option>
-                                    <option selected>2024</option>
-                                    <option>2025</option>
-                                </select>
-                            </div>
+            <div class="filter-section no-print">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="year-select">Ano Letivo</label>
+                            <select class="form-control" id="year-select">
+                                <option>2023</option>
+                                <option selected>2024</option>
+                                <option>2025</option>
+                            </select>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="grade-select">Turma</label>
-                                <select class="form-control" id="grade-select">
-                                    <option value="">Selecione uma turma</option>
-                                    <option value="1A">1º Ano - Turma A</option>
-                                    <option value="1B">1º Ano - Turma B</option>
-                                    <option value="2A">2º Ano - Turma A</option>
-                                    <option value="2B">2º Ano - Turma B</option>
-                                </select>
-                            </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="grade-select">Turma</label>
+                            <select class="form-control" id="grade-select">
+                                <option value="">Selecione uma turma</option>
+                                <option value="1A">1º Ano - Turma A</option>
+                                <option value="1B">1º Ano - Turma B</option>
+                                <option value="2A">2º Ano - Turma A</option>
+                                <option value="2B">2º Ano - Turma B</option>
+                            </select>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div id="attendance-container">
+            <div id="attendance-container">
 
-                    <!-- Lista de alunos e frequência -->
-                    <div class="card">
-                        <div class="card-body">
-                            <div id="empty-state" class="empty-state">
-                                <i class="zmdi zmdi-search"></i>
-                                <h4>Selecione uma turma para visualizar a frequência</h4>
-                                <p class="text-muted">Escolha uma turma e filtros acima para exibir os registros de
-                                    frequência.</p>
+                <!-- Lista de alunos e frequência -->
+                <div class="card">
+                    <div class="card-body">
+                        <div id="empty-state" class="empty-state">
+                            <i class="zmdi zmdi-search"></i>
+                            <h4>Selecione uma turma para visualizar a frequência</h4>
+                            <p class="text-muted">Escolha uma turma e filtros acima para exibir os registros de
+                                frequência.</p>
+                        </div>
+
+                        <div id="attendance-list" style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 id="class-title" class="mb-0"></h5>
+                                <div>
+                                    <div id="attendance-summary" class="summary-text text-white mt-2"></div>
+                                </div>
                             </div>
 
-                            <div id="attendance-list" style="display: none;">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h5 id="class-title" class="mb-0"></h5>
-                                    <div>
-                                        <div id="attendance-summary" class="summary-text text-white mt-2"></div>
-                                    </div>
-                                </div>
-
-                                <div class="table-responsive">
-                                    <table class="table table-hover" id="attendance-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Aluno</th>
-                                                <th>Matrícula</th>
-                                                <th>Presenças</th>
-                                                <th>Faltas</th>
-                                                <th>Faltas Justificadas</th>
-                                                <th>% Frequência</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="attendance-data">
-                                        </tbody>
-                                    </table>
-                                </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="attendance-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Aluno</th>
+                                            <th>Matrícula</th>
+                                            <th>Presenças</th>
+                                            <th>Faltas</th>
+                                            <th>Faltas Justificadas</th>
+                                            <th>% Frequência</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="attendance-data">
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="overlay toggle-menu"></div>
+    </div>
+    <div class="overlay toggle-menu"></div>
 
-        <footer class="footer no-print">
-            <div class="container">
-                <div class="text-center text-white">
-                    Copyright © 2023 Dashboard Acadêmico
-                </div>
+    <footer class="footer no-print">
+        <div class="container">
+            <div class="text-center text-white">
+                Copyright © 2023 Dashboard Acadêmico
             </div>
-        </footer>
+        </div>
+    </footer>
     </div>
 
     <script src="../assets/js/jquery.min.js"></script>

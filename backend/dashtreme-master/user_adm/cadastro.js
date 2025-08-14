@@ -185,7 +185,7 @@ $(document).ready(function () {
             localStorage.setItem('novoAlunoMatricula', matricula);
 
             // Redireciona para a tela de Gerenciar Vínculos
-            window.location.href = 'gerenciarVinculos.html';
+            window.location.href = 'gerenciarVinculos.php';
         } else {
             // Rolando para o primeiro erro
             $('html, body').animate({

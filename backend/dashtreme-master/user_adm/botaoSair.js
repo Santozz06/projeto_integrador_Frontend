@@ -6,7 +6,7 @@
   const userType = localStorage.getItem('userType');
 
   if (!isLoggedIn || !userType) {
-    window.location.href = '../login.html';
+    window.location.href = '../login.php';
     return;
   }
 
@@ -18,12 +18,12 @@
     (userType === 'professor' && !path.includes('/user_professor/')) ||
     (userType === 'aluno' && !path.includes('/user_aluno/'))
   ) {
-    window.location.href = '../login.html';
+    window.location.href = '../login.php';
   }
 })();
 
 // Lógica do botão de sair
 document.getElementById('logout-btn')?.addEventListener('click', function () {
   localStorage.clear();
-  window.location.href = '../login.html';
+  window.location.href = '../login.php';
 });

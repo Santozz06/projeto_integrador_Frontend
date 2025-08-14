@@ -95,7 +95,7 @@
                 </div>
               </div>
               <div class="form-group col-6 text-right">
-                <a href="reset-password.html">Esqueci minha senha</a>
+                <a href="reset-password.php">Esqueci minha senha</a>
               </div>
             </div>
             <button type="button" class="btn btn-light btn-block" id="loginBtn">Entrar</button>
@@ -103,7 +103,7 @@
         </div>
       </div>
       <div class="card-footer text-center py-3">
-        <p class="text-warning mb-0">Não tem uma conta? <a href="register.html"> Cadastre-se aqui</a></p>
+        <p class="text-warning mb-0">Não tem uma conta? <a href="register.php"> Cadastre-se aqui</a></p>
       </div>
     </div>
 
@@ -141,8 +141,8 @@
 
         // Redirecionamentos absolutos 
         const redirectPages = {
-          'professor': 'user_professor/home.html',
-          'aluno': 'user_aluno/index.html',
+          'professor': 'user_professor/home.php',
+          'aluno': 'user_aluno/index.php',
           'admin': 'user_adm/home.php'
         };
 

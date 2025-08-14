@@ -63,7 +63,7 @@
 		   </div>
 		  </div>
 		   <div class="card-footer text-center py-3">
-		    <p class="text-warning mb-0">Voltar para <a href="login.html">Login</a></p>
+		    <p class="text-warning mb-0">Voltar para <a href="login.php">Login</a></p>
 		  </div>
 	     </div>
 	     </div>
@@ -126,7 +126,7 @@
         // Simula o envio do e-mail 
         setTimeout(() => {
           alert(`Um link para redefinição de senha foi enviado para ${email}`);
-          window.location.href = 'login.html';
+          window.location.href = 'login.php';
         }, 500);
       });
       

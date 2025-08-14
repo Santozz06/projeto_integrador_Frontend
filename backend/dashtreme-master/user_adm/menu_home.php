@@ -1,5 +1,4 @@
 <nav id = "menu_home">
-</head>
 
 <body class="bg-theme bg-theme1">
 

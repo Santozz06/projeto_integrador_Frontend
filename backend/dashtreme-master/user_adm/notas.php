@@ -229,218 +229,96 @@
 </head>
 
 <body class="bg-theme bg-theme1">
-    <div id="wrapper">
-        <!-- Sidebar -->
-        <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
-            <div class="brand-logo">
-                <a href="home.html">
-                    <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
-                    <h5 class="logo-text">Dashboard Acadêmico</h5>
-                </a>
-            </div>
-            <ul class="sidebar-menu do-nicescrol">
-                <li class="sidebar-header">NAVEGAÇÃO PRINCIPAL</li>
-                <li>
-                    <a href="home.html">
-                        <i class="zmdi zmdi-view-dashboard"></i> <span>Home</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="cadastro.html">
-                        <i class="zmdi zmdi-accounts"></i> <span>Cadastro</span>
-                        <i class="zmdi zmdi-caret-down float-right"></i>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="cadastro.html#aluno"><i class="zmdi zmdi-accounts-alt"></i> Alunos</a></li>
-                        <li><a href="cadastroTurmas.html"><i class="zmdi zmdi-group-work"></i> Turmas</a></li>
-                        <li><a href="cadastro.html#servidor"><i class="zmdi zmdi-account-box"></i> Servidores</a></li>
-                        <li><a href="gerenciarVinculos.html"><i class="zmdi zmdi-link"></i> Gerenciar vínculos</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="relatorios.html">
-                        <i class="zmdi zmdi-chart"></i> <span>Relatórios</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="atestados.html">
-                        <i class="zmdi zmdi-file-text"></i> <span>Atestados</span>
-                        <i class="zmdi zmdi-caret-down float-right"></i>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="atestado_matricula.html"><i class="zmdi zmdi-assignment-account"></i> Atestado de
-                                matrícula</a></li>
-                        <li><a href="atestado_frequencia.html"><i class="zmdi zmdi-time-countdown"></i> Frequência</a>
-                        </li>
-                        <li><a href="historico.html"><i class="zmdi zmdi-assignment"></i> Histórico</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="matricula.html">
-                        <i class="zmdi zmdi-assignment-check"></i> <span>Matrícula</span>
-                        <i class="zmdi zmdi-caret-down float-right"></i>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="transferencias.html"><i class="zmdi zmdi-account-add"></i> Transferências</a></li>
-                        <li><a href="rematriculas.html"><i class="zmdi zmdi-refresh"></i> Rematrículas</a></li>
-                    </ul>
-                <li>
-                    <a href="disciplinas.html">
-                        <i class="zmdi zmdi-book"></i> <span>Disciplinas</span>
-                        <i class="zmdi zmdi-caret-down float-right"></i>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="cadastrar.html"><i class="zmdi zmdi-plus-circle"></i> Cadastrar</a></li>
-                        <li><a href="notas.html" class="active"><i class="zmdi zmdi-check-circle"></i> Notas</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="academico.html">
-                        <i class="zmdi zmdi-graduation-cap"></i> <span>Acadêmico</span>
-                        <i class="zmdi zmdi-caret-down float-right"></i>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="calendario.html"><i class="zmdi zmdi-calendar"></i> Calendário</a></li>
-                        <li><a href="documentos.html"><i class="zmdi zmdi-file"></i> Documentos</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
+    <?php
+    require("menu_padrão.php");
+    ?>
 
-        <!-- Topbar -->
-        <header class="topbar-nav">
-            <nav class="navbar navbar-expand fixed-top">
-                <ul class="navbar-nav mr-auto align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link toggle-menu" href="javascript:void();">
-                            <i class="icon-menu menu-icon"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <form class="search-bar">
-                            <input type="text" class="form-control" placeholder="Pesquisar">
-                            <a href="javascript:void();"><i class="icon-magnifier"></i></a>
-                        </form>
-                    </li>
-                </ul>
+    <!-- Conteúdo principal -->
+    <div class="content-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card" style="background-color: transparent; border: none; box-shadow: none;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="page-title"><i class="zmdi zmdi-check-circle mr-2"></i> Notas</h4>
+                            </div>
 
-                <ul class="navbar-nav align-items-center right-nav-link">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
-                            <span class="user-profile"><img src="../assets/images/gallery/icon_usuarioBlack.png"
-                                    class="img-circle" alt="user avatar"></span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li class="dropdown-item user-details">
-                                <a href="javaScript:void();">
-                                    <div class="media">
-                                        <div class="avatar"><img class="align-self-start mr-3"
-                                                src="https://via.placeholder.com/110x110" alt="user avatar"></div>
-                                        <div class="media-body">
-                                            <h6 class="mt-2 user-title">Administrador</h6>
-                                            <p class="user-subtitle">admin@escola.com</p>
-                                        </div>
+                            <!-- Formulário de filtros -->
+                            <div class="form-container">
+                                <div class="filtros-container">
+                                    <div class="filtro-item">
+                                        <div class="bold-title">Ano Letivo</div>
+                                        <select id="ano-letivo" class="form-control">
+                                            <option value="2025">2025</option>
+                                            <option value="2024">2024</option>
+                                            <option value="2023">2023</option>
+                                        </select>
                                     </div>
-                                </a>
-                            </li>
-                            <li class="dropdown-divider"></li>
-                            <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
-                                    Configurações</a></li>
-                            <li class="dropdown-divider"></li>
-                            <li class="dropdown-item" id="logout-btn"><i class="icon-power mr-2"></i> Sair</li>
-                        </ul>
-                    </li>
-                </ul>
-            </nav>
-        </header>
-
-        <!-- Conteúdo principal -->
-        <div class="content-wrapper">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="card" style="background-color: transparent; border: none; box-shadow: none;">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <h4 class="page-title"><i class="zmdi zmdi-check-circle mr-2"></i> Notas</h4>
+                                    <div class="filtro-item">
+                                        <div class="bold-title">Disciplina</div>
+                                        <select id="disciplina" class="form-control">
+                                            <option value="">Todas disciplinas</option>
+                                            <option value="1">Matemática</option>
+                                            <option value="2">Português</option>
+                                            <option value="3">História</option>
+                                            <option value="4">Geografia</option>
+                                            <option value="5">Ciências</option>
+                                        </select>
+                                    </div>
+                                    <div class="filtro-item">
+                                        <div class="bold-title">Turma</div>
+                                        <select id="turma" class="form-control">
+                                            <option value="">Todas turmas</option>
+                                            <option value="1A">1º Ano A</option>
+                                            <option value="1B">1º Ano B</option>
+                                            <option value="2A">2º Ano A</option>
+                                            <option value="2B">2º Ano B</option>
+                                            <option value="3A">3º Ano A</option>
+                                            <option value="3B">3º Ano B</option>
+                                        </select>
+                                    </div>
+                                    <div class="filtro-item">
+                                        <div class="bold-title">Trimestre</div>
+                                        <select id="trimestre" class="form-control">
+                                            <option value="1">1º Trimestre</option>
+                                            <option value="2">2º Trimestre</option>
+                                            <option value="3">3º Trimestre</option>
+                                        </select>
+                                    </div>
                                 </div>
 
-                                <!-- Formulário de filtros -->
-                                <div class="form-container">
-                                    <div class="filtros-container">
-                                        <div class="filtro-item">
-                                            <div class="bold-title">Ano Letivo</div>
-                                            <select id="ano-letivo" class="form-control">
-                                                <option value="2025">2025</option>
-                                                <option value="2024">2024</option>
-                                                <option value="2023">2023</option>
-                                            </select>
-                                        </div>
-                                        <div class="filtro-item">
-                                            <div class="bold-title">Disciplina</div>
-                                            <select id="disciplina" class="form-control">
-                                                <option value="">Todas disciplinas</option>
-                                                <option value="1">Matemática</option>
-                                                <option value="2">Português</option>
-                                                <option value="3">História</option>
-                                                <option value="4">Geografia</option>
-                                                <option value="5">Ciências</option>
-                                            </select>
-                                        </div>
-                                        <div class="filtro-item">
-                                            <div class="bold-title">Turma</div>
-                                            <select id="turma" class="form-control">
-                                                <option value="">Todas turmas</option>
-                                                <option value="1A">1º Ano A</option>
-                                                <option value="1B">1º Ano B</option>
-                                                <option value="2A">2º Ano A</option>
-                                                <option value="2B">2º Ano B</option>
-                                                <option value="3A">3º Ano A</option>
-                                                <option value="3B">3º Ano B</option>
-                                            </select>
-                                        </div>
-                                        <div class="filtro-item">
-                                            <div class="bold-title">Trimestre</div>
-                                            <select id="trimestre" class="form-control">
-                                                <option value="1">1º Trimestre</option>
-                                                <option value="2">2º Trimestre</option>
-                                                <option value="3">3º Trimestre</option>
-                                            </select>
-                                        </div>
+                                <!-- Tabela de notas -->
+                                <div class="table-container">
+                                    <table id="tabela-notas" class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Aluno</th>
+                                                <th>Matrícula</th>
+                                                <th>Turma</th>
+                                                <th>Nota 1</th>
+                                                <th>Nota 2</th>
+                                                <th>Nota 3</th>
+                                                <th>Nota 4</th>
+                                                <th>Média</th>
+                                                <th>Status</th>
+                                                <th>Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Dados serão preenchidos via JavaScript -->
+                                        </tbody>
+                                    </table>
+                                    <div id="no-results" class="no-results">
+                                        Nenhum aluno encontrado com os filtros selecionados.
                                     </div>
+                                </div>
 
-                                    <!-- Tabela de notas -->
-                                    <div class="table-container">
-                                        <table id="tabela-notas" class="table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Aluno</th>
-                                                    <th>Matrícula</th>
-                                                    <th>Turma</th>
-                                                    <th>Nota 1</th>
-                                                    <th>Nota 2</th>
-                                                    <th>Nota 3</th>
-                                                    <th>Nota 4</th>
-                                                    <th>Média</th>
-                                                    <th>Status</th>
-                                                    <th>Ações</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <!-- Dados serão preenchidos via JavaScript -->
-                                            </tbody>
-                                        </table>
-                                        <div id="no-results" class="no-results">
-                                            Nenhum aluno encontrado com os filtros selecionados.
-                                        </div>
-                                    </div>
-
-                                    <!-- Botões -->
-                                    <div class="btn-group">
-                                        <button class="btn-salvar" id="btn-salvar-todos">Salvar Todas as
-                                            Alterações</button>
-                                        <button class="btn-cancelar" id="btn-cancelar">Cancelar</button>
-                                    </div>
+                                <!-- Botões -->
+                                <div class="btn-group">
+                                    <button class="btn-salvar" id="btn-salvar-todos">Salvar Todas as
+                                        Alterações</button>
+                                    <button class="btn-cancelar" id="btn-cancelar">Cancelar</button>
                                 </div>
                             </div>
                         </div>
@@ -448,7 +326,8 @@
                 </div>
             </div>
         </div>
-        <div class="overlay toggle-menu"></div>
+    </div>
+    <div class="overlay toggle-menu"></div>
     </div>
 
     <!-- Scripts -->

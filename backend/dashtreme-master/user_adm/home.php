@@ -191,86 +191,38 @@
 <body class="bg-theme bg-theme1">
 
   <?php
-   require("menu_home.php");
-   ?>
-    
-
-    <div class="clearfix"></div>
-
-    <div class="content-wrapper">
-      <div class="container-fluid">
+  require("menu_home.php");
+  ?>
 
 
-        <div class="row">
-          <div class="col-12 col-lg-8">
-            <div class="card">
-              <div class="card-header text-white" style="background-color: var(--azul-cabecalho);">
-                <h5 class="text-white">Painel do Administrador</h5>
-              </div>
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="card bg-light-primary">
-                      <div class="card-body">
-                        <h6 class="card-title">Ano Letivo Atual</h6>
-                        <h4 class="mb-0">2025</h4>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="card bg-light-success">
-                      <div class="card-body">
-                        <h6 class="card-title">Total de Matrículas</h6>
-                        <h4 class="mb-0">1,245</h4>
-                      </div>
+  <div class="clearfix"></div>
+
+  <div class="content-wrapper">
+    <div class="container-fluid">
+
+
+      <div class="row">
+        <div class="col-12 col-lg-8">
+          <div class="card">
+            <div class="card-header text-white" style="background-color: var(--azul-cabecalho);">
+              <h5 class="text-white">Painel do Administrador</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="card bg-light-primary">
+                    <div class="card-body">
+                      <h6 class="card-title">Ano Letivo Atual</h6>
+                      <h4 class="mb-0">2025</h4>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-12 col-lg-4">
-            <div class="card">
-              <div class="card-header">
-                <h5>Avisos Importantes</h5>
-              </div>
-              <div class="card-body">
-                <div class="alert alert-warning">
-                  <strong>Data limite:</strong> A documentação Y deve ser enviada para a direção até 15/03/2025
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="row mt-4">
-          <div class="col-12">
-            <div class="card">
-              <div class="card-header">
-                <h5>Acesso Rápido</h5>
-              </div>
-              <div class="card-body">
-                <div class="row text-center">
-                  <div class="col-6 col-md-3">
-                    <a href="cadastro.html#aluno" class="btn btn-round btn-alunos">
-                      <i class="zmdi zmdi-accounts-alt fa-2x"></i><br> Alunos
-                    </a>
-                  </div>
-                  <div class="col-6 col-md-3">
-                    <a href="cadastroTurmas.html" class="btn btn-round btn-turmas">
-                      <i class="zmdi zmdi-group-work fa-2x"></i><br> Turmas
-                    </a>
-                  </div>
-                  <div class="col-6 col-md-3">
-                    <a href="cadastro.html#servidor" class="btn btn-round btn-servidores">
-                      <i class="zmdi zmdi-account-box fa-2x"></i><br> Servidores
-                    </a>
-                  </div>
-                  <div class="col-6 col-md-3">
-                    <a href="calendario.php" class="btn btn-round btn-calendario">
-                      <i class="zmdi zmdi-calendar fa-2x"></i><br> Calendário
-                    </a>
+                <div class="col-md-6">
+                  <div class="card bg-light-success">
+                    <div class="card-body">
+                      <h6 class="card-title">Total de Matrículas</h6>
+                      <h4 class="mb-0">1,245</h4>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -278,63 +230,111 @@
           </div>
         </div>
 
-        <!-- Bloco de Últimas Movimentações -->
-        <div class="row mt-4">
-          <div class="col-12">
-            <div class="card">
-              <div class="card-header">
-                <h5>Últimas Movimentações</h5>
+        <div class="col-12 col-lg-4">
+          <div class="card">
+            <div class="card-header">
+              <h5>Avisos Importantes</h5>
+            </div>
+            <div class="card-body">
+              <div class="alert alert-warning">
+                <strong>Data limite:</strong> A documentação Y deve ser enviada para a direção até 15/03/2025
               </div>
-              <div class="card-body">
-                <div class="table-responsive">
-                  <table class="table">
-                    <thead>
-                      <tr>
-                        <th>Data</th>
-                        <th>Aluno</th>
-                        <th>Tipo</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>10/03/2025</td>
-                        <td>João Silva</td>
-                        <td><span class="badge badge-success">Matrícula</span></td>
-                      </tr>
-                      <tr>
-                        <td>08/03/2025</td>
-                        <td>Maria Souza</td>
-                        <td><span class="badge badge-info">Transferência</span></td>
-                      </tr>
-                      <tr>
-                        <td>05/03/2025</td>
-                        <td>Carlos Oliveira</td>
-                        <td><span class="badge badge-primary">Rematrícula</span></td>
-                      </tr>
-                    </tbody>
-                  </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5>Acesso Rápido</h5>
+            </div>
+            <div class="card-body">
+              <div class="row text-center">
+                <div class="col-6 col-md-3">
+                  <a href="cadastro.php#aluno" class="btn btn-round btn-alunos">
+                    <i class="zmdi zmdi-accounts-alt fa-2x"></i><br> Alunos
+                  </a>
+                </div>
+                <div class="col-6 col-md-3">
+                  <a href="cadastroTurmas.php" class="btn btn-round btn-turmas">
+                    <i class="zmdi zmdi-group-work fa-2x"></i><br> Turmas
+                  </a>
+                </div>
+                <div class="col-6 col-md-3">
+                  <a href="cadastro.php#servidor" class="btn btn-round btn-servidores">
+                    <i class="zmdi zmdi-account-box fa-2x"></i><br> Servidores
+                  </a>
+                </div>
+                <div class="col-6 col-md-3">
+                  <a href="calendario.php" class="btn btn-round btn-calendario">
+                    <i class="zmdi zmdi-calendar fa-2x"></i><br> Calendário
+                  </a>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Bloco de Últimas Movimentações -->
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5>Últimas Movimentações</h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Data</th>
+                      <th>Aluno</th>
+                      <th>Tipo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>10/03/2025</td>
+                      <td>João Silva</td>
+                      <td><span class="badge badge-success">Matrícula</span></td>
+                    </tr>
+                    <tr>
+                      <td>08/03/2025</td>
+                      <td>Maria Souza</td>
+                      <td><span class="badge badge-info">Transferência</span></td>
+                    </tr>
+                    <tr>
+                      <td>05/03/2025</td>
+                      <td>Carlos Oliveira</td>
+                      <td><span class="badge badge-primary">Rematrícula</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
 
-        <!--start overlay-->
-        <div class="overlay toggle-menu"></div>
+      <!--start overlay-->
+      <div class="overlay toggle-menu"></div>
+    </div>
+  </div>
+
+
+  <!--Start footer-->
+  <footer class="footer">
+    <div class="container">
+      <div class="text-center">
+        Copyright © 2023 Dashboard Acadêmico
       </div>
     </div>
-
-
-    <!--Start footer-->
-    <footer class="footer">
-      <div class="container">
-        <div class="text-center">
-          Copyright © 2023 Dashboard Acadêmico
-        </div>
-      </div>
-    </footer>
-    <!--End footer-->
+  </footer>
+  <!--End footer-->
 
   </div>
 
