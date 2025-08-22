@@ -91,7 +91,7 @@
 		   </div>
 		  </div>
 		  <div class="card-footer text-center py-3">
-		    <p class="text-warning mb-0">Já tem uma conta? <a href="login.html"> Faça login aqui</a></p>
+		    <p class="text-warning mb-0">Já tem uma conta? <a href="login.php"> Faça login aqui</a></p>
 		  </div>
 	     </div>
     
@@ -137,7 +137,7 @@
 
       setTimeout(() => {
         alert('Cadastro realizado com sucesso!');
-        window.location.href = 'login.html';
+        window.location.href = 'login.php';
       }, 300);
     }
 

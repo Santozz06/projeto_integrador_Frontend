@@ -124,7 +124,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
     function gerarPDF() {
-      // Mantém a página invisível
+      // deixa invisível só no carregamento
       document.body.style.opacity = '0';
 
       const element = document.getElementById('doc');
@@ -135,10 +135,12 @@
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       }).from(element).save().then(() => {
-        // Fecha a janela imediatamente
-        window.close();
+        // volta para página anterior após 1 segundo
+        setTimeout(() => {
+          window.location.href = "ensino.php";
+        }, 1000);
       }).catch(err => {
-        // Se houver erro, mostra o conteúdo para debug
+        // se der erro, mostra o conteúdo para debug
         document.body.style.opacity = '1';
         console.error('Erro ao gerar PDF:', err);
       });

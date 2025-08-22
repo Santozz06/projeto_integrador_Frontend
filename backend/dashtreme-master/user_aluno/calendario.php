@@ -174,7 +174,7 @@
         #eventoModal .modal-footer {
             border-top: 1px solid #e0e0e0;
         }
-        
+
         .modal-body * {
             color: #333 !important;
         }
@@ -183,443 +183,389 @@
             background-color: rgba(0, 0, 0, 0.2) !important;
             backdrop-filter: blur(10px);
         }
+
+        .footer {
+            position: static !important;
+            margin-top: auto;
+        }
     </style>
 </head>
 
 <body class="bg-theme bg-theme1">
-    <div id="wrapper">
-        <!-- Sidebar -->
-        <div id="sidebar-wrapper" data-simplebar>
-            <div class="brand-logo">
-                <a href="index.html">
-                    <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
-                    <h5 class="logo-text">Dashboard Acadêmico</h5>
-                </a>
+    <?php
+    require("menu_padrao.php");
+    ?>
+    <div class="clearfix"></div>
+
+    <!-- Conteúdo da Página -->
+    <div class="content-wrapper">
+        <div class="container-fluid">
+            <div class="row mt-3">
+                <!-- Painel de Controle -->
+                <div class="col-lg-3 col-md-12 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title mb-3">FILTROS</h6>
+                            <div class="mb-3">
+                                <label class="d-block small mb-1">TURMA:</label>
+                                <select id="turma-select" class="form-control form-control-sm">
+                                    <option value="all">Todas as Turmas</option>
+                                    <option value="A">Turma A</option>
+                                    <option value="B">Turma B</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="d-block small mb-1">TIPO DE EVENTO:</label>
+                                <select id="tipo-evento" class="form-control form-control-sm">
+                                    <option value="all">Todos</option>
+                                    <option value="aula">Aulas</option>
+                                    <option value="prova">Provas</option>
+                                    <option value="feriado">Feriados</option>
+                                    <option value="reuniao">Reuniões</option>
+                                </select>
+                            </div>
+                            <button id="btn-adicionar" class="btn btn-sm btn-primary btn-block">ADICIONAR
+                                EVENTO</button>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h6 class="card-title mb-3">LEGENDA</h6>
+                            <div class="form-check small mb-2">
+                                <input class="form-check-input" type="checkbox" checked id="legenda-aulas">
+                                <label class="form-check-label" for="legenda-aulas">Aulas Normais</label>
+                            </div>
+                            <div class="form-check small mb-2">
+                                <input class="form-check-input" type="checkbox" checked id="legenda-provas">
+                                <label class="form-check-label" for="legenda-provas">Provas</label>
+                            </div>
+                            <div class="form-check small mb-2">
+                                <input class="form-check-input" type="checkbox" checked id="legenda-feriados">
+                                <label class="form-check-label" for="legenda-feriados">Feriados</label>
+                            </div>
+                            <div class="form-check small">
+                                <input class="form-check-input" type="checkbox" checked id="legenda-reunioes">
+                                <label class="form-check-label" for="legenda-reunioes">Reuniões</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendário -->
+                <div class="col-lg-9 col-md-12" id="calendar-container">
+                    <div class="card">
+                        <div class="card-body p-2">
+                            <div class="table-responsive">
+                                <div id='calendar'></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <ul class="sidebar-menu do-nicescrol">
-                <li class="sidebar-header">NAVEGAÇÃO PRINCIPAL</li>
-                <li><a href="index.html"><i class="zmdi zmdi-view-dashboard"></i> <span>Home</span></a></li>
-                <li><a href="ensino.html"><i class="zmdi zmdi-assignment"></i> <span>Ensino</span></a></li>
-                <li><a href="componente_curricular.html"><i class="zmdi zmdi-calendar-note"></i> <span>Componente
-                            curricular</span></a></li>
-                <li><a href="notas.html"><i class="zmdi zmdi-file-text"></i> <span>Notas</span></a></li>
-                <li><a href="calendario.html" class="active"><i class="zmdi zmdi-calendar"></i> <span>Calendário
-                            Acadêmico</span></a></li>
-            </ul>
         </div>
 
-        <!-- Topbar -->
-        <header class="topbar-nav">
-            <nav class="navbar navbar-expand fixed-top">
-                <ul class="navbar-nav mr-auto align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link toggle-menu" href="javascript:void();">
-                            <i class="icon-menu menu-icon"></i>
-                        </a>
-                    </li>
-                </ul>
-
-                <ul class="navbar-nav align-items-center right-nav-link">
-                    <li class="nav-item">
-                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
-                            <span class="user-profile"><img src="../assets/images/gallery/icon_usuarioBlack.png"
-                                    class="img-circle" alt="user avatar"></span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li class="dropdown-item user-details">
-                                <a href="javaScript:void();">
-                                    <div class="media">
-                                        <div class="avatar"><img class="align-self-start mr-3"
-                                                src="https://via.placeholder.com/110x110" alt="user avatar"></div>
-                                        <div class="media-body">
-                                            <h6 class="mt-2 user-title" id="nomeAluno">Nome do Aluno</h6>
-                                            <p class="user-subtitle" id="nomeInstituicao">Nome da Instituição</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li class="dropdown-divider"></li>
-                           <li class="dropdown-item"><a href="configuracoes.html"><i class="icon-settings mr-2"></i>
-                                    Configurações</a></li>
-                            <li class="dropdown-divider"></li>
-                            <li class="dropdown-item" id="logout-btn"><i class="icon-power mr-2"></i> Sair</li>
-                        </ul>
-                    </li>
-                </ul>
-            </nav>
-        </header>
-
-        <div class="clearfix"></div>
-
-        <!-- Conteúdo da Página -->
-        <div class="content-wrapper">
-            <div class="container-fluid">
-                <div class="row mt-3">
-                    <!-- Painel de Controle -->
-                    <div class="col-lg-3 col-md-12 mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h6 class="card-title mb-3">FILTROS</h6>
-                                <div class="mb-3">
-                                    <label class="d-block small mb-1">TURMA:</label>
-                                    <select id="turma-select" class="form-control form-control-sm">
-                                        <option value="all">Todas as Turmas</option>
-                                        <option value="A">Turma A</option>
-                                        <option value="B">Turma B</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="d-block small mb-1">TIPO DE EVENTO:</label>
-                                    <select id="tipo-evento" class="form-control form-control-sm">
-                                        <option value="all">Todos</option>
-                                        <option value="aula">Aulas</option>
-                                        <option value="prova">Provas</option>
-                                        <option value="feriado">Feriados</option>
-                                        <option value="reuniao">Reuniões</option>
-                                    </select>
-                                </div>
-                                <button id="btn-adicionar" class="btn btn-sm btn-primary btn-block">ADICIONAR
-                                    EVENTO</button>
-                            </div>
-                        </div>
-
-                        <div class="card mt-3">
-                            <div class="card-body">
-                                <h6 class="card-title mb-3">LEGENDA</h6>
-                                <div class="form-check small mb-2">
-                                    <input class="form-check-input" type="checkbox" checked id="legenda-aulas">
-                                    <label class="form-check-label" for="legenda-aulas">Aulas Normais</label>
-                                </div>
-                                <div class="form-check small mb-2">
-                                    <input class="form-check-input" type="checkbox" checked id="legenda-provas">
-                                    <label class="form-check-label" for="legenda-provas">Provas</label>
-                                </div>
-                                <div class="form-check small mb-2">
-                                    <input class="form-check-input" type="checkbox" checked id="legenda-feriados">
-                                    <label class="form-check-label" for="legenda-feriados">Feriados</label>
-                                </div>
-                                <div class="form-check small">
-                                    <input class="form-check-input" type="checkbox" checked id="legenda-reunioes">
-                                    <label class="form-check-label" for="legenda-reunioes">Reuniões</label>
-                                </div>
-                            </div>
-                        </div>
+        <!-- Modal para Adicionar Evento -->
+        <div class="modal fade" id="eventoModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Adicionar Novo Evento</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
-
-                    <!-- Calendário -->
-                    <div class="col-lg-9 col-md-12" id="calendar-container">
-                        <div class="card">
-                            <div class="card-body p-2">
-                                <div class="table-responsive">
-                                    <div id='calendar'></div>
-                                </div>
+                    <div class="modal-body">
+                        <form id="form-evento">
+                            <div class="form-group">
+                                <label>Título do Evento</label>
+                                <input type="text" class="form-control" id="evento-titulo" required>
                             </div>
-                        </div>
+                            <div class="form-group">
+                                <label>Tipo de Evento</label>
+                                <select class="form-control" id="evento-tipo" required>
+                                    <option value="aula">Aula</option>
+                                    <option value="prova">Prova</option>
+                                    <option value="feriado">Feriado</option>
+                                    <option value="reuniao">Reunião</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Turma</label>
+                                <select class="form-control" id="evento-turma">
+                                    <option value="all">Todas as Turmas</option>
+                                    <option value="A">Turma A</option>
+                                    <option value="B">Turma B</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Data de Início</label>
+                                <input type="datetime-local" class="form-control" id="evento-inicio" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Data de Término</label>
+                                <input type="datetime-local" class="form-control" id="evento-fim">
+                            </div>
+                            <div class="form-group">
+                                <label>Descrição</label>
+                                <textarea class="form-control" id="evento-descricao" rows="3"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="btn-salvar-evento">Salvar Evento</button>
                     </div>
                 </div>
             </div>
-
-            <!-- Modal para Adicionar Evento -->
-            <div class="modal fade" id="eventoModal" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Adicionar Novo Evento</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="form-evento">
-                                <div class="form-group">
-                                    <label>Título do Evento</label>
-                                    <input type="text" class="form-control" id="evento-titulo" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Tipo de Evento</label>
-                                    <select class="form-control" id="evento-tipo" required>
-                                        <option value="aula">Aula</option>
-                                        <option value="prova">Prova</option>
-                                        <option value="feriado">Feriado</option>
-                                        <option value="reuniao">Reunião</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Turma</label>
-                                    <select class="form-control" id="evento-turma">
-                                        <option value="all">Todas as Turmas</option>
-                                        <option value="A">Turma A</option>
-                                        <option value="B">Turma B</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Data de Início</label>
-                                    <input type="datetime-local" class="form-control" id="evento-inicio" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Data de Término</label>
-                                    <input type="datetime-local" class="form-control" id="evento-fim">
-                                </div>
-                                <div class="form-group">
-                                    <label>Descrição</label>
-                                    <textarea class="form-control" id="evento-descricao" rows="3"></textarea>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                            <button type="button" class="btn btn-primary" id="btn-salvar-evento">Salvar Evento</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <footer class="footer">
-                <div class="container">
-                    <div class="text-center">
-                        Copyright © 2023 Dashboard Acadêmico
-                    </div>
-                </div>
-            </footer>
         </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="text-center">
+                    Copyright © 2023 Dashboard Acadêmico
+                </div>
+            </div>
+        </footer>
     </div>
+</body>
 
-    <!-- Scripts -->
-    <script src="../assets/js/jquery.min.js"></script>
-    <script src="../assets/js/popper.min.js"></script>
-    <script src="../assets/js/bootstrap.min.js"></script>
-    <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
-    <script src="../assets/js/sidebar-menu.js"></script>
-    <script src="../assets/js/app-script.js"></script>
-    <script src='https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js'></script>
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/pt-br.js'></script>
-    <script src="botaoSair.js"></script>
+<!-- Scripts -->
+<script src="../assets/js/jquery.min.js"></script>
+<script src="../assets/js/popper.min.js"></script>
+<script src="../assets/js/bootstrap.min.js"></script>
+<script src="../assets/plugins/simplebar/js/simplebar.js"></script>
+<script src="../assets/js/sidebar-menu.js"></script>
+<script src="../assets/js/app-script.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/pt-br.js'></script>
+<script src="botaoSair.js"></script>
 
-    <!-- JS Customizado -->
-    <script>
-        $(document).ready(function () {
-            // Inicializa o calendário
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                locale: 'pt-br',
-                initialView: 'dayGridMonth',
-                headerToolbar: {
-                    left: 'title',
-                    center: '',
-                    right: 'prev,next today'
-                },
-                dayMaxEvents: 3, // Limita a quantidade de eventos mostrados por dia
-                dayPopoverFormat: { month: 'short', day: 'numeric' },
-                eventDisplay: 'list-item', // Exibe eventos como lista
-                views: {
-                    dayGridMonth: {
-                        dayHeaderFormat: { weekday: 'short' }, // Só mostra a abreviação do dia
-                        dayMaxEventRows: 4 // Quantidade máxima de linhas de eventos
-                    }
-                },
-                navLinks: true,
-                editable: true,
-                selectable: true,
-                businessHours: {
-                    daysOfWeek: [1, 2, 3, 4, 5], // Segunda a sexta
-                    startTime: '07:00',
-                    endTime: '18:00'
-                },
-                eventDidMount: function (info) {
-                    // Adiciona classes CSS baseadas no tipo de evento
-                    if (info.event.extendedProps.tipo) {
-                        info.el.classList.add(info.event.extendedProps.tipo);
-                    }
-
-                    // Adiciona tooltip
-                    if (info.event.extendedProps.description) {
-                        $(info.el).tooltip({
-                            title: info.event.extendedProps.description,
-                            placement: 'top',
-                            trigger: 'hover',
-                            container: 'body'
-                        });
-                    }
-                },
-                events: [
-                    {
-                        title: 'Aula de Matemática',
-                        start: new Date(),
-                        color: '#007bff',
-                        extendedProps: {
-                            turma: 'B',
-                            tipo: 'aula',
-                            description: 'Aula de Álgebra Linear - Prof. Carlos'
-                        }
-                    },
-                    {
-                        title: 'Prova de História',
-                        start: new Date(new Date().setDate(new Date().getDate() + 2)),
-                        color: '#dc3545',
-                        extendedProps: {
-                            turma: 'A',
-                            tipo: 'prova',
-                            description: 'Prova do 2º Bimestre - Idade Média'
-                        }
-                    },
-                    {
-                        title: 'Reunião de Pais',
-                        start: new Date(new Date().setDate(new Date().getDate() + 7)),
-                        end: new Date(new Date().setDate(new Date().getDate() + 7.5)),
-                        color: '#28a745',
-                        extendedProps: {
-                            turma: 'all',
-                            tipo: 'reuniao',
-                            description: 'Reunião para entrega de boletins - Sala 12'
-                        }
-                    },
-                    {
-                        title: 'Evento Dia Inteiro',
-                        start: new Date(new Date().setDate(new Date().getDate() + 3)),
-                        allDay: true,
-                        display: 'background',
-                        color: '#f0f0f0',
-                        extendedProps: {
-                            turma: 'all',
-                            tipo: 'outro'
-                        }
-                    }
-                ],
-                dateClick: function (info) {
-                    // Preenche a data inicial quando clica em um dia
-                    $('#evento-inicio').val(info.dateStr + 'T08:00');
-                    $('#eventoModal').modal('show');
-                },
-                eventClick: function (info) {
-                    // Preenche o modal para edição quando clica em um evento
-                    $('#evento-titulo').val(info.event.title);
-                    $('#evento-tipo').val(info.event.extendedProps.tipo || 'aula');
-                    $('#evento-turma').val(info.event.extendedProps.turma || 'all');
-                    $('#evento-descricao').val(info.event.extendedProps.description || '');
-
-                    // Formata as datas para o input datetime-local
-                    const start = new Date(info.event.start);
-                    const startStr = start.toISOString().slice(0, 16);
-                    $('#evento-inicio').val(startStr);
-
-                    if (info.event.end) {
-                        const end = new Date(info.event.end);
-                        const endStr = end.toISOString().slice(0, 16);
-                        $('#evento-fim').val(endStr);
-                    } else {
-                        $('#evento-fim').val('');
-                    }
-
-                    $('#eventoModal').modal('show');
-
-                    info.jsEvent.preventDefault();
+<!-- JS Customizado -->
+<script>
+    $(document).ready(function () {
+        // Inicializa o calendário
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            locale: 'pt-br',
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'title',
+                center: '',
+                right: 'prev,next today'
+            },
+            dayMaxEvents: 3, // Limita a quantidade de eventos mostrados por dia
+            dayPopoverFormat: { month: 'short', day: 'numeric' },
+            eventDisplay: 'list-item', // Exibe eventos como lista
+            views: {
+                dayGridMonth: {
+                    dayHeaderFormat: { weekday: 'short' }, // Só mostra a abreviação do dia
+                    dayMaxEventRows: 4 // Quantidade máxima de linhas de eventos
                 }
-            });
-
-            calendar.render();
-
-            // Adiciona listener para redimensionar o calendário quando o menu é aberto/fechado
-            $('.toggle-menu').click(function () {
-                setTimeout(function () {
-                    calendar.updateSize();
-                }, 300);
-            });
-
-            // Adiciona listener para redimensionamento da janela
-            $(window).resize(function () {
-                calendar.updateSize();
-            });
-
-            // Filtros
-            $('#turma-select, #tipo-evento').change(function () {
-                var turma = $('#turma-select').val();
-                var tipo = $('#tipo-evento').val();
-
-                calendar.getEvents().forEach(function (event) {
-                    var showEvent = true;
-
-                    if (turma !== 'all' && event.extendedProps.turma !== turma && event.extendedProps.turma !== 'all') {
-                        showEvent = false;
-                    }
-
-                    if (tipo !== 'all' && event.extendedProps.tipo !== tipo) {
-                        showEvent = false;
-                    }
-
-                    event.setProp('display', showEvent ? 'auto' : 'none');
-                });
-            });
-
-            // Filtros por legenda
-            $('.form-check-input').change(function () {
-                var tipo = $(this).attr('id').replace('legenda-', '');
-                var isChecked = $(this).is(':checked');
-
-                // Mapeia os IDs dos checkboxes para os tipos reais usados nos eventos
-                var tipoMap = {
-                    'aulas': 'aula',
-                    'provas': 'prova',
-                    'feriados': 'feriado',
-                    'reunioes': 'reuniao'
-                };
-
-                var tipoEvento = tipoMap[tipo] || tipo;
-
-                calendar.getEvents().forEach(function (event) {
-                    if (event.extendedProps.tipo === tipoEvento) {
-                        event.setProp('display', isChecked ? 'auto' : 'none');
-                    }
-                });
-            });
-
-            // Botão para adicionar evento
-            $('#btn-adicionar').click(function () {
-                $('#form-evento')[0].reset();
-                $('#evento-inicio').val(new Date().toISOString().slice(0, 16));
-                $('#eventoModal').modal('show');
-            });
-
-            // Salvar evento
-            $('#btn-salvar-evento').click(function () {
-                const title = $('#evento-titulo').val();
-                const tipo = $('#evento-tipo').val();
-                const turma = $('#evento-turma').val();
-                const start = $('#evento-inicio').val();
-                const end = $('#evento-fim').val();
-                const description = $('#evento-descricao').val();
-
-                if (!title) {
-                    alert('Por favor, insira um título para o evento');
-                    return;
+            },
+            navLinks: true,
+            editable: true,
+            selectable: true,
+            businessHours: {
+                daysOfWeek: [1, 2, 3, 4, 5], // Segunda a sexta
+                startTime: '07:00',
+                endTime: '18:00'
+            },
+            eventDidMount: function (info) {
+                // Adiciona classes CSS baseadas no tipo de evento
+                if (info.event.extendedProps.tipo) {
+                    info.el.classList.add(info.event.extendedProps.tipo);
                 }
 
-                // Cores baseadas no tipo de evento
-                let color;
-                switch (tipo) {
-                    case 'aula': color = '#007bff'; break;
-                    case 'prova': color = '#dc3545'; break;
-                    case 'feriado': color = '#ffc107'; break;
-                    case 'reuniao': color = '#28a745'; break;
-                    default: color = '#6c757d';
+                // Adiciona tooltip
+                if (info.event.extendedProps.description) {
+                    $(info.el).tooltip({
+                        title: info.event.extendedProps.description,
+                        placement: 'top',
+                        trigger: 'hover',
+                        container: 'body'
+                    });
                 }
-
-                calendar.addEvent({
-                    title: title,
-                    start: start,
-                    end: end || null,
-                    color: color,
+            },
+            events: [
+                {
+                    title: 'Aula de Matemática',
+                    start: new Date(),
+                    color: '#007bff',
                     extendedProps: {
-                        tipo: tipo,
-                        turma: turma,
-                        description: description
+                        turma: 'B',
+                        tipo: 'aula',
+                        description: 'Aula de Álgebra Linear - Prof. Carlos'
                     }
-                });
+                },
+                {
+                    title: 'Prova de História',
+                    start: new Date(new Date().setDate(new Date().getDate() + 2)),
+                    color: '#dc3545',
+                    extendedProps: {
+                        turma: 'A',
+                        tipo: 'prova',
+                        description: 'Prova do 2º Bimestre - Idade Média'
+                    }
+                },
+                {
+                    title: 'Reunião de Pais',
+                    start: new Date(new Date().setDate(new Date().getDate() + 7)),
+                    end: new Date(new Date().setDate(new Date().getDate() + 7.5)),
+                    color: '#28a745',
+                    extendedProps: {
+                        turma: 'all',
+                        tipo: 'reuniao',
+                        description: 'Reunião para entrega de boletins - Sala 12'
+                    }
+                },
+                {
+                    title: 'Evento Dia Inteiro',
+                    start: new Date(new Date().setDate(new Date().getDate() + 3)),
+                    allDay: true,
+                    display: 'background',
+                    color: '#f0f0f0',
+                    extendedProps: {
+                        turma: 'all',
+                        tipo: 'outro'
+                    }
+                }
+            ],
+            dateClick: function (info) {
+                // Preenche a data inicial quando clica em um dia
+                $('#evento-inicio').val(info.dateStr + 'T08:00');
+                $('#eventoModal').modal('show');
+            },
+            eventClick: function (info) {
+                // Preenche o modal para edição quando clica em um evento
+                $('#evento-titulo').val(info.event.title);
+                $('#evento-tipo').val(info.event.extendedProps.tipo || 'aula');
+                $('#evento-turma').val(info.event.extendedProps.turma || 'all');
+                $('#evento-descricao').val(info.event.extendedProps.description || '');
 
-                $('#eventoModal').modal('hide');
+                // Formata as datas para o input datetime-local
+                const start = new Date(info.event.start);
+                const startStr = start.toISOString().slice(0, 16);
+                $('#evento-inicio').val(startStr);
+
+                if (info.event.end) {
+                    const end = new Date(info.event.end);
+                    const endStr = end.toISOString().slice(0, 16);
+                    $('#evento-fim').val(endStr);
+                } else {
+                    $('#evento-fim').val('');
+                }
+
+                $('#eventoModal').modal('show');
+
+                info.jsEvent.preventDefault();
+            }
+        });
+
+        calendar.render();
+
+        // Adiciona listener para redimensionar o calendário quando o menu é aberto/fechado
+        $('.toggle-menu').click(function () {
+            setTimeout(function () {
+                calendar.updateSize();
+            }, 300);
+        });
+
+        // Adiciona listener para redimensionamento da janela
+        $(window).resize(function () {
+            calendar.updateSize();
+        });
+
+        // Filtros
+        $('#turma-select, #tipo-evento').change(function () {
+            var turma = $('#turma-select').val();
+            var tipo = $('#tipo-evento').val();
+
+            calendar.getEvents().forEach(function (event) {
+                var showEvent = true;
+
+                if (turma !== 'all' && event.extendedProps.turma !== turma && event.extendedProps.turma !== 'all') {
+                    showEvent = false;
+                }
+
+                if (tipo !== 'all' && event.extendedProps.tipo !== tipo) {
+                    showEvent = false;
+                }
+
+                event.setProp('display', showEvent ? 'auto' : 'none');
             });
         });
-    </script>
+
+        // Filtros por legenda
+        $('.form-check-input').change(function () {
+            var tipo = $(this).attr('id').replace('legenda-', '');
+            var isChecked = $(this).is(':checked');
+
+            // Mapeia os IDs dos checkboxes para os tipos reais usados nos eventos
+            var tipoMap = {
+                'aulas': 'aula',
+                'provas': 'prova',
+                'feriados': 'feriado',
+                'reunioes': 'reuniao'
+            };
+
+            var tipoEvento = tipoMap[tipo] || tipo;
+
+            calendar.getEvents().forEach(function (event) {
+                if (event.extendedProps.tipo === tipoEvento) {
+                    event.setProp('display', isChecked ? 'auto' : 'none');
+                }
+            });
+        });
+
+        // Botão para adicionar evento
+        $('#btn-adicionar').click(function () {
+            $('#form-evento')[0].reset();
+            $('#evento-inicio').val(new Date().toISOString().slice(0, 16));
+            $('#eventoModal').modal('show');
+        });
+
+        // Salvar evento
+        $('#btn-salvar-evento').click(function () {
+            const title = $('#evento-titulo').val();
+            const tipo = $('#evento-tipo').val();
+            const turma = $('#evento-turma').val();
+            const start = $('#evento-inicio').val();
+            const end = $('#evento-fim').val();
+            const description = $('#evento-descricao').val();
+
+            if (!title) {
+                alert('Por favor, insira um título para o evento');
+                return;
+            }
+
+            // Cores baseadas no tipo de evento
+            let color;
+            switch (tipo) {
+                case 'aula': color = '#007bff'; break;
+                case 'prova': color = '#dc3545'; break;
+                case 'feriado': color = '#ffc107'; break;
+                case 'reuniao': color = '#28a745'; break;
+                default: color = '#6c757d';
+            }
+
+            calendar.addEvent({
+                title: title,
+                start: start,
+                end: end || null,
+                color: color,
+                extendedProps: {
+                    tipo: tipo,
+                    turma: turma,
+                    description: description
+                }
+            });
+
+            $('#eventoModal').modal('hide');
+        });
+    });
+</script>
 </body>
 
 </html>

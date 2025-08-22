@@ -345,7 +345,7 @@
                     </tbody>
                 </table>
             </div>
-        </div> <!-- Fecha a print-area -->
+        </div> 
 
         <!-- Rodapé com botões (FORA da área de impressão) -->
         <div class="footer-boletim no-print">
@@ -357,7 +357,7 @@
         </div>
     </div>
 
-    <!-- Scripts (MANTIDOS COMO ESTAVAM) -->
+    <!-- Scripts -->
     <script src="../assets/js/jquery.min.js"></script>
     <script src="../assets/js/popper.min.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
