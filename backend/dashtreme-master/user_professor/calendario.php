@@ -520,11 +520,7 @@
                         </div>
                 </div>
 
-                <footer class="footer text-center py-3">
-                    <div class="container">
-                        <span>© 2023 Dashboard Acadêmico</span>
-                    </div>
-                </footer>
+                
             </div>
             <div class="overlay toggle-menu"></div>
         </div>

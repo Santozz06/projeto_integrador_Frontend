@@ -27,6 +27,48 @@
   <link href="../assets/css/app-style.css" rel="stylesheet" />
   <link href="style.css" rel="stylesheet" />
   <style>
+    html, body {
+      height: 100%;
+      min-height: 100%;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    body {
+      flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .content-wrapper {
+      flex: 1 0 auto;
+    }
+    .footer {
+      flex-shrink: 0;
+      background: transparent;
+      color: #fff;
+      border: none;
+      text-align: center;
+      padding: 15px 0 10px 0;
+    }
+    html, body {
+      height: 100%;
+    }
+    .content-wrapper {
+      min-height: calc(100vh - 60px); 
+    }
+    .footer {
+      width: 100%;
+      background: transparent;
+      color: #fff;
+      position: relative;
+      bottom: 0;
+      left: 0;
+      z-index: 1;
+      border: none;
+      padding: 15px 0 10px 0;
+    }
     /* ALUNOS - Azul médio */
     .btn-alunos {
       background-color: #377dff;
@@ -326,18 +368,9 @@
   </div>
 
 
-  <!--Start footer-->
-  <footer class="footer">
-    <div class="container">
-      <div class="text-center">
-        Copyright © 2023 Dashboard Acadêmico
-      </div>
-    </div>
-  </footer>
-  <!--End footer-->
 
-  </div>
-
+  <!-- Bootstrap core JavaScript-->
+  <script src="../assets/js/jquery.min.js"></script>
   <!-- Bootstrap core JavaScript-->
   <script src="../assets/js/jquery.min.js"></script>
   <script src="../assets/js/popper.min.js"></script>
@@ -402,9 +435,9 @@
         $(this).text('Todas marcadas como lidas');
       });
 
-      // Marcar notificação individual como lida ao clicar
+      
       $(document).on('click', '.dropdown-item', function () {
-        const index = $(this).index() - 1; // -1 porque o primeiro item é o cabeçalho
+        const index = $(this).index() - 1; 
         if (index >= 0 && index < notificacoes.length) {
           notificacoes[index].lida = true;
           atualizarContador();

@@ -28,6 +28,31 @@
     <link rel="stylesheet" href="style.css">
 
     <style>
+        html, body {
+            height: 100%;
+            min-height: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        body {
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .content-wrapper {
+            flex: 1 0 auto;
+        }
+        .footer {
+            flex-shrink: 0;
+            background: transparent;
+            color: #fff;
+            border: none;
+            text-align: center;
+            padding: 15px 0 10px 0;
+        }
         .form-section {
             margin-bottom: 30px;
             border-bottom: 1px solid #eee;
@@ -213,13 +238,7 @@
 
     <a href="javaScript:void();" class="back-to-top"><i class="fa fa-angle-double-up"></i> </a>
 
-    <footer class="footer">
-        <div class="container">
-            <div class="text-center">
-                Copyright © 2023 Dashboard Acadêmico
-            </div>
-        </div>
-    </footer>
+
     </div>
 
     <!-- Bootstrap core JavaScript-->

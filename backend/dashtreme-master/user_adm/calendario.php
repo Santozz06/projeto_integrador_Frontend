@@ -21,6 +21,31 @@
 
     <!-- CSS Customizado -->
     <style>
+        html, body {
+            height: 100%;
+            min-height: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        body {
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .content-wrapper {
+            flex: 1 0 auto;
+        }
+        .footer {
+            flex-shrink: 0;
+            background: transparent;
+            color: #fff;
+            border: none;
+            text-align: center;
+            padding: 15px 0 10px 0;
+        }
         body {
             background: linear-gradient(to right, #2c3e50, #3498db);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -546,11 +571,6 @@
                     </div>
             </div>
 
-            <footer class="footer text-center py-3">
-                <div class="container">
-                    <span>© 2023 Dashboard Acadêmico</span>
-                </div>
-            </footer>
         </div>
         <div class="overlay toggle-menu"></div>
     </div>

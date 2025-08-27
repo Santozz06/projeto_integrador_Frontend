@@ -226,13 +226,7 @@
          <div class="overlay toggle-menu"></div>
     </div>
 
-    <footer class="footer">
-      <div class="container">
-        <div class="text-center">
-          Copyright © 2023 Dashboard Acadêmico
-        </div>
-      </div>
-    </footer>
+    
   </div>
 
   <!-- Scripts -->

@@ -12,6 +12,31 @@
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
     <link rel="stylesheet" href="style.css">
     <style>
+        html, body {
+            height: 100%;
+            min-height: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        body {
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .content-wrapper {
+            flex: 1 0 auto;
+        }
+        .footer {
+            flex-shrink: 0;
+            background: transparent;
+            color: #fff;
+            border: none;
+            text-align: center;
+            padding: 15px 0 10px 0;
+        }
         .btn-custom-primary {
             background-color: #1abc9c !important;
             color: white !important;
@@ -100,13 +125,7 @@
     <!--Overlay-->
     <div class="overlay toggle-menu"></div>
 
-    <footer class="footer">
-        <div class="container">
-            <div class="text-center text-white">
-                Copyright © 2023 Dashboard Acadêmico
-            </div>
-        </div>
-    </footer>
+    
     </div>
 
     <script src="../assets/js/jquery.min.js"></script>
