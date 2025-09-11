@@ -1,6 +1,68 @@
+<?php
+session_start();
+require_once './includes/conexão.php'; 
+
+// Verifica se o formulário foi submetido
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $login = $_POST['login'] ?? '';
+    $senha = $_POST['senha'] ?? '';
+    $userType = $_POST['userType'] ?? '';
+    
+    // Consulta o usuário no banco de dados
+    $stmt = $pdo->prepare("SELECT * FROM Usuarios WHERE Login = ?");
+    $stmt->execute([$login]);
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($usuario) {
+        // Verifica a senha (em texto plano para teste, como você pediu)
+        if ($senha === $usuario['Senha']) {
+            // Verifica o tipo de usuário
+            if ($userType === 'admin' && $usuario['IsAdmin']) {
+                $_SESSION['usuario_id'] = $usuario['ID_Usuario'];
+                $_SESSION['usuario_nome'] = $usuario['Nome_Completo'];
+                $_SESSION['usuario_tipo'] = 'admin';
+                header("Location: user_adm/home.php");
+                exit();
+            } 
+            elseif ($userType === 'professor') {
+                // Verifica se é realmente um professor
+                $stmt = $pdo->prepare("SELECT * FROM Professores WHERE ID_Professor = ?");
+                $stmt->execute([$usuario['ID_Usuario']]);
+                if ($stmt->fetch()) {
+                    $_SESSION['usuario_id'] = $usuario['ID_Usuario'];
+                    $_SESSION['usuario_nome'] = $usuario['Nome_Completo'];
+                    $_SESSION['usuario_tipo'] = 'professor';
+                    header("Location: user_professor/home.php");
+                    exit();
+                } else {
+                    $erro = "Este usuário não é um professor.";
+                }
+            }
+            elseif ($userType === 'aluno') {
+                // Verifica se é realmente um aluno
+                $stmt = $pdo->prepare("SELECT * FROM Alunos WHERE ID_Aluno = ?");
+                $stmt->execute([$usuario['ID_Usuario']]);
+                if ($stmt->fetch()) {
+                    $_SESSION['usuario_id'] = $usuario['ID_Usuario'];
+                    $_SESSION['usuario_nome'] = $usuario['Nome_Completo'];
+                    $_SESSION['usuario_tipo'] = 'aluno';
+                    header("Location: user_aluno/index.php");
+                    exit();
+                } else {
+                    $erro = "Este usuário não é um aluno.";
+                }
+            }
+        } else {
+            $erro = "Senha incorreta.";
+        }
+    } else {
+        $erro = "Usuário não encontrado.";
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -21,11 +83,9 @@
   <link href="assets/css/icons.css" rel="stylesheet" type="text/css" />
   <!-- Custom Style-->
   <link href="assets/css/app-style.css" rel="stylesheet" />
-
 </head>
 
 <body class="bg-theme bg-theme1">
-
   <!-- start loader -->
   <div id="pageloader-overlay" class="visible incoming">
     <div class="loader-wrapper-outer">
@@ -38,7 +98,6 @@
 
   <!-- Start wrapper-->
   <div id="wrapper">
-
     <div class="loader-wrapper">
       <div class="lds-ring">
         <div></div>
@@ -54,12 +113,19 @@
             <img src="assets/images/logo-icon.png" alt="logo icon">
           </div>
           <div class="card-title text-uppercase text-center py-3">Entrar</div>
-          <form>
+          
+          <?php if (isset($erro)): ?>
+          <div class="alert alert-danger" role="alert">
+            <?php echo $erro; ?>
+          </div>
+          <?php endif; ?>
+          
+          <form method="POST" action="">
             <div class="form-group">
               <label for="exampleInputUsername" class="sr-only">Usuário</label>
               <div class="position-relative has-icon-right">
-                <input type="text" id="exampleInputUsername" class="form-control input-shadow"
-                  placeholder="Digite seu usuário">
+                <input type="text" id="exampleInputUsername" name="login" class="form-control input-shadow"
+                  placeholder="Digite seu usuário" required>
                 <div class="form-control-position">
                   <i class="icon-user"></i>
                 </div>
@@ -68,8 +134,8 @@
             <div class="form-group">
               <label for="exampleInputPassword" class="sr-only">Senha</label>
               <div class="position-relative has-icon-right">
-                <input type="password" id="exampleInputPassword" class="form-control input-shadow"
-                  placeholder="Digite sua senha">
+                <input type="password" id="exampleInputPassword" name="senha" class="form-control input-shadow"
+                  placeholder="Digite sua senha" required>
                 <div class="form-control-position">
                   <i class="icon-lock"></i>
                 </div>
@@ -90,7 +156,7 @@
             <div class="form-row">
               <div class="form-group col-6">
                 <div class="icheck-material-white">
-                  <input type="checkbox" id="user-checkbox" checked="" />
+                  <input type="checkbox" id="user-checkbox" name="lembrar" />
                   <label for="user-checkbox">Lembrar-me</label>
                 </div>
               </div>
@@ -98,7 +164,7 @@
                 <a href="reset-password.php">Esqueci minha senha</a>
               </div>
             </div>
-            <button type="button" class="btn btn-light btn-block" id="loginBtn">Entrar</button>
+            <button type="submit" class="btn btn-light btn-block">Entrar</button>
           </form>
         </div>
       </div>
@@ -110,7 +176,6 @@
     <!--Start Back To Top Button-->
     <a href="javaScript:void();" class="back-to-top"><i class="fa fa-angle-double-up"></i> </a>
     <!--End Back To Top Button-->
-
   </div><!--wrapper-->
 
   <!-- Bootstrap core JavaScript-->
@@ -123,38 +188,5 @@
 
   <!-- Custom scripts -->
   <script src="assets/js/app-script.js"></script>
-  <script>
-    function handleLogin() {
-      const username = document.getElementById('exampleInputUsername').value;
-      const password = document.getElementById('exampleInputPassword').value;
-      const userType = document.querySelector('input[name="userType"]:checked')?.value;
-
-      if (!username || !password || !userType) {
-        alert('Preencha todos os campos!');
-        return;
-      }
-
-      // Simula um delay para processamento
-      setTimeout(() => {
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('userType', userType);
-
-        // Redirecionamentos absolutos 
-        const redirectPages = {
-          'professor': 'user_professor/home.php',
-          'aluno': 'user_aluno/index.php',
-          'admin': 'user_adm/home.php'
-        };
-
-        window.location.href = redirectPages[userType];
-      }, 300); 
-    }
-
-    // Configuração inicial
-    document.addEventListener('DOMContentLoaded', function () {
-      document.getElementById('loginBtn').addEventListener('click', handleLogin);
-    });
-  </script>
 </body>
-
 </html>
