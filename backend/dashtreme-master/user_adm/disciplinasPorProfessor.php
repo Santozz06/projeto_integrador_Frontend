@@ -1,3 +1,4 @@
+<?php require_once '../includes/bootstrap.php'; ?>
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -224,7 +225,7 @@
     <script src="../assets/js/app-script.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
-    <script src="botaoSair.js"></script>
+    
     <script>
         $(document).ready(function () {
             const table = $('#disciplines-table').DataTable({

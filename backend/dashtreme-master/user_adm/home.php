@@ -1,3 +1,4 @@
+<?php require_once '../includes/bootstrap.php'; ?>
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -384,7 +385,6 @@
   <script src="../assets/js/jquery.loading-indicator.js"></script>
   <!-- Custom scripts -->
   <script src="../assets/js/app-script.js"></script>
-  <script src="botaoSair.js"></script>
 
   <script>
     $(document).ready(function () {

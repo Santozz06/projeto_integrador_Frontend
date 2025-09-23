@@ -1,3 +1,4 @@
+<?php require_once '../includes/bootstrap.php'; ?>
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -135,7 +136,7 @@
     <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
-    <script src="botaoSair.js"></script>
+   
     <script>
         $(function () {
             $('.sidebar-menu').sidebarMenu();

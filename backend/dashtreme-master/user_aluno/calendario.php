@@ -1,3 +1,4 @@
+<?php require_once '../includes/bootstrap.php'; ?>
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -333,7 +334,7 @@
 <script src='https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js'></script>
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/pt-br.js'></script>
-<script src="botaoSair.js"></script>
+
 
 <!-- JS Customizado -->
 <script>

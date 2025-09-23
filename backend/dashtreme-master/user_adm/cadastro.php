@@ -1,3 +1,4 @@
+<?php require_once '../includes/bootstrap.php'; ?>
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -934,7 +935,7 @@
     <script src="../assets/js/app-script.js"></script>
     <!-- referencia cadastro.js -->
     <script src="../user_adm/cadastro.js"></script>
-    <script src="botaoSair.js"></script>
+    
 
 </body>
 

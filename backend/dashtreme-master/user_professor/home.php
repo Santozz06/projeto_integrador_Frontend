@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+<?php require_once '../includes/bootstrap.php'; ?>
+!DOCTYPE html>
 <html lang="pt-br">
 
 <head>
@@ -439,7 +440,6 @@
     <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
-    <script src="botaoSair.js"></script>
     <script>
         // Verifica se o usuário está logado e no lugar certo
         const expectedUserType = window.location.pathname.includes('professor') ? 'professor' :

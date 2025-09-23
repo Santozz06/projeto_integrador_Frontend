@@ -1,3 +1,4 @@
+<?php require_once '../includes/bootstrap.php'; ?>
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -9,7 +10,7 @@
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-    <link rel="stylesheet" href="botaoSair.js">
+   
     <style>
         body {
             background: linear-gradient(to right, #2c3e50, #3498db);
@@ -262,7 +263,7 @@
     <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
-    <script src="botaoSair.js"></script>
+    
     <script>
         $(document).ready(function () {
             let alunoSelecionado = null;
