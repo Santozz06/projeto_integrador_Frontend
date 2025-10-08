@@ -6,6 +6,17 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Inclui conexão
 require_once 'conexao.php';
+require_once 'crud/BaseCRUD.php';
+require_once 'crud/UsuarioCRUD.php';
+require_once 'crud/TurmaCRUD.php';
+require_once 'crud/DisciplinaCRUD.php';
+require_once 'crud/MatriculaCRUD.php';
+
+
+$usuarioCRUD = new UsuarioCRUD($pdo);
+$turmaCRUD = new TurmaCRUD($pdo);
+$disciplinaCRUD = new DisciplinaCRUD($pdo);
+$matriculaCRUD = new MatriculaCRUD($pdo);
 
 // Função para verificar autenticação
 function verificarAuth($tipoRequerido = null) {
@@ -14,7 +25,7 @@ function verificarAuth($tipoRequerido = null) {
         exit();
     }
     
-    if ($tipoRequerido && $_SESSION['user_type'] !== $tipoRequerido) {
+    if ($tipoRequerido && (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== $tipoRequerido)) {
         header("Location: ../acesso_negado.php");
         exit();
     }
@@ -24,6 +35,7 @@ function verificarAuth($tipoRequerido = null) {
 
 // Verificação automática baseada na URL
 $url = $_SERVER['REQUEST_URI'];
+
 if (strpos($url, '/user_adm/') !== false) {
     verificarAuth('admin');
 } elseif (strpos($url, '/user_professor/') !== false) {
@@ -31,5 +43,4 @@ if (strpos($url, '/user_adm/') !== false) {
 } elseif (strpos($url, '/user_aluno/') !== false) {
     verificarAuth('aluno');
 }
-// Páginas fora dessas pastas não são verificadas automaticamente
 ?>

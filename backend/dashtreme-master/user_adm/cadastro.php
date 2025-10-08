@@ -1,4 +1,70 @@
 <?php require_once '../includes/bootstrap.php'; ?>
+<?php
+$erro = '';
+$sucesso = '';
+
+// PROCESSAR FORMULÁRIO
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        if ($_POST['tipo'] === 'aluno') {
+
+            $dadosUsuario = [
+                'Nome_Completo' => $_POST['nomeCompleto'],
+                'Email' => $_POST['email'],
+                'Senha' => $_POST['senha'],
+                'Data_Nascimento' => $_POST['dataNascimento'],
+                'Sexo' => $_POST['sexo'],
+                'CPF' => $_POST['cpf'],
+                'Raca_Etnia' => $_POST['racaCor'],
+                'Estado_Civil' => $_POST['estadoCivil'],
+                'Nacionalidade' => $_POST['nacionalidade'],
+                'Naturalidade' => $_POST['naturalidade'],
+                'Filiacao' => $_POST['filiacao'],
+                'Orgao_Exp' => $_POST['orgaoExpedidor'],
+                'UF_Exp' => $_POST['ufDocumento'],
+                'Telefone' => $_POST['celular'],
+                'Endereco' => $_POST['logradouro'] . ', ' . $_POST['numero'] . ' - ' . $_POST['bairro'],
+                'Possui_Necessidades_Especiais' => (isset($_POST['nee']) && $_POST['nee'] === 'sim') ? 1 : 0
+            ];
+
+
+            $idAluno = $usuarioCRUD->cadastrarAluno($dadosUsuario, $_POST['matriculaAluno']);
+            $sucesso = "Aluno cadastrado com sucesso! Matrícula: " . $_POST['matriculaAluno'];
+
+        } elseif ($_POST['tipo'] === 'servidor') {
+            $dadosUsuario = [
+                'Nome_Completo' => $_POST['nomeCompletoServidor'],
+                'Email' => $_POST['emailServidor'],
+                'Senha' => $_POST['senha'],
+                'Data_Nascimento' => $_POST['dataNascimentoServidor'],
+                'Sexo' => $_POST['sexoServidor'],
+                'CPF' => $_POST['cpfServidor'],
+                'Raca_Etnia' => $_POST['racaCorServidor'],
+                'Estado_Civil' => $_POST['estadoCivilServidor'],
+                'Nacionalidade' => $_POST['nacionalidadeServidor'],
+                'Naturalidade' => $_POST['naturalidadeServidor'],
+                'Filiacao' => $_POST['filiacaoServidor'],
+                'Orgao_Exp' => $_POST['orgaoExpedidorServidor'],
+                'UF_Exp' => $_POST['ufDocumentoServidor'],
+                'Telefone' => $_POST['celularServidor'],
+                'Endereco' => $_POST['logradouroServidor'] . ', ' . $_POST['numeroServidor'] . ' - ' . $_POST['bairroServidor']
+            ];
+
+            $idProfessor = $usuarioCRUD->cadastrarProfessor(
+                $dadosUsuario,
+                $_POST['formacaoAcademica'],
+                $_POST['dataAdmissao']
+            );
+            $sucesso = "Professor cadastrado com sucesso!";
+        }
+
+    } catch (Exception $e) {
+        $erro = "Erro no cadastro: " . $e->getMessage();
+        error_log("Erro cadastro: " . $e->getMessage());
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -30,7 +96,8 @@
     <link rel="stylesheet" href="style.css">
 
     <style>
-        html, body {
+        html,
+        body {
             height: 100%;
             min-height: 100%;
             margin: 0;
@@ -38,15 +105,18 @@
             display: flex;
             flex-direction: column;
         }
+
         body {
             flex: 1 0 auto;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
+
         .content-wrapper {
             flex: 1 0 auto;
         }
+
         .footer {
             flex-shrink: 0;
             background: transparent;
@@ -55,6 +125,7 @@
             text-align: center;
             padding: 15px 0 10px 0;
         }
+
         .form-section {
             margin-bottom: 30px;
             border-bottom: 1px solid #eee;
@@ -229,7 +300,8 @@
                     <div class="tab-content pt-3">
                         <!-- Aba Aluno -->
                         <div class="tab-pane fade show active" id="aluno" role="tabpanel">
-                            <form id="formAluno">
+                            <form id="formAluno" method="POST">
+                                <input type="hidden" name="tipo" value="aluno">
                                 <!-- Dados Pessoais - Aluno -->
                                 <div class="form-section">
                                     <h5>Dados Pessoais</h5>
@@ -566,9 +638,7 @@
                                 <!-- Botões -->
                                 <div class="form-group row">
                                     <div class="col-sm-12 text-right">
-                                        <button type="button" class="btn btn-Salvar px-5" id="btnSalvarEVincular">
-                                            <i class="zmdi zmdi-link mr-1"></i> Salvar e Vincular Turma
-                                        </button>
+                                        <button type="submit" class="btn btn-Salvar px-5" id="btnSalvarEVincular">
                                         <button type="button" class="btn btn-cancelar px-5"
                                             id="btnCancelarAluno">Cancelar</button>
                                     </div>
@@ -578,7 +648,8 @@
 
                         <!-- Aba Servidor -->
                         <div class="tab-pane fade" id="servidor" role="tabpanel">
-                            <form id="formServidor">
+                            <form id="formServidor" method="POST">
+                                <input type="hidden" name="tipo" value="servidor">
                                 <!-- Dados Pessoais -->
                                 <div class="form-section">
                                     <h5>Dados Pessoais</h5>
@@ -896,8 +967,7 @@
                                 <!-- Botões -->
                                 <div class="form-group row">
                                     <div class="col-sm-12 text-right">
-                                        <button type="submit" class="btn btn-Salvar px-5"><i
-                                                class="zmdi zmdi-save mr-1"></i> Salvar</button>
+                                        <button type="submit" class="btn btn-Salvar px-5"></button>
                                         <button type="button" class="btn btn-cancelar px-5"
                                             id="btnCancelarServidor">Cancelar</button>
                                     </div>
@@ -935,7 +1005,7 @@
     <script src="../assets/js/app-script.js"></script>
     <!-- referencia cadastro.js -->
     <script src="../user_adm/cadastro.js"></script>
-    
+
 
 </body>
 
