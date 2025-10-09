@@ -7,24 +7,45 @@ class UsuarioCRUD extends BaseCRUD {
     }
     
     // CADASTRO DE ALUNO
-    public function cadastrarAluno($dadosUsuario, $matricula = '') {
+    public function cadastrarAluno($dadosUsuario, $matricula) {
         try {
             $this->pdo->beginTransaction();
-            
             // 1. Cadastra na tabela Usuarios
             $idUsuario = $this->criar($dadosUsuario);
-            
             // 2. Cadastra na tabela Alunos
-            $sqlAluno = "INSERT INTO Alunos (ID_Aluno, Matricula) VALUES (?, ?)";
+            $sqlAluno = "INSERT INTO Alunos (ID_Aluno) VALUES (?)";
             $stmtAluno = $this->pdo->prepare($sqlAluno);
-            $stmtAluno->execute([$idUsuario, $matricula]);
-            
+            $stmtAluno->execute([$idUsuario]);
             $this->pdo->commit();
             return $idUsuario;
-            
         } catch (Exception $e) {
             $this->pdo->rollBack();
             throw new Exception("Erro no cadastro do aluno: " . $e->getMessage());
+        }
+    }
+
+    // LISTAR ALUNOS
+    public function listarAlunos($filtro = '') {
+        try {
+        $sql = "SELECT u.ID_Usuario, u.Nome_Completo, u.Email, u.Telefone, u.Data_Nascimento
+            FROM Usuarios u
+            INNER JOIN Alunos a ON u.ID_Usuario = a.ID_Aluno";
+
+            $params = [];
+            if ($filtro) {
+                $sql .= " AND (u.Nome_Completo LIKE ? OR u.Email LIKE ?)";
+                $likeFilter = "%$filtro%";
+                $params = [$likeFilter, $likeFilter];
+            }
+
+            $sql .= " ORDER BY u.Nome_Completo";
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Erro ao listar alunos: " . $e->getMessage());
         }
     }
     
@@ -49,14 +70,35 @@ class UsuarioCRUD extends BaseCRUD {
             throw new Exception("Erro no cadastro do professor: " . $e->getMessage());
         }
     }
+
+    // ATUALIZAR ALUNO
+    public function atualizarAluno($idUsuario, $dadosUsuario, $matricula) {
+        try {
+            $this->pdo->beginTransaction();
+
+            // Atualiza a tabela Usuarios (assumindo que o método `atualizar` existe na BaseCRUD)
+            $this->atualizar($idUsuario, $dadosUsuario);
+
+            // Atualiza a matrícula na tabela Alunos
+            $sql = "UPDATE Alunos SET Matricula = ? WHERE ID_Aluno = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$matricula, $idUsuario]);
+
+            $this->pdo->commit();
+            return $idUsuario;
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            throw new Exception("Erro ao atualizar o aluno: " . $e->getMessage());
+        }
+    }
     
     // BUSCAR ALUNO COMPLETO
     public function buscarAlunoCompleto($idAluno) {
         try {
-            $sql = "SELECT u.*, a.Matricula 
+            $sql = "SELECT u.* 
                     FROM Usuarios u 
                     INNER JOIN Alunos a ON u.ID_Usuario = a.ID_Aluno 
-                    WHERE u.ID_Usuario = ? AND u.Ativo = 1";
+                    WHERE u.ID_Usuario = ?";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([$idAluno]);
             
@@ -82,39 +124,13 @@ class UsuarioCRUD extends BaseCRUD {
         }
     }
     
-    // LISTAR ALUNOS
-    public function listarAlunos($filtro = '') {
-        try {
-            $sql = "SELECT u.ID_Usuario, u.Nome_Completo, u.Email, u.Telefone, u.Data_Nascimento, a.Matricula 
-                    FROM Usuarios u 
-                    INNER JOIN Alunos a ON u.ID_Usuario = a.ID_Aluno 
-                    WHERE u.Ativo = 1";
-            
-            $params = [];
-            if ($filtro) {
-                $sql .= " AND (u.Nome_Completo LIKE ? OR u.Email LIKE ? OR a.Matricula LIKE ?)";
-                $likeFilter = "%$filtro%";
-                $params = [$likeFilter, $likeFilter, $likeFilter];
-            }
-            
-            $sql .= " ORDER BY u.Nome_Completo";
-            
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute($params);
-            
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            throw new Exception("Erro ao listar alunos: " . $e->getMessage());
-        }
-    }
     
     // LISTAR PROFESSORES
     public function listarProfessores($filtro = '') {
         try {
-            $sql = "SELECT u.ID_Usuario, u.Nome_Completo, u.Email, u.Telefone, p.Formacao, p.Data_Ingresso 
-                    FROM Usuarios u 
-                    INNER JOIN Professores p ON u.ID_Usuario = p.ID_Professor 
-                    WHERE u.Ativo = 1";
+        $sql = "SELECT u.ID_Usuario, u.Nome_Completo, u.Email, u.Telefone, p.Formacao, p.Data_Ingresso 
+            FROM Usuarios u 
+            INNER JOIN Professores p ON u.ID_Usuario = p.ID_Professor";
             
             $params = [];
             if ($filtro) {

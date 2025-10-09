@@ -1,25 +1,56 @@
-<?php require_once '../includes/bootstrap.php'; ?>
 <?php
+require_once '../includes/bootstrap.php';
+
 $erro = '';
 $sucesso = '';
+$aluno_para_edicao = null;
 
-// PROCESSAR FORMULÁRIO
+require_once '../includes/conexao.php';
+require_once '../includes/crud/UsuarioCRUD.php';
+require_once '../includes/crud/LocalidadeCRUD.php';
+
+$usuarioCRUD = new UsuarioCRUD($pdo);
+$localidadeCRUD = new LocalidadeCRUD($pdo);
+
+// Carregar dados para os selects
+$estados = $localidadeCRUD->listarEstados();
+$paises = $localidadeCRUD->listarPaises();
+$orgaos_expedidores = $localidadeCRUD->listarOrgaosExpedidores();
+
+// Se estiver editando, carrega municípios do estado do aluno
+$municipios = [];
+if (isset($_GET['editarAluno']) && !empty($_GET['editarAluno'])) {
+    $id_aluno_edicao = $_GET['editarAluno'];
+    $aluno_para_edicao = $usuarioCRUD->buscarAlunoCompleto($id_aluno_edicao);
+
+    if ($aluno_para_edicao && $aluno_para_edicao['estado_id']) {
+        $municipios = $localidadeCRUD->listarMunicipiosPorEstado($aluno_para_edicao['estado_id']);
+    }
+}
+
+// PROCESSAR FORMULÁRIO (Criação e Atualização)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         if ($_POST['tipo'] === 'aluno') {
+            $email = $_POST['email'];
+            $id_aluno = $_POST['id_aluno'] ?? null;
+
+            // Verificar se o email já existe (apenas para novos cadastros)
+            if (!$id_aluno) {
+                $email_existente = $usuarioCRUD->verificarEmailExistente($email);
+                if ($email_existente) {
+                    throw new Exception("O email '$email' já está cadastrado no sistema.");
+                }
+            }
 
             $dadosUsuario = [
+                'Login' => $email,
                 'Nome_Completo' => $_POST['nomeCompleto'],
-                'Email' => $_POST['email'],
-                'Senha' => $_POST['senha'],
+                'Email' => $email,
                 'Data_Nascimento' => $_POST['dataNascimento'],
                 'Sexo' => $_POST['sexo'],
                 'CPF' => $_POST['cpf'],
                 'Raca_Etnia' => $_POST['racaCor'],
-                'Estado_Civil' => $_POST['estadoCivil'],
-                'Nacionalidade' => $_POST['nacionalidade'],
-                'Naturalidade' => $_POST['naturalidade'],
-                'Filiacao' => $_POST['filiacao'],
                 'Orgao_Exp' => $_POST['orgaoExpedidor'],
                 'UF_Exp' => $_POST['ufDocumento'],
                 'Telefone' => $_POST['celular'],
@@ -27,14 +58,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'Possui_Necessidades_Especiais' => (isset($_POST['nee']) && $_POST['nee'] === 'sim') ? 1 : 0
             ];
 
+            // Se não houver senha no POST, não a inclui nos dados a serem atualizados
+            if (!empty($_POST['senha'])) {
+                $dadosUsuario['Senha'] = $_POST['senha'];
+            }
 
-            $idAluno = $usuarioCRUD->cadastrarAluno($dadosUsuario, $_POST['matriculaAluno']);
-            $sucesso = "Aluno cadastrado com sucesso! Matrícula: " . $_POST['matriculaAluno'];
+            $matricula = $_POST['matriculaAluno'];
+
+            // Verifica se é uma atualização ou um novo cadastro
+            if ($id_aluno) {
+                // Atualização
+                $usuarioCRUD->atualizarAluno($id_aluno, $dadosUsuario, $matricula);
+                $sucesso = "Aluno atualizado com sucesso!";
+            } else {
+                // Novo cadastro
+                $idAluno = $usuarioCRUD->cadastrarAluno($dadosUsuario, $matricula);
+                $sucesso = "Aluno cadastrado com sucesso! Matrícula: " . $matricula;
+            }
+
+            // Redireciona para a mesma página para limpar o formulário e mostrar a mensagem
+            header("Location: cadastro.php?sucesso=" . urlencode($sucesso));
+            exit;
 
         } elseif ($_POST['tipo'] === 'servidor') {
+            $email_servidor = $_POST['emailServidor'];
+
+            // Verificar se o email já existe
+            $email_existente = $usuarioCRUD->verificarEmailExistente($email_servidor);
+            if ($email_existente) {
+                throw new Exception("O email '$email_servidor' já está cadastrado no sistema.");
+            }
+
             $dadosUsuario = [
+                'Login' => $email_servidor,
                 'Nome_Completo' => $_POST['nomeCompletoServidor'],
-                'Email' => $_POST['emailServidor'],
+                'Email' => $email_servidor,
                 'Senha' => $_POST['senha'],
                 'Data_Nascimento' => $_POST['dataNascimentoServidor'],
                 'Sexo' => $_POST['sexoServidor'],
@@ -56,6 +114,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['dataAdmissao']
             );
             $sucesso = "Professor cadastrado com sucesso!";
+
+            header("Location: cadastro.php?sucesso=" . urlencode($sucesso));
+            exit;
         }
 
     } catch (Exception $e) {
@@ -63,6 +124,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         error_log("Erro cadastro: " . $e->getMessage());
     }
 }
+
+// Exibe mensagens de sucesso ou erro passadas pela URL
+if (isset($_GET['sucesso'])) {
+    $sucesso = $_GET['sucesso'];
+}
+if (isset($_GET['erro'])) {
+    $erro = $_GET['erro'];
+}
+
+// Listagem de alunos e servidores
+$alunos = $usuarioCRUD->listarAlunos();
+$servidores = $usuarioCRUD->listarProfessores();
 ?>
 
 <!DOCTYPE html>
@@ -93,39 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Custom Style-->
     <link href="../assets/css/app-style.css" rel="stylesheet" />
 
-    <link rel="stylesheet" href="style.css">
-
     <style>
-        html,
-        body {
-            height: 100%;
-            min-height: 100%;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        body {
-            flex: 1 0 auto;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        .content-wrapper {
-            flex: 1 0 auto;
-        }
-
-        .footer {
-            flex-shrink: 0;
-            background: transparent;
-            color: #fff;
-            border: none;
-            text-align: center;
-            padding: 15px 0 10px 0;
-        }
-
         .form-section {
             margin-bottom: 30px;
             border-bottom: 1px solid #eee;
@@ -143,6 +184,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 5px;
             padding: 15px;
             margin-bottom: 20px;
+            background-color: #e9ecef;
+            color: #222;
+            border: 1px solid #ccc;
         }
 
         .checkbox-label {
@@ -152,6 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-bottom: 12px;
             cursor: pointer;
             user-select: none;
+            font-size: 14px;
         }
 
         .checkbox-label input {
@@ -200,37 +245,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             transform: rotate(45deg);
         }
 
-        .is-invalid {
-            border-color: #dc3545 !important;
-        }
-
-        .invalid-feedback {
-            display: none;
-            width: 100%;
-            margin-top: 0.25rem;
-            font-size: 80%;
-            color: #dc3545;
-        }
-
-        .alert-success {
-            color: #155724;
-            background-color: #d4edda;
-            border-color: #c3e6cb;
-            padding: 0.75rem 1.25rem;
-            margin-bottom: 1rem;
-            border: 1px solid transparent;
-            border-radius: 0.25rem;
-            display: none;
-        }
-
-        .form-section h5 {
-            color: #71affa;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
         .btn-Salvar {
-            background-color: #1abc9c;
+            background-color: #2ecc71;
             color: white;
             border: none;
             border-radius: 6px;
@@ -238,7 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .btn-Salvar:hover {
-            background-color: #16a085;
+            background-color: #27ae60;
         }
 
         .btn-cancelar {
@@ -253,18 +269,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-color: #c0392b;
         }
 
-        .navbar {
-            background-color: rgba(0, 0, 0, 0.2) !important;
-            backdrop-filter: blur(10px);
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: 0.25rem;
+        }
+
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: 0.25rem;
+        }
+
+        .table th {
+            background-color: #71affa;
+            color: white;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: #71affa;
+            color: white;
+            border-color: #71affa;
+        }
+
+        .nav-tabs .nav-link {
+            color: #71affa;
         }
     </style>
 </head>
 
 <body class="bg-theme bg-theme1">
 
-    <?php
-    require("menu_padrão.php");
-    ?>
+    <?php require("menu_padrão.php"); ?>
 
     <div class="clearfix"></div>
 
@@ -277,10 +321,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
 
-            <!-- Mensagem de sucesso -->
-            <div class="alert-success" id="successMessage">
-                <i class="zmdi zmdi-check-circle mr-2"></i> Cadastro realizado com sucesso!
-            </div>
+            <!-- Mensagens -->
+            <?php if ($sucesso): ?>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="zmdi zmdi-check-circle mr-2"></i> <?= htmlspecialchars($sucesso) ?>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($erro): ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="zmdi zmdi-close-circle mr-2"></i> <?= htmlspecialchars($erro) ?>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            <?php endif; ?>
 
             <div class="card">
                 <div class="card-body">
@@ -302,6 +360,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="tab-pane fade show active" id="aluno" role="tabpanel">
                             <form id="formAluno" method="POST">
                                 <input type="hidden" name="tipo" value="aluno">
+                                <input type="hidden" name="id_aluno"
+                                    value="<?= $aluno_para_edicao['ID_Usuario'] ?? '' ?>">
+
+                                <!-- Deixa o campo senha em branco no modo de edição -->
+                                <input type="hidden" name="senha" value="<?= $aluno_para_edicao ? '' : 'senha123' ?>">
+
                                 <!-- Dados Pessoais - Aluno -->
                                 <div class="form-section">
                                     <h5>Dados Pessoais</h5>
@@ -309,24 +373,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>Nome Completo</label>
-                                                <input type="text" class="form-control" id="nomeCompleto" required>
-                                                <div class="invalid-feedback">Por favor, informe o nome completo
-                                                </div>
+                                                <input type="text" class="form-control" name="nomeCompleto" required
+                                                    value="<?= htmlspecialchars($aluno_para_edicao['Nome_Completo'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label>Data de Nascimento</label>
-                                                <input type="date" class="form-control" id="dataNascimento" required>
-                                                <div class="invalid-feedback">Por favor, informe a data de
-                                                    nascimento</div>
+                                                <input type="date" class="form-control" name="dataNascimento" required
+                                                    value="<?= htmlspecialchars($aluno_para_edicao['Data_Nascimento'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label>Matrícula</label>
-                                                <input type="text" class="form-control" id="matriculaAluno" required>
-                                                <div class="invalid-feedback">Por favor, informe a matrícula</div>
+                                                <input type="text" class="form-control" name="matriculaAluno" required
+                                                    value="<?= htmlspecialchars($aluno_para_edicao['Matricula'] ?? '') ?>">
                                             </div>
                                         </div>
                                     </div>
@@ -334,47 +396,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label>Sexo</label>
-                                                <select class="form-control" id="sexo" required>
+                                                <select class="form-control" name="sexo" required>
                                                     <option value="">Selecione...</option>
-                                                    <option>Masculino</option>
-                                                    <option>Feminino</option>
-                                                    <option>Outro</option>
-                                                    <option>Prefiro não informar</option>
+                                                    <option <?= ($aluno_para_edicao['Sexo'] ?? '') == 'Masculino' ? 'selected' : '' ?>>Masculino</option>
+                                                    <option <?= ($aluno_para_edicao['Sexo'] ?? '') == 'Feminino' ? 'selected' : '' ?>>Feminino</option>
+                                                    <option <?= ($aluno_para_edicao['Sexo'] ?? '') == 'Outro' ? 'selected' : '' ?>>Outro</option>
+                                                    <option <?= ($aluno_para_edicao['Sexo'] ?? '') == 'Prefiro não informar' ? 'selected' : '' ?>>Prefiro não informar</option>
                                                 </select>
-                                                <div class="invalid-feedback">Por favor, selecione o sexo</div>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label>Raça/Cor</label>
-                                                <select class="form-control" id="racaCor" required>
+                                                <select class="form-control" name="racaCor" required>
                                                     <option value="">Selecione...</option>
-                                                    <option>Branca</option>
-                                                    <option>Preta</option>
-                                                    <option>Parda</option>
-                                                    <option>Amarela</option>
-                                                    <option>Indígena</option>
-                                                    <option>Prefiro não informar</option>
+                                                    <option <?= ($aluno_para_edicao['Raca_Etnia'] ?? '') == 'Branca' ? 'selected' : '' ?>>Branca</option>
+                                                    <option <?= ($aluno_para_edicao['Raca_Etnia'] ?? '') == 'Preta' ? 'selected' : '' ?>>Preta</option>
+                                                    <option <?= ($aluno_para_edicao['Raca_Etnia'] ?? '') == 'Parda' ? 'selected' : '' ?>>Parda</option>
+                                                    <option <?= ($aluno_para_edicao['Raca_Etnia'] ?? '') == 'Amarela' ? 'selected' : '' ?>>Amarela</option>
+                                                    <option <?= ($aluno_para_edicao['Raca_Etnia'] ?? '') == 'Indígena' ? 'selected' : '' ?>>Indígena</option>
+                                                    <option <?= ($aluno_para_edicao['Raca_Etnia'] ?? '') == 'Prefiro não informar' ? 'selected' : '' ?>>Prefiro não informar</option>
                                                 </select>
-                                                <div class="invalid-feedback">Por favor, selecione a raça/cor</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-                                                <label>Estado Civil</label>
-                                                <select class="form-control" id="estadoCivil" required>
-                                                    <option value="">Selecione...</option>
-                                                    <option>Solteiro(a)</option>
-                                                    <option>Casado(a)</option>
-                                                    <option>Divorciado(a)</option>
-                                                    <option>Viúvo(a)</option>
-                                                </select>
-                                                <div class="invalid-feedback">Por favor, selecione o estado civil
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
                                 <!-- Nacionalidade -->
                                 <div class="form-section">
                                     <h5>Nacionalidade</h5>
@@ -382,41 +429,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Nacionalidade</label>
-                                                <select class="form-control" id="nacionalidade" required>
+                                                <select class="form-control" name="nacionalidade" required>
                                                     <option value="" disabled selected>Selecione...</option>
-                                                    <option value="Brasileiro(a)">Brasileiro(a)</option>
-                                                    <option value="Argentino(a)">Argentino(a)</option>
-                                                    <option value="Uruguaio(a)">Uruguaio(a)</option>
-                                                    <option value="Chileno(a)">Chileno(a)</option>
-                                                    <option value="Americano(a)">Americano(a)</option>
-                                                    <option value="Canadense">Canadense</option>
-                                                    <option value="Espanhol(a)">Espanhol(a)</option>
-                                                    <option value="Português(a)">Português(a)</option>
-                                                    <option value="Italiano(a)">Italiano(a)</option>
-                                                    <option value="Alemão(ã)">Alemão(ã)</option>
-                                                    <option value="Francês(a)">Francês(a)</option>
-                                                    <option value="Japonês(a)">Japonês(a)</option>
-                                                    <option value="Chinês(a)">Chinês(a)</option>
-                                                    <option value="Outra">Outra nacionalidade</option>
+                                                    <option value="Brasileiro(a)"
+                                                        <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Brasileiro(a)' ? 'selected' : '' ?>>Brasileiro(a)</option>
+                                                    <option value="Argentino(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Argentino(a)' ? 'selected' : '' ?>>Argentino(a)
+                                                    </option>
+                                                    <option value="Uruguaio(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Uruguaio(a)' ? 'selected' : '' ?>>Uruguaio(a)</option>
+                                                    <option value="Chileno(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Chileno(a)' ? 'selected' : '' ?>>Chileno(a)</option>
+                                                    <option value="Americano(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Americano(a)' ? 'selected' : '' ?>>Americano(a)
+                                                    </option>
+                                                    <option value="Canadense" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Canadense' ? 'selected' : '' ?>>Canadense</option>
+                                                    <option value="Espanhol(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Espanhol(a)' ? 'selected' : '' ?>>Espanhol(a)</option>
+                                                    <option value="Português(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Português(a)' ? 'selected' : '' ?>>Português(a)
+                                                    </option>
+                                                    <option value="Italiano(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Italiano(a)' ? 'selected' : '' ?>>Italiano(a)</option>
+                                                    <option value="Alemão(ã)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Alemão(ã)' ? 'selected' : '' ?>>Alemão(ã)</option>
+                                                    <option value="Francês(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Francês(a)' ? 'selected' : '' ?>>Francês(a)</option>
+                                                    <option value="Japonês(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Japonês(a)' ? 'selected' : '' ?>>Japonês(a)</option>
+                                                    <option value="Chinês(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Chinês(a)' ? 'selected' : '' ?>>Chinês(a)</option>
+                                                    <option value="Outra" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Outra' ? 'selected' : '' ?>>Outra nacionalidade</option>
                                                 </select>
-                                                <div class="invalid-feedback">Por favor, selecione a nacionalidade
-                                                </div>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Naturalidade</label>
-                                                <input type="text" class="form-control" id="naturalidade" required>
-                                                <div class="invalid-feedback">Por favor, informe a naturalidade
-                                                </div>
+                                                <input type="text" class="form-control" name="naturalidade" required
+                                                    value="<?= htmlspecialchars($aluno_para_edicao['Naturalidade'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Filiação</label>
-                                                <input type="text" class="form-control" id="filiacao"
-                                                    placeholder="Nome da mãe/pai" required>
-                                                <div class="invalid-feedback">Por favor, informe a filiação</div>
+                                                <input type="text" class="form-control" name="filiacao"
+                                                    placeholder="Nome da mãe/pai" required
+                                                    value="<?= htmlspecialchars($aluno_para_edicao['Filiacao'] ?? '') ?>">
                                             </div>
                                         </div>
                                     </div>
@@ -429,40 +477,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>CPF</label>
-                                                <input type="text" class="form-control" id="cpf"
-                                                    placeholder="000.000.000-00" required>
-                                                <div class="invalid-feedback">Por favor, informe o CPF</div>
+                                                <input type="text" class="form-control" name="cpf"
+                                                    placeholder="000.000.000-00" required
+                                                    value="<?= htmlspecialchars($aluno_para_edicao['CPF'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Data de Expedição</label>
-                                                <input type="date" class="form-control" id="dataExpedicao" required>
-                                                <div class="invalid-feedback">Por favor, informe a data de
-                                                    expedição
-                                                </div>
+                                                <input type="date" class="form-control" name="dataExpedicao" required
+                                                    value="<?= htmlspecialchars($aluno_para_edicao['Data_Expedicao'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label>UF</label>
-                                                <select class="form-control" id="ufDocumento" required>
+                                                <select class="form-control" name="ufDocumento" required>
                                                     <option value="">Selecione...</option>
-                                                    <option>SP</option>
+                                                    <option <?= ($aluno_para_edicao['UF_Exp'] ?? '') == 'SP' ? 'selected' : '' ?>>SP</option>
                                                     <!-- outros estados -->
                                                 </select>
-                                                <div class="invalid-feedback">Por favor, selecione a UF
-                                                </div>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label>Órgão Expedidor</label>
-                                                <input type="text" class="form-control" id="orgaoExpedidor"
-                                                    placeholder="SSP" required>
-                                                <div class="invalid-feedback">Por favor, informe o órgão
-                                                    expedidor
-                                                </div>
+                                                <input type="text" class="form-control" name="orgaoExpedidor"
+                                                    placeholder="SSP" required
+                                                    value="<?= htmlspecialchars($aluno_para_edicao['Orgao_Exp'] ?? '') ?>">
                                             </div>
                                         </div>
                                     </div>
@@ -475,31 +517,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label>CEP</label>
-                                                <input type="text" class="form-control" id="cep" placeholder="00000-000"
-                                                    required>
-                                                <div class="invalid-feedback">Por favor, informe o CEP</div>
+                                                <input type="text" class="form-control" name="cep"
+                                                    placeholder="00000-000" required
+                                                    value="<?= htmlspecialchars($aluno_para_edicao['CEP'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-5">
                                             <div class="form-group">
                                                 <label>Logradouro</label>
-                                                <input type="text" class="form-control" id="logradouro" required>
-                                                <div class="invalid-feedback">Por favor, informe o
-                                                    logradouro</div>
+                                                <input type="text" class="form-control" name="logradouro" required
+                                                    value="<?= htmlspecialchars($aluno_para_edicao['Logradouro'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-1">
                                             <div class="form-group">
                                                 <label>Nº</label>
-                                                <input type="text" class="form-control" id="numero" required>
-                                                <div class="invalid-feedback">Por favor, informe o número
-                                                </div>
+                                                <input type="text" class="form-control" name="numero" required
+                                                    value="<?= htmlspecialchars($aluno_para_edicao['Numero'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Complemento</label>
-                                                <input type="text" class="form-control" id="complemento">
+                                                <input type="text" class="form-control" name="complemento"
+                                                    value="<?= htmlspecialchars($aluno_para_edicao['Complemento'] ?? '') ?>">
                                             </div>
                                         </div>
                                     </div>
@@ -507,29 +548,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Bairro</label>
-                                                <input type="text" class="form-control" id="bairro" required>
-                                                <div class="invalid-feedback">Por favor, informe o bairro
-                                                </div>
+                                                <input type="text" class="form-control" name="bairro" required
+                                                    value="<?= htmlspecialchars($aluno_para_edicao['Bairro'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Município</label>
-                                                <input type="text" class="form-control" id="municipio" required>
-                                                <div class="invalid-feedback">Por favor, informe o município
-                                                </div>
+                                                <input type="text" class="form-control" name="municipio" required
+                                                    value="<?= htmlspecialchars($aluno_para_edicao['Municipio'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label>UF</label>
-                                                <select class="form-control" id="ufEndereco" required>
+                                                <select class="form-control" name="ufEndereco" required>
                                                     <option value="">Selecione...</option>
-                                                    <option>SP</option>
+                                                    <option <?= ($aluno_para_edicao['UF_Endereco'] ?? '') == 'SP' ? 'selected' : '' ?>>SP</option>
                                                     <!-- outros estados -->
                                                 </select>
-                                                <div class="invalid-feedback">Por favor, selecione a UF
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -542,26 +579,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Telefone</label>
-                                                <input type="text" class="form-control" id="telefone"
-                                                    placeholder="(00) 0000-0000">
+                                                <input type="text" class="form-control" name="telefone"
+                                                    placeholder="(00) 0000-0000"
+                                                    value="<?= htmlspecialchars($aluno_para_edicao['Telefone_Fixo'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Celular</label>
-                                                <input type="text" class="form-control" id="celular"
-                                                    placeholder="(00) 00000-0000" required>
-                                                <div class="invalid-feedback">Por favor, informe o celular
-                                                </div>
+                                                <input type="text" class="form-control" name="celular"
+                                                    placeholder="(00) 00000-0000" required
+                                                    value="<?= htmlspecialchars($aluno_para_edicao['Telefone'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>E-mail</label>
-                                                <input type="email" class="form-control" id="email" required>
-                                                <div class="invalid-feedback">Por favor, informe um e-mail
-                                                    válido
-                                                </div>
+                                                <input type="email" class="form-control" name="email" required
+                                                    value="<?= htmlspecialchars($aluno_para_edicao['Email'] ?? '') ?>">
                                             </div>
                                         </div>
                                     </div>
@@ -574,61 +609,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <div class="col-md-12">
                                             <div class="form-check form-check-inline">
                                                 <input class="form-check-input" type="radio" name="nee" id="nee-sim"
-                                                    value="sim">
+                                                    value="sim" <?= ($aluno_para_edicao['Possui_Necessidades_Especiais'] ?? 0) == 1 ? 'checked' : '' ?>>
                                                 <label class="form-check-label" for="nee-sim">Sim</label>
                                             </div>
                                             <div class="form-check form-check-inline">
                                                 <input class="form-check-input" type="radio" name="nee" id="nee-nao"
-                                                    value="nao" checked>
+                                                    value="nao" <?= ($aluno_para_edicao['Possui_Necessidades_Especiais'] ?? 0) == 0 ? 'checked' : '' ?>>
                                                 <label class="form-check-label" for="nee-nao">Não</label>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="needs-box mt-3">
+                                    <div class="needs-box mt-3"
+                                        style="<?= ($aluno_para_edicao['Possui_Necessidades_Especiais'] ?? 0) == 1 ? 'display: block;' : 'display: none;' ?>">
                                         <h6>Descrever necessidades:</h6>
                                         <div class="row">
                                             <div class="col-md-4">
                                                 <label class="checkbox-label">AEE (Atendimento Educacional
                                                     Especializado)
-                                                    <input type="checkbox" id="aee">
+                                                    <input type="checkbox" name="aee" <?= ($aluno_para_edicao['AEE'] ?? 0) == 1 ? 'checked' : '' ?>>
                                                     <span class="checkmark"></span>
                                                 </label>
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="checkbox-label">Sala de AEE
-                                                    <input type="checkbox" id="salaAee">
+                                                    <input type="checkbox" name="salaAee"
+                                                        <?= ($aluno_para_edicao['Sala_AEE'] ?? 0) == 1 ? 'checked' : '' ?>>
                                                     <span class="checkmark"></span>
                                                 </label>
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="checkbox-label">Monitor/Estagiário
-                                                    <input type="checkbox" id="monitor">
+                                                    <input type="checkbox" name="monitor"
+                                                        <?= ($aluno_para_edicao['Monitor'] ?? 0) == 1 ? 'checked' : '' ?>>
                                                     <span class="checkmark"></span>
                                                 </label>
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="checkbox-label">Intérprete de Libras
-                                                    <input type="checkbox" id="interprete">
+                                                    <input type="checkbox" name="interprete"
+                                                        <?= ($aluno_para_edicao['Interprete_Libras'] ?? 0) == 1 ? 'checked' : '' ?>>
                                                     <span class="checkmark"></span>
                                                 </label>
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="checkbox-label">Material adaptado
-                                                    <input type="checkbox" id="materialAdaptado">
+                                                    <input type="checkbox" name="materialAdaptado"
+                                                        <?= ($aluno_para_edicao['Material_Adaptado'] ?? 0) == 1 ? 'checked' : '' ?>>
                                                     <span class="checkmark"></span>
                                                 </label>
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="checkbox-label">Tecnologia assistiva
-                                                    <input type="checkbox" id="tecnologiaAssistiva">
+                                                    <input type="checkbox" name="tecnologiaAssistiva"
+                                                        <?= ($aluno_para_edicao['Tecnologia_Assistiva'] ?? 0) == 1 ? 'checked' : '' ?>>
                                                     <span class="checkmark"></span>
                                                 </label>
                                             </div>
                                             <div class="col-md-12">
                                                 <div class="form-group">
                                                     <label>Outros (especificar)</label>
-                                                    <input type="text" class="form-control" id="outrasNecessidades">
+                                                    <input type="text" class="form-control" name="outrasNecessidades"
+                                                        value="<?= htmlspecialchars($aluno_para_edicao['Outras_Necessidades'] ?? '') ?>">
                                                 </div>
                                             </div>
                                         </div>
@@ -638,18 +680,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <!-- Botões -->
                                 <div class="form-group row">
                                     <div class="col-sm-12 text-right">
-                                        <button type="submit" class="btn btn-Salvar px-5" id="btnSalvarEVincular">
-                                        <button type="button" class="btn btn-cancelar px-5"
-                                            id="btnCancelarAluno">Cancelar</button>
+                                        <button type="submit" class="btn btn-Salvar px-5"
+                                            id="btnSalvarAluno">Salvar</button>
+                                        <a href="cadastro.php" class="btn btn-cancelar px-5">Cancelar</a>
                                     </div>
                                 </div>
                             </form>
+
+                            <!-- Listagem de Alunos -->
+                            <h5 class="mt-4">Alunos Cadastrados</h5>
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Email</th>
+                                        <th>Matrícula</th>
+                                        <th>Telefone</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($alunos as $aluno): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($aluno['Nome_Completo']) ?></td>
+                                            <td><?= htmlspecialchars($aluno['Email']) ?></td>
+                                            <td><?= htmlspecialchars($aluno['Matricula'] ?? 'N/A') ?></td>
+                                            <td><?= htmlspecialchars($aluno['Telefone'] ?? 'N/A') ?></td>
+                                            <td>
+                                                <a href="?editarAluno=<?= $aluno['ID_Usuario'] ?>"
+                                                    class="btn btn-sm btn-primary">Editar</a>
+                                                <a href="?excluirAluno=<?= $aluno['ID_Usuario'] ?>"
+                                                    class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Deseja realmente excluir este aluno?');">Excluir</a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         </div>
 
-                        <!-- Aba Servidor -->
-                        <div class="tab-pane fade" id="servidor" role="tabpanel">
-                            <form id="formServidor" method="POST">
+                       <div class="tab-pane fade" id="servidor" role="tabpanel">
+                            <form id="formServidor" method="POST" action="cadastro.php" novalidate>
                                 <input type="hidden" name="tipo" value="servidor">
+
                                 <!-- Dados Pessoais -->
                                 <div class="form-section">
                                     <h5>Dados Pessoais</h5>
@@ -657,7 +730,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>Nome Completo</label>
-                                                <input type="text" class="form-control" id="nomeCompletoServidor"
+                                                <input type="text" class="form-control" name="nomeCompletoServidor"
                                                     required>
                                                 <div class="invalid-feedback">Por favor, informe o nome completo
                                                 </div>
@@ -666,101 +739,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label>Data de Nascimento</label>
-                                                <input type="date" class="form-control" id="dataNascimentoServidor"
+                                                <input type="date" class="form-control" name="dataNascimentoServidor"
                                                     required>
                                                 <div class="invalid-feedback">Por favor, informe a data de
                                                     nascimento</div>
                                             </div>
                                         </div>
                                     </div>
+
                                     <div class="row">
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label>Sexo</label>
-                                                <select class="form-control" id="sexoServidor" required>
+                                                <select class="form-control" name="sexoServidor" required>
                                                     <option value="">Selecione...</option>
                                                     <option>Masculino</option>
                                                     <option>Feminino</option>
                                                     <option>Outro</option>
                                                     <option>Prefiro não informar</option>
                                                 </select>
-                                                <div class="invalid-feedback">Por favor, selecione o sexo</div>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label>Raça/Cor</label>
-                                                <select class="form-control" id="racaCorServidor" required>
+                                                <select class="form-control" name="racaCorServidor" required>
                                                     <option value="">Selecione...</option>
                                                     <option>Branca</option>
                                                     <option>Preta</option>
                                                     <option>Parda</option>
                                                     <option>Amarela</option>
                                                     <option>Indígena</option>
-                                                    <option>Prefiro não informar</option>
                                                 </select>
-                                                <div class="invalid-feedback">Por favor, selecione a raça/cor</div>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label>Estado Civil</label>
-                                                <select class="form-control" id="estadoCivilServidor" required>
+                                                <select class="form-control" name="estadoCivilServidor" required>
                                                     <option value="">Selecione...</option>
                                                     <option>Solteiro(a)</option>
                                                     <option>Casado(a)</option>
                                                     <option>Divorciado(a)</option>
                                                     <option>Viúvo(a)</option>
                                                 </select>
-                                                <div class="invalid-feedback">Por favor, selecione o estado civil
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Nacionalidade-->
+
+                                <!-- Nacionalidade -->
                                 <div class="form-section">
                                     <h5>Nacionalidade</h5>
                                     <div class="row">
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Nacionalidade</label>
-                                                <select class="form-control" id="nacionalidadeServidor" required>
-                                                    <option value="" disabled selected>Selecione...</option>
-                                                    <option value="Brasileiro(a)">Brasileiro(a)</option>
-                                                    <option value="Argentino(a)">Argentino(a)</option>
-                                                    <option value="Uruguaio(a)">Uruguaio(a)</option>
-                                                    <option value="Chileno(a)">Chileno(a)</option>
-                                                    <option value="Americano(a)">Americano(a)</option>
-                                                    <option value="Canadense">Canadense</option>
-                                                    <option value="Espanhol(a)">Espanhol(a)</option>
-                                                    <option value="Português(a)">Português(a)</option>
-                                                    <option value="Italiano(a)">Italiano(a)</option>
-                                                    <option value="Alemão(ã)">Alemão(ã)</option>
-                                                    <option value="Francês(a)">Francês(a)</option>
-                                                    <option value="Japonês(a)">Japonês(a)</option>
-                                                    <option value="Chinês(a)">Chinês(a)</option>
-                                                    <option value="Outra">Outra nacionalidade</option>
+                                                <select class="form-control" name="nacionalidadeServidor" required>
+                                                    <option value="">Selecione...</option>
+                                                    <option>Brasileiro(a)</option>
+                                                    <option>Argentino(a)</option>
+                                                    <option>Uruguaio(a)</option>
+                                                    <option>Chileno(a)</option>
+                                                    <option>Americano(a)</option>
+                                                    <option>Canadense</option>
+                                                    <option>Outra</option>
                                                 </select>
-                                                <div class="invalid-feedback">Por favor, selecione a nacionalidade
-                                                </div>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Naturalidade</label>
-                                                <input type="text" class="form-control" id="naturalidadeServidor"
-                                                    required>
-                                                <div class="invalid-feedback">Por favor, informe a naturalidade
-                                                </div>
+                                                <input type="text" class="form-control" name="naturalidadeServidor" required>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Filiação</label>
-                                                <input type="text" class="form-control" id="filiacaoServidor"
-                                                    placeholder="Nome da mãe/pai" required>
-                                                <div class="invalid-feedback">Por favor, informe a filiação</div>
+                                                <input type="text" class="form-control" name="filiacaoServidor" required>
                                             </div>
                                         </div>
                                     </div>
@@ -773,43 +829,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>CPF</label>
-                                                <input type="text" class="form-control" id="cpfServidor"
-                                                    placeholder="000.000.000-00" required>
-                                                <div class="invalid-feedback">Por favor, informe o CPF</div>
+                                                <input type="text" class="form-control" name="cpfServidor" required>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>RG</label>
-                                                <input type="text" class="form-control" id="rgServidor" required>
-                                                <div class="invalid-feedback">Por favor, informe o RG</div>
+                                                <input type="text" class="form-control" name="rgServidor" required>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label>Órgão Expedidor</label>
-                                                <input type="text" class="form-control" id="orgaoExpedidorServidor"
-                                                    placeholder="SSP" required>
-                                                <div class="invalid-feedback">Por favor, informe o órgão expedidor
-                                                </div>
+                                                <input type="text" class="form-control" name="orgaoExpedidorServidor" required>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label>UF</label>
-                                                <select class="form-control" id="ufDocumentoServidor" required>
+                                                <select class="form-control" name="ufDocumentoServidor" required>
                                                     <option value="">Selecione...</option>
                                                     <option>SP</option>
+                                                    <option>RJ</option>
+                                                    <option>MG</option>
                                                 </select>
-                                                <div class="invalid-feedback">Por favor, selecione a UF</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label>Título de Eleitor</label>
-                                                <input type="text" class="form-control" id="tituloEleitor">
                                             </div>
                                         </div>
                                     </div>
@@ -822,57 +865,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label>CEP</label>
-                                                <input type="text" class="form-control" id="cepServidor"
-                                                    placeholder="00000-000" required>
-                                                <div class="invalid-feedback">Por favor, informe o CEP</div>
+                                                <input type="text" class="form-control" name="cepServidor" required>
                                             </div>
                                         </div>
                                         <div class="col-md-5">
                                             <div class="form-group">
                                                 <label>Logradouro</label>
-                                                <input type="text" class="form-control" id="logradouroServidor"
-                                                    required>
-                                                <div class="invalid-feedback">Por favor, informe o logradouro</div>
+                                                <input type="text" class="form-control" name="logradouroServidor" required>
                                             </div>
                                         </div>
                                         <div class="col-md-1">
                                             <div class="form-group">
                                                 <label>Nº</label>
-                                                <input type="text" class="form-control" id="numeroServidor" required>
-                                                <div class="invalid-feedback">Por favor, informe o número</div>
+                                                <input type="text" class="form-control" name="numeroServidor" required>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Complemento</label>
-                                                <input type="text" class="form-control" id="complementoServidor">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label>Bairro</label>
-                                                <input type="text" class="form-control" id="bairroServidor" required>
-                                                <div class="invalid-feedback">Por favor, informe o bairro</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label>Município</label>
-                                                <input type="text" class="form-control" id="municipioServidor" required>
-                                                <div class="invalid-feedback">Por favor, informe o município</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-group">
-                                                <label>UF</label>
-                                                <select class="form-control" id="ufEnderecoServidor" required>
-                                                    <option value="">Selecione...</option>
-                                                    <option>SP</option>
-                                                    <!-- outros estados -->
-                                                </select>
-                                                <div class="invalid-feedback">Por favor, selecione a UF</div>
+                                                <input type="text" class="form-control" name="complementoServidor">
                                             </div>
                                         </div>
                                     </div>
@@ -885,24 +896,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Telefone</label>
-                                                <input type="text" class="form-control" id="telefoneServidor"
-                                                    placeholder="(00) 0000-0000">
+                                                <input type="text" class="form-control" name="telefoneServidor">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Celular</label>
-                                                <input type="text" class="form-control" id="celularServidor"
-                                                    placeholder="(00) 00000-0000" required>
-                                                <div class="invalid-feedback">Por favor, informe o celular</div>
+                                                <input type="text" class="form-control" name="celularServidor" required>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>E-mail</label>
-                                                <input type="email" class="form-control" id="emailServidor" required>
-                                                <div class="invalid-feedback">Por favor, informe um e-mail válido
-                                                </div>
+                                                <input type="email" class="form-control" name="emailServidor" required>
                                             </div>
                                         </div>
                                     </div>
@@ -915,24 +921,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Cargo/Função</label>
-                                                <input type="text" class="form-control" id="cargoFuncao" required>
-                                                <div class="invalid-feedback">Por favor, informe o cargo/função
-                                                </div>
+                                                <input type="text" class="form-control" name="cargoFuncaoServidor" required>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Matrícula</label>
-                                                <input type="text" class="form-control" id="matriculaServidor" required>
-                                                <div class="invalid-feedback">Por favor, informe a matrícula</div>
+                                                <input type="text" class="form-control" name="matriculaServidor" required>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Data de Admissão</label>
-                                                <input type="date" class="form-control" id="dataAdmissao" required>
-                                                <div class="invalid-feedback">Por favor, informe a data de admissão
-                                                </div>
+                                                <input type="date" class="form-control" name="dataAdmissaoServidor" required>
                                             </div>
                                         </div>
                                     </div>
@@ -940,60 +941,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>Formação Acadêmica</label>
-                                                <select class="form-control" id="formacaoAcademica" required>
+                                                <select class="form-control" name="formacaoAcademicaServidor" required>
                                                     <option value="">Selecione...</option>
-                                                    <option>Ensino Médio Completo</option>
-                                                    <option>Graduação Incompleta</option>
                                                     <option>Graduação Completa</option>
                                                     <option>Pós-Graduação</option>
                                                     <option>Mestrado</option>
                                                     <option>Doutorado</option>
                                                 </select>
-                                                <div class="invalid-feedback">Por favor, selecione a formação
-                                                    acadêmica</div>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>Área de Atuação</label>
-                                                <input type="text" class="form-control" id="areaAtuacao" required>
-                                                <div class="invalid-feedback">Por favor, informe a área de atuação
-                                                </div>
+                                                <input type="text" class="form-control" name="areaAtuacaoServidor" required>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Botões -->
-                                <div class="form-group row">
+                                <div class="form-group row mt-3">
                                     <div class="col-sm-12 text-right">
-                                        <button type="submit" class="btn btn-Salvar px-5"></button>
+                                        <button type="submit" class="btn btn-Salvar px-5">Salvar</button>
                                         <button type="button" class="btn btn-cancelar px-5"
                                             id="btnCancelarServidor">Cancelar</button>
                                     </div>
                                 </div>
                             </form>
-                        </div>
-                    </div>
+                        </div> <!-- Fim da aba Servidor -->
+                    </div> <!-- Fim do tab-content -->
                 </div>
             </div>
-
         </div>
-
-    </div>
-
-    <!--Overlay-->
-    <div class="overlay toggle-menu"></div>
-
-    <a href="javaScript:void();" class="back-to-top"><i class="fa fa-angle-double-up"></i> </a>
-
     </div>
 
     <!-- Bootstrap core JavaScript-->
     <script src="../assets/js/jquery.min.js"></script>
     <script src="../assets/js/popper.min.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
-
 
     <!-- simplebar js -->
     <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
@@ -1003,9 +987,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="../assets/js/jquery.loading-indicator.js"></script>
     <!-- Custom scripts -->
     <script src="../assets/js/app-script.js"></script>
-    <!-- referencia cadastro.js -->
-    <script src="../user_adm/cadastro.js"></script>
 
+    <script>
+        // Mostrar/ocultar necessidades especiais
+        document.querySelectorAll('input[name="nee"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                const needsBox = this.closest('.form-section').querySelector('.needs-box');
+                if (this.value === 'sim') {
+                    needsBox.style.display = 'block';
+                } else {
+                    needsBox.style.display = 'none';
+                }
+            });
+        });
+
+        // Limpar formulários
+        document.getElementById('btnCancelarAluno')?.addEventListener('click', function () {
+            document.getElementById('formAluno').reset();
+        });
+    </script>
 
 </body>
 
