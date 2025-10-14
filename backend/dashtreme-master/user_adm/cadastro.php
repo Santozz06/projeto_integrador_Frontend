@@ -4,6 +4,7 @@ require_once '../includes/bootstrap.php';
 $erro = '';
 $sucesso = '';
 $aluno_para_edicao = null;
+$servidor_para_edicao = null;
 
 require_once '../includes/conexao.php';
 require_once '../includes/crud/UsuarioCRUD.php';
@@ -28,6 +29,12 @@ if (isset($_GET['editarAluno']) && !empty($_GET['editarAluno'])) {
     }
 }
 
+// Se estiver editando servidor
+if (isset($_GET['editarServidor']) && !empty($_GET['editarServidor'])) {
+    $id_servidor_edicao = $_GET['editarServidor'];
+    $servidor_para_edicao = $usuarioCRUD->buscarProfessorCompleto($id_servidor_edicao);
+}
+
 // PROCESSAR FORMULÁRIO (Criação e Atualização)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -36,11 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id_aluno = $_POST['id_aluno'] ?? null;
 
             // Verificar se o email já existe (apenas para novos cadastros)
-            if (!$id_aluno) {
-                $email_existente = $usuarioCRUD->verificarEmailExistente($email);
-                if ($email_existente) {
-                    throw new Exception("O email '$email' já está cadastrado no sistema.");
-                }
+            $email_existente = $usuarioCRUD->emailExiste($email, $id_aluno);
+            if ($email_existente) {
+                throw new Exception("O email '$email' já está cadastrado para outro usuário.");
             }
 
             $dadosUsuario = [
@@ -82,18 +87,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         } elseif ($_POST['tipo'] === 'servidor') {
             $email_servidor = $_POST['emailServidor'];
+            $id_servidor = $_POST['id_servidor'] ?? null;
 
             // Verificar se o email já existe
-            $email_existente = $usuarioCRUD->verificarEmailExistente($email_servidor);
+            $email_existente = $usuarioCRUD->emailExiste($email_servidor, $id_servidor);
             if ($email_existente) {
-                throw new Exception("O email '$email_servidor' já está cadastrado no sistema.");
+                throw new Exception("O email '$email_servidor' já está cadastrado para outro usuário.");
+            }
+
+            $cpf_existente = $usuarioCRUD->cpfExiste($_POST['cpfServidor'], $id_servidor);
+            if ($cpf_existente) {
+                throw new Exception("O CPF '{$_POST['cpfServidor']}' já está cadastrado para outro usuário.");
             }
 
             $dadosUsuario = [
                 'Login' => $email_servidor,
                 'Nome_Completo' => $_POST['nomeCompletoServidor'],
                 'Email' => $email_servidor,
-                'Senha' => $_POST['senha'],
                 'Data_Nascimento' => $_POST['dataNascimentoServidor'],
                 'Sexo' => $_POST['sexoServidor'],
                 'CPF' => $_POST['cpfServidor'],
@@ -108,12 +118,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'Endereco' => $_POST['logradouroServidor'] . ', ' . $_POST['numeroServidor'] . ' - ' . $_POST['bairroServidor']
             ];
 
-            $idProfessor = $usuarioCRUD->cadastrarProfessor(
-                $dadosUsuario,
-                $_POST['formacaoAcademica'],
-                $_POST['dataAdmissao']
-            );
-            $sucesso = "Professor cadastrado com sucesso!";
+            if (!empty($_POST['senha'])) {
+                $dadosUsuario['Senha'] = $_POST['senha'];
+            }
+
+            if ($id_servidor) {
+                // Atualização
+                $usuarioCRUD->atualizarProfessor(
+                    $id_servidor,
+                    $dadosUsuario,
+                    $_POST['formacaoAcademica'],
+                    $_POST['dataAdmissao'],
+                    $_POST['areaAtuacaoServidor'] // Área de atuação
+                );
+                $sucesso = "Servidor atualizado com sucesso!";
+            } else {
+                // Novo cadastro
+                $idProfessor = $usuarioCRUD->cadastrarProfessor(
+                    $dadosUsuario,
+                    $_POST['formacaoAcademica'],
+                    $_POST['dataAdmissao'],
+                    $_POST['areaAtuacaoServidor'] // Área de atuação
+                );
+                $sucesso = "Servidor cadastrado com sucesso!";
+            }
 
             header("Location: cadastro.php?sucesso=" . urlencode($sucesso));
             exit;
@@ -165,6 +193,10 @@ $servidores = $usuarioCRUD->listarProfessores();
     <link href="../assets/css/sidebar-menu.css" rel="stylesheet" />
     <!-- Custom Style-->
     <link href="../assets/css/app-style.css" rel="stylesheet" />
+
+    <!-- Select2 CSS -->
+    <link href="../assets/plugins/select2/css/select2.min.css" rel="stylesheet" />
+    <link href="../assets/plugins/select2/css/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 
     <style>
         .form-section {
@@ -303,6 +335,10 @@ $servidores = $usuarioCRUD->listarProfessores();
         .nav-tabs .nav-link {
             color: #71affa;
         }
+
+        .select2-container--bootstrap-5 .select2-selection {
+            min-height: 38px;
+        }
     </style>
 </head>
 
@@ -362,8 +398,6 @@ $servidores = $usuarioCRUD->listarProfessores();
                                 <input type="hidden" name="tipo" value="aluno">
                                 <input type="hidden" name="id_aluno"
                                     value="<?= $aluno_para_edicao['ID_Usuario'] ?? '' ?>">
-
-                                <!-- Deixa o campo senha em branco no modo de edição -->
                                 <input type="hidden" name="senha" value="<?= $aluno_para_edicao ? '' : 'senha123' ?>">
 
                                 <!-- Dados Pessoais - Aluno -->
@@ -429,37 +463,56 @@ $servidores = $usuarioCRUD->listarProfessores();
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Nacionalidade</label>
-                                                <select class="form-control" name="nacionalidade" required>
-                                                    <option value="" disabled selected>Selecione...</option>
-                                                    <option value="Brasileiro(a)"
-                                                        <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Brasileiro(a)' ? 'selected' : '' ?>>Brasileiro(a)</option>
-                                                    <option value="Argentino(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Argentino(a)' ? 'selected' : '' ?>>Argentino(a)
-                                                    </option>
-                                                    <option value="Uruguaio(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Uruguaio(a)' ? 'selected' : '' ?>>Uruguaio(a)</option>
-                                                    <option value="Chileno(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Chileno(a)' ? 'selected' : '' ?>>Chileno(a)</option>
-                                                    <option value="Americano(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Americano(a)' ? 'selected' : '' ?>>Americano(a)
-                                                    </option>
-                                                    <option value="Canadense" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Canadense' ? 'selected' : '' ?>>Canadense</option>
-                                                    <option value="Espanhol(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Espanhol(a)' ? 'selected' : '' ?>>Espanhol(a)</option>
-                                                    <option value="Português(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Português(a)' ? 'selected' : '' ?>>Português(a)
-                                                    </option>
-                                                    <option value="Italiano(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Italiano(a)' ? 'selected' : '' ?>>Italiano(a)</option>
-                                                    <option value="Alemão(ã)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Alemão(ã)' ? 'selected' : '' ?>>Alemão(ã)</option>
-                                                    <option value="Francês(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Francês(a)' ? 'selected' : '' ?>>Francês(a)</option>
-                                                    <option value="Japonês(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Japonês(a)' ? 'selected' : '' ?>>Japonês(a)</option>
-                                                    <option value="Chinês(a)" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Chinês(a)' ? 'selected' : '' ?>>Chinês(a)</option>
-                                                    <option value="Outra" <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == 'Outra' ? 'selected' : '' ?>>Outra nacionalidade</option>
+                                                <select class="form-control select2-busca" name="nacionalidade"
+                                                    required>
+                                                    <option value="">Selecione...</option>
+                                                    <?php foreach ($paises as $pais): ?>
+                                                        <option value="<?= $pais['nome'] ?>"
+                                                            <?= ($aluno_para_edicao['Nacionalidade'] ?? '') == $pais['nome'] ? 'selected' : '' ?>>
+                                                            <?= htmlspecialchars($pais['nome']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
                                                 </select>
                                             </div>
                                         </div>
+
+                                        <!-- Estado para filtrar naturalidade -->
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                <label>Naturalidade</label>
-                                                <input type="text" class="form-control" name="naturalidade" required
-                                                    value="<?= htmlspecialchars($aluno_para_edicao['Naturalidade'] ?? '') ?>">
+                                                <label>Estado de Nascimento</label>
+                                                <select class="form-control select2-busca" name="ufNaturalidade"
+                                                    id="ufNaturalidade">
+                                                    <option value="">Selecione o estado...</option>
+                                                    <?php foreach ($estados as $estado): ?>
+                                                        <option value="<?= $estado['id'] ?>"
+                                                            <?= ($aluno_para_edicao['uf_naturalidade'] ?? '') == $estado['id'] ? 'selected' : '' ?>>
+                                                            <?= htmlspecialchars($estado['nome']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
                                             </div>
                                         </div>
+
                                         <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Naturalidade (Cidade de Nascimento)</label>
+                                                <select class="form-control select2-busca" name="naturalidade"
+                                                    id="naturalidade" required>
+                                                    <option value="">Selecione primeiro o estado...</option>
+                                                    <?php if (isset($aluno_para_edicao['naturalidade_id'])): ?>
+                                                        <!-- Se estiver editando, mostra a cidade selecionada -->
+                                                        <option value="<?= $aluno_para_edicao['naturalidade_id'] ?>"
+                                                            selected>
+                                                            <?= htmlspecialchars($aluno_para_edicao['Naturalidade'] ?? '') ?>
+                                                        </option>
+                                                    <?php endif; ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-12">
                                             <div class="form-group">
                                                 <label>Filiação</label>
                                                 <input type="text" class="form-control" name="filiacao"
@@ -469,7 +522,6 @@ $servidores = $usuarioCRUD->listarProfessores();
                                         </div>
                                     </div>
                                 </div>
-
                                 <!-- Documentos -->
                                 <div class="form-section">
                                     <h5>Documentos</h5>
@@ -492,19 +544,31 @@ $servidores = $usuarioCRUD->listarProfessores();
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label>UF</label>
-                                                <select class="form-control" name="ufDocumento" required>
+                                                <select class="form-control select2-busca" name="ufDocumento" required>
                                                     <option value="">Selecione...</option>
-                                                    <option <?= ($aluno_para_edicao['UF_Exp'] ?? '') == 'SP' ? 'selected' : '' ?>>SP</option>
-                                                    <!-- outros estados -->
+                                                    <?php foreach ($estados as $estado): ?>
+                                                        <option value="<?= $estado['id'] ?>"
+                                                            <?= ($aluno_para_edicao['UF_Exp'] ?? '') == $estado['id'] ? 'selected' : '' ?>>
+                                                            <?= htmlspecialchars($estado['nome']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label>Órgão Expedidor</label>
-                                                <input type="text" class="form-control" name="orgaoExpedidor"
-                                                    placeholder="SSP" required
-                                                    value="<?= htmlspecialchars($aluno_para_edicao['Orgao_Exp'] ?? '') ?>">
+                                                <select class="form-control select2-busca" name="orgaoExpedidor"
+                                                    required>
+                                                    <option value="">Selecione...</option>
+                                                    <?php foreach ($orgaos_expedidores as $orgao): ?>
+                                                        <option value="<?= $orgao['sigla'] ?>"
+                                                            <?= ($aluno_para_edicao['Orgao_Exp'] ?? '') == $orgao['sigla'] ? 'selected' : '' ?>>
+                                                            <?= htmlspecialchars($orgao['sigla']) ?> -
+                                                            <?= htmlspecialchars($orgao['nome']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -555,17 +619,32 @@ $servidores = $usuarioCRUD->listarProfessores();
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Município</label>
-                                                <input type="text" class="form-control" name="municipio" required
-                                                    value="<?= htmlspecialchars($aluno_para_edicao['Municipio'] ?? '') ?>">
+                                                <select class="form-control select2-busca" name="municipio"
+                                                    id="municipio" required>
+                                                    <option value="">Selecione...</option>
+                                                    <?php if (!empty($municipios)): ?>
+                                                        <?php foreach ($municipios as $municipio): ?>
+                                                            <option value="<?= $municipio['id'] ?>"
+                                                                <?= ($aluno_para_edicao['municipio_id'] ?? '') == $municipio['id'] ? 'selected' : '' ?>>
+                                                                <?= htmlspecialchars($municipio['nome']) ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                </select>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label>UF</label>
-                                                <select class="form-control" name="ufEndereco" required>
+                                                <select class="form-control select2-busca" name="ufEndereco"
+                                                    id="ufEndereco" required>
                                                     <option value="">Selecione...</option>
-                                                    <option <?= ($aluno_para_edicao['UF_Endereco'] ?? '') == 'SP' ? 'selected' : '' ?>>SP</option>
-                                                    <!-- outros estados -->
+                                                    <?php foreach ($estados as $estado): ?>
+                                                        <option value="<?= $estado['id'] ?>"
+                                                            <?= ($aluno_para_edicao['estado_id'] ?? '') == $estado['id'] ? 'selected' : '' ?>>
+                                                            <?= htmlspecialchars($estado['nome']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
                                                 </select>
                                             </div>
                                         </div>
@@ -717,11 +796,14 @@ $servidores = $usuarioCRUD->listarProfessores();
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
-                        </div>
+                        </div> <!-- Fim da aba Aluno -->
 
-                       <div class="tab-pane fade" id="servidor" role="tabpanel">
-                            <form id="formServidor" method="POST" action="cadastro.php" novalidate>
+                        <!-- Aba Servidor -->
+                        <div class="tab-pane fade" id="servidor" role="tabpanel">
+                            <form id="formServidor" method="POST" novalidate>
                                 <input type="hidden" name="tipo" value="servidor">
+                                <input type="hidden" name="id_servidor"
+                                    value="<?= $servidor_para_edicao['ID_Usuario'] ?? '' ?>">
 
                                 <!-- Dados Pessoais -->
                                 <div class="form-section">
@@ -731,18 +813,31 @@ $servidores = $usuarioCRUD->listarProfessores();
                                             <div class="form-group">
                                                 <label>Nome Completo</label>
                                                 <input type="text" class="form-control" name="nomeCompletoServidor"
-                                                    required>
-                                                <div class="invalid-feedback">Por favor, informe o nome completo
-                                                </div>
+                                                    required
+                                                    value="<?= htmlspecialchars($servidor_para_edicao['Nome_Completo'] ?? '') ?>">
+                                                <div class="invalid-feedback">Por favor, informe o nome completo</div>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label>Data de Nascimento</label>
                                                 <input type="date" class="form-control" name="dataNascimentoServidor"
-                                                    required>
-                                                <div class="invalid-feedback">Por favor, informe a data de
-                                                    nascimento</div>
+                                                    required
+                                                    value="<?= htmlspecialchars($servidor_para_edicao['Data_Nascimento'] ?? '') ?>">
+                                                <div class="invalid-feedback">Por favor, informe a data de nascimento
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label>Senha</label>
+                                                <input type="password" class="form-control" name="senha"
+                                                    <?= $servidor_para_edicao ? '' : 'required' ?>
+                                                    value="<?= $servidor_para_edicao ? '' : 'senha123' ?>">
+                                                <?php if ($servidor_para_edicao): ?>
+                                                    <small class="form-text text-muted">Deixe em branco para manter a senha
+                                                        atual</small>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </div>
@@ -753,10 +848,10 @@ $servidores = $usuarioCRUD->listarProfessores();
                                                 <label>Sexo</label>
                                                 <select class="form-control" name="sexoServidor" required>
                                                     <option value="">Selecione...</option>
-                                                    <option>Masculino</option>
-                                                    <option>Feminino</option>
-                                                    <option>Outro</option>
-                                                    <option>Prefiro não informar</option>
+                                                    <option <?= ($servidor_para_edicao['Sexo'] ?? '') == 'Masculino' ? 'selected' : '' ?>>Masculino</option>
+                                                    <option <?= ($servidor_para_edicao['Sexo'] ?? '') == 'Feminino' ? 'selected' : '' ?>>Feminino</option>
+                                                    <option <?= ($servidor_para_edicao['Sexo'] ?? '') == 'Outro' ? 'selected' : '' ?>>Outro</option>
+                                                    <option <?= ($servidor_para_edicao['Sexo'] ?? '') == 'Prefiro não informar' ? 'selected' : '' ?>>Prefiro não informar</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -765,11 +860,11 @@ $servidores = $usuarioCRUD->listarProfessores();
                                                 <label>Raça/Cor</label>
                                                 <select class="form-control" name="racaCorServidor" required>
                                                     <option value="">Selecione...</option>
-                                                    <option>Branca</option>
-                                                    <option>Preta</option>
-                                                    <option>Parda</option>
-                                                    <option>Amarela</option>
-                                                    <option>Indígena</option>
+                                                    <option <?= ($servidor_para_edicao['Raca_Etnia'] ?? '') == 'Branca' ? 'selected' : '' ?>>Branca</option>
+                                                    <option <?= ($servidor_para_edicao['Raca_Etnia'] ?? '') == 'Preta' ? 'selected' : '' ?>>Preta</option>
+                                                    <option <?= ($servidor_para_edicao['Raca_Etnia'] ?? '') == 'Parda' ? 'selected' : '' ?>>Parda</option>
+                                                    <option <?= ($servidor_para_edicao['Raca_Etnia'] ?? '') == 'Amarela' ? 'selected' : '' ?>>Amarela</option>
+                                                    <option <?= ($servidor_para_edicao['Raca_Etnia'] ?? '') == 'Indígena' ? 'selected' : '' ?>>Indígena</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -778,10 +873,10 @@ $servidores = $usuarioCRUD->listarProfessores();
                                                 <label>Estado Civil</label>
                                                 <select class="form-control" name="estadoCivilServidor" required>
                                                     <option value="">Selecione...</option>
-                                                    <option>Solteiro(a)</option>
-                                                    <option>Casado(a)</option>
-                                                    <option>Divorciado(a)</option>
-                                                    <option>Viúvo(a)</option>
+                                                    <option <?= ($servidor_para_edicao['Estado_Civil'] ?? '') == 'Solteiro(a)' ? 'selected' : '' ?>>Solteiro(a)</option>
+                                                    <option <?= ($servidor_para_edicao['Estado_Civil'] ?? '') == 'Casado(a)' ? 'selected' : '' ?>>Casado(a)</option>
+                                                    <option <?= ($servidor_para_edicao['Estado_Civil'] ?? '') == 'Divorciado(a)' ? 'selected' : '' ?>>Divorciado(a)</option>
+                                                    <option <?= ($servidor_para_edicao['Estado_Civil'] ?? '') == 'Viúvo(a)' ? 'selected' : '' ?>>Viúvo(a)</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -795,28 +890,58 @@ $servidores = $usuarioCRUD->listarProfessores();
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Nacionalidade</label>
-                                                <select class="form-control" name="nacionalidadeServidor" required>
+                                                <select class="form-control select2-busca" name="nacionalidadeServidor"
+                                                    required>
                                                     <option value="">Selecione...</option>
-                                                    <option>Brasileiro(a)</option>
-                                                    <option>Argentino(a)</option>
-                                                    <option>Uruguaio(a)</option>
-                                                    <option>Chileno(a)</option>
-                                                    <option>Americano(a)</option>
-                                                    <option>Canadense</option>
-                                                    <option>Outra</option>
+                                                    <?php foreach ($paises as $pais): ?>
+                                                        <option value="<?= $pais['nome'] ?>"
+                                                            <?= ($servidor_para_edicao['Nacionalidade'] ?? '') == $pais['nome'] ? 'selected' : '' ?>>
+                                                            <?= htmlspecialchars($pais['nome']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
                                                 </select>
                                             </div>
                                         </div>
+
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                <label>Naturalidade</label>
-                                                <input type="text" class="form-control" name="naturalidadeServidor" required>
+                                                <label>Estado de Nascimento</label>
+                                                <select class="form-control select2-busca" name="ufNaturalidadeServidor"
+                                                    id="ufNaturalidadeServidor">
+                                                    <option value="">Selecione o estado...</option>
+                                                    <?php foreach ($estados as $estado): ?>
+                                                        <option value="<?= $estado['id'] ?>"
+                                                            <?= ($servidor_para_edicao['uf_naturalidade'] ?? '') == $estado['id'] ? 'selected' : '' ?>>
+                                                            <?= htmlspecialchars($estado['nome']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
                                             </div>
                                         </div>
+
                                         <div class="col-md-4">
                                             <div class="form-group">
+                                                <label>Naturalidade (Cidade de Nascimento)</label>
+                                                <select class="form-control select2-busca" name="naturalidadeServidor"
+                                                    id="naturalidadeServidor" required>
+                                                    <option value="">Selecione primeiro o estado...</option>
+                                                    <?php if (isset($servidor_para_edicao['naturalidade_id'])): ?>
+                                                        <option value="<?= $servidor_para_edicao['naturalidade_id'] ?>"
+                                                            selected>
+                                                            <?= htmlspecialchars($servidor_para_edicao['Naturalidade'] ?? '') ?>
+                                                        </option>
+                                                    <?php endif; ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
                                                 <label>Filiação</label>
-                                                <input type="text" class="form-control" name="filiacaoServidor" required>
+                                                <input type="text" class="form-control" name="filiacaoServidor" required
+                                                    value="<?= htmlspecialchars($servidor_para_edicao['Filiacao'] ?? '') ?>">
                                             </div>
                                         </div>
                                     </div>
@@ -829,29 +954,45 @@ $servidores = $usuarioCRUD->listarProfessores();
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>CPF</label>
-                                                <input type="text" class="form-control" name="cpfServidor" required>
+                                                <input type="text" class="form-control" name="cpfServidor" required
+                                                    value="<?= htmlspecialchars($servidor_para_edicao['CPF'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>RG</label>
-                                                <input type="text" class="form-control" name="rgServidor" required>
+                                                <input type="text" class="form-control" name="rgServidor" required
+                                                    value="<?= htmlspecialchars($servidor_para_edicao['RG'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label>Órgão Expedidor</label>
-                                                <input type="text" class="form-control" name="orgaoExpedidorServidor" required>
+                                                <select class="form-control select2-busca" name="orgaoExpedidorServidor"
+                                                    required>
+                                                    <option value="">Selecione...</option>
+                                                    <?php foreach ($orgaos_expedidores as $orgao): ?>
+                                                        <option value="<?= $orgao['sigla'] ?>"
+                                                            <?= ($servidor_para_edicao['Orgao_Exp'] ?? '') == $orgao['sigla'] ? 'selected' : '' ?>>
+                                                            <?= htmlspecialchars($orgao['sigla']) ?> -
+                                                            <?= htmlspecialchars($orgao['nome']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label>UF</label>
-                                                <select class="form-control" name="ufDocumentoServidor" required>
+                                                <select class="form-control select2-busca" name="ufDocumentoServidor"
+                                                    required>
                                                     <option value="">Selecione...</option>
-                                                    <option>SP</option>
-                                                    <option>RJ</option>
-                                                    <option>MG</option>
+                                                    <?php foreach ($estados as $estado): ?>
+                                                        <option value="<?= $estado['id'] ?>"
+                                                            <?= ($servidor_para_edicao['UF_Exp'] ?? '') == $estado['id'] ? 'selected' : '' ?>>
+                                                            <?= htmlspecialchars($estado['nome']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
                                                 </select>
                                             </div>
                                         </div>
@@ -865,25 +1006,39 @@ $servidores = $usuarioCRUD->listarProfessores();
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label>CEP</label>
-                                                <input type="text" class="form-control" name="cepServidor" required>
+                                                <input type="text" class="form-control" name="cepServidor" required
+                                                    value="<?= htmlspecialchars($servidor_para_edicao['CEP'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-5">
                                             <div class="form-group">
                                                 <label>Logradouro</label>
-                                                <input type="text" class="form-control" name="logradouroServidor" required>
+                                                <input type="text" class="form-control" name="logradouroServidor"
+                                                    required
+                                                    value="<?= htmlspecialchars($servidor_para_edicao['Logradouro'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-1">
                                             <div class="form-group">
                                                 <label>Nº</label>
-                                                <input type="text" class="form-control" name="numeroServidor" required>
+                                                <input type="text" class="form-control" name="numeroServidor" required
+                                                    value="<?= htmlspecialchars($servidor_para_edicao['Numero'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Complemento</label>
-                                                <input type="text" class="form-control" name="complementoServidor">
+                                                <input type="text" class="form-control" name="complementoServidor"
+                                                    value="<?= htmlspecialchars($servidor_para_edicao['Complemento'] ?? '') ?>">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Bairro</label>
+                                                <input type="text" class="form-control" name="bairroServidor" required
+                                                    value="<?= htmlspecialchars($servidor_para_edicao['Bairro'] ?? '') ?>">
                                             </div>
                                         </div>
                                     </div>
@@ -896,19 +1051,22 @@ $servidores = $usuarioCRUD->listarProfessores();
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Telefone</label>
-                                                <input type="text" class="form-control" name="telefoneServidor">
+                                                <input type="text" class="form-control" name="telefoneServidor"
+                                                    value="<?= htmlspecialchars($servidor_para_edicao['Telefone_Fixo'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Celular</label>
-                                                <input type="text" class="form-control" name="celularServidor" required>
+                                                <input type="text" class="form-control" name="celularServidor" required
+                                                    value="<?= htmlspecialchars($servidor_para_edicao['Telefone'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>E-mail</label>
-                                                <input type="email" class="form-control" name="emailServidor" required>
+                                                <input type="email" class="form-control" name="emailServidor" required
+                                                    value="<?= htmlspecialchars($servidor_para_edicao['Email'] ?? '') ?>">
                                             </div>
                                         </div>
                                     </div>
@@ -918,47 +1076,38 @@ $servidores = $usuarioCRUD->listarProfessores();
                                 <div class="form-section">
                                     <h5>Dados Profissionais</h5>
                                     <div class="row">
-                                        <div class="col-md-4">
+                                        <div class="col-md-6">
                                             <div class="form-group">
-                                                <label>Cargo/Função</label>
-                                                <input type="text" class="form-control" name="cargoFuncaoServidor" required>
+                                                <label>Formação Acadêmica</label>
+                                                <select class="form-control" name="formacaoAcademica" required>
+                                                    <option value="">Selecione...</option>
+                                                    <option <?= ($servidor_para_edicao['Formacao'] ?? '') == 'Graduação Completa' ? 'selected' : '' ?>>Graduação Completa</option>
+                                                    <option <?= ($servidor_para_edicao['Formacao'] ?? '') == 'Pós-Graduação' ? 'selected' : '' ?>>Pós-Graduação</option>
+                                                    <option <?= ($servidor_para_edicao['Formacao'] ?? '') == 'Mestrado' ? 'selected' : '' ?>>Mestrado</option>
+                                                    <option <?= ($servidor_para_edicao['Formacao'] ?? '') == 'Doutorado' ? 'selected' : '' ?>>Doutorado</option>
+                                                </select>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label>Matrícula</label>
-                                                <input type="text" class="form-control" name="matriculaServidor" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>Data de Admissão</label>
-                                                <input type="date" class="form-control" name="dataAdmissaoServidor" required>
+                                                <input type="date" class="form-control" name="dataAdmissao" required
+                                                    value="<?= htmlspecialchars($servidor_para_edicao['Data_Ingresso'] ?? '') ?>">
                                             </div>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label>Formação Acadêmica</label>
-                                                <select class="form-control" name="formacaoAcademicaServidor" required>
-                                                    <option value="">Selecione...</option>
-                                                    <option>Graduação Completa</option>
-                                                    <option>Pós-Graduação</option>
-                                                    <option>Mestrado</option>
-                                                    <option>Doutorado</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
                                                 <label>Área de Atuação</label>
-                                                <input type="text" class="form-control" name="areaAtuacaoServidor" required>
+                                                <input type="text" class="form-control" name="areaAtuacaoServidor"
+                                                    required
+                                                    value="<?= htmlspecialchars($servidor_para_edicao['Area_Atuacao'] ?? '') ?>">
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-
+                                <!-- Botões -->
                                 <div class="form-group row mt-3">
                                     <div class="col-sm-12 text-right">
                                         <button type="submit" class="btn btn-Salvar px-5">Salvar</button>
@@ -967,6 +1116,37 @@ $servidores = $usuarioCRUD->listarProfessores();
                                     </div>
                                 </div>
                             </form>
+
+                            <!-- Listagem de Servidores -->
+                            <h5 class="mt-4">Servidores Cadastrados</h5>
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Email</th>
+                                        <th>Formação</th>
+                                        <th>Telefone</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($servidores as $servidor): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($servidor['Nome_Completo']) ?></td>
+                                            <td><?= htmlspecialchars($servidor['Email']) ?></td>
+                                            <td><?= htmlspecialchars($servidor['Formacao_Academica'] ?? 'N/A') ?></td>
+                                            <td><?= htmlspecialchars($servidor['Telefone'] ?? 'N/A') ?></td>
+                                            <td>
+                                                <a href="?editarServidor=<?= $servidor['ID_Usuario'] ?>"
+                                                    class="btn btn-sm btn-primary">Editar</a>
+                                                <a href="?excluirServidor=<?= $servidor['ID_Usuario'] ?>"
+                                                    class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Deseja realmente excluir este servidor?');">Excluir</a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         </div> <!-- Fim da aba Servidor -->
                     </div> <!-- Fim do tab-content -->
                 </div>
@@ -988,22 +1168,179 @@ $servidores = $usuarioCRUD->listarProfessores();
     <!-- Custom scripts -->
     <script src="../assets/js/app-script.js"></script>
 
+    <!-- Select2 JS -->
+    <script src="../assets/plugins/select2/js/select2.min.js"></script>
+    <script src="../assets/plugins/select2/js/i18n/pt-BR.js"></script>
+
     <script>
-        // Mostrar/ocultar necessidades especiais
-        document.querySelectorAll('input[name="nee"]').forEach(radio => {
-            radio.addEventListener('change', function () {
-                const needsBox = this.closest('.form-section').querySelector('.needs-box');
-                if (this.value === 'sim') {
-                    needsBox.style.display = 'block';
+        // Inicializar Select2 para todos os selects com busca
+        $(document).ready(function () {
+            $('.select2-busca').select2({
+                theme: 'bootstrap-5',
+                language: 'pt-BR',
+                placeholder: 'Digite para buscar...',
+                allowClear: true,
+                width: '100%'
+            });
+
+            // Naturalidade - Aluno
+            $('#ufNaturalidade').on('change', function () {
+                const estadoId = this.value;
+                const naturalidadeSelect = $('#naturalidade');
+
+                console.log('Estado naturalidade selecionado:', estadoId);
+
+                if (estadoId) {
+                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            naturalidadeSelect.empty().append('<option value="">Selecione a cidade...</option>');
+                            data.forEach(municipio => {
+                                naturalidadeSelect.append(`<option value="${municipio.id}">${municipio.nome}</option>`);
+                            });
+                            naturalidadeSelect.trigger('change');
+                        })
+                        .catch(error => {
+                            console.error('Erro ao carregar municípios para naturalidade:', error);
+                            naturalidadeSelect.empty().append('<option value="">Erro ao carregar cidades</option>');
+                        });
                 } else {
-                    needsBox.style.display = 'none';
+                    naturalidadeSelect.empty().append('<option value="">Selecione primeiro o estado...</option>');
                 }
             });
-        });
 
-        // Limpar formulários
-        document.getElementById('btnCancelarAluno')?.addEventListener('click', function () {
-            document.getElementById('formAluno').reset();
+            // Naturalidade - Servidor
+            $('#ufNaturalidadeServidor').on('change', function () {
+                const estadoId = this.value;
+                const naturalidadeSelect = $('#naturalidadeServidor');
+
+                console.log('Estado naturalidade servidor selecionado:', estadoId);
+
+                if (estadoId) {
+                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            naturalidadeSelect.empty().append('<option value="">Selecione a cidade...</option>');
+                            data.forEach(municipio => {
+                                naturalidadeSelect.append(`<option value="${municipio.id}">${municipio.nome}</option>`);
+                            });
+                            naturalidadeSelect.trigger('change');
+                        })
+                        .catch(error => {
+                            console.error('Erro ao carregar municípios para naturalidade servidor:', error);
+                            naturalidadeSelect.empty().append('<option value="">Erro ao carregar cidades</option>');
+                        });
+                } else {
+                    naturalidadeSelect.empty().append('<option value="">Selecione primeiro o estado...</option>');
+                }
+            });
+
+            // Endereço - Município
+            $('#ufEndereco').on('change', function () {
+                const estadoId = this.value;
+                const municipioSelect = $('#municipio');
+
+                console.log('Estado endereço selecionado:', estadoId);
+
+                if (estadoId) {
+                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            municipioSelect.empty().append('<option value="">Selecione...</option>');
+                            data.forEach(municipio => {
+                                municipioSelect.append(`<option value="${municipio.id}">${municipio.nome}</option>`);
+                            });
+                            municipioSelect.trigger('change');
+                        })
+                        .catch(error => {
+                            console.error('Erro ao carregar municípios para endereço:', error);
+                            municipioSelect.empty().append('<option value="">Erro ao carregar</option>');
+                        });
+                } else {
+                    municipioSelect.empty().append('<option value="">Selecione...</option>');
+                }
+            });
+
+            // Se estiver editando e já tiver um estado de naturalidade, carrega as cidades
+            <?php if (isset($aluno_para_edicao) && $aluno_para_edicao['uf_naturalidade']): ?>
+                const estadoNaturalidadeId = <?= $aluno_para_edicao['uf_naturalidade'] ?>;
+                console.log('Carregando naturalidade para edição:', estadoNaturalidadeId);
+
+                if (estadoNaturalidadeId) {
+                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoNaturalidadeId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const naturalidadeSelect = $('#naturalidade');
+                            naturalidadeSelect.empty().append('<option value="">Selecione a cidade...</option>');
+                            data.forEach(municipio => {
+                                const selected = <?= $aluno_para_edicao['naturalidade_id'] ?? 'null' ?> == municipio.id ? 'selected' : '';
+                                naturalidadeSelect.append(`<option value="${municipio.id}" ${selected}>${municipio.nome}</option>`);
+                            });
+                            naturalidadeSelect.trigger('change');
+                        })
+                        .catch(error => {
+                            console.error('Erro ao carregar municípios para naturalidade (edição):', error);
+                        });
+                }
+            <?php endif; ?>
+
+            // Se estiver editando servidor e já tiver um estado de naturalidade, carrega as cidades
+            <?php if (isset($servidor_para_edicao) && $servidor_para_edicao['uf_naturalidade']): ?>
+                const estadoNaturalidadeServidorId = <?= $servidor_para_edicao['uf_naturalidade'] ?>;
+                console.log('Carregando naturalidade servidor para edição:', estadoNaturalidadeServidorId);
+
+                if (estadoNaturalidadeServidorId) {
+                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoNaturalidadeServidorId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const naturalidadeSelect = $('#naturalidadeServidor');
+                            naturalidadeSelect.empty().append('<option value="">Selecione a cidade...</option>');
+                            data.forEach(municipio => {
+                                const selected = <?= $servidor_para_edicao['naturalidade_id'] ?? 'null' ?> == municipio.id ? 'selected' : '';
+                                naturalidadeSelect.append(`<option value="${municipio.id}" ${selected}>${municipio.nome}</option>`);
+                            });
+                            naturalidadeSelect.trigger('change');
+                        })
+                        .catch(error => {
+                            console.error('Erro ao carregar municípios para naturalidade servidor (edição):', error);
+                        });
+                }
+            <?php endif; ?>
+
+            // Se estiver editando e já tiver um estado selecionado, carrega os municípios para endereço
+            <?php if (isset($aluno_para_edicao) && $aluno_para_edicao['estado_id']): ?>
+                const estadoEnderecoId = <?= $aluno_para_edicao['estado_id'] ?>;
+                console.log('Carregando município para edição:', estadoEnderecoId);
+
+                if (estadoEnderecoId) {
+                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoEnderecoId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const municipioSelect = $('#municipio');
+                            municipioSelect.empty().append('<option value="">Selecione...</option>');
+                            data.forEach(municipio => {
+                                const selected = <?= $aluno_para_edicao['municipio_id'] ?? 'null' ?> == municipio.id ? 'selected' : '';
+                                municipioSelect.append(`<option value="${municipio.id}" ${selected}>${municipio.nome}</option>`);
+                            });
+                            municipioSelect.trigger('change');
+                        })
+                        .catch(error => {
+                            console.error('Erro ao carregar municípios para endereço (edição):', error);
+                        });
+                }
+            <?php endif; ?>
+
+            // Mostrar/ocultar necessidades especiais
+            document.querySelectorAll('input[name="nee"]').forEach(radio => {
+                radio.addEventListener('change', function () {
+                    const needsBox = this.closest('.form-section').querySelector('.needs-box');
+                    if (this.value === 'sim') {
+                        needsBox.style.display = 'block';
+                    } else {
+                        needsBox.style.display = 'none';
+                    }
+                });
+            });
         });
     </script>
 
