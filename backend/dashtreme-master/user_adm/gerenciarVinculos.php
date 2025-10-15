@@ -1,4 +1,59 @@
-<?php require_once '../includes/bootstrap.php'; ?>
+<?php 
+require_once '../includes/bootstrap.php';
+
+// Verificar se os parâmetros foram passados
+$tipo = $_GET['tipo'] ?? '';
+$id = $_GET['id'] ?? '';
+
+require_once '../includes/conexao.php';
+require_once '../includes/crud/UsuarioCRUD.php';
+require_once '../includes/crud/TurmaCRUD.php';
+require_once '../includes/crud/VinculoCRUD.php';
+
+$usuarioCRUD = new UsuarioCRUD($pdo);
+$turmaCRUD = new TurmaCRUD($pdo);
+$vinculoCRUD = new VinculoCRUD($pdo);
+
+// Buscar turmas ativas (sempre necessário)
+$turmas = $turmaCRUD->listarTodas();
+
+// Buscar lista de alunos e servidores para seleção
+$alunos = $usuarioCRUD->listarAlunos(1, 100); // Limite de 100 alunos
+$servidores = $usuarioCRUD->listarProfessores(1, 100); // Limite de 100 servidores
+
+// Inicializar variáveis
+$usuario = null;
+$nome = '';
+$matricula = '';
+$situacao = '';
+$vinculos = [];
+$modoSelecao = empty($tipo) || empty($id);
+
+// Se tem parâmetros, buscar dados do usuário específico
+if (!$modoSelecao) {
+    // Buscar dados do usuário
+    if ($tipo === 'aluno') {
+        $usuario = $usuarioCRUD->buscarAlunoCompleto($id);
+        $nome = $usuario['Nome_Completo'] ?? '';
+        $matricula = $usuario['Matricula'] ?? '';
+    } else {
+        $usuario = $usuarioCRUD->buscarProfessorCompleto($id);
+        $nome = $usuario['Nome_Completo'] ?? '';
+        $matricula = ''; // Servidores podem não ter matrícula
+    }
+
+    // Buscar situação atual
+    $situacao = $vinculoCRUD->verificarSituacao($tipo, $id);
+
+    // Buscar vínculos atuais
+    if ($tipo === 'aluno') {
+        $vinculos = $vinculoCRUD->listarVinculosAluno($id);
+    } else {
+        $vinculos = $vinculoCRUD->listarVinculosProfessor($id);
+    }
+}
+
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -11,7 +66,6 @@
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/plugins/simplebar/css/simplebar.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-    <link rel="stylesheet" href="style.css">
     <style>
         html, body {
             height: 100%;
@@ -43,36 +97,63 @@
             color: white !important;
             border: none !important;
         }
-
         .btn-custom-primary:hover {
             background-color: #16a085 !important;
         }
-
         .btn-custom-secondary {
             background-color: #2c5f9e !important;
             color: white !important;
             border: none !important;
         }
-
         .btn-custom-secondary:hover {
             background-color: #1e4a7e !important;
         }
-
+        .btn-custom-danger {
+            background-color: #e74c3c !important;
+            color: white !important;
+            border: none !important;
+        }
+        .btn-custom-danger:hover {
+            background-color: #c0392b !important;
+        }
+        .btn-custom-info {
+            background-color: #17a2b8 !important;
+            color: white !important;
+            border: none !important;
+        }
+        .btn-custom-info:hover {
+            background-color: #138496 !important;
+        }
         .info-label {
             font-weight: bold;
         }
-
         .navbar {
             background-color: rgba(0, 0, 0, 0.2) !important;
             backdrop-filter: blur(10px);
+        }
+        .vinculo-item {
+            border-left: 4px solid #1abc9c;
+            padding-left: 15px;
+            margin-bottom: 10px;
+        }
+        .usuario-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .usuario-card:hover {
+            border-color: #1abc9c;
+            transform: translateY(-2px);
+        }
+        .usuario-card.selected {
+            border-color: #1abc9c;
+            background-color: #f8f9fa;
         }
     </style>
 </head>
 
 <body class="bg-theme bg-theme1">
-    <?php
-    require("menu_padrão.php");
-    ?>
+    <?php require("menu_padrão.php"); ?>
 
     <div class="clearfix"></div>
 
@@ -81,52 +162,209 @@
         <div class="container-fluid">
             <div class="row pt-2 pb-2">
                 <div class="col-sm-12">
-                    <h4 class="page-title">Gerenciar Vínculo do Aluno</h4>
+                    <h4 class="page-title">Gerenciar Vínculos</h4>
+                    <?php if ($modoSelecao): ?>
+                        <p class="text-muted">Selecione um usuário para gerenciar seus vínculos com turmas</p>
+                    <?php else: ?>
+                        <p class="text-muted">Gerenciando vínculos do <?= $tipo ?>: <strong><?= htmlspecialchars($nome) ?></strong></p>
+                    <?php endif; ?>
                 </div>
             </div>
 
-            <!-- Dados do aluno -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Dados do aluno</h5>
-                    <p><span class="info-label">Nome:</span> <span id="nomeAluno">João da Silva</span></p>
-                    <p><span class="info-label">Matrícula:</span> <span id="matriculaAluno">20251001</span></p>
-                    <p><span class="info-label">Situação:</span> Ainda não vinculado</p>
-                </div>
-            </div>
+            <?php if ($modoSelecao): ?>
+                <!-- MODO SELEÇÃO: Quando não há usuário específico selecionado -->
+                <div class="row">
+                    <!-- Seleção de Alunos -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="zmdi zmdi-accounts-alt mr-2"></i>Selecionar Aluno
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <?php if (!empty($alunos)): ?>
+                                    <div class="list-group">
+                                        <?php foreach ($alunos as $aluno): ?>
+                                            <a href="gerenciarVinculos.php?tipo=aluno&id=<?= $aluno['ID_Usuario'] ?>" 
+                                               class="list-group-item list-group-item-action usuario-card">
+                                                <div class="d-flex w-100 justify-content-between">
+                                                    <h6 class="mb-1"><?= htmlspecialchars($aluno['Nome_Completo']) ?></h6>
+                                                    <small>ID: <?= $aluno['ID_Usuario'] ?></small>
+                                                </div>
+                                                <p class="mb-1">
+                                                    <small class="text-muted">
+                                                        Matrícula: <?= htmlspecialchars($aluno['Matricula'] ?? 'N/A') ?> | 
+                                                        Email: <?= htmlspecialchars($aluno['Email']) ?>
+                                                    </small>
+                                                </p>
+                                            </a>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="alert alert-info">
+                                        <i class="zmdi zmdi-info-outline mr-2"></i>
+                                        Nenhum aluno cadastrado.
+                                        <a href="cadastro.php" class="alert-link">Cadastrar aluno</a>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
 
-            <!-- Selecionar turma -->
-            <form id="formVinculo">
-                <div class="form-group">
-                    <label for="turma" class="text-white">Vincular a turma:</label>
-                    <select class="form-control" id="turma" required>
-                        <option value="">Selecione a turma...</option>
-                        <option>1º Ano A - Matutino</option>
-                        <option>1º Ano B - Matutino</option>
-                        <option>2º Ano A - Vespertino</option>
-                        <option>3º Ano A - Integral</option>
-                    </select>
+                    <!-- Seleção de Servidores -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="zmdi zmdi-account-box mr-2"></i>Selecionar Servidor
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <?php if (!empty($servidores)): ?>
+                                    <div class="list-group">
+                                        <?php foreach ($servidores as $servidor): ?>
+                                            <a href="gerenciarVinculos.php?tipo=servidor&id=<?= $servidor['ID_Usuario'] ?>" 
+                                               class="list-group-item list-group-item-action usuario-card">
+                                                <div class="d-flex w-100 justify-content-between">
+                                                    <h6 class="mb-1"><?= htmlspecialchars($servidor['Nome_Completo']) ?></h6>
+                                                    <small>ID: <?= $servidor['ID_Usuario'] ?></small>
+                                                </div>
+                                                <p class="mb-1">
+                                                    <small class="text-muted">
+                                                        Formação: <?= htmlspecialchars($servidor['Formacao_Academica'] ?? 'N/A') ?> | 
+                                                        Email: <?= htmlspecialchars($servidor['Email']) ?>
+                                                    </small>
+                                                </p>
+                                            </a>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="alert alert-info">
+                                        <i class="zmdi zmdi-info-outline mr-2"></i>
+                                        Nenhum servidor cadastrado.
+                                        <a href="cadastro.php" class="alert-link">Cadastrar servidor</a>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="form-group text-right">
-                    <button type="button" class="btn btn-custom-secondary" id="btnTrocarTurma">
-                        <i class="zmdi zmdi-refresh mr-1"></i> Trocar de turma
-                    </button>
-                    <button type="submit" class="btn btn-custom-primary">
-                        <i class="zmdi zmdi-link mr-1"></i> Vincular
-                    </button>
+                <!-- Ações gerais -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5>Ações Rápidas</h5>
+                                <a href="cadastro.php" class="btn btn-custom-primary mr-3">
+                                    <i class="zmdi zmdi-account-add mr-2"></i>Cadastrar Novo Usuário
+                                </a>
+                                <a href="cadastroTurmas.php" class="btn btn-custom-secondary">
+                                    <i class="zmdi zmdi-plus mr-2"></i>Gerenciar Turmas
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </form>
 
-            <div class="alert alert-success mt-3 d-none" id="successMessage">
-                Vínculo realizado com sucesso!
-            </div>
+            <?php else: ?>
+                <!-- MODO GERENCIAMENTO: Quando há um usuário específico selecionado -->
+
+                <!-- Dados do usuário -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Dados do <?= $tipo ?></h5>
+                            <a href="gerenciarVinculos.php" class="btn btn-custom-info btn-sm">
+                                <i class="zmdi zmdi-arrow-back mr-1"></i>Voltar para Seleção
+                            </a>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <p><span class="info-label">Nome:</span> <span id="nomeUsuario"><?= htmlspecialchars($nome) ?></span></p>
+                                <?php if ($tipo === 'aluno'): ?>
+                                    <p><span class="info-label">Matrícula:</span> <span id="matriculaUsuario"><?= htmlspecialchars($matricula) ?></span></p>
+                                <?php endif; ?>
+                                <p><span class="info-label">Situação:</span> <span id="situacaoAtual"><?= htmlspecialchars($situacao) ?></span></p>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <a href="cadastro.php?editar<?= ucfirst($tipo) ?>=<?= $id ?>" class="btn btn-custom-secondary btn-sm">
+                                    <i class="zmdi zmdi-edit mr-1"></i>Editar Cadastro
+                                </a>
+                            </div>
+                        </div>
+                        <input type="hidden" id="tipoUsuario" value="<?= $tipo ?>">
+                        <input type="hidden" id="idUsuario" value="<?= $id ?>">
+                    </div>
+                </div>
+
+                <!-- Vínculos atuais -->
+                <?php if (!empty($vinculos)): ?>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Vínculos Atuais</h5>
+                        <?php foreach ($vinculos as $vinculo): ?>
+                            <div class="vinculo-item">
+                                <p class="mb-1">
+                                    <strong><?= htmlspecialchars($vinculo['Nome_Turma']) ?></strong> - 
+                                    <?= htmlspecialchars($vinculo['Ano_Letivo']) ?> - 
+                                    <?= htmlspecialchars($vinculo['Turno']) ?>
+                                </p>
+                                <?php if ($tipo === 'aluno'): ?>
+                                    <button class="btn btn-custom-danger btn-sm" 
+                                            onclick="removerVinculo(<?= $vinculo['ID_Matricula'] ?>)">
+                                        Remover Vínculo
+                                    </button>
+                                <?php else: ?>
+                                    <button class="btn btn-custom-danger btn-sm" 
+                                            onclick="removerVinculoProfessor(<?= $id ?>, <?= $vinculo['ID_Turma'] ?>)">
+                                        Remover Vínculo
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <!-- Novo vínculo -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><?= empty($vinculos) ? 'Vincular a turma' : 'Adicionar novo vínculo' ?></h5>
+                        <form id="formVinculo">
+                            <div class="form-group">
+                                <label for="turma" class="text-white">Selecionar turma:</label>
+                                <select class="form-control" id="turma" name="turma_id" required>
+                                    <option value="">Selecione a turma...</option>
+                                    <?php foreach ($turmas as $turma): ?>
+                                        <option value="<?= $turma['ID_Turma'] ?>">
+                                            <?= htmlspecialchars($turma['Nome_Turma']) ?> - 
+                                            <?= htmlspecialchars($turma['Ano_Letivo']) ?> - 
+                                            <?= htmlspecialchars($turma['Turno']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <div class="form-group text-right">
+                                <button type="button" class="btn btn-custom-secondary" onclick="window.location.href='cadastroTurmas.php'">
+                                    <i class="zmdi zmdi-plus mr-1"></i> Nova Turma
+                                </button>
+                                <button type="submit" class="btn btn-custom-primary">
+                                    <i class="zmdi zmdi-link mr-1"></i> <?= empty($vinculos) ? 'Vincular' : 'Adicionar Vínculo' ?>
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="alert alert-success mt-3 d-none" id="successMessage">
+                            Vínculo realizado com sucesso!
+                        </div>
+                        <div class="alert alert-danger mt-3 d-none" id="errorMessage"></div>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
-    </div>
-    <!--Overlay-->
-    <div class="overlay toggle-menu"></div>
-
-    
     </div>
 
     <script src="../assets/js/jquery.min.js"></script>
@@ -135,54 +373,102 @@
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
 
-
     <script>
         $(document).ready(function () {
-            // Recupera dados do aluno recém-cadastrado
-            const nome = localStorage.getItem("novoAlunoNome");
-            const matricula = localStorage.getItem("novoAlunoMatricula");
-
-            if (nome && matricula) {
-                // Preenche os campos de visualização
-                $('#nomeAluno').text(nome);
-                $('#matriculaAluno').text(matricula);
-
-                // Preenche também o campo oculto/oculto no formulário, se necessário
-                $('#nomeMatricula').val(`${nome} - ${matricula}`);
-
-                // Limpa os dados salvos
-                localStorage.removeItem("novoAlunoNome");
-                localStorage.removeItem("novoAlunoMatricula");
-            }
-
             // Submissão do formulário de vínculo
             $('#formVinculo').on('submit', function (e) {
                 e.preventDefault();
 
-                const turmaSelecionada = $('#turma').val();
-                if (!turmaSelecionada) {
+                const turmaId = $('#turma').val();
+                const tipoUsuario = $('#tipoUsuario').val();
+                const idUsuario = $('#idUsuario').val();
+
+                if (!turmaId) {
                     alert('Por favor, selecione uma turma para vincular.');
                     return;
                 }
 
-                console.log('Aluno vinculado:', {
-                    nome: $('#nomeAluno').text(),
-                    matricula: $('#matriculaAluno').text(),
-                    turma: turmaSelecionada
+                // Enviar dados para o servidor via AJAX
+                $.ajax({
+                    url: '../includes/ajax/vincular_usuario_turma.php',
+                    type: 'POST',
+                    data: {
+                        tipo: tipoUsuario,
+                        usuario_id: idUsuario,
+                        turma_id: turmaId
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $('#successMessage').removeClass('d-none').fadeIn();
+                            $('#errorMessage').addClass('d-none');
+                            
+                            // Atualizar situação e recarregar a página após 2 segundos
+                            setTimeout(() => {
+                                location.reload();
+                            }, 2000);
+                        } else {
+                            $('#errorMessage').text(response.message).removeClass('d-none');
+                            $('#successMessage').addClass('d-none');
+                        }
+                    },
+                    error: function() {
+                        $('#errorMessage').text('Erro ao conectar com o servidor.').removeClass('d-none');
+                        $('#successMessage').addClass('d-none');
+                    }
                 });
-
-                // Exibe mensagem de sucesso
-                $('#successMessage').removeClass('d-none').fadeIn();
-                setTimeout(() => {
-                    $('#successMessage').fadeOut();
-                }, 3000);
-            });
-
-            // Botão "Trocar de turma"
-            $('#btnTrocarTurma').click(function () {
-                window.location.href = 'trocarTurma.php';
             });
         });
+
+        // Função para remover vínculo de aluno
+        function removerVinculo(idMatricula) {
+            if (confirm('Deseja realmente remover este vínculo?')) {
+                $.ajax({
+                    url: '../includes/ajax/remover_vinculo.php',
+                    type: 'POST',
+                    data: {
+                        tipo: 'aluno',
+                        id_matricula: idMatricula
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Vínculo removido com sucesso!');
+                            location.reload();
+                        } else {
+                            alert('Erro ao remover vínculo: ' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Erro ao conectar com o servidor.');
+                    }
+                });
+            }
+        }
+
+        // Função para remover vínculo de professor
+        function removerVinculoProfessor(idProfessor, idTurma) {
+            if (confirm('Deseja realmente remover este vínculo?')) {
+                $.ajax({
+                    url: '../includes/ajax/remover_vinculo.php',
+                    type: 'POST',
+                    data: {
+                        tipo: 'professor',
+                        id_professor: idProfessor,
+                        id_turma: idTurma
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Vínculo removido com sucesso!');
+                            location.reload();
+                        } else {
+                            alert('Erro ao remover vínculo: ' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Erro ao conectar com o servidor.');
+                    }
+                });
+            }
+        }
     </script>
 
 </body>

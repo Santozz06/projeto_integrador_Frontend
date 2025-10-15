@@ -14,11 +14,15 @@ RUN apt-get update && \
     docker-php-ext-install pdo pdo_mysql mysqli && \
     docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install gd && \
+    docker-php-ext-enable opcache && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Habilita o mod_rewrite do Apache
 RUN a2enmod rewrite
+
+# Copia os arquivos de configuração do PHP
+COPY opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
 # Copia os arquivos do seu projeto para o diretório padrão do Apache
 COPY ./backend/dashtreme-master /var/www/html

@@ -18,21 +18,31 @@ $estados = $localidadeCRUD->listarEstados();
 $paises = $localidadeCRUD->listarPaises();
 $orgaos_expedidores = $localidadeCRUD->listarOrgaosExpedidores();
 
-// Se estiver editando, carrega municípios do estado do aluno
-$municipios = [];
+// Se estiver editando aluno
+$municipios_aluno = [];
 if (isset($_GET['editarAluno']) && !empty($_GET['editarAluno'])) {
     $id_aluno_edicao = $_GET['editarAluno'];
     $aluno_para_edicao = $usuarioCRUD->buscarAlunoCompleto($id_aluno_edicao);
 
-    if ($aluno_para_edicao && $aluno_para_edicao['estado_id']) {
-        $municipios = $localidadeCRUD->listarMunicipiosPorEstado($aluno_para_edicao['estado_id']);
+    // DEBUG: Verificar dados do aluno
+    error_log("Dados do aluno carregado: " . print_r($aluno_para_edicao, true));
+
+    // Carregar municípios baseado no UF_Endereco (se existir)
+    if ($aluno_para_edicao && isset($aluno_para_edicao['UF_Endereco']) && $aluno_para_edicao['UF_Endereco']) {
+        $municipios_aluno = $localidadeCRUD->listarMunicipiosPorEstado($aluno_para_edicao['UF_Endereco']);
     }
 }
 
 // Se estiver editando servidor
+$municipios_servidor = [];
 if (isset($_GET['editarServidor']) && !empty($_GET['editarServidor'])) {
     $id_servidor_edicao = $_GET['editarServidor'];
     $servidor_para_edicao = $usuarioCRUD->buscarProfessorCompleto($id_servidor_edicao);
+
+    // Carregar municípios baseado no UF_Endereco (se existir)
+    if ($servidor_para_edicao && isset($servidor_para_edicao['UF_Endereco']) && $servidor_para_edicao['UF_Endereco']) {
+        $municipios_servidor = $localidadeCRUD->listarMunicipiosPorEstado($servidor_para_edicao['UF_Endereco']);
+    }
 }
 
 // PROCESSAR FORMULÁRIO (Criação e Atualização)
@@ -75,15 +85,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Atualização
                 $usuarioCRUD->atualizarAluno($id_aluno, $dadosUsuario, $matricula);
                 $sucesso = "Aluno atualizado com sucesso!";
+                // Redireciona mantendo o ID para edição
+                header("Location: cadastro.php?editarAluno=" . $id_aluno . "&sucesso=" . urlencode($sucesso));
+                exit;
             } else {
                 // Novo cadastro
                 $idAluno = $usuarioCRUD->cadastrarAluno($dadosUsuario, $matricula);
                 $sucesso = "Aluno cadastrado com sucesso! Matrícula: " . $matricula;
+                // Redireciona para edição do aluno recém-criado
+                header("Location: cadastro.php?editarAluno=" . $idAluno . "&sucesso=" . urlencode($sucesso));
+                exit;
             }
 
-            // Redireciona para a mesma página para limpar o formulário e mostrar a mensagem
-            header("Location: cadastro.php?sucesso=" . urlencode($sucesso));
-            exit;
 
         } elseif ($_POST['tipo'] === 'servidor') {
             $email_servidor = $_POST['emailServidor'];
@@ -129,22 +142,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $dadosUsuario,
                     $_POST['formacaoAcademica'],
                     $_POST['dataAdmissao'],
-                    $_POST['areaAtuacaoServidor'] // Área de atuação
+                    $_POST['areaAtuacaoServidor']
                 );
                 $sucesso = "Servidor atualizado com sucesso!";
+                header("Location: cadastro.php?editarServidor=" . $id_servidor . "&sucesso=" . urlencode($sucesso));
+                exit;
             } else {
                 // Novo cadastro
                 $idProfessor = $usuarioCRUD->cadastrarProfessor(
                     $dadosUsuario,
                     $_POST['formacaoAcademica'],
                     $_POST['dataAdmissao'],
-                    $_POST['areaAtuacaoServidor'] // Área de atuação
+                    $_POST['areaAtuacaoServidor']
                 );
                 $sucesso = "Servidor cadastrado com sucesso!";
+                header("Location: cadastro.php?editarServidor=" . $idProfessor . "&sucesso=" . urlencode($sucesso));
+                exit;
             }
-
-            header("Location: cadastro.php?sucesso=" . urlencode($sucesso));
-            exit;
         }
 
     } catch (Exception $e) {
@@ -161,9 +175,20 @@ if (isset($_GET['erro'])) {
     $erro = $_GET['erro'];
 }
 
-// Listagem de alunos e servidores
-$alunos = $usuarioCRUD->listarAlunos();
-$servidores = $usuarioCRUD->listarProfessores();
+// Listagem de alunos e servidores com paginação
+$limite_por_pagina = 10; // Define quantos itens por página
+
+// Paginação para Alunos
+$pagina_alunos = isset($_GET['pagina_alunos']) ? (int) $_GET['pagina_alunos'] : 1;
+$total_alunos = $usuarioCRUD->countAlunos();
+$total_paginas_alunos = ceil($total_alunos / $limite_por_pagina);
+$alunos = $usuarioCRUD->listarAlunos($pagina_alunos, $limite_por_pagina);
+
+// Paginação para Servidores
+$pagina_servidores = isset($_GET['pagina_servidores']) ? (int) $_GET['pagina_servidores'] : 1;
+$total_servidores = $usuarioCRUD->countProfessores();
+$total_paginas_servidores = ceil($total_servidores / $limite_por_pagina);
+$servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pagina);
 ?>
 
 <!DOCTYPE html>
@@ -212,13 +237,14 @@ $servidores = $usuarioCRUD->listarProfessores();
         }
 
         .needs-box {
-            border: 1px solid #dee2e6;
+            border: 1px solid #71affa;
             border-radius: 5px;
             padding: 15px;
             margin-bottom: 20px;
-            background-color: #e9ecef;
-            color: #222;
-            border: 1px solid #ccc;
+            background-color: transparent;
+            color: #212529;
+            position: relative;
+            z-index: 1;
         }
 
         .checkbox-label {
@@ -299,6 +325,25 @@ $servidores = $usuarioCRUD->listarProfessores();
 
         .btn-cancelar:hover {
             background-color: #c0392b;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background-color: #138496;
+            border-color: #117a8b;
+            color: white;
+        }
+
+        .btn-info.disabled {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.65;
         }
 
         .alert-success {
@@ -582,7 +627,7 @@ $servidores = $usuarioCRUD->listarProfessores();
                                             <div class="form-group">
                                                 <label>CEP</label>
                                                 <input type="text" class="form-control" name="cep"
-                                                    placeholder="00000-000" required
+                                                    placeholder="00000-000" maxlength="9" required
                                                     value="<?= htmlspecialchars($aluno_para_edicao['CEP'] ?? '') ?>">
                                             </div>
                                         </div>
@@ -616,23 +661,7 @@ $servidores = $usuarioCRUD->listarProfessores();
                                                     value="<?= htmlspecialchars($aluno_para_edicao['Bairro'] ?? '') ?>">
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label>Município</label>
-                                                <select class="form-control select2-busca" name="municipio"
-                                                    id="municipio" required>
-                                                    <option value="">Selecione...</option>
-                                                    <?php if (!empty($municipios)): ?>
-                                                        <?php foreach ($municipios as $municipio): ?>
-                                                            <option value="<?= $municipio['id'] ?>"
-                                                                <?= ($aluno_para_edicao['municipio_id'] ?? '') == $municipio['id'] ? 'selected' : '' ?>>
-                                                                <?= htmlspecialchars($municipio['nome']) ?>
-                                                            </option>
-                                                        <?php endforeach; ?>
-                                                    <?php endif; ?>
-                                                </select>
-                                            </div>
-                                        </div>
+
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label>UF</label>
@@ -641,10 +670,27 @@ $servidores = $usuarioCRUD->listarProfessores();
                                                     <option value="">Selecione...</option>
                                                     <?php foreach ($estados as $estado): ?>
                                                         <option value="<?= $estado['id'] ?>"
-                                                            <?= ($aluno_para_edicao['estado_id'] ?? '') == $estado['id'] ? 'selected' : '' ?>>
+                                                            <?= ($aluno_para_edicao['UF_Endereco'] ?? '') == $estado['id'] ? 'selected' : '' ?>>
                                                             <?= htmlspecialchars($estado['nome']) ?>
                                                         </option>
                                                     <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Município</label>
+                                                <select class="form-control select2-busca" name="municipio"
+                                                    id="municipio" required>
+                                                    <option value="">Selecione primeiro o estado...</option>
+                                                    <?php if (!empty($municipios_aluno)): ?>
+                                                        <?php foreach ($municipios_aluno as $municipio): ?>
+                                                            <option value="<?= $municipio['id'] ?>"
+                                                                <?= ($aluno_para_edicao['Municipio_Endereco'] ?? '') == $municipio['id'] ? 'selected' : '' ?>>
+                                                                <?= htmlspecialchars($municipio['nome']) ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
                                                 </select>
                                             </div>
                                         </div>
@@ -761,6 +807,8 @@ $servidores = $usuarioCRUD->listarProfessores();
                                     <div class="col-sm-12 text-right">
                                         <button type="submit" class="btn btn-Salvar px-5"
                                             id="btnSalvarAluno">Salvar</button>
+                                        <button type="button" class="btn btn-info px-5" id="btnVincularAluno"
+                                            onclick="verificarEEnviarParaVinculos('aluno')">Vincular</button>
                                         <a href="cadastro.php" class="btn btn-cancelar px-5">Cancelar</a>
                                     </div>
                                 </div>
@@ -796,6 +844,26 @@ $servidores = $usuarioCRUD->listarProfessores();
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
+
+                            <!-- Paginação Alunos -->
+                            <nav>
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item <?= ($pagina_alunos <= 1) ? 'disabled' : '' ?>">
+                                        <a class="page-link"
+                                            href="?pagina_alunos=<?= $pagina_alunos - 1 ?>">Anterior</a>
+                                    </li>
+                                    <?php for ($i = 1; $i <= $total_paginas_alunos; $i++): ?>
+                                        <li class="page-item <?= ($pagina_alunos == $i) ? 'active' : '' ?>">
+                                            <a class="page-link" href="?pagina_alunos=<?= $i ?>"><?= $i ?></a>
+                                        </li>
+                                    <?php endfor; ?>
+                                    <li
+                                        class="page-item <?= ($pagina_alunos >= $total_paginas_alunos) ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="?pagina_alunos=<?= $pagina_alunos + 1 ?>">Próxima</a>
+                                    </li>
+                                </ul>
+                            </nav>
+
                         </div> <!-- Fim da aba Aluno -->
 
                         <!-- Aba Servidor -->
@@ -1006,7 +1074,8 @@ $servidores = $usuarioCRUD->listarProfessores();
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label>CEP</label>
-                                                <input type="text" class="form-control" name="cepServidor" required
+                                                <input type="text" class="form-control" name="cepServidor"
+                                                    placeholder="00000-000" maxlength="9" required
                                                     value="<?= htmlspecialchars($servidor_para_edicao['CEP'] ?? '') ?>">
                                             </div>
                                         </div>
@@ -1039,6 +1108,38 @@ $servidores = $usuarioCRUD->listarProfessores();
                                                 <label>Bairro</label>
                                                 <input type="text" class="form-control" name="bairroServidor" required
                                                     value="<?= htmlspecialchars($servidor_para_edicao['Bairro'] ?? '') ?>">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label>UF</label>
+                                                <select class="form-control select2-busca" name="ufEnderecoServidor"
+                                                    id="ufEnderecoServidor" required>
+                                                    <option value="">Selecione...</option>
+                                                    <?php foreach ($estados as $estado): ?>
+                                                        <option value="<?= $estado['id'] ?>"
+                                                            <?= ($servidor_para_edicao['estado_id'] ?? '') == $estado['id'] ? 'selected' : '' ?>>
+                                                            <?= htmlspecialchars($estado['nome']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Município</label>
+                                                <select class="form-control select2-busca" name="municipioServidor"
+                                                    id="municipioServidor" required>
+                                                    <option value="">Selecione primeiro o estado...</option>
+                                                    <?php if (!empty($municipios_servidor)): ?>
+                                                        <?php foreach ($municipios_servidor as $municipio): ?>
+                                                            <option value="<?= $municipio['id'] ?>"
+                                                                <?= ($servidor_para_edicao['municipio_id'] ?? '') == $municipio['id'] ? 'selected' : '' ?>>
+                                                                <?= htmlspecialchars($municipio['nome']) ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -1111,6 +1212,8 @@ $servidores = $usuarioCRUD->listarProfessores();
                                 <div class="form-group row mt-3">
                                     <div class="col-sm-12 text-right">
                                         <button type="submit" class="btn btn-Salvar px-5">Salvar</button>
+                                        <button type="button" class="btn btn-info px-5" id="btnVincularServidor"
+                                            onclick="verificarEEnviarParaVinculos('servidor')">Vincular</button>
                                         <button type="button" class="btn btn-cancelar px-5"
                                             id="btnCancelarServidor">Cancelar</button>
                                     </div>
@@ -1147,8 +1250,29 @@ $servidores = $usuarioCRUD->listarProfessores();
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
-                        </div> <!-- Fim da aba Servidor -->
-                    </div> <!-- Fim do tab-content -->
+
+                            <!-- Paginação Servidores -->
+                            <nav>
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item <?= ($pagina_servidores <= 1) ? 'disabled' : '' ?>">
+                                        <a class="page-link"
+                                            href="?pagina_servidores=<?= $pagina_servidores - 1 ?>">Anterior</a>
+                                    </li>
+                                    <?php for ($i = 1; $i <= $total_paginas_servidores; $i++): ?>
+                                        <li class="page-item <?= ($pagina_servidores == $i) ? 'active' : '' ?>">
+                                            <a class="page-link" href="?pagina_servidores=<?= $i ?>"><?= $i ?></a>
+                                        </li>
+                                    <?php endfor; ?>
+                                    <li
+                                        class="page-item <?= ($pagina_servidores >= $total_paginas_servidores) ? 'disabled' : '' ?>">
+                                        <a class="page-link"
+                                            href="?pagina_servidores=<?= $pagina_servidores + 1 ?>">Próxima</a>
+                                    </li>
+                                </ul>
+                            </nav>
+
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1182,6 +1306,7 @@ $servidores = $usuarioCRUD->listarProfessores();
                 allowClear: true,
                 width: '100%'
             });
+
 
             // Naturalidade - Aluno
             $('#ufNaturalidade').on('change', function () {
@@ -1235,7 +1360,7 @@ $servidores = $usuarioCRUD->listarProfessores();
                 }
             });
 
-            // Endereço - Município
+            // Endereço - Município - Aluno
             $('#ufEndereco').on('change', function () {
                 const estadoId = this.value;
                 const municipioSelect = $('#municipio');
@@ -1243,43 +1368,141 @@ $servidores = $usuarioCRUD->listarProfessores();
                 console.log('Estado endereço selecionado:', estadoId);
 
                 if (estadoId) {
+                    municipioSelect.empty().append('<option value="">Carregando...</option>');
+
                     fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoId}`)
-                        .then(response => response.json())
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Erro na resposta do servidor');
+                            }
+                            return response.json();
+                        })
                         .then(data => {
-                            municipioSelect.empty().append('<option value="">Selecione...</option>');
-                            data.forEach(municipio => {
-                                municipioSelect.append(`<option value="${municipio.id}">${municipio.nome}</option>`);
-                            });
+                            municipioSelect.empty().append('<option value="">Selecione o município...</option>');
+                            if (data && data.length > 0) {
+                                data.forEach(municipio => {
+                                    municipioSelect.append(`<option value="${municipio.id}">${municipio.nome}</option>`);
+                                });
+                            } else {
+                                municipioSelect.append('<option value="">Nenhum município encontrado</option>');
+                            }
                             municipioSelect.trigger('change');
                         })
                         .catch(error => {
                             console.error('Erro ao carregar municípios para endereço:', error);
-                            municipioSelect.empty().append('<option value="">Erro ao carregar</option>');
+                            municipioSelect.empty().append('<option value="">Erro ao carregar municípios</option>');
                         });
                 } else {
-                    municipioSelect.empty().append('<option value="">Selecione...</option>');
+                    municipioSelect.empty().append('<option value="">Selecione primeiro o estado...</option>');
                 }
             });
 
-            // Se estiver editando e já tiver um estado de naturalidade, carrega as cidades
-            <?php if (isset($aluno_para_edicao) && $aluno_para_edicao['uf_naturalidade']): ?>
-                const estadoNaturalidadeId = <?= $aluno_para_edicao['uf_naturalidade'] ?>;
-                console.log('Carregando naturalidade para edição:', estadoNaturalidadeId);
+            // Endereço - Município - Servidor
+            $('#ufEnderecoServidor').on('change', function () {
+                const estadoId = this.value;
+                const municipioSelect = $('#municipioServidor');
 
-                if (estadoNaturalidadeId) {
-                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoNaturalidadeId}`)
-                        .then(response => response.json())
+                console.log('Estado endereço servidor selecionado:', estadoId);
+
+                if (estadoId) {
+                    municipioSelect.empty().append('<option value="">Carregando...</option>');
+
+                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoId}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Erro na resposta do servidor');
+                            }
+                            return response.json();
+                        })
                         .then(data => {
-                            const naturalidadeSelect = $('#naturalidade');
-                            naturalidadeSelect.empty().append('<option value="">Selecione a cidade...</option>');
-                            data.forEach(municipio => {
-                                const selected = <?= $aluno_para_edicao['naturalidade_id'] ?? 'null' ?> == municipio.id ? 'selected' : '';
-                                naturalidadeSelect.append(`<option value="${municipio.id}" ${selected}>${municipio.nome}</option>`);
-                            });
-                            naturalidadeSelect.trigger('change');
+                            municipioSelect.empty().append('<option value="">Selecione o município...</option>');
+                            if (data && data.length > 0) {
+                                data.forEach(municipio => {
+                                    municipioSelect.append(`<option value="${municipio.id}">${municipio.nome}</option>`);
+                                });
+                            } else {
+                                municipioSelect.append('<option value="">Nenhum município encontrado</option>');
+                            }
+                            municipioSelect.trigger('change');
                         })
                         .catch(error => {
-                            console.error('Erro ao carregar municípios para naturalidade (edição):', error);
+                            console.error('Erro ao carregar municípios para endereço servidor:', error);
+                            municipioSelect.empty().append('<option value="">Erro ao carregar municípios</option>');
+                        });
+                } else {
+                    municipioSelect.empty().append('<option value="">Selecione primeiro o estado...</option>');
+                }
+            });
+
+            // Máscara para CEP - limitar a 8 dígitos
+            function aplicarMascaraCEP(input) {
+                // Remove tudo que não é número
+                let cep = input.value.replace(/\D/g, '');
+
+                // Limita a 8 caracteres
+                if (cep.length > 8) {
+                    cep = cep.substring(0, 8);
+                }
+
+                // Aplica a máscara: 00000-000
+                if (cep.length > 5) {
+                    cep = cep.substring(0, 5) + '-' + cep.substring(5);
+                }
+
+                input.value = cep;
+            }
+
+            // Event listeners para os campos CEP com máscara
+            $('#cep').on('input', function () {
+                aplicarMascaraCEP(this);
+            });
+
+            $('#cepServidor').on('input', function () {
+                aplicarMascaraCEP(this);
+            });
+
+            // Se estiver editando e já tiver um estado selecionado, carrega os municípios para endereço
+            <?php if (isset($aluno_para_edicao) && $aluno_para_edicao['UF_Endereco']): ?>
+                const estadoEnderecoId = <?= $aluno_para_edicao['UF_Endereco'] ?>;
+                console.log('Carregando município para edição:', estadoEnderecoId);
+
+                if (estadoEnderecoId) {
+                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoEnderecoId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const municipioSelect = $('#municipio');
+                            municipioSelect.empty().append('<option value="">Selecione...</option>');
+                            data.forEach(municipio => {
+                                const selected = <?= $aluno_para_edicao['Municipio_Endereco'] ?? 'null' ?> == municipio.id ? 'selected' : '';
+                                municipioSelect.append(`<option value="${municipio.id}" ${selected}>${municipio.nome}</option>`);
+                            });
+                            municipioSelect.trigger('change');
+                        })
+                        .catch(error => {
+                            console.error('Erro ao carregar municípios para endereço (edição):', error);
+                        });
+                }
+            <?php endif; ?>
+
+            // Se estiver editando servidor e já tiver um estado selecionado, carrega os municípios para endereço
+            <?php if (isset($servidor_para_edicao) && $servidor_para_edicao['UF_Endereco']): ?>
+                const estadoEnderecoServidorId = <?= $servidor_para_edicao['UF_Endereco'] ?>;
+                console.log('Carregando município servidor para edição:', estadoEnderecoServidorId);
+
+                if (estadoEnderecoServidorId) {
+                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoEnderecoServidorId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const municipioSelect = $('#municipioServidor');
+                            municipioSelect.empty().append('<option value="">Selecione...</option>');
+                            data.forEach(municipio => {
+                                const selected = <?= $servidor_para_edicao['Municipio_Endereco'] ?? 'null' ?> == municipio.id ? 'selected' : '';
+                                municipioSelect.append(`<option value="${municipio.id}" ${selected}>${municipio.nome}</option>`);
+                            });
+                            municipioSelect.trigger('change');
+                        })
+                        .catch(error => {
+                            console.error('Erro ao carregar municípios para endereço servidor (edição):', error);
                         });
                 }
             <?php endif; ?>
@@ -1330,6 +1553,29 @@ $servidores = $usuarioCRUD->listarProfessores();
                 }
             <?php endif; ?>
 
+            // Se estiver editando servidor e já tiver um estado selecionado, carrega os municípios para endereço
+            <?php if (isset($servidor_para_edicao) && $servidor_para_edicao['estado_id']): ?>
+                const estadoEnderecoServidorId = <?= $servidor_para_edicao['estado_id'] ?>;
+                console.log('Carregando município servidor para edição:', estadoEnderecoServidorId);
+
+                if (estadoEnderecoServidorId) {
+                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoEnderecoServidorId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const municipioSelect = $('#municipioServidor');
+                            municipioSelect.empty().append('<option value="">Selecione...</option>');
+                            data.forEach(municipio => {
+                                const selected = <?= $servidor_para_edicao['municipio_id'] ?? 'null' ?> == municipio.id ? 'selected' : '';
+                                municipioSelect.append(`<option value="${municipio.id}" ${selected}>${municipio.nome}</option>`);
+                            });
+                            municipioSelect.trigger('change');
+                        })
+                        .catch(error => {
+                            console.error('Erro ao carregar municípios para endereço servidor (edição):', error);
+                        });
+                }
+            <?php endif; ?>
+
             // Mostrar/ocultar necessidades especiais
             document.querySelectorAll('input[name="nee"]').forEach(radio => {
                 radio.addEventListener('change', function () {
@@ -1341,8 +1587,78 @@ $servidores = $usuarioCRUD->listarProfessores();
                     }
                 });
             });
+            // === FUNÇÃO PARA VERIFICAR CAMPOS E ENVIAR PARA VÍNCULOS ===
+            function verificarEEnviarParaVinculos(tipo) {
+                let formId, idUsuario, camposObrigatorios;
+
+                if (tipo === 'aluno') {
+                    formId = 'formAluno';
+                    idUsuario = document.querySelector('input[name="id_aluno"]').value;
+                    camposObrigatorios = [
+                        'nomeCompleto', 'dataNascimento', 'matriculaAluno', 'sexo', 'racaCor',
+                        'nacionalidade', 'naturalidade', 'filiacao', 'cpf', 'dataExpedicao',
+                        'ufDocumento', 'orgaoExpedidor', 'cep', 'logradouro', 'numero', 'bairro',
+                        'ufEndereco', 'municipio', 'celular', 'email'
+                    ];
+                } else {
+                    formId = 'formServidor';
+                    idUsuario = document.querySelector('input[name="id_servidor"]').value;
+                    camposObrigatorios = [
+                        'nomeCompletoServidor', 'dataNascimentoServidor', 'sexoServidor', 'racaCorServidor',
+                        'estadoCivilServidor', 'nacionalidadeServidor', 'naturalidadeServidor', 'filiacaoServidor',
+                        'cpfServidor', 'rgServidor', 'orgaoExpedidorServidor', 'ufDocumentoServidor',
+                        'cepServidor', 'logradouroServidor', 'numeroServidor', 'bairroServidor',
+                        'ufEnderecoServidor', 'municipioServidor', 'celularServidor', 'emailServidor',
+                        'formacaoAcademica', 'dataAdmissao', 'areaAtuacaoServidor'
+                    ];
+                }
+
+                // Verificar se todos os campos obrigatórios estão preenchidos
+                const form = document.getElementById(formId);
+                let camposFaltantes = [];
+                let formularioValido = true;
+
+                camposObrigatorios.forEach(campo => {
+                    const elemento = form.querySelector(`[name="${campo}"]`);
+                    if (elemento) {
+                        const valor = elemento.value.trim();
+                        if (!valor) {
+                            camposFaltantes.push(campo);
+                            formularioValido = false;
+
+                            // Destacar campo vazio
+                            elemento.style.borderColor = '#e74c3c';
+                            elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        } else {
+                            elemento.style.borderColor = '';
+                        }
+                    }
+                });
+
+                if (!formularioValido) {
+                    const mensagem = `Por favor, preencha todos os campos obrigatórios antes de vincular.\n\nCampos faltantes:\n- ${camposFaltantes.join('\n- ')}`;
+                    alert(mensagem);
+                    return;
+                }
+
+                // Verificar se é um usuário existente (tem ID)
+                if (!idUsuario) {
+                    alert('Por favor, salve o cadastro primeiro antes de vincular.');
+                    return;
+                }
+
+                // Se tudo estiver ok, redirecionar para a tela de vínculos
+                window.location.href = `gerenciarVinculos.php?tipo=${tipo}&id=${idUsuario}`;
+            }
+
+            document.addEventListener('input', function (e) {
+                if (e.target.style.borderColor === 'rgb(231, 76, 60)') {
+                    e.target.style.borderColor = '';
+                }
+            });
         });
     </script>
+
 
 </body>
 

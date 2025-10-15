@@ -27,10 +27,11 @@ class UsuarioCRUD extends BaseCRUD
         }
     }
 
-    // LISTAR ALUNOS
-    public function listarAlunos($filtro = '')
+    // LISTAR ALUNOS COM PAGINAÇÃO
+    public function listarAlunos($pagina = 1, $limite = 10, $filtro = '')
     {
         try {
+            $offset = ($pagina - 1) * $limite;
             $sql = "SELECT u.ID_Usuario, u.Nome_Completo, u.Email, u.Telefone, u.Data_Nascimento, a.Matricula
                 FROM Usuarios u
                 INNER JOIN Alunos a ON u.ID_Usuario = a.ID_Aluno
@@ -43,14 +44,49 @@ class UsuarioCRUD extends BaseCRUD
                 $params = [$likeFilter, $likeFilter, $likeFilter];
             }
 
-            $sql .= " ORDER BY u.Nome_Completo";
+            $sql .= " ORDER BY u.Nome_Completo LIMIT :limite OFFSET :offset";
 
             $stmt = $this->pdo->prepare($sql);
-            $stmt->execute($params);
+
+            // Bind dos parâmetros do filtro
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key + 1, $value);
+            }
+
+            // Bind dos parâmetros de paginação
+            $stmt->bindValue(':limite', (int) $limite, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
+
+            $stmt->execute();
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             throw new Exception("Erro ao listar alunos: " . $e->getMessage());
+        }
+    }
+
+    // CONTAR TOTAL DE ALUNOS
+    public function countAlunos($filtro = '')
+    {
+        try {
+            $sql = "SELECT COUNT(u.ID_Usuario) 
+                    FROM Usuarios u 
+                    INNER JOIN Alunos a ON u.ID_Usuario = a.ID_Aluno
+                    WHERE 1=1";
+            
+            $params = [];
+            if ($filtro) {
+                $sql .= " AND (u.Nome_Completo LIKE ? OR u.Email LIKE ? OR a.Matricula LIKE ?)";
+                $likeFilter = "%$filtro%";
+                $params = [$likeFilter, $likeFilter, $likeFilter];
+            }
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
+
+            return $stmt->fetchColumn();
+        } catch (PDOException $e) {
+            throw new Exception("Erro ao contar alunos: " . $e->getMessage());
         }
     }
 
@@ -228,17 +264,32 @@ class UsuarioCRUD extends BaseCRUD
 
 
 
-    // LISTAR PROFESSORES
-    public function listarProfessores()
+    // LISTAR PROFESSORES COM PAGINAÇÃO
+    public function listarProfessores($pagina = 1, $limite = 10)
     {
-        $sql = "SELECT u.*, p.Formacao, p.Data_Ingresso, p.Area_Atuacao 
+        $offset = ($pagina - 1) * $limite;
+        $sql = "SELECT u.*, p.Formacao AS Formacao_Academica, p.Data_Ingresso, p.Area_Atuacao 
             FROM Usuarios u 
             INNER JOIN Professores p ON u.ID_Usuario = p.ID_Professor 
-            ORDER BY u.Nome_Completo";
+            ORDER BY u.Nome_Completo
+            LIMIT :limite OFFSET :offset";
 
         $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':limite', (int) $limite, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // CONTAR TOTAL DE PROFESSORES
+    public function countProfessores()
+    {
+        $sql = "SELECT COUNT(u.ID_Usuario) 
+                FROM Usuarios u 
+                INNER JOIN Professores p ON u.ID_Usuario = p.ID_Professor";
+        
+        $stmt = $this->pdo->query($sql);
+        return $stmt->fetchColumn();
     }
 
     // VERIFICAR SE EMAIL JÁ EXISTE
