@@ -16,9 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'Nome_Turma' => $_POST['nomeTurma'],
             'Ano_Letivo' => $_POST['anoLetivo'],
             'Turno' => $_POST['turno'],
-            'Etapa' => $_POST['etapaSerie'], // Mudei de Etapa_Serie para Etapa
+            'Etapa' => $_POST['etapaSerie'],
             'Capacidade_Alunos' => $_POST['capacidadeAlunos'],
-            'Sala' => $_POST['salaLocal'] // Mudei de Sala_Local para Sala
+            'Sala' => $_POST['salaLocal'] 
         ];
 
         // Verificar se é edição ou novo cadastro
