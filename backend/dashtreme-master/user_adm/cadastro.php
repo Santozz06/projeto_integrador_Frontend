@@ -73,9 +73,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'Possui_Necessidades_Especiais' => (isset($_POST['nee']) && $_POST['nee'] === 'sim') ? 1 : 0
             ];
 
-            // Se não houver senha no POST, não a inclui nos dados a serem atualizados
-            if (!empty($_POST['senha'])) {
-                $dadosUsuario['Senha'] = $_POST['senha'];
+            // Senha do aluno: obrigatória no cadastro; em edição só altera se informada e confirmar coincidir
+            $senhaAluno = $_POST['senha'] ?? '';
+            $confirmarSenhaAluno = $_POST['confirmarSenhaAluno'] ?? '';
+            if ($id_aluno) {
+                if (!empty($senhaAluno) || !empty($confirmarSenhaAluno)) {
+                    if ($senhaAluno !== $confirmarSenhaAluno) {
+                        throw new Exception('As senhas do aluno não coincidem.');
+                    }
+                    $dadosUsuario['Senha'] = $senhaAluno;
+                }
+            } else {
+                if (empty($senhaAluno)) {
+                    throw new Exception('A senha é obrigatória para novo cadastro de aluno.');
+                }
+                if ($senhaAluno !== $confirmarSenhaAluno) {
+                    throw new Exception('As senhas do aluno não coincidem.');
+                }
+                $dadosUsuario['Senha'] = $senhaAluno;
             }
 
             $matricula = $_POST['matriculaAluno'];
@@ -131,8 +146,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'Endereco' => $_POST['logradouroServidor'] . ', ' . $_POST['numeroServidor'] . ' - ' . $_POST['bairroServidor']
             ];
 
-            if (!empty($_POST['senha'])) {
-                $dadosUsuario['Senha'] = $_POST['senha'];
+            // Senha: obrigatória para novo cadastro; em edição, só altera se informada e confirmar coincidir
+            $senhaServidor = $_POST['senha'] ?? '';
+            $confirmarSenhaServidor = $_POST['confirmarSenhaServidor'] ?? '';
+
+            if (!$id_servidor) {
+                if (empty($senhaServidor)) {
+                    throw new Exception('A senha é obrigatória para novo cadastro de servidor.');
+                }
+                if ($senhaServidor !== $confirmarSenhaServidor) {
+                    throw new Exception('As senhas não coincidem.');
+                }
+                $dadosUsuario['Senha'] = $senhaServidor;
+            } else {
+                if (!empty($senhaServidor) || !empty($confirmarSenhaServidor)) {
+                    if ($senhaServidor !== $confirmarSenhaServidor) {
+                        throw new Exception('As senhas não coincidem.');
+                    }
+                    $dadosUsuario['Senha'] = $senhaServidor; // atualizar
+                }
             }
 
             if ($id_servidor) {
@@ -142,7 +174,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $dadosUsuario,
                     $_POST['formacaoAcademica'],
                     $_POST['dataAdmissao'],
-                    $_POST['areaAtuacaoServidor']
+                    $_POST['areaAtuacaoServidor'],
+                    $_POST['matriculaServidor'] ?? null
                 );
                 $sucesso = "Servidor atualizado com sucesso!";
                 header("Location: cadastro.php?editarServidor=" . $id_servidor . "&sucesso=" . urlencode($sucesso));
@@ -153,7 +186,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $dadosUsuario,
                     $_POST['formacaoAcademica'],
                     $_POST['dataAdmissao'],
-                    $_POST['areaAtuacaoServidor']
+                    $_POST['areaAtuacaoServidor'],
+                    $_POST['matriculaServidor'] ?? null
                 );
                 $sucesso = "Servidor cadastrado com sucesso!";
                 header("Location: cadastro.php?editarServidor=" . $idProfessor . "&sucesso=" . urlencode($sucesso));
@@ -162,8 +196,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
     } catch (Exception $e) {
-        $erro = "Erro no cadastro: " . $e->getMessage();
-        error_log("Erro cadastro: " . $e->getMessage());
+        $msg = $e->getMessage();
+        $friendly = '';
+        // Tratamento para duplicidades (MySQL 1062) e violação de unique (SQLSTATE 23000)
+        if ((method_exists($e, 'getCode') && (int)$e->getCode() === 23000) || stripos($msg, 'Duplicate entry') !== false) {
+            if (stripos($msg, 'uniq_email') !== false || stripos($msg, 'Email') !== false) {
+                $friendly = 'Este e-mail já está cadastrado. Use outro e-mail ou recupere a senha.';
+            } elseif (stripos($msg, 'Matricula') !== false) {
+                $friendly = 'Esta matrícula já está cadastrada. Verifique o valor informado.';
+            } else {
+                $friendly = 'Registro duplicado. Verifique os campos únicos informados.';
+            }
+        }
+        $erro = $friendly ?: ("Erro no cadastro: " . $msg);
+        error_log("Erro cadastro: " . $msg);
     }
 }
 
@@ -175,8 +221,7 @@ if (isset($_GET['erro'])) {
     $erro = $_GET['erro'];
 }
 
-// Listagem de alunos e servidores com paginação
-$limite_por_pagina = 10; // Define quantos itens por página
+$limite_por_pagina = 10;
 
 // Paginação para Alunos
 $pagina_alunos = isset($_GET['pagina_alunos']) ? (int) $_GET['pagina_alunos'] : 1;
@@ -443,7 +488,7 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                 <input type="hidden" name="tipo" value="aluno">
                                 <input type="hidden" name="id_aluno"
                                     value="<?= $aluno_para_edicao['ID_Usuario'] ?? '' ?>">
-                                <input type="hidden" name="senha" value="<?= $aluno_para_edicao ? '' : 'senha123' ?>">
+                                <!-- Senha agora é capturada pelos campos abaixo; não usamos padrão -->
 
                                 <!-- Dados Pessoais - Aluno -->
                                 <div class="form-section">
@@ -496,6 +541,23 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                                     <option <?= ($aluno_para_edicao['Raca_Etnia'] ?? '') == 'Indígena' ? 'selected' : '' ?>>Indígena</option>
                                                     <option <?= ($aluno_para_edicao['Raca_Etnia'] ?? '') == 'Prefiro não informar' ? 'selected' : '' ?>>Prefiro não informar</option>
                                                 </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label>Senha</label>
+                                                <input type="password" class="form-control" name="senha" 
+                                                    placeholder="Defina uma senha" <?= empty($aluno_para_edicao) ? 'required' : '' ?>>
+                                                <small class="form-text text-muted">Obrigatória no cadastro. Em edição, preencha para alterar.</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label>Confirmar Senha</label>
+                                                <input type="password" class="form-control" name="confirmarSenhaAluno"
+                                                    placeholder="Repita a senha" <?= empty($aluno_para_edicao) ? 'required' : '' ?>>
                                             </div>
                                         </div>
                                     </div>
@@ -898,14 +960,9 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label>Senha</label>
-                                                <input type="password" class="form-control" name="senha"
-                                                    <?= $servidor_para_edicao ? '' : 'required' ?>
-                                                    value="<?= $servidor_para_edicao ? '' : 'senha123' ?>">
-                                                <?php if ($servidor_para_edicao): ?>
-                                                    <small class="form-text text-muted">Deixe em branco para manter a senha
-                                                        atual</small>
-                                                <?php endif; ?>
+                                                <label>Matrícula</label>
+                                                <input type="text" class="form-control" name="matriculaServidor"
+                                                    value="<?= htmlspecialchars($servidor_para_edicao['Matricula'] ?? '') ?>">
                                             </div>
                                         </div>
                                     </div>
@@ -946,6 +1003,25 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                                     <option <?= ($servidor_para_edicao['Estado_Civil'] ?? '') == 'Divorciado(a)' ? 'selected' : '' ?>>Divorciado(a)</option>
                                                     <option <?= ($servidor_para_edicao['Estado_Civil'] ?? '') == 'Viúvo(a)' ? 'selected' : '' ?>>Viúvo(a)</option>
                                                 </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Senha do Servidor (colocada aqui para manter consistência com a aba Aluno) -->
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label>Senha</label>
+                                                <input type="password" class="form-control" name="senha"
+                                                    placeholder="Defina uma senha" <?= empty($servidor_para_edicao) ? 'required' : '' ?>>
+                                                <small class="form-text text-muted">Obrigatória no cadastro. Em edição, preencha para alterar.</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label>Confirmar Senha</label>
+                                                <input type="password" class="form-control" name="confirmarSenhaServidor"
+                                                    placeholder="Repita a senha" <?= empty($servidor_para_edicao) ? 'required' : '' ?>>
                                             </div>
                                         </div>
                                     </div>
@@ -1228,6 +1304,7 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                         <th>Nome</th>
                                         <th>Email</th>
                                         <th>Formação</th>
+                                        <th>Matrícula</th>
                                         <th>Telefone</th>
                                         <th>Ações</th>
                                     </tr>
@@ -1238,6 +1315,7 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                             <td><?= htmlspecialchars($servidor['Nome_Completo']) ?></td>
                                             <td><?= htmlspecialchars($servidor['Email']) ?></td>
                                             <td><?= htmlspecialchars($servidor['Formacao_Academica'] ?? 'N/A') ?></td>
+                                            <td><?= htmlspecialchars($servidor['Matricula'] ?? 'N/A') ?></td>
                                             <td><?= htmlspecialchars($servidor['Telefone'] ?? 'N/A') ?></td>
                                             <td>
                                                 <a href="?editarServidor=<?= $servidor['ID_Usuario'] ?>"
@@ -1461,119 +1539,61 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                 aplicarMascaraCEP(this);
             });
 
-            // Se estiver editando e já tiver um estado selecionado, carrega os municípios para endereço
-            <?php if (isset($aluno_para_edicao) && $aluno_para_edicao['UF_Endereco']): ?>
-                const estadoEnderecoId = <?= $aluno_para_edicao['UF_Endereco'] ?>;
-                console.log('Carregando município para edição:', estadoEnderecoId);
-
-                if (estadoEnderecoId) {
-                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoEnderecoId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            const municipioSelect = $('#municipio');
-                            municipioSelect.empty().append('<option value="">Selecione...</option>');
-                            data.forEach(municipio => {
-                                const selected = <?= $aluno_para_edicao['Municipio_Endereco'] ?? 'null' ?> == municipio.id ? 'selected' : '';
-                                municipioSelect.append(`<option value="${municipio.id}" ${selected}>${municipio.nome}</option>`);
+            // Se estiver editando e já tiver um estado selecionado, carrega os municípios para endereço (Aluno)
+            <?php if (isset($aluno_para_edicao) && !empty($aluno_para_edicao['UF_Endereco'])): ?>
+                (function(){
+                    const estadoEnderecoIdAluno = <?= (int)$aluno_para_edicao['UF_Endereco'] ?>;
+                    const municipioSelecionadoAluno = <?= isset($aluno_para_edicao['Municipio_Endereco']) ? (int)$aluno_para_edicao['Municipio_Endereco'] : 'null' ?>;
+                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoEnderecoIdAluno}`)
+                        .then(r=>r.json())
+                        .then(data=>{
+                            const $sel = $('#municipio');
+                            $sel.empty().append('<option value="">Selecione...</option>');
+                            data.forEach(m=>{
+                                const sel = (municipioSelecionadoAluno === m.id) ? 'selected' : '';
+                                $sel.append(`<option value="${m.id}" ${sel}>${m.nome}</option>`);
                             });
-                            municipioSelect.trigger('change');
-                        })
-                        .catch(error => {
-                            console.error('Erro ao carregar municípios para endereço (edição):', error);
+                            $sel.trigger('change');
                         });
-                }
+                })();
             <?php endif; ?>
 
-            // Se estiver editando servidor e já tiver um estado selecionado, carrega os municípios para endereço
-            <?php if (isset($servidor_para_edicao) && $servidor_para_edicao['UF_Endereco']): ?>
-                const estadoEnderecoServidorId = <?= $servidor_para_edicao['UF_Endereco'] ?>;
-                console.log('Carregando município servidor para edição:', estadoEnderecoServidorId);
-
-                if (estadoEnderecoServidorId) {
-                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoEnderecoServidorId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            const municipioSelect = $('#municipioServidor');
-                            municipioSelect.empty().append('<option value="">Selecione...</option>');
-                            data.forEach(municipio => {
-                                const selected = <?= $servidor_para_edicao['Municipio_Endereco'] ?? 'null' ?> == municipio.id ? 'selected' : '';
-                                municipioSelect.append(`<option value="${municipio.id}" ${selected}>${municipio.nome}</option>`);
+            // Se estiver editando servidor e já tiver um estado selecionado, carrega os municípios para endereço (Servidor)
+            <?php if (isset($servidor_para_edicao) && !empty($servidor_para_edicao['UF_Endereco'])): ?>
+                (function(){
+                    const estadoEnderecoIdServ = <?= (int)$servidor_para_edicao['UF_Endereco'] ?>;
+                    const municipioSelecionadoServ = <?= isset($servidor_para_edicao['Municipio_Endereco']) ? (int)$servidor_para_edicao['Municipio_Endereco'] : 'null' ?>;
+                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoEnderecoIdServ}`)
+                        .then(r=>r.json())
+                        .then(data=>{
+                            const $sel = $('#municipioServidor');
+                            $sel.empty().append('<option value="">Selecione...</option>');
+                            data.forEach(m=>{
+                                const sel = (municipioSelecionadoServ === m.id) ? 'selected' : '';
+                                $sel.append(`<option value="${m.id}" ${sel}>${m.nome}</option>`);
                             });
-                            municipioSelect.trigger('change');
-                        })
-                        .catch(error => {
-                            console.error('Erro ao carregar municípios para endereço servidor (edição):', error);
+                            $sel.trigger('change');
                         });
-                }
+                })();
             <?php endif; ?>
 
             // Se estiver editando servidor e já tiver um estado de naturalidade, carrega as cidades
-            <?php if (isset($servidor_para_edicao) && $servidor_para_edicao['uf_naturalidade']): ?>
-                const estadoNaturalidadeServidorId = <?= $servidor_para_edicao['uf_naturalidade'] ?>;
-                console.log('Carregando naturalidade servidor para edição:', estadoNaturalidadeServidorId);
-
-                if (estadoNaturalidadeServidorId) {
-                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoNaturalidadeServidorId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            const naturalidadeSelect = $('#naturalidadeServidor');
-                            naturalidadeSelect.empty().append('<option value="">Selecione a cidade...</option>');
-                            data.forEach(municipio => {
-                                const selected = <?= $servidor_para_edicao['naturalidade_id'] ?? 'null' ?> == municipio.id ? 'selected' : '';
-                                naturalidadeSelect.append(`<option value="${municipio.id}" ${selected}>${municipio.nome}</option>`);
+            <?php if (isset($servidor_para_edicao) && !empty($servidor_para_edicao['uf_naturalidade'])): ?>
+                (function(){
+                    const ufNatServ = <?= (int)$servidor_para_edicao['uf_naturalidade'] ?>;
+                    const natSelServ = <?= isset($servidor_para_edicao['naturalidade_id']) ? (int)$servidor_para_edicao['naturalidade_id'] : 'null' ?>;
+                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${ufNatServ}`)
+                        .then(r=>r.json())
+                        .then(data=>{
+                            const $sel = $('#naturalidadeServidor');
+                            $sel.empty().append('<option value="">Selecione a cidade...</option>');
+                            data.forEach(m=>{
+                                const sel = (natSelServ === m.id) ? 'selected' : '';
+                                $sel.append(`<option value="${m.id}" ${sel}>${m.nome}</option>`);
                             });
-                            naturalidadeSelect.trigger('change');
-                        })
-                        .catch(error => {
-                            console.error('Erro ao carregar municípios para naturalidade servidor (edição):', error);
+                            $sel.trigger('change');
                         });
-                }
-            <?php endif; ?>
-
-            // Se estiver editando e já tiver um estado selecionado, carrega os municípios para endereço
-            <?php if (isset($aluno_para_edicao) && $aluno_para_edicao['estado_id']): ?>
-                const estadoEnderecoId = <?= $aluno_para_edicao['estado_id'] ?>;
-                console.log('Carregando município para edição:', estadoEnderecoId);
-
-                if (estadoEnderecoId) {
-                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoEnderecoId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            const municipioSelect = $('#municipio');
-                            municipioSelect.empty().append('<option value="">Selecione...</option>');
-                            data.forEach(municipio => {
-                                const selected = <?= $aluno_para_edicao['municipio_id'] ?? 'null' ?> == municipio.id ? 'selected' : '';
-                                municipioSelect.append(`<option value="${municipio.id}" ${selected}>${municipio.nome}</option>`);
-                            });
-                            municipioSelect.trigger('change');
-                        })
-                        .catch(error => {
-                            console.error('Erro ao carregar municípios para endereço (edição):', error);
-                        });
-                }
-            <?php endif; ?>
-
-            // Se estiver editando servidor e já tiver um estado selecionado, carrega os municípios para endereço
-            <?php if (isset($servidor_para_edicao) && $servidor_para_edicao['estado_id']): ?>
-                const estadoEnderecoServidorId = <?= $servidor_para_edicao['estado_id'] ?>;
-                console.log('Carregando município servidor para edição:', estadoEnderecoServidorId);
-
-                if (estadoEnderecoServidorId) {
-                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoEnderecoServidorId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            const municipioSelect = $('#municipioServidor');
-                            municipioSelect.empty().append('<option value="">Selecione...</option>');
-                            data.forEach(municipio => {
-                                const selected = <?= $servidor_para_edicao['municipio_id'] ?? 'null' ?> == municipio.id ? 'selected' : '';
-                                municipioSelect.append(`<option value="${municipio.id}" ${selected}>${municipio.nome}</option>`);
-                            });
-                            municipioSelect.trigger('change');
-                        })
-                        .catch(error => {
-                            console.error('Erro ao carregar municípios para endereço servidor (edição):', error);
-                        });
-                }
+                })();
             <?php endif; ?>
 
             // Mostrar/ocultar necessidades especiais

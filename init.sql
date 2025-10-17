@@ -32,6 +32,8 @@ CREATE TABLE Professores (
     ID_Professor INT PRIMARY KEY,
     Formacao VARCHAR(100),
     Data_Ingresso DATE,
+    Area_Atuacao VARCHAR(255),
+    Matricula VARCHAR(50) UNIQUE,
     FOREIGN KEY (ID_Professor) REFERENCES Usuarios(ID_Usuario) ON DELETE CASCADE
 );
 
@@ -64,6 +66,7 @@ CREATE TABLE Matriculas (
     ID_Turma INT NOT NULL,
     Data_Matricula DATE NOT NULL,
     Status VARCHAR(20) DEFAULT 'Ativa',
+    Data_Saida DATE,
     Tipo_Matricula VARCHAR(20),
     Ano_Letivo INT,
     FOREIGN KEY (ID_Aluno) REFERENCES Alunos(ID_Aluno),

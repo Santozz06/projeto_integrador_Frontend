@@ -112,14 +112,17 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
+                                    <label for="year-filter">Ano Letivo</label>
+                                    <select class="form-control" id="year-filter">
+                                        <option value="">Todos</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
                                     <label for="department-filter">Departamento</label>
                                     <select class="form-control" id="department-filter">
                                         <option value="">Todos</option>
-                                        <option>Matemática</option>
-                                        <option>Ciências</option>
-                                        <option>Língua Portuguesa</option>
-                                        <option>História</option>
-                                        <option>Geografia</option>
                                     </select>
                                 </div>
                             </div>
@@ -130,8 +133,6 @@
                                         <option value="">Todos</option>
                                         <option>Ativo</option>
                                         <option>Inativo</option>
-                                        <option>Afastado</option>
-                                        <option>Licença</option>
                                     </select>
                                 </div>
                             </div>
@@ -146,32 +147,12 @@
                                     <th>Nome</th>
                                     <th>Matrícula</th>
                                     <th>Departamento</th>
+                                    <th>Disciplinas</th>
                                     <th>Status</th>
                                     <th>Turmas Vinculadas</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td><img src="../user_adm/imagens/icon_sor.png" class="teacher-photo"
-                                            alt="Professor" onerror="this.src='../assets/images/default-user.png'">
-                                    </td>
-                                    <td>Maria da Silva</td>
-                                    <td>PROF2023001</td>
-                                    <td>Matemática</td>
-                                    <td>Ativo</td>
-                                    <td>1º A, 2º B</td>
-                                </tr>
-                                <tr>
-                                    <td><img src="../user_adm/imagens/icon_sor.png" class="teacher-photo"
-                                            alt="Professor" onerror="this.src='../assets/images/default-user.png'">
-                                    </td>
-                                    <td>João Oliveira</td>
-                                    <td>PROF2023002</td>
-                                    <td>Ciências</td>
-                                    <td>Ativo</td>
-                                    <td>3º A, 4º B</td>
-                                </tr>
-                            </tbody>
+                            <tbody></tbody>
                         </table>
                     </div>
 
@@ -192,50 +173,76 @@
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
     <script>
         $(document).ready(function () {
+            const $dept = $('#department-filter');
+            const $status = $('#status-filter');
+            const $tbody = $('#teachers-table tbody');
+            const $year = $('#year-filter');
+
             const table = $('#teachers-table').DataTable({
                 responsive: true,
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/pt-BR.json'
-                },
+                language: { url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/pt-BR.json' },
                 dom: '<"top"f>rt<"bottom"lip><"clear">'
             });
 
-            $('#department-filter, #status-filter').change(function () {
-                table.draw();
-            });
+            function carregarDepartamentos() {
+                $.getJSON('../includes/ajax/listar_departamentos.php', function (resp) {
+                    if (resp.success) {
+                        resp.data.forEach(dep => $dept.append(`<option value="${dep}">${dep}</option>`));
+                    }
+                });
+            }
 
-            $.fn.dataTable.ext.search.push(
-                function (settings, data) {
-                    const dept = $('#department-filter').val();
-                    const status = $('#status-filter').val();
-                    const rowDept = data[3];
-                    const rowStatus = data[4];
+            function carregarAnos() {
+                $.getJSON('../includes/ajax/listar_anos_letivos.php', function (resp) {
+                    if (resp.success && Array.isArray(resp.data)) {
+                        resp.data.forEach(ano => $year.append(`<option value="${ano}">${ano}</option>`));
+                    }
+                });
+            }
 
-                    return (!dept || rowDept.includes(dept)) && (!status || rowStatus.includes(status));
-                }
-            );
+            function carregarProfessores() {
+                const params = { departamento: $dept.val(), status: $status.val(), ano: $year.val() };
+                $.getJSON('../includes/ajax/listar_professores.php', params, function (resp) {
+                    table.clear();
+                    if (resp.success) {
+                        resp.data.forEach(p => {
+                            const foto = '<img src="../user_adm/imagens/icon_sor.png" class="teacher-photo" alt="Professor" onerror="this.src=\'../assets/images/default-user.png\'">';
+                            // Exibir matrícula do professor quando disponível; fallback vazio
+                            const matricula = p.Matricula || '';
+                            const turmas = p.Turmas || '';
+                            const disciplinas = p.Disciplinas || '';
+                            table.row.add([
+                                foto,
+                                p.Nome_Completo,
+                                matricula,
+                                p.Area_Atuacao || '',
+                                disciplinas,
+                                p.Status,
+                                turmas
+                            ]);
+                        });
+                    }
+                    table.draw();
+                });
+            }
+
+            $dept.on('change', carregarProfessores);
+            $status.on('change', carregarProfessores);
+            $year.on('change', carregarProfessores);
+
+            carregarDepartamentos();
+            carregarAnos();
+            carregarProfessores();
 
             $('#print-btn').click(function () {
                 const images = document.querySelectorAll('img.teacher-photo');
                 let allLoaded = true;
-
-                images.forEach(img => {
-                    if (!img.complete || img.naturalWidth === 0) {
-                        allLoaded = false;
-                    }
-                });
-
-                if (!allLoaded) {
-                    alert("Espere as imagens carregarem completamente antes de imprimir.");
-                    return;
-                }
-
+                images.forEach(img => { if (!img.complete || img.naturalWidth === 0) allLoaded = false; });
+                if (!allLoaded) { alert('Espere as imagens carregarem completamente antes de imprimir.'); return; }
                 const originalTitle = document.title;
                 document.title = 'Relatório de Professores - Dashboard Acadêmico';
-
                 $('.no-print').hide();
                 $('body').addClass('printing');
-
                 setTimeout(() => {
                     window.print();
                     $('.no-print').show();

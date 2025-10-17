@@ -90,12 +90,12 @@ if (isset($_SESSION['usuario_id']) && isset($_SESSION['user_type'])) {
           </div>
         <?php endif; ?>
 
-        <form action="autenticar.php" method="POST" id="loginForm">
+  <form action="autenticar.php" method="POST" id="loginForm">
           <div class="form-group">
             <label for="login" class="sr-only">Usuário ou Email</label>
             <div class="position-relative has-icon-right">
               <input type="text" id="login" name="login" class="form-control input-shadow"
-                placeholder="Digite seu usuário ou email" required
+                placeholder="Digite seu email" required
                 value="<?php echo isset($_GET['login']) ? htmlspecialchars($_GET['login']) : ''; ?>">
               <div class="form-control-position">
                 <i class="icon-user"></i>
@@ -140,7 +140,7 @@ if (isset($_SESSION['usuario_id']) && isset($_SESSION['user_type'])) {
       </div>
     </div>
     <div class="card-footer text-center py-3">
-      <p class="text-warning mb-0">É aluno? <a href="register.php"> Cadastre-se aqui</a></p>
+  <p class="text-warning mb-0">É aluno? <a href="register.php"> Cadastre-se aqui</a></p>
       <p class="texto-professores mb-0 mt-2"><small>Professores: entre em contato com a secretaria para cadastro</small></p>
     </div>
   </div>

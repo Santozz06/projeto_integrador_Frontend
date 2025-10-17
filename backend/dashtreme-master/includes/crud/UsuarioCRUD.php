@@ -8,12 +8,34 @@ class UsuarioCRUD extends BaseCRUD
         parent::__construct($pdo, 'Usuarios', 'ID_Usuario');
     }
 
+    private function hasColumn($table, $column)
+    {
+        try {
+            $sql = "SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$table, $column]);
+            return (bool)$stmt->fetchColumn();
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
     // CADASTRO DE ALUNO
+    /**
+     * @param array $dadosUsuario
+     * @param string $matricula
+     * @return int ID do usuário criado
+     */
     public function cadastrarAluno($dadosUsuario, $matricula)
     {
         try {
             $this->pdo->beginTransaction();
             // 1. Cadastra na tabela Usuarios
+            if (empty($dadosUsuario['Senha'])) {
+                // Gera senha temporária segura (12 chars) se não veio do formulário
+                $dadosUsuario['Senha'] = bin2hex(random_bytes(6));
+            }
+            $dadosUsuario['Senha'] = password_hash($dadosUsuario['Senha'], PASSWORD_DEFAULT);
             $idUsuario = $this->criar($dadosUsuario);
             // 2. Cadastra na tabela Alunos
             $sqlAluno = "INSERT INTO Alunos (ID_Aluno, Matricula) VALUES (?, ?)";
@@ -28,6 +50,9 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // LISTAR ALUNOS COM PAGINAÇÃO
+    /**
+     * @return array<int, array<string,mixed>>
+     */
     public function listarAlunos($pagina = 1, $limite = 10, $filtro = '')
     {
         try {
@@ -66,6 +91,9 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // CONTAR TOTAL DE ALUNOS
+    /**
+     * @return int
+     */
     public function countAlunos($filtro = '')
     {
         try {
@@ -91,7 +119,11 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // CADASTRO DE PROFESSOR
-    public function cadastrarProfessor($dadosUsuario, $formacaoAcademica, $dataAdmissao, $areaAtuacao = null)
+    /**
+     * @param array $dadosUsuario
+     * @return int ID do professor criado
+     */
+    public function cadastrarProfessor($dadosUsuario, $formacaoAcademica, $dataAdmissao, $areaAtuacao = null, $matriculaProfessor = null)
     {
         try {
             $this->pdo->beginTransaction();
@@ -102,7 +134,8 @@ class UsuarioCRUD extends BaseCRUD
 
             $stmtUsuario = $this->pdo->prepare($sqlUsuario);
             $stmtUsuario->execute([
-                $dadosUsuario['Login'],
+                // Login passa a ser o próprio Email para facilitar login por e-mail
+                $dadosUsuario['Email'],
                 $dadosUsuario['Nome_Completo'],
                 $dadosUsuario['Email'],
                 password_hash($dadosUsuario['Senha'], PASSWORD_DEFAULT),
@@ -122,16 +155,17 @@ class UsuarioCRUD extends BaseCRUD
 
             $idUsuario = $this->pdo->lastInsertId();
 
-            // Inserir na tabela Professor 
-            $sqlProfessor = "INSERT INTO Professores (ID_Professor, Formacao, Data_Ingresso, Area_Atuacao) 
-                        VALUES (?, ?, ?, ?)";
+            // Inserir na tabela Professor (inclui Matricula quando fornecida)
+            $sqlProfessor = "INSERT INTO Professores (ID_Professor, Formacao, Data_Ingresso, Area_Atuacao, Matricula) 
+                        VALUES (?, ?, ?, ?, ?)";
 
             $stmtProfessor = $this->pdo->prepare($sqlProfessor);
             $stmtProfessor->execute([
                 $idUsuario,
                 $formacaoAcademica,
                 $dataAdmissao,
-                $areaAtuacao
+                $areaAtuacao,
+                $matriculaProfessor
             ]);
 
             $this->pdo->commit();
@@ -144,7 +178,10 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // ATUALIZAR PROFESSOR
-    public function atualizarProfessor($idProfessor, $dadosUsuario, $formacaoAcademica, $dataAdmissao, $areaAtuacao = null)
+    /**
+     * @return void
+     */
+    public function atualizarProfessor($idProfessor, $dadosUsuario, $formacaoAcademica, $dataAdmissao, $areaAtuacao = null, $matriculaProfessor = null)
     {
         try {
             $this->pdo->beginTransaction();
@@ -165,7 +202,8 @@ class UsuarioCRUD extends BaseCRUD
             $stmtUsuario = $this->pdo->prepare($sqlUsuario);
 
             $params = [
-                $dadosUsuario['Login'],
+                // Login atualizado para e-mail
+                $dadosUsuario['Email'],
                 $dadosUsuario['Nome_Completo'],
                 $dadosUsuario['Email'],
                 $dadosUsuario['Data_Nascimento'],
@@ -191,7 +229,7 @@ class UsuarioCRUD extends BaseCRUD
 
             // Atualizar tabela Professores
             $sqlProfessor = "UPDATE Professores SET 
-                        Formacao = ?, Data_Ingresso = ?, Area_Atuacao = ?
+                        Formacao = ?, Data_Ingresso = ?, Area_Atuacao = ?, Matricula = ?
                         WHERE ID_Professor = ?";
 
             $stmtProfessor = $this->pdo->prepare($sqlProfessor);
@@ -199,6 +237,7 @@ class UsuarioCRUD extends BaseCRUD
                 $formacaoAcademica,
                 $dataAdmissao,
                 $areaAtuacao,
+                $matriculaProfessor,
                 $idProfessor
             ]);
 
@@ -211,12 +250,18 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // ATUALIZAR ALUNO
+    /**
+     * @return int ID do usuário atualizado
+     */
     public function atualizarAluno($idUsuario, $dadosUsuario, $matricula)
     {
         try {
             $this->pdo->beginTransaction();
 
             // Atualiza a tabela Usuarios (assumindo que o método `atualizar` existe na BaseCRUD)
+            if (isset($dadosUsuario['Senha']) && !empty($dadosUsuario['Senha'])) {
+                $dadosUsuario['Senha'] = password_hash($dadosUsuario['Senha'], PASSWORD_DEFAULT);
+            }
             $this->atualizar($idUsuario, $dadosUsuario);
 
             // Atualiza a matrícula na tabela Alunos
@@ -233,6 +278,9 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // BUSCAR ALUNO COMPLETO
+    /**
+     * @return array|false
+     */
     public function buscarAlunoCompleto($idAluno)
     {
         try {
@@ -250,10 +298,17 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // BUSCAR PROFESSOR COMPLETO
+    /**
+     * @return array|false
+     */
     public function buscarProfessorCompleto($idProfessor)
     {
-        $sql = "SELECT u.*, p.Formacao, p.Data_Ingresso, p.Area_Atuacao 
-            FROM Usuarios u 
+        $temMatricula = $this->hasColumn('Professores', 'Matricula');
+        $select = $temMatricula
+            ? "SELECT u.*, p.Formacao, p.Data_Ingresso, p.Area_Atuacao, p.Matricula"
+            : "SELECT u.*, p.Formacao, p.Data_Ingresso, p.Area_Atuacao";
+
+        $sql = $select . " FROM Usuarios u 
             INNER JOIN Professores p ON u.ID_Usuario = p.ID_Professor 
             WHERE u.ID_Usuario = ?";
 
@@ -265,10 +320,18 @@ class UsuarioCRUD extends BaseCRUD
 
 
     // LISTAR PROFESSORES COM PAGINAÇÃO
+    /**
+     * @return array<int, array<string,mixed>>
+     */
     public function listarProfessores($pagina = 1, $limite = 10)
     {
         $offset = ($pagina - 1) * $limite;
-        $sql = "SELECT u.*, p.Formacao AS Formacao_Academica, p.Data_Ingresso, p.Area_Atuacao 
+        $temMatricula = $this->hasColumn('Professores', 'Matricula');
+        $select = $temMatricula
+            ? "SELECT u.*, p.Formacao AS Formacao_Academica, p.Data_Ingresso, p.Area_Atuacao, p.Matricula"
+            : "SELECT u.*, p.Formacao AS Formacao_Academica, p.Data_Ingresso, p.Area_Atuacao";
+
+        $sql = $select . "
             FROM Usuarios u 
             INNER JOIN Professores p ON u.ID_Usuario = p.ID_Professor 
             ORDER BY u.Nome_Completo
@@ -282,6 +345,9 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // CONTAR TOTAL DE PROFESSORES
+    /**
+     * @return int
+     */
     public function countProfessores()
     {
         $sql = "SELECT COUNT(u.ID_Usuario) 
@@ -293,6 +359,9 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // VERIFICAR SE EMAIL JÁ EXISTE
+    /**
+     * @return bool
+     */
     public function emailExiste($email, $idUsuarioExcluir = null)
     {
         try {
@@ -314,6 +383,9 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // VERIFICAR SE CPF JÁ EXISTE
+    /**
+     * @return bool
+     */
     public function cpfExiste($cpf, $idUsuarioExcluir = null)
     {
         try {
@@ -335,6 +407,9 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // BUSCAR POR TIPO (ALUNO/PROFESSOR/ADMIN)
+    /**
+     * @return array|false
+     */
     public function buscarPorTipo($tipo, $idUsuario)
     {
         try {

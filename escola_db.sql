@@ -159,6 +159,7 @@ CREATE TABLE `Matriculas` (
   `ID_Turma` int NOT NULL,
   `Data_Matricula` date NOT NULL,
   `Status` varchar(20) DEFAULT 'Ativa',
+  `Data_Saida` date DEFAULT NULL,
   `Tipo_Matricula` varchar(20) DEFAULT NULL,
   `Ano_Letivo` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

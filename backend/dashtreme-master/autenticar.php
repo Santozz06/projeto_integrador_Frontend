@@ -9,15 +9,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     try {
         // Consulta o usuário
-        $sql = "SELECT u.ID_Usuario, u.Login, u.Senha, u.Nome_Completo, u.Email, u.IsAdmin 
-                FROM Usuarios u 
-                WHERE (u.Login = ? OR u.Email = ?)";
+    $sql = "SELECT u.ID_Usuario, u.Login, u.Senha, u.Nome_Completo, u.Email, u.IsAdmin 
+        FROM Usuarios u 
+        WHERE (u.Login = ? OR u.Email = ?)";
         
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$login, $login]);
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        if ($usuario && $senha === $usuario['Senha']) {
+        $senhaValida = false;
+        if ($usuario) {
+            $hash = $usuario['Senha'];
+            // Suporta hash (bcrypt/argon) e texto puro legado
+            if (is_string($hash) && strlen($hash) > 0 && (strpos($hash, '$2y$') === 0 || strpos($hash, '$argon2') === 0)) {
+                $senhaValida = password_verify($senha, $hash);
+            } else {
+                $senhaValida = ($senha === $hash);
+            }
+        }
+
+        if ($usuario && $senhaValida) {
             
             // VERIFICAÇÃO ESPECÍFICA PARA CADA TIPO
             if (validarTipoUsuario($pdo, $usuario, $tipoUsuario)) {
@@ -31,17 +42,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 redirecionarUsuario($tipoUsuario);
                 exit();
             } else {
-                header('Location: index.php?status=erro_tipo');
+                header('Location: login.php?status=erro_tipo');
                 exit();
             }
         }
-        
-        header('Location: index.php?status=erro');
+
+        header('Location: login.php?status=erro');
         exit();
         
     } catch (PDOException $e) {
         error_log("Erro de autenticação: " . $e->getMessage());
-        header('Location: index.php?status=erro');
+    header('Location: login.php?status=erro');
         exit();
     }
 }

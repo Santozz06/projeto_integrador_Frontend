@@ -27,6 +27,7 @@ $nome = '';
 $matricula = '';
 $situacao = '';
 $vinculos = [];
+$historicoVinculos = [];
 $modoSelecao = empty($tipo) || empty($id);
 
 // Se tem parâmetros, buscar dados do usuário específico
@@ -37,9 +38,10 @@ if (!$modoSelecao) {
         $nome = $usuario['Nome_Completo'] ?? '';
         $matricula = $usuario['Matricula'] ?? '';
     } else {
-        $usuario = $usuarioCRUD->buscarProfessorCompleto($id);
-        $nome = $usuario['Nome_Completo'] ?? '';
-        $matricula = ''; // Servidores podem não ter matrícula
+    $usuario = $usuarioCRUD->buscarProfessorCompleto($id);
+    $nome = $usuario['Nome_Completo'] ?? '';
+    // Servidores: usar matrícula de professor quando existir; fallback para Registro/Login
+    $matricula = $usuario['Matricula'] ?? ($usuario['Registro'] ?? ($usuario['Login'] ?? ''));
     }
 
     // Buscar situação atual
@@ -48,6 +50,10 @@ if (!$modoSelecao) {
     // Buscar vínculos atuais
     if ($tipo === 'aluno') {
         $vinculos = $vinculoCRUD->listarVinculosAluno($id);
+        // Buscar histórico de vínculos (matrículas inativas)
+        if (method_exists($vinculoCRUD, 'listarHistoricoVinculosAluno')) {
+            $historicoVinculos = $vinculoCRUD->listarHistoricoVinculosAluno($id);
+        }
     } else {
         $vinculos = $vinculoCRUD->listarVinculosProfessor($id);
     }
@@ -148,6 +154,9 @@ if (!$modoSelecao) {
         .usuario-card.selected {
             border-color: #1abc9c;
             background-color: #f8f9fa;
+        }
+        .content-wrapper .text-muted {
+            color: #cbd3da !important; 
         }
     </style>
 </head>
@@ -283,7 +292,7 @@ if (!$modoSelecao) {
                         <div class="row mt-3">
                             <div class="col-md-6">
                                 <p><span class="info-label">Nome:</span> <span id="nomeUsuario"><?= htmlspecialchars($nome) ?></span></p>
-                                <?php if ($tipo === 'aluno'): ?>
+                                <?php if (!empty($matricula)): ?>
                                     <p><span class="info-label">Matrícula:</span> <span id="matriculaUsuario"><?= htmlspecialchars($matricula) ?></span></p>
                                 <?php endif; ?>
                                 <p><span class="info-label">Situação:</span> <span id="situacaoAtual"><?= htmlspecialchars($situacao) ?></span></p>
@@ -322,6 +331,29 @@ if (!$modoSelecao) {
                                         Remover Vínculo
                                     </button>
                                 <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <?php if ($tipo === 'aluno' && !empty($historicoVinculos)): ?>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Histórico de Vínculos</h5>
+                        <?php foreach ($historicoVinculos as $v): ?>
+                            <div class="vinculo-item" style="border-left-color:#6c757d;">
+                                <p class="mb-1">
+                                    <strong><?= htmlspecialchars($v['Nome_Turma']) ?></strong> - 
+                                    <?= htmlspecialchars($v['Ano_Letivo']) ?> - 
+                                    <?= htmlspecialchars($v['Turno']) ?>
+                                </p>
+                                <small class="text-muted">
+                                    Ingresso: <?= htmlspecialchars($v['Data_Matricula']) ?>
+                                    <?php if (!empty($v['Data_Saida'])): ?>
+                                        | Saída: <?= htmlspecialchars($v['Data_Saida']) ?>
+                                    <?php endif; ?>
+                                </small>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -392,6 +424,7 @@ if (!$modoSelecao) {
                 $.ajax({
                     url: '../includes/ajax/vincular_usuario_turma.php',
                     type: 'POST',
+                    dataType: 'json',
                     data: {
                         tipo: tipoUsuario,
                         usuario_id: idUsuario,
@@ -425,6 +458,7 @@ if (!$modoSelecao) {
                 $.ajax({
                     url: '../includes/ajax/remover_vinculo.php',
                     type: 'POST',
+                    dataType: 'json',
                     data: {
                         tipo: 'aluno',
                         id_matricula: idMatricula
@@ -450,6 +484,7 @@ if (!$modoSelecao) {
                 $.ajax({
                     url: '../includes/ajax/remover_vinculo.php',
                     type: 'POST',
+                    dataType: 'json',
                     data: {
                         tipo: 'professor',
                         id_professor: idProfessor,

@@ -33,9 +33,9 @@ class VinculoCRUD extends BaseCRUD
                 throw new Exception("A turma atingiu sua capacidade máxima de alunos.");
             }
 
-            // Fazer o vínculo
-            $sql = "INSERT INTO Matriculas (ID_Aluno, ID_Turma, Data_Matricula, Status) 
-                    VALUES (?, ?, NOW(), 'Ativa')";
+        // Fazer o vínculo (usar CURDATE() pois a coluna é do tipo DATE)
+        $sql = "INSERT INTO Matriculas (ID_Aluno, ID_Turma, Data_Matricula, Status) 
+            VALUES (?, ?, CURDATE(), 'Ativa')";
             $stmt = $this->pdo->prepare($sql);
             return $stmt->execute([$idAluno, $idTurma]);
 
@@ -85,6 +85,24 @@ class VinculoCRUD extends BaseCRUD
         }
     }
 
+    // LISTAR HISTÓRICO DE VÍNCULOS (ALUNO) - matrículas inativas
+    public function listarHistoricoVinculosAluno($idAluno)
+    {
+        try {
+            $sql = "SELECT m.*, t.Nome_Turma, t.Ano_Letivo, t.Turno, t.Etapa
+                    FROM Matriculas m
+                    INNER JOIN Turmas t ON m.ID_Turma = t.ID_Turma
+                    WHERE m.ID_Aluno = ? AND m.Status = 'Inativa'
+                    ORDER BY m.Data_Saida DESC, t.Ano_Letivo DESC, t.Nome_Turma";
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$idAluno]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Erro ao listar histórico de vínculos do aluno: " . $e->getMessage());
+        }
+    }
+
     // LISTAR VÍNCULOS DO PROFESSOR
     public function listarVinculosProfessor($idProfessor)
     {
@@ -107,10 +125,21 @@ class VinculoCRUD extends BaseCRUD
     public function removerVinculoAluno($idMatricula)
     {
         try {
-            $sql = "UPDATE Matriculas SET Status = 'Inativa', Data_Saida = NOW() WHERE ID_Matricula = ?";
+            // Tenta registrar a Data_Saida (se a coluna existir) usando CURDATE() (coluna DATE)
+            $sql = "UPDATE Matriculas SET Status = 'Inativa', Data_Saida = CURDATE() WHERE ID_Matricula = ?";
             $stmt = $this->pdo->prepare($sql);
             return $stmt->execute([$idMatricula]);
         } catch (PDOException $e) {
+            // Fallback para schemas antigos sem a coluna Data_Saida
+            if (strpos($e->getMessage(), 'Unknown column') !== false) {
+                try {
+                    $sql = "UPDATE Matriculas SET Status = 'Inativa' WHERE ID_Matricula = ?";
+                    $stmt = $this->pdo->prepare($sql);
+                    return $stmt->execute([$idMatricula]);
+                } catch (PDOException $e2) {
+                    throw new Exception("Erro ao remover vínculo do aluno: " . $e2->getMessage());
+                }
+            }
             throw new Exception("Erro ao remover vínculo do aluno: " . $e->getMessage());
         }
     }

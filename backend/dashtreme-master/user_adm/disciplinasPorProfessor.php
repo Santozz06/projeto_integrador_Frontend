@@ -121,11 +121,9 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="periodo-filter">Período Letivo</label>
-                                    <select class="form-control" id="periodo-filter">
-                                        <option value="">2024 - 1º Semestre</option>
-                                        <option>2023 - 2º Semestre</option>
-                                        <option>2023 - 1º Semestre</option>
+                                    <label for="ano-filter">Ano Letivo</label>
+                                    <select class="form-control" id="ano-filter">
+                                        <option value="">Todos</option>
                                     </select>
                                 </div>
                             </div>
@@ -134,9 +132,6 @@
                                     <label for="professor-filter">Professor</label>
                                     <select class="form-control" id="professor-filter">
                                         <option value="">Todos Professores</option>
-                                        <option>Maria da Silva</option>
-                                        <option>João Oliveira</option>
-                                        <option>Ana Santos</option>
                                     </select>
                                 </div>
                             </div>
@@ -145,9 +140,6 @@
                                     <label for="disciplina-filter">Disciplina</label>
                                     <select class="form-control" id="disciplina-filter">
                                         <option value="">Todas Disciplinas</option>
-                                        <option>Matemática</option>
-                                        <option>Português</option>
-                                        <option>Ciências</option>
                                     </select>
                                 </div>
                             </div>
@@ -155,6 +147,7 @@
                     </div>
 
                     <div class="table-responsive">
+                        <div id="alert-placeholder" class="no-print"></div>
                         <table class="table table-bordered" id="disciplines-table">
                             <thead>
                                 <tr>
@@ -165,50 +158,7 @@
                                     <th>Carga Horária</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <img src="../user_adm/imagens/icon_sor.png" class="teacher-photo mr-2"
-                                            alt="Professor" onerror="this.src='../assets/images/default-user.png'">
-                                        Maria da Silva
-                                    </td>
-                                    <td>PROF2023001</td>
-                                    <td>
-                                        <span class="badge discipline-badge">Matemática</span>
-                                        <span class="badge discipline-badge">Geometria</span>
-                                    </td>
-                                    <td>1ºA, 2ºB, 3ºC</td>
-                                    <td>20h/semana</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <img src="../user_adm/imagens/icon_sor.png" class="teacher-photo mr-2"
-                                            alt="Professor" onerror="this.src='../assets/images/default-user.png'">
-                                        João Oliveira
-                                    </td>
-                                    <td>PROF2023002</td>
-                                    <td>
-                                        <span class="badge discipline-badge">Ciências</span>
-                                        <span class="badge discipline-badge">Biologia</span>
-                                    </td>
-                                    <td>1ºB, 2ºC</td>
-                                    <td>15h/semana</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <img src="../user_adm/imagens/icon_sor.png" class="teacher-photo mr-2"
-                                            alt="Professor" onerror="this.src='../assets/images/default-user.png'">
-                                        Ana Santos
-                                    </td>
-                                    <td>PROF2023003</td>
-                                    <td>
-                                        <span class="badge discipline-badge">Português</span>
-                                        <span class="badge discipline-badge">Literatura</span>
-                                    </td>
-                                    <td>1ºC, 2ºA, 3ºB</td>
-                                    <td>18h/semana</td>
-                                </tr>
-                            </tbody>
+                            <tbody></tbody>
                         </table>
                     </div>
                 </div>
@@ -228,39 +178,139 @@
     
     <script>
         $(document).ready(function () {
+            const $ano = $('#ano-filter');
+            const $prof = $('#professor-filter');
+            const $disc = $('#disciplina-filter');
+
             const table = $('#disciplines-table').DataTable({
                 responsive: true,
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/pt-BR.json'
-                },
+                language: { url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/pt-BR.json' },
                 dom: '<"top"f>rt<"bottom"lip><"clear">'
             });
 
-            // Filtros
-            $('#professor-filter, #disciplina-filter').change(function () {
-                table.draw();
-            });
+            function carregarAnos() {
+                $.getJSON('../includes/ajax/listar_anos_letivos.php', function (resp) {
+                    if (resp.success) {
+                        resp.data.forEach(ano => $ano.append(`<option value="${ano}">${ano}</option>`));
+                    }
+                });
+            }
 
-            // Filtro personalizado
-            $.fn.dataTable.ext.search.push(
-                function (settings, data) {
-                    const professor = $('#professor-filter').val();
-                    const disciplina = $('#disciplina-filter').val();
-                    const rowProfessor = data[0];
-                    const rowDisciplinas = data[2];
+            function carregarProfessores() {
+                // Reutiliza endpoint de professores (sem filtros) para popular select
+                $.getJSON('../includes/ajax/listar_professores.php', function (resp) {
+                    if (resp.success) {
+                        $prof.empty().append('<option value="">Todos Professores</option>');
+                        resp.data.forEach(p => $prof.append(`<option value="${p.ID_Professor}">${p.Nome_Completo}</option>`));
+                    }
+                });
+            }
 
-                    return (!professor || rowProfessor.includes(professor)) &&
-                        (!disciplina || rowDisciplinas.includes(disciplina));
-                }
-            );
+            function carregarDisciplinas() {
+                const ano = $ano.val();
+                $.getJSON('../includes/ajax/listar_disciplinas_distintas.php', { ano }, function (resp) {
+                    if (resp.success) {
+                        $disc.empty().append('<option value="">Todas Disciplinas</option>');
+                        resp.data.forEach(d => $disc.append(`<option value="${d}">${d}</option>`));
+                    }
+                });
+            }
+
+            function showAlert(type, msg) {
+                const html = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${msg}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>`;
+                $('#alert-placeholder').html(html);
+                setTimeout(()=> $('.alert').alert('close'), 5000);
+            }
+
+            function carregarTabela() {
+                const params = {
+                    ano: $ano.val(),
+                    professor_id: $prof.val(),
+                    disciplina: $disc.val()
+                };
+                $.getJSON('../includes/ajax/listar_disciplinas_por_professor.php', params, function (resp) {
+                    table.clear();
+                    if (resp.success) {
+                        let rowsWithDisc = 0;
+                        resp.data.forEach(r => {
+                            const profCell = `
+                                <img src="../user_adm/imagens/icon_sor.png" class="teacher-photo mr-2" alt="Professor" onerror="this.src='../assets/images/default-user.png'">
+                                ${r.Nome_Completo}
+                            `;
+                            const disciplinas = (r.Disciplinas || '').split(', ').filter(Boolean);
+                            const discHtml = disciplinas.map(d => `<span class=\"badge discipline-badge\">${d}</span>`).join(' ');
+                            if (disciplinas.length > 0) rowsWithDisc++;
+                            const turmas = r.Turmas || '';
+                            const carga = r.Carga_Total ? (r.Carga_Total + 'h/semana') : '';
+                            table.row.add([
+                                profCell,
+                                r.Matricula || '',
+                                discHtml,
+                                turmas,
+                                carga
+                            ]);
+                        });
+                        // Se um professor específico foi selecionado e não há disciplinas, mostrar orientação
+                        if ($prof.val() && rowsWithDisc === 0) {
+                            // Fallback client-side: buscar disciplinas diretamente atribuídas
+                            const fparams = { ano: $ano.val(), professor_id: $prof.val() };
+                            $.getJSON('../includes/ajax/disciplinas/listar_disciplinas.php', fparams, function(r2){
+                                if (r2.success && Array.isArray(r2.data) && r2.data.length > 0 && resp.data.length > 0) {
+                                    const profRow = resp.data[0];
+                                    const profCell = `
+                                        <img src="../user_adm/imagens/icon_sor.png" class="teacher-photo mr-2" alt="Professor" onerror="this.src='../assets/images/default-user.png'">
+                                        ${profRow.Nome_Completo}
+                                    `;
+                                    const nomes = r2.data.map(d => d.Nome_Disciplina).filter(Boolean).sort();
+                                    const discHtml = nomes.map(d => `<span class=\"badge discipline-badge\">${d}</span>`).join(' ');
+                                    const cargaTotal = r2.data.reduce((acc, d) => acc + (parseInt(d.Carga_Horaria || 0) || 0), 0);
+                                    table.clear();
+                                    table.row.add([
+                                        profCell,
+                                        profRow.Matricula || '',
+                                        discHtml,
+                                        profRow.Turmas || '',
+                                        cargaTotal ? (cargaTotal + 'h/semana') : ''
+                                    ]).draw();
+                                    $('#alert-placeholder').empty();
+                                } else {
+                                    const anoTxt = $ano.val() ? ` no ano ${$ano.val()}` : '';
+                                    showAlert('warning', `Nenhuma disciplina atribuída para o professor selecionado${anoTxt}. Você pode atribuir disciplinas em Disciplinas → <a href=\"atribuirDisciplinas.php\">Atribuir a Professores</a>.`);
+                                }
+                            }).fail(function(){
+                                const anoTxt = $ano.val() ? ` no ano ${$ano.val()}` : '';
+                                showAlert('warning', `Nenhuma disciplina atribuída para o professor selecionado${anoTxt}. Você pode atribuir disciplinas em Disciplinas → <a href=\"atribuirDisciplinas.php\">Atribuir a Professores</a>.`);
+                            });
+                        } else {
+                            $('#alert-placeholder').empty();
+                        }
+                    }
+                    table.draw();
+                }).fail(function(xhr){
+                    const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Erro ao carregar disciplinas por professor.';
+                    showAlert('danger', msg);
+                });
+            }
+
+            $ano.on('change', function(){ carregarDisciplinas(); carregarTabela(); });
+            $prof.on('change', carregarTabela);
+            $disc.on('change', carregarTabela);
+
+            carregarAnos();
+            carregarProfessores();
+            carregarDisciplinas();
+            carregarTabela();
 
             $('#print-btn').click(function () {
                 const originalTitle = document.title;
                 document.title = 'Disciplinas por Professor - Dashboard Acadêmico';
-
                 $('.no-print').hide();
                 $('body').addClass('printing');
-
                 setTimeout(() => {
                     window.print();
                     $('.no-print').show();

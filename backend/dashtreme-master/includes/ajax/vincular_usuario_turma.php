@@ -1,6 +1,7 @@
 <?php
-require_once '../../bootstrap.php';
-require_once '../../conexao.php';
+// Ajuste de caminhos: este arquivo está em includes/ajax, então bootstrap/conexao estão um nível acima
+require_once '../bootstrap.php';
+require_once '../conexao.php';
 
 header('Content-Type: application/json');
 
@@ -19,7 +20,7 @@ if (empty($tipo) || empty($usuario_id) || empty($turma_id)) {
 }
 
 try {
-    require_once '../../includes/crud/VinculoCRUD.php';
+    require_once '../crud/VinculoCRUD.php';
     $vinculoCRUD = new VinculoCRUD($pdo);
 
     if ($tipo === 'aluno') {

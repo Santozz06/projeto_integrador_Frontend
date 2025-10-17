@@ -148,35 +148,15 @@
                             <div class="form-group">
                                 <label for="year-select">Ano Letivo</label>
                                 <select class="form-control" id="year-select">
-                                    <option>2023</option>
-                                    <option selected>2024</option>
-                                    <option>2025</option>
+                                    <option value="">Selecione o ano</option>
                                 </select>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="grade-select">Série/Turma</label>
-                                <select class="form-control" id="grade-select">
-                                    <option value="">Selecione uma turma</option>
-                                    <option value="1A">1º Ano - Turma A</option>
-                                    <option value="1B">1º Ano - Turma B</option>
-                                    <option value="2A">2º Ano - Turma A</option>
-                                    <option value="2B">2º Ano - Turma B</option>
-                                    <option value="3A">3º Ano - Turma A</option>
-                                    <option value="3B">3º Ano - Turma B</option>
-                                    <option value="4A">4º Ano - Turma A</option>
-                                    <option value="4B">4º Ano - Turma B</option>
-                                    <option value="5A">5º Ano - Turma A</option>
-                                    <option value="5B">5º Ano - Turma B</option>
-                                    <option value="6A">6º Ano - Turma A</option>
-                                    <option value="6B">6º Ano - Turma B</option>
-                                    <option value="7A">7º Ano - Turma A</option>
-                                    <option value="7B">7º Ano - Turma B</option>
-                                    <option value="8A">8º Ano - Turma A</option>
-                                    <option value="8B">8º Ano - Turma B</option>
-                                    <option value="9A">9º Ano - Turma A</option>
-                                    <option value="9B">9º Ano - Turma B</option>
+                                <select class="form-control" id="grade-select" disabled>
+                                    <option value="">Selecione o ano primeiro</option>
                                 </select>
                             </div>
                         </div>
@@ -240,102 +220,128 @@
     
 
     <script>
-        // Dados de exemplo 
-        const sampleStudents = {
-            "1A": [
-                { id: 1, name: "Aluno 1", photo: "../user_adm/imagens/icon_ex1.jpg", registration: "202411001", status: "Ativo" },
-                { id: 2, name: "Aluno 2", photo: "../user_adm/imagens/icon_ex2.jpg", registration: "202411002", status: "Ativo" },
-                { id: 3, name: "Aluno 3", photo: "../user_adm/imagens/icon_ex3.jpg", registration: "202411003", status: "Ativo" }
-            ],
-            "1B": [
-                { id: 4, name: "Aluno 1", photo: "../user_adm/imagens/icon_ex4.jpg", registration: "202411004", status: "Ativo" },
-                { id: 5, name: "Aluno 2", photo: "../user_adm/imagens/icon_ex5.jpg", registration: "202411005", status: "Ativo" }
-            ],
-            "2A": [
-                { id: 6, name: "Aluno 1", photo: "../user_adm/imagens/icon_ex6.jpg", registration: "202421001", status: "Ativo" },
-                { id: 7, name: "Aluno 2", photo: "../user_adm/imagens/icon_ex7.jpg", registration: "202421002", status: "Ativo" },
-                { id: 8, name: "Aluno 3", photo: "../user_adm/imagens/icon_ex8.jpg", registration: "202421003", status: "Ativo" }
-            ]
-            // ... outros dados para outras turmas
-        };
-
         $(document).ready(function () {
             // Atualiza a data para impressão
             const now = new Date();
             $('#print-date').text('Emitido em: ' + now.toLocaleDateString() + ' às ' + now.toLocaleTimeString());
 
-            // Manipula a seleção de turma
-            $('#grade-select').change(function () {
-                const selectedClass = $(this).val();
+            // Carregar anos dinamicamente
+            $.getJSON('../includes/ajax/listar_anos_letivos.php', function (resp) {
+                if (resp.success) {
+                    const $year = $('#year-select');
+                    resp.data.forEach(ano => {
+                        $year.append(`<option value="${ano}">${ano}</option>`);
+                    });
+                }
+            });
 
-                if (selectedClass) {
+            // Ao mudar ano ou turno, carregar turmas
+            function carregarTurmas() {
+                const ano = $('#year-select').val();
+                const turno = $('#shift-select').val();
+                const $turma = $('#grade-select');
+
+                $turma.prop('disabled', true).empty();
+                if (!ano) {
+                    $turma.append('<option value="">Selecione o ano primeiro</option>');
+                    return;
+                }
+
+                $turma.append('<option value="">Carregando...</option>');
+                $.getJSON('../includes/ajax/listar_turmas.php', { ano, turno }, function (resp) {
+                    $turma.empty();
+                    if (resp.success && resp.data.length) {
+                        $turma.append('<option value="">Selecione uma turma</option>');
+                        resp.data.forEach(t => {
+                            const label = `${t.Nome_Turma} - ${t.Ano_Letivo}${t.Turno ? ' - ' + t.Turno : ''}`;
+                            $turma.append(`<option value="${t.ID_Turma}">${label}</option>`);
+                        });
+                        $turma.prop('disabled', false);
+                    } else {
+                        $turma.append('<option value="">Nenhuma turma encontrada</option>');
+                    }
+                });
+            }
+
+            $('#year-select').on('change', function(){
+                $('#empty-state').show();
+                $('#students-list').hide();
+                carregarTurmas();
+            });
+            $('#shift-select').on('change', carregarTurmas);
+
+            // Ao selecionar turma, carregar alunos
+            $('#grade-select').on('change', function(){
+                const turmaId = $(this).val();
+                if (turmaId) {
                     $('#empty-state').hide();
                     $('#students-list').show();
-
-                    // Atualiza o título da turma
                     const classText = $('#grade-select option:selected').text();
                     $('#class-title').text('Alunos da Turma: ' + classText);
-
-                    // Carrega os alunos (simulação)
-                    loadStudents(selectedClass);
+                    carregarAlunos(turmaId);
                 } else {
                     $('#empty-state').show();
                     $('#students-list').hide();
                 }
             });
 
-            // Função para carregar alunos
-            function loadStudents(classId) {
-                const students = sampleStudents[classId] || [];
-                $('#students-count').text(students.length + ' alunos');
-
+            function carregarAlunos(turmaId) {
                 const $grid = $('#students-grid');
-                $grid.empty();
+                $grid.empty().append('<div class="col-12 text-center text-muted">Carregando alunos...</div>');
+                $.getJSON('../includes/ajax/listar_alunos_por_turma.php', { turma_id: turmaId }, function (resp) {
+                    $grid.empty();
+                    if (resp.success) {
+                        const students = resp.data;
+                        $('#students-count').text(students.length + ' alunos');
+                        if (!students.length) {
+                            $grid.html(`
+                                <div class="col-12">
+                                    <div class="empty-state">
+                                        <i class="zmdi zmdi-info-outline"></i>
+                                        <h5>Nenhum aluno matriculado nesta turma</h5>
+                                        <p class="text-muted">Não há alunos cadastrados para a turma selecionada.</p>
+                                    </div>
+                                </div>
+                            `);
+                            return;
+                        }
 
-                if (students.length === 0) {
-                    $grid.html(`
-                        <div class="col-12">
-                            <div class="empty-state">
-                                <i class="zmdi zmdi-info-outline"></i>
-                                <h5>Nenhum aluno matriculado nesta turma</h5>
-                                <p class="text-muted">Não há alunos cadastrados para a turma selecionada.</p>
-                            </div>
-                        </div>
-                    `);
-                    return;
-                }
-
-                students.forEach(student => {
-                    $grid.append(`
-                        <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="card student-card">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center">
-                                        <img src="${student.photo}" alt="${student.name}" class="student-photo mr-3">
-                                        <div>
-                                            <h6 class="mb-1">${student.name}</h6>
-                                            <p class="mb-1 text-white small">Matrícula: ${student.registration}</p>
-                                            <span class="badge ${student.status === 'Ativo' ? 'badge-success' : 'badge-warning'}">${student.status}</span>
+                        students.forEach(student => {
+                            const nome = student.Nome_Completo;
+                            const matricula = student.Matricula || '—';
+                            const status = student.Status === 'Ativa' ? 'Ativo' : 'Inativo';
+                            $grid.append(`
+                                <div class="col-md-6 col-lg-4 mb-4">
+                                    <div class="card student-card">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center">
+                                                <img src="../user_adm/imagens/icon_ex1.jpg" alt="${nome}" class="student-photo mr-3">
+                                                <div>
+                                                    <h6 class="mb-1">${nome}</h6>
+                                                    <p class="mb-1 text-white small">Matrícula: ${matricula}</p>
+                                                    <span class="badge ${status === 'Ativo' ? 'badge-success' : 'badge-warning'}">${status}</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    `);
+                            `);
+                        });
+                    } else {
+                        $('#students-count').text('0 alunos');
+                        $grid.html('<div class="col-12 text-danger">Falha ao carregar alunos: ' + (resp.message || 'Erro desconhecido') + '</div>');
+                    }
+                }).fail(function(){
+                    $grid.html('<div class="col-12 text-danger">Erro ao consultar o servidor.</div>');
                 });
             }
 
-            // Função para imprimir/gerar PDF
+            // Imprimir/PDF
             $('#print-btn').click(function () {
                 if ($('#grade-select').val()) {
-                    // Configurações para impressão
                     const originalTitle = document.title;
                     document.title = 'Lista de Alunos - ' + $('#grade-select option:selected').text();
-
-                    // Ativa a impressão
                     window.print();
-
-                    // Restaura o título original
                     document.title = originalTitle;
                 } else {
                     alert('Por favor, selecione uma turma antes de gerar o relatório.');

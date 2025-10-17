@@ -69,6 +69,7 @@
                         <ul class="sidebar-submenu">
                             <li><a href="cadastrar.php"><i class="zmdi zmdi-plus-circle"></i> Cadastrar</a></li>
                             <li><a href="notas.php" class="active"><i class="zmdi zmdi-check-circle"></i> Notas</a></li>
+                            <li><a href="atribuirDisciplinas.php"><i class="zmdi zmdi-assignment"></i> Atribuir a Professores</a></li>
                         </ul>
                     </li>
                     <li>
