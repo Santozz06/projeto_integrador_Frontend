@@ -73,6 +73,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'Possui_Necessidades_Especiais' => (isset($_POST['nee']) && $_POST['nee'] === 'sim') ? 1 : 0
             ];
 
+            // Salvar Nacionalidade, Naturalidade e Filiação do aluno
+            // Nacionalidade (ex.: Brasil) vem diretamente do select de países
+            if (isset($_POST['nacionalidade']) && $_POST['nacionalidade'] !== '') {
+                $dadosUsuario['Nacionalidade'] = $_POST['nacionalidade'];
+            }
+
+            // Filiação (texto livre)
+            if (isset($_POST['filiacao']) && trim($_POST['filiacao']) !== '') {
+                $dadosUsuario['Filiacao'] = trim($_POST['filiacao']);
+            }
+
+            // Naturalidade: armazenamos o nome da cidade; se conseguirmos, concatenamos "/UF"
+            if (!empty($_POST['naturalidade'])) {
+                $municipioId = $_POST['naturalidade'];
+                $municipio = $localidadeCRUD->buscarMunicipio($municipioId);
+                $naturalidadeTexto = $municipio && !empty($municipio['nome']) ? $municipio['nome'] : '';
+
+                // Tenta buscar a sigla da UF selecionada para compor "Cidade/UF"
+                $ufSigla = '';
+                if (!empty($_POST['ufNaturalidade'])) {
+                    try {
+                        $stmtUf = $pdo->prepare("SELECT uf FROM estados WHERE codigo_uf = ?");
+                        $stmtUf->execute([$_POST['ufNaturalidade']]);
+                        $rowUf = $stmtUf->fetch(PDO::FETCH_ASSOC);
+                        if ($rowUf && !empty($rowUf['uf'])) {
+                            $ufSigla = $rowUf['uf'];
+                        }
+                    } catch (Exception $e) {
+                        // silencioso: se falhar, salvamos só o nome da cidade
+                    }
+                }
+
+                if ($naturalidadeTexto !== '') {
+                    $dadosUsuario['Naturalidade'] = $ufSigla ? ($naturalidadeTexto . '/' . $ufSigla) : $naturalidadeTexto;
+                }
+            }
+
             // Senha do aluno: obrigatória no cadastro; em edição só altera se informada e confirmar coincidir
             $senhaAluno = $_POST['senha'] ?? '';
             $confirmarSenhaAluno = $_POST['confirmarSenhaAluno'] ?? '';
@@ -174,7 +211,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $dadosUsuario,
                     $_POST['formacaoAcademica'],
                     $_POST['dataAdmissao'],
-                    $_POST['areaAtuacaoServidor'],
+                    null,
                     $_POST['matriculaServidor'] ?? null
                 );
                 $sucesso = "Servidor atualizado com sucesso!";
@@ -186,7 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $dadosUsuario,
                     $_POST['formacaoAcademica'],
                     $_POST['dataAdmissao'],
-                    $_POST['areaAtuacaoServidor'],
+                    null,
                     $_POST['matriculaServidor'] ?? null
                 );
                 $sucesso = "Servidor cadastrado com sucesso!";
@@ -1273,16 +1310,7 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>Área de Atuação</label>
-                                                <input type="text" class="form-control" name="areaAtuacaoServidor"
-                                                    required
-                                                    value="<?= htmlspecialchars($servidor_para_edicao['Area_Atuacao'] ?? '') ?>">
-                                            </div>
-                                        </div>
-                                    </div>
+                                    
                                 </div>
                                 <!-- Botões -->
                                 <div class="form-group row mt-3">
@@ -1629,7 +1657,7 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                         'cpfServidor', 'rgServidor', 'orgaoExpedidorServidor', 'ufDocumentoServidor',
                         'cepServidor', 'logradouroServidor', 'numeroServidor', 'bairroServidor',
                         'ufEnderecoServidor', 'municipioServidor', 'celularServidor', 'emailServidor',
-                        'formacaoAcademica', 'dataAdmissao', 'areaAtuacaoServidor'
+                        'formacaoAcademica', 'dataAdmissao'
                     ];
                 }
 

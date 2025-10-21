@@ -161,32 +161,40 @@
                                 <div class="form-group">
                                     <label for="ano-letivo">Ano Letivo</label>
                                     <select class="form-control" id="ano-letivo">
-                                        <option>2025</option>
-                                        <option>2024</option>
-                                        <option>2023</option>
+                                        <option value="">Selecione</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="serie">Série</label>
-                                    <select class="form-control" id="serie">
-                                        <option value="">Todas</option>
-                                        <option>1º Ano</option>
-                                        <option>2º Ano</option>
-                                        <option>3º Ano</option>
+                                    <label for="turno">Turno</label>
+                                    <select class="form-control" id="turno">
+                                        <option value="">Todos</option>
+                                        <option value="MATUTINO">Matutino</option>
+                                        <option value="VESPERTINO">Vespertino</option>
+                                        <option value="NOTURNO">Noturno</option>
+                                        <option value="INTEGRAL">Integral</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="turma">Turma</label>
-                                    <select class="form-control" id="turma">
-                                        <option value="">Selecione uma turma</option>
-                                        <option>Turma A</option>
-                                        <option>Turma B</option>
-                                        <option>Turma C</option>
+                                    <select class="form-control" id="turma" disabled>
+                                        <option value="">Selecione o ano</option>
                                     </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="data-inicio">Data início (opcional)</label>
+                                    <input type="date" class="form-control" id="data-inicio" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="data-fim">Data fim (opcional)</label>
+                                    <input type="date" class="form-control" id="data-fim" />
                                 </div>
                             </div>
                         </div>
@@ -231,101 +239,130 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         $(document).ready(function () {
-            // Dados de exemplo 
-            const alunosPorTurma = {
-                "Turma A": [
-                    {
-                        id: 1,
-                        nome: "Ana Silva",
-                        matricula: "20250001",
-                        curso: "Ensino Médio Integrado ao Técnico em Informática",
-                        frequencia: "85%",
-                        faltas: 12,
-                        presencas: 68,
-                        totalAulas: 80
-                    },
-                    {
-                        id: 2,
-                        nome: "Bruno Oliveira",
-                        matricula: "20250002",
-                        curso: "Ensino Médio Integrado ao Técnico em Informática",
-                        frequencia: "92%",
-                        faltas: 6,
-                        presencas: 74,
-                        totalAulas: 80
-                    }
-                ],
-                "Turma B": [
-                    {
-                        id: 3,
-                        nome: "Carlos Souza",
-                        matricula: "20250003",
-                        curso: "Ensino Médio Regular",
-                        frequencia: "78%",
-                        faltas: 17,
-                        presencas: 63,
-                        totalAulas: 80
-                    },
-                    {
-                        id: 4,
-                        nome: "Daniela Costa",
-                        matricula: "20250004",
-                        curso: "Ensino Médio Regular",
-                        frequencia: "95%",
-                        faltas: 4,
-                        presencas: 76,
-                        totalAulas: 80
-                    }
-                ]
-            };
-
-            // Variável para armazenar aluno selecionado
             let alunoSelecionado = null;
+            let mapaFrequencia = []; // cache dos dados da turma
 
-            // Carrega alunos quando uma turma é selecionada
-            $('#turma').change(function () {
-                const turmaSelecionada = $(this).val();
-                const alunosContainer = $('#alunos-container');
+            const $ano = $('#ano-letivo');
+            const $turno = $('#turno');
+            const $turma = $('#turma');
+            const $inicio = $('#data-inicio');
+            const $fim = $('#data-fim');
+            const $alunosContainer = $('#alunos-container');
 
-                if (turmaSelecionada && alunosPorTurma[turmaSelecionada]) {
-                    alunosContainer.empty();
-
-                    alunosPorTurma[turmaSelecionada].forEach(aluno => {
-                        alunosContainer.append(`
-                            <div class="student-card p-3 mb-2" data-id="${aluno.id}">
-                                <h6>${aluno.nome}</h6>
-                                <small class="text-white">Matrícula: ${aluno.matricula} | Frequência: ${aluno.frequencia}</small>
-                            </div>
-                        `);
-                    });
-
-                    // Adiciona evento de clique nos cards de aluno
-                    $('.student-card').click(function () {
-                        $('.student-card').removeClass('selected');
-                        $(this).addClass('selected');
-
-                        const alunoId = $(this).data('id');
-                        alunoSelecionado = alunosPorTurma[turmaSelecionada].find(a => a.id == alunoId);
-
-                        $('#gerar-atestado').prop('disabled', false);
-                    });
-                } else {
-                    alunosContainer.html('<p class="text-white">Nenhum aluno encontrado para esta turma.</p>');
-                    $('#gerar-atestado').prop('disabled', true);
+            // Carrega anos letivos
+            $.getJSON('../includes/ajax/listar_anos_letivos.php', function (resp) {
+                if (resp.success) {
+                    $ano.empty().append('<option value="">Selecione</option>');
+                    resp.data.forEach(ano => $ano.append(`<option value="${ano}">${ano}</option>`));
                 }
             });
 
-            // Gera o atestado em PDF
-            $('#gerar-atestado').click(function () {
+            // Ao mudar Ano
+            $ano.on('change', function(){
+                const anoVal = $(this).val();
+                $turma.prop('disabled', true).empty().append('<option value="">Carregando...</option>');
+                alunoSelecionado = null;
+                $('#gerar-atestado').prop('disabled', true);
+                $alunosContainer.html('<p class="text-white">Selecione uma turma para visualizar os alunos.</p>');
+                if (!anoVal) {
+                    $turma.prop('disabled', true).empty().append('<option value="">Selecione o ano</option>');
+                    return;
+                }
+                carregarTurmas(anoVal, $turno.val());
+            });
+
+            // Ao mudar Turno
+            $turno.on('change', function(){
+                const anoVal = $ano.val();
+                if (anoVal) carregarTurmas(anoVal, $(this).val());
+            });
+
+            function carregarTurmas(ano, turno){
+                $turma.prop('disabled', true).empty().append('<option value="">Carregando...</option>');
+                $.getJSON('../includes/ajax/listar_turmas.php', { ano, turno }, function (resp) {
+                    $turma.empty();
+                    if (resp.success && resp.data.length) {
+                        $turma.append('<option value="">Selecione</option>');
+                        resp.data.forEach(t => $turma.append(`<option value="${t.ID_Turma}">${t.Nome_Turma} ${t.Etapa ? '('+t.Etapa+')' : ''}</option>`));
+                        $turma.prop('disabled', false);
+                    } else {
+                        $turma.append('<option value="">Nenhuma turma encontrada</option>');
+                    }
+                });
+            }
+
+            // Recarregar alunos quando turma/datas mudarem
+            $turma.on('change', carregarAlunos);
+            $inicio.on('change', carregarAlunos);
+            $fim.on('change', carregarAlunos);
+
+            function carregarAlunos(){
+                const turmaId = $turma.val();
+                alunoSelecionado = null;
+                $('#gerar-atestado').prop('disabled', true);
+                if (!turmaId) {
+                    $alunosContainer.html('<p class="text-white">Selecione uma turma para visualizar os alunos.</p>');
+                    return;
+                }
+                $alunosContainer.html('<p class="text-white">Carregando alunos...</p>');
+
+                const params = { turma_id: turmaId };
+                if ($inicio.val()) params.data_inicio = $inicio.val();
+                if ($fim.val()) params.data_fim = $fim.val();
+
+                $.getJSON('../includes/ajax/listar_frequencia_por_turma.php', params, function(resp){
+                    if (!resp.success) {
+                        $alunosContainer.html('<p class="text-muted">Erro ao carregar frequências.</p>');
+                        return;
+                    }
+                    const alunos = resp.data || [];
+                    mapaFrequencia = alunos;
+                    if (!alunos.length) {
+                        $alunosContainer.html('<p class="text-muted">Nenhum registro de frequência encontrado.</p>');
+                        return;
+                    }
+                    const html = alunos.map(a => `
+                        <div class="student-card p-3 mb-2" data-id="${a.Matricula}">
+                            <h6>${a.Nome_Completo}</h6>
+                            <small class="text-white">Matrícula: ${a.Matricula || '—'} | Frequência: ${a.Percentual}% (P: ${a.Presentes || 0} • F: ${a.Faltas || 0} • Total: ${a.Total_Registros || 0})</small>
+                        </div>
+                    `).join('');
+                    $alunosContainer.html(html);
+
+                    $('.student-card').click(function(){
+                        $('.student-card').removeClass('selected');
+                        $(this).addClass('selected');
+                        const id = $(this).data('id');
+                        const found = mapaFrequencia.find(x => String(x.Matricula) === String(id));
+                        if (found) {
+                            alunoSelecionado = found;
+                            $('#gerar-atestado').prop('disabled', false);
+                        }
+                    });
+                });
+            }
+
+            // Gera o atestado em PDF com dados reais
+            $('#gerar-atestado').click(function(){
                 if (!alunoSelecionado) return;
 
                 const dataAtual = new Date();
                 const dia = String(dataAtual.getDate()).padStart(2, '0');
                 const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
-                const ano = dataAtual.getFullYear();
-                const dataFormatada = `${dia}/${mes}/${ano}`;
+                const anoCorrente = dataAtual.getFullYear();
+                const dataFormatada = `${dia}/${mes}/${anoCorrente}`;
 
-                // Cria o conteúdo do PDF
+                const periodoTexto = ($inicio.val() && $fim.val())
+                    ? `no período de ${formatarDataBR($inicio.val())} a ${formatarDataBR($fim.val())}`
+                    : `no ano letivo de ${$ano.val()}`;
+
+                const turmaTexto = $('#turma option:selected').text();
+
+                const total = parseInt(alunoSelecionado.Total_Registros || 0, 10);
+                const presencas = parseInt(alunoSelecionado.Presentes || 0, 10);
+                const faltas = parseInt(alunoSelecionado.Faltas || 0, 10);
+                const perc = alunoSelecionado.Percentual != null ? alunoSelecionado.Percentual : (total > 0 ? Math.round((presencas/total)*100) : 0);
+
                 const pdfContent = `
                     <!DOCTYPE html>
                     <html lang="pt-br">
@@ -333,13 +370,7 @@
                         <meta charset="UTF-8">
                         <title>Atestado de Frequência</title>
                         <style>
-                            body {
-                                font-family: Arial, sans-serif;
-                                margin: 40px 60px;
-                                font-size: 16px;
-                                color: #000;
-                                line-height: 1.5;
-                            }
+                            body { font-family: Arial, sans-serif; margin: 40px 60px; font-size: 16px; color: #000; line-height: 1.5; }
                             .cabecalho { text-align: center; font-size: 14px; margin-bottom: 30px; line-height: 1.4; }
                             .titulo { text-align: center; font-weight: bold; font-size: 20px; margin: 30px 0; text-transform: uppercase; }
                             .texto { text-align: justify; line-height: 1.8; margin-bottom: 20px; }
@@ -366,10 +397,8 @@
                             <div class="titulo">ATESTADO DE FREQUÊNCIA</div>
 
                             <div class="texto">
-                                Atestamos, para os fins que se fizerem necessários, que o(a) estudante <strong>${alunoSelecionado.nome}</strong>, 
-                                matrícula nº <strong>${alunoSelecionado.matricula}</strong>, regularmente matriculado(a) no curso de 
-                                <strong>${alunoSelecionado.curso}</strong>, apresentou a seguinte frequência no ano letivo de 
-                                <strong>${$('#ano-letivo').val()}</strong>:
+                                Atestamos, para os fins que se fizerem necessários, que o(a) estudante <strong>${alunoSelecionado.Nome_Completo}</strong>,
+                                matrícula nº <strong>${alunoSelecionado.Matricula || '—'}</strong>, matriculado(a) na turma <strong>${turmaTexto}</strong>, apresentou a seguinte frequência ${periodoTexto}:
                             </div>
 
                             <table class="tabela-frequencia">
@@ -383,16 +412,16 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>${alunoSelecionado.totalAulas}</td>
-                                        <td>${alunoSelecionado.presencas}</td>
-                                        <td>${alunoSelecionado.faltas}</td>
-                                        <td>${alunoSelecionado.frequencia}</td>
+                                        <td>${total}</td>
+                                        <td>${presencas}</td>
+                                        <td>${faltas}</td>
+                                        <td>${perc}%</td>
                                     </tr>
                                 </tbody>
                             </table>
 
                             <div class="texto">
-                                Este documento atesta que o(a) aluno(a) cumpriu com os requisitos de frequência mínima exigida pela legislação educacional vigente.
+                                Este documento atesta a assiduidade do(a) estudante no período informado, conforme registros acadêmicos.
                             </div>
 
                             <div class="rodape">
@@ -401,7 +430,7 @@
 
                             <div class="autenticidade">
                                 Para verificar a autenticidade deste documento, acesse:<br>
-                                <a href="http://meusite.com/autenticacao" target="_blank">http://meusite.com/autenticacao</a>
+                                <a href="#" target="_blank">http://meusite.com/autenticacao</a>
                             </div>
 
                             <div class="codigo">
@@ -412,35 +441,19 @@
                     </html>
                 `;
 
-                // Insere o conteúdo no container oculto
                 const pdfContainer = $('#pdf-container');
                 pdfContainer.html(pdfContent);
-
-                // Gera o PDF
                 const element = pdfContainer.find('#doc')[0];
 
                 html2pdf().set({
                     margin: 10,
-                    filename: `atestado_frequencia_${alunoSelecionado.matricula}.pdf`,
+                    filename: `atestado_frequencia_${alunoSelecionado.Matricula || 'aluno'}.pdf`,
                     image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: {
-                        scale: 2,
-                        logging: false,
-                        useCORS: true,
-                        backgroundColor: null
-                    },
-                    jsPDF: {
-                        unit: 'mm',
-                        format: 'a4',
-                        orientation: 'portrait',
-                        hotfixes: ["px_scaling"]
-                    }
-                }).from(element).save().then(() => {
-                    document.body.style.fontFamily = window.getComputedStyle(document.body).fontFamily;
-                });
+                    html2canvas: { scale: 2, logging: false, useCORS: true, backgroundColor: null },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', hotfixes: ["px_scaling"] }
+                }).from(element).save();
             });
 
-            // Função para gerar código de verificação aleatório
             function gerarCodigoVerificacao() {
                 const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
                 let result = '';
@@ -449,6 +462,14 @@
                     result += chars.charAt(Math.floor(Math.random() * chars.length));
                 }
                 return result;
+            }
+
+            function formatarDataBR(iso){
+                const d = new Date(iso);
+                const dd = String(d.getDate()).padStart(2,'0');
+                const mm = String(d.getMonth()+1).padStart(2,'0');
+                const yy = d.getFullYear();
+                return `${dd}/${mm}/${yy}`;
             }
         });
     </script>

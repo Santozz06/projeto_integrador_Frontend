@@ -14,6 +14,27 @@
         .filter-section { background: transparent; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
         .card { background-color: transparent; }
         .table th { background-color: #71affa; color: #fff; }
+
+        /* Botões sólidos (evitar transparente) */
+        .btn-Salvar {
+            background-color: #1abc9c;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+        }
+        .btn-Salvar:hover { background-color: #16a085; }
+
+        .btn-excluir {
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        .btn-excluir:hover { background-color: #c0392b; }
+
     </style>
 </head>
 
@@ -49,22 +70,16 @@
 
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="mb-3">Nova Disciplina</h5>
-                        <form id="formDisciplina" class="row g-3">
-                            <div class="col-md-6">
-                                <label>Nome da Disciplina</label>
-                                <input type="text" class="form-control" name="nome" required>
+                        <h5 class="mb-3">Atribuir Disciplina Cadastrada</h5>
+                        <form id="formAtribuir" class="row g-3">
+                            <div class="col-md-9">
+                                <label>Disciplina</label>
+                                <select class="form-control" id="selDisciplina" required>
+                                    <option value="">Selecione uma disciplina...</option>
+                                </select>
                             </div>
-                            <div class="col-md-3">
-                                <label>Carga Horária (h/semana)</label>
-                                <input type="number" class="form-control" name="carga" min="0" step="1" required>
-                            </div>
-                            <div class="col-md-3">
-                                <label>Etapa (opcional)</label>
-                                <input type="text" class="form-control" name="etapa">
-                            </div>
-                            <div class="col-12 text-right mt-3">
-                                <button type="submit" class="btn btn-Salvar">Salvar</button>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button type="submit" class="btn btn-Salvar w-100">Atribuir</button>
                             </div>
                         </form>
                     </div>
@@ -131,7 +146,7 @@
         const ano = $('#ano').val();
         const professor_id = $('#prof').val();
         if (!professor_id) { $('#tblDisciplinas tbody').empty(); return; }
-        $.getJSON('../includes/ajax/disciplinas/listar_disciplinas.php', { ano, professor_id }, function(resp){
+    $.getJSON('../includes/ajax/disciplinas/listar_por_professor.php', { ano, professor_id }, function(resp){
             const $tb = $('#tblDisciplinas tbody');
             $tb.empty();
             if (resp.success && resp.data.length) {
@@ -142,7 +157,7 @@
                         <td>${d.Etapa ?? ''}</td>
                         <td>${d.Ano_Letivo ?? ''}</td>
                         <td>
-                            <button class="btn btn-sm btn-danger" data-id="${d.ID_Disciplina}" onclick="excluir(${d.ID_Disciplina})">Excluir</button>
+                            <button class="btn btn-sm btn-excluir" data-id="${d.ID_Disciplina}" onclick="desatribuir(${d.ID_Disciplina})">Desatribuir</button>
                         </td>
                     </tr>`;
                     $tb.append(row);
@@ -153,22 +168,23 @@
         });
     }
 
-    function excluir(id) {
-        if (!confirm('Deseja realmente excluir esta disciplina?')) return;
+    function desatribuir(id) {
+        if (!confirm('Deseja remover a atribuição desta disciplina?')) return;
         $.ajax({
-            url: '../includes/ajax/disciplinas/excluir_disciplina.php',
+            url: '../includes/ajax/disciplinas/desatribuir_disciplina.php',
             method: 'POST',
             dataType: 'json',
-            data: { id_disciplina: id }
+            data: { id_disciplina: id, id_professor: $('#prof').val(), ano_letivo: $('#ano').val() }
         }).done(function(resp){
             if (resp.success) {
-                showAlert('success', 'Disciplina excluída com sucesso');
+                showAlert('success', 'Atribuição removida com sucesso');
+                carregarDisponiveis();
                 carregarTabela();
             } else {
-                showAlert('danger', resp.message || 'Falha ao excluir');
+                showAlert('danger', resp.message || 'Falha ao desatribuir');
             }
         }).fail(function(xhr){
-            const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Erro no servidor ao excluir';
+            const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Erro no servidor ao desatribuir';
             showAlert('danger', msg);
         });
     }
@@ -176,45 +192,54 @@
     $(function(){
         carregarAnos();
         carregarProfessores();
-        $('#ano, #prof').on('change', carregarTabela);
+        $('#ano, #prof').on('change', function(){
+            carregarTabela();
+            carregarDisponiveis();
+        });
 
-        $('#formDisciplina').on('submit', function(e){
+        function carregarDisponiveis(){
+            const ano = $('#ano').val();
+            const professor_id = $('#prof').val();
+            $.getJSON('../includes/ajax/disciplinas/listar_disponiveis.php', { ano, professor_id }, function(resp){
+                const $sel = $('#selDisciplina');
+                $sel.empty().append('<option value="">Selecione uma disciplina...</option>');
+                if (resp.success && resp.data.length) {
+                    resp.data.forEach(d=>{
+                        const label = `${d.Nome_Disciplina}${d.Etapa ? ' - '+d.Etapa : ''}${d.Ano_Letivo ? ' ('+d.Ano_Letivo+')' : ''}`;
+                        $sel.append(`<option value="${d.ID_Disciplina}">${label}</option>`);
+                    });
+                }
+            });
+        }
+
+        $('#formAtribuir').on('submit', function(e){
             e.preventDefault();
             const ano = $('#ano').val();
             const professor_id = $('#prof').val();
-            const nome = $(this).find('[name="nome"]').val().trim();
-            const carga = $(this).find('[name="carga"]').val();
-            const etapa = $(this).find('[name="etapa"]').val().trim();
-
-            if (!ano || !professor_id || !nome || !carga) {
-                showAlert('danger', 'Preencha Ano, Professor, Nome e Carga Horária.');
+            const id_disciplina = $('#selDisciplina').val();
+            if (!ano || !professor_id || !id_disciplina) {
+                showAlert('danger', 'Selecione Ano, Professor e Disciplina.');
                 return;
             }
-
-            $.ajax({
-                url: '../includes/ajax/disciplinas/criar_disciplina.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    ano_letivo: ano,
-                    id_professor: professor_id,
-                    nome_disciplina: nome,
-                    carga_horaria: carga,
-                    etapa: etapa
-                }
-            }).done(function(resp){
-                if (resp.success) {
-                    showAlert('success', resp.message || 'Disciplina atribuída com sucesso');
-                    $('#formDisciplina')[0].reset();
-                    carregarTabela();
-                } else {
-                    showAlert('danger', resp.message || 'Falha ao salvar disciplina');
-                }
-            }).fail(function(xhr){
-                const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Erro no servidor ao salvar';
-                showAlert('danger', msg);
-            });
+            $.post('../includes/ajax/disciplinas/atribuir_disciplina.php', { ano_letivo: ano, id_professor: professor_id, id_disciplina })
+                .done(function(resp){
+                    if (resp.success) {
+                        showAlert('success', 'Disciplina atribuída com sucesso');
+                        $('#selDisciplina').val('');
+                        carregarTabela();
+                        carregarDisponiveis();
+                    } else {
+                        showAlert('danger', resp.message || 'Falha ao atribuir');
+                    }
+                })
+                .fail(function(xhr){
+                    const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Erro no servidor ao atribuir';
+                    showAlert('danger', msg);
+                });
         });
+
+        carregarTabela();
+        carregarDisponiveis();
     });
 </script>
 

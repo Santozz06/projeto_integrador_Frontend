@@ -110,7 +110,7 @@
 
                     <div class="filter-section no-print">
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="year-filter">Ano Letivo</label>
                                     <select class="form-control" id="year-filter">
@@ -118,15 +118,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="department-filter">Departamento</label>
-                                    <select class="form-control" id="department-filter">
-                                        <option value="">Todos</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="status-filter">Status</label>
                                     <select class="form-control" id="status-filter">
@@ -146,8 +138,7 @@
                                     <th>Foto</th>
                                     <th>Nome</th>
                                     <th>Matrícula</th>
-                                    <th>Departamento</th>
-                                    <th>Disciplinas</th>
+                                    <th>Matérias</th>
                                     <th>Status</th>
                                     <th>Turmas Vinculadas</th>
                                 </tr>
@@ -184,14 +175,6 @@
                 dom: '<"top"f>rt<"bottom"lip><"clear">'
             });
 
-            function carregarDepartamentos() {
-                $.getJSON('../includes/ajax/listar_departamentos.php', function (resp) {
-                    if (resp.success) {
-                        resp.data.forEach(dep => $dept.append(`<option value="${dep}">${dep}</option>`));
-                    }
-                });
-            }
-
             function carregarAnos() {
                 $.getJSON('../includes/ajax/listar_anos_letivos.php', function (resp) {
                     if (resp.success && Array.isArray(resp.data)) {
@@ -201,7 +184,7 @@
             }
 
             function carregarProfessores() {
-                const params = { departamento: $dept.val(), status: $status.val(), ano: $year.val() };
+                const params = { status: $status.val(), ano: $year.val() };
                 $.getJSON('../includes/ajax/listar_professores.php', params, function (resp) {
                     table.clear();
                     if (resp.success) {
@@ -215,7 +198,6 @@
                                 foto,
                                 p.Nome_Completo,
                                 matricula,
-                                p.Area_Atuacao || '',
                                 disciplinas,
                                 p.Status,
                                 turmas
@@ -226,11 +208,9 @@
                 });
             }
 
-            $dept.on('change', carregarProfessores);
             $status.on('change', carregarProfessores);
             $year.on('change', carregarProfessores);
 
-            carregarDepartamentos();
             carregarAnos();
             carregarProfessores();
 

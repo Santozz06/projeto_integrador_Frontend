@@ -132,30 +132,27 @@
                                 <div class="form-group">
                                     <label for="ano-letivo">Ano Letivo</label>
                                     <select class="form-control" id="ano-letivo">
-                                        <option>2025</option>
-                                        <option>2024</option>
+                                        <option value="">Selecione</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="serie">Série</label>
-                                    <select class="form-control" id="serie">
-                                        <option value="">Todas</option>
-                                        <option>1º Ano</option>
-                                        <option>2º Ano</option>
-                                        <option>3º Ano</option>
+                                    <label for="turno">Turno</label>
+                                    <select class="form-control" id="turno">
+                                        <option value="">Todos</option>
+                                        <option value="MATUTINO">Matutino</option>
+                                        <option value="VESPERTINO">Vespertino</option>
+                                        <option value="NOTURNO">Noturno</option>
+                                        <option value="INTEGRAL">Integral</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="turma">Turma</label>
-                                    <select class="form-control" id="turma">
-                                        <option value="">Selecione uma turma</option>
-                                        <option>Turma A</option>
-                                        <option>Turma B</option>
-                                        <option>Turma C</option>
+                                    <select class="form-control" id="turma" disabled>
+                                        <option value="">Selecione o ano</option>
                                     </select>
                                 </div>
                             </div>
@@ -201,65 +198,134 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         $(document).ready(function () {
-            // Dados de exemplo 
-            const alunosPorTurma = {
-                "Turma A": [
-                    { id: 1, nome: "Ana Silva", matricula: "20250001", curso: "Ensino Médio Integrado ao Técnico em Informática", nivel: "TÉCNICO", modalidade: "PRESENCIAL", turno: "MATUTINO" },
-                    { id: 2, nome: "Bruno Oliveira", matricula: "20250002", curso: "Ensino Médio Integrado ao Técnico em Informática", nivel: "TÉCNICO", modalidade: "PRESENCIAL", turno: "MATUTINO" }
-                ],
-                "Turma B": [
-                    { id: 3, nome: "Carlos Souza", matricula: "20250003", curso: "Ensino Médio Regular", nivel: "MÉDIO", modalidade: "PRESENCIAL", turno: "VESPERTINO" },
-                    { id: 4, nome: "Daniela Costa", matricula: "20250004", curso: "Ensino Médio Regular", nivel: "MÉDIO", modalidade: "PRESENCIAL", turno: "VESPERTINO" }
-                ]
-            };
-
-            // Variável para armazenar aluno selecionado
+            // Estado
             let alunoSelecionado = null;
+            let periodoLetivo = null; // { Data_Inicio, Data_Fim }
 
-            // Carrega alunos quando uma turma é selecionada
-            $('#turma').change(function () {
-                const turmaSelecionada = $(this).val();
-                const alunosContainer = $('#alunos-container');
+            const $ano = $('#ano-letivo');
+            const $turno = $('#turno');
+            const $turma = $('#turma');
+            const $alunosContainer = $('#alunos-container');
 
-                if (turmaSelecionada && alunosPorTurma[turmaSelecionada]) {
-                    alunosContainer.empty();
-
-                    alunosPorTurma[turmaSelecionada].forEach(aluno => {
-                        alunosContainer.append(`
-                            <div class="student-card p-3 mb-2 border rounded" data-id="${aluno.id}">
-                                <h6>${aluno.nome}</h6>
-                                <small class="text-white">Matrícula: ${aluno.matricula}</small>
-                            </div>
-                        `);
-                    });
-
-                    // Adiciona evento de clique nos cards de aluno
-                    $('.student-card').click(function () {
-                        $('.student-card').removeClass('selected');
-                        $(this).addClass('selected');
-
-                        const alunoId = $(this).data('id');
-                        alunoSelecionado = alunosPorTurma[turmaSelecionada].find(a => a.id == alunoId);
-
-                        $('#gerar-atestado').prop('disabled', false);
-                    });
-                } else {
-                    alunosContainer.html('<p class="text-muted">Nenhum aluno encontrado para esta turma.</p>');
-                    $('#gerar-atestado').prop('disabled', true);
+            // Carregar anos letivos
+            $.getJSON('../includes/ajax/listar_anos_letivos.php', function (resp) {
+                if (resp.success) {
+                    $ano.empty().append('<option value="">Selecione</option>');
+                    resp.data.forEach(ano => $ano.append(`<option value="${ano}">${ano}</option>`));
                 }
             });
 
-            // Gera o atestado em PDF
-            $('#gerar-atestado').click(function () {
-                if (!alunoSelecionado) return;
+            // Quando mudar o ano, carrega turmas e período
+            $ano.on('change', function(){
+                const anoVal = $(this).val();
+                $turma.prop('disabled', true).empty().append('<option value="">Carregando...</option>');
+                alunoSelecionado = null;
+                $('#gerar-atestado').prop('disabled', true);
+                $alunosContainer.html('<p class="text-white">Selecione uma turma para visualizar os alunos.</p>');
 
+                if (!anoVal) {
+                    $turma.prop('disabled', true).empty().append('<option value="">Selecione o ano</option>');
+                    return;
+                }
+
+                // período letivo
+                $.getJSON('../includes/ajax/listar_periodo_letivo.php', { ano: anoVal }, function(r){
+                    periodoLetivo = r && r.success ? r.data : null;
+                });
+
+                // carrega turmas
+                carregarTurmas(anoVal, $turno.val());
+            });
+
+            // Quando mudar o turno, refiltra turmas (se ano selecionado)
+            $turno.on('change', function(){
+                const anoVal = $ano.val();
+                if (anoVal) carregarTurmas(anoVal, $(this).val());
+            });
+
+            function carregarTurmas(ano, turno){
+                $turma.prop('disabled', true).empty().append('<option value="">Carregando...</option>');
+                $.getJSON('../includes/ajax/listar_turmas.php', { ano, turno }, function (resp) {
+                    $turma.empty();
+                    if (resp.success && resp.data.length) {
+                        $turma.append('<option value="">Selecione</option>');
+                        resp.data.forEach(t => $turma.append(`<option value="${t.ID_Turma}">${t.Nome_Turma} ${t.Etapa ? '('+t.Etapa+')' : ''}</option>`));
+                        $turma.prop('disabled', false);
+                    } else {
+                        $turma.append('<option value="">Nenhuma turma encontrada</option>');
+                    }
+                });
+            }
+
+            // Carrega alunos ao selecionar turma
+            $turma.on('change', function(){
+                const turmaId = $(this).val();
+                alunoSelecionado = null;
+                $('#gerar-atestado').prop('disabled', true);
+                if (!turmaId) {
+                    $alunosContainer.html('<p class="text-white">Selecione uma turma para visualizar os alunos.</p>');
+                    return;
+                }
+
+                $alunosContainer.html('<p class="text-white">Carregando alunos...</p>');
+                $.getJSON('../includes/ajax/listar_alunos_por_turma.php', { turma_id: turmaId }, function(resp){
+                    if (!resp.success) {
+                        $alunosContainer.html('<p class="text-muted">Erro ao carregar alunos.</p>');
+                        return;
+                    }
+                    const alunos = resp.data || [];
+                    if (!alunos.length) {
+                        $alunosContainer.html('<p class="text-muted">Nenhum aluno encontrado para esta turma.</p>');
+                        return;
+                    }
+
+                    const html = alunos.map(a => `
+                        <div class="student-card p-3 mb-2 border rounded" data-id="${a.ID_Aluno}" data-matricula="${a.Matricula || ''}" data-nome="${a.Nome_Completo}">
+                            <h6>${a.Nome_Completo}</h6>
+                            <small class="text-white">Matrícula: ${a.Matricula || '—'}</small>
+                        </div>
+                    `).join('');
+                    $alunosContainer.html(html);
+
+                    // bind click
+                    $('.student-card').click(function(){
+                        $('.student-card').removeClass('selected');
+                        $(this).addClass('selected');
+                        alunoSelecionado = {
+                            id: $(this).data('id'),
+                            nome: $(this).data('nome'),
+                            matricula: $(this).data('matricula')
+                        };
+                        $('#gerar-atestado').prop('disabled', false);
+                    });
+                });
+            });
+
+            // Geração do PDF com dados reais
+            $('#gerar-atestado').click(function(){
+                if (!alunoSelecionado) return;
                 const dataAtual = new Date();
                 const dia = String(dataAtual.getDate()).padStart(2, '0');
                 const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
-                const ano = dataAtual.getFullYear();
-                const dataFormatada = `${dia}/${mes}/${ano}`;
+                const anoCorrente = dataAtual.getFullYear();
+                const dataFormatada = `${dia}/${mes}/${anoCorrente}`;
 
-                // Cria o conteúdo do PDF
+                const anoLetivo = $ano.val();
+                let periodo = '';
+                if (periodoLetivo && periodoLetivo.Data_Inicio && periodoLetivo.Data_Fim) {
+                    const di = new Date(periodoLetivo.Data_Inicio);
+                    const df = new Date(periodoLetivo.Data_Fim);
+                    const fmt = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+                    periodo = `${fmt(di)} a ${fmt(df)}`;
+                } else {
+                    // fallback genérico por ano
+                    periodo = `01/02/${anoLetivo} a 15/12/${anoLetivo}`;
+                }
+
+                const turmaTexto = $('#turma option:selected').text();
+                const turnoTexto = $turno.val() || '—';
+                // Se houver Etapa/Curso no nome da turma, já está em turmaTexto
+
                 const pdfContent = `
                     <!DOCTYPE html>
                     <html lang="pt-br">
@@ -267,13 +333,7 @@
                         <meta charset="UTF-8">
                         <title>Atestado de Matrícula</title>
                         <style>
-                            body {
-                               font-family: sans-serif;
-                                margin: 40px 60px;
-                                font-size: 16px;
-                                color: #000;
-                                line-height: 1.5;
-                            }
+                            body { font-family: sans-serif; margin: 40px 60px; font-size: 16px; color: #000; line-height: 1.5; }
                             .cabecalho { text-align: center; font-size: 14px; margin-bottom: 30px; line-height: 1.4; }
                             .titulo { text-align: center; font-weight: bold; font-size: 20px; margin: 30px 0; text-transform: uppercase; }
                             .texto { text-align: justify; line-height: 1.8; margin-bottom: 20px; }
@@ -297,13 +357,13 @@
                             <div class="titulo">ATESTADO DE MATRÍCULA</div>
 
                             <div class="texto">
-                                Atestamos, para os fins que se fizerem necessários, que o(a) estudante <strong>${alunoSelecionado.nome}</strong> possui vínculo regular de matrícula nesta Instituição de Ensino no curso de <strong>${alunoSelecionado.curso}</strong>, de nível <strong>${alunoSelecionado.nivel}</strong>, modalidade <strong>${alunoSelecionado.modalidade}</strong>, no turno <strong>${alunoSelecionado.turno}</strong>, conforme registro acadêmico atualizado.
+                                Atestamos, para os fins que se fizerem necessários, que o(a) estudante <strong>${alunoSelecionado.nome}</strong> possui vínculo regular de matrícula nesta Instituição de Ensino na turma <strong>${turmaTexto}</strong>, turno <strong>${turnoTexto}</strong>, conforme registro acadêmico atualizado.
                             </div>
 
                             <div class="dados">
-                                Matrícula nº: <strong>${alunoSelecionado.matricula}</strong><br>
-                                Período Letivo: <strong>${$('#ano-letivo').val()}</strong><br>
-                                Duração: <strong>13/02/${$('#ano-letivo').val()} a 12/12/${$('#ano-letivo').val()}</strong>
+                                Matrícula nº: <strong>${alunoSelecionado.matricula || '—'}</strong><br>
+                                Período Letivo: <strong>${anoLetivo}</strong><br>
+                                Duração: <strong>${periodo}</strong>
                             </div>
 
                             <div class="rodape">
@@ -312,7 +372,7 @@
 
                             <div class="autenticidade">
                                 Para verificar a autenticidade deste documento, acesse:<br>
-                                <a href="http://meusite.com/autenticacao" target="_blank">http://meusite.com/autenticacao</a>
+                                <a href="#" target="_blank">http://meusite.com/autenticacao</a>
                             </div>
 
                             <div class="codigo">
@@ -323,23 +383,19 @@
                     </html>
                 `;
 
-                // Insere o conteúdo no container oculto
                 const pdfContainer = $('#pdf-container');
                 pdfContainer.html(pdfContent);
-
-                // Gera o PDF
                 const element = pdfContainer.find('#doc')[0];
 
                 html2pdf().set({
                     margin: 10,
-                    filename: `atestado_matricula_${alunoSelecionado.matricula}.pdf`,
+                    filename: `atestado_matricula_${alunoSelecionado.matricula || 'aluno'}.pdf`,
                     image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: { scale: 2 },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 }).from(element).save();
             });
 
-            // Função para gerar código de verificação aleatório
             function gerarCodigoVerificacao() {
                 const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
                 let result = '';

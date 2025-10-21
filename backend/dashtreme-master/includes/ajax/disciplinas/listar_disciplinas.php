@@ -6,6 +6,7 @@ try {
 
     $ano = isset($_GET['ano']) && $_GET['ano'] !== '' ? intval($_GET['ano']) : null;
     $professorId = isset($_GET['professor_id']) && $_GET['professor_id'] !== '' ? intval($_GET['professor_id']) : null;
+    $available = isset($_GET['available']) && $_GET['available'] !== '' ? intval($_GET['available']) : 0;
 
     $sql = "SELECT ID_Disciplina, Nome_Disciplina, Carga_Horaria, Etapa, Ano_Letivo, ID_Professor
             FROM Disciplinas WHERE 1=1";
@@ -14,6 +15,9 @@ try {
     if ($professorId) {
         $sql .= " AND ID_Professor = ?";
         $params[] = $professorId;
+    }
+    if ($available) {
+        $sql .= " AND (ID_Professor IS NULL OR ID_Professor = 0)";
     }
     if ($ano) {
         $sql .= " AND Ano_Letivo = ?";

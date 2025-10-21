@@ -196,31 +196,27 @@
                                 <div class="form-group">
                                     <label for="ano-letivo">Ano Letivo</label>
                                     <select class="form-control" id="ano-letivo">
-                                        <option>2025</option>
-                                        <option>2024</option>
-                                        <option>2023</option>
+                                        <option value="">Selecione</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="serie">Série</label>
-                                    <select class="form-control" id="serie">
-                                        <option value="">Todas</option>
-                                        <option>1º Ano</option>
-                                        <option>2º Ano</option>
-                                        <option>3º Ano</option>
+                                    <label for="turno">Turno</label>
+                                    <select class="form-control" id="turno">
+                                        <option value="">Todos</option>
+                                        <option value="MATUTINO">Matutino</option>
+                                        <option value="VESPERTINO">Vespertino</option>
+                                        <option value="NOTURNO">Noturno</option>
+                                        <option value="INTEGRAL">Integral</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="turma">Turma</label>
-                                    <select class="form-control" id="turma">
-                                        <option value="">Selecione uma turma</option>
-                                        <option>Turma A</option>
-                                        <option>Turma B</option>
-                                        <option>Turma C</option>
+                                    <select class="form-control" id="turma" disabled>
+                                        <option value="">Selecione o ano</option>
                                     </select>
                                 </div>
                             </div>
@@ -275,104 +271,95 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         $(document).ready(function () {
-            // Dados de exemplo 
-            const alunosPorTurma = {
-                "Turma A": [
-                    {
-                        id: 1,
-                        nome: "Ana Silva",
-                        matricula: "20250001",
-                        nascimento: "10/05/2010",
-                        nacionalidade: "Brasileira",
-                        naturalidade: "Parobé/RS",
-                        filiacao: "José Silva e Maria Silva",
-                        nis: "123.45678.90-1",
-                        inep: "12345678",
-                        disciplinas: [
-                            { nome: "Língua Portuguesa", ano1: { nota: "8,5", ch: "160" }, ano2: { nota: "9,0", ch: "160" }, ano3: { nota: "8,7", ch: "160" } },
-                            { nome: "Matemática", ano1: { nota: "7,8", ch: "160" }, ano2: { nota: "8,2", ch: "160" }, ano3: { nota: "8,5", ch: "160" } },
-                            { nome: "História", ano1: { nota: "9,2", ch: "80" }, ano2: { nota: "8,7", ch: "80" }, ano3: { nota: "9,0", ch: "80" } },
-                            { nome: "Geografia", ano1: { nota: "8,9", ch: "80" }, ano2: { nota: "8,5", ch: "80" }, ano3: { nota: "8,8", ch: "80" } },
-                            { nome: "Ciências", ano1: { nota: "8,7", ch: "80" }, ano2: { nota: "9,1", ch: "80" }, ano3: { nota: "8,9", ch: "80" } },
-                            { nome: "Artes", ano1: { nota: "9,5", ch: "40" }, ano2: { nota: "9,3", ch: "40" }, ano3: { nota: "9,4", ch: "40" } },
-                            { nome: "Educação Física", ano1: { nota: "10,0", ch: "40" }, ano2: { nota: "10,0", ch: "40" }, ano3: { nota: "10,0", ch: "40" } }
-                        ],
-                        observacoes: "Aluno apresentou ótimo desempenho durante todo o período letivo."
-                    },
-                    {
-                        id: 2,
-                        nome: "Bruno Oliveira",
-                        matricula: "20250002",
-                        nascimento: "15/08/2010",
-                        nacionalidade: "Brasileira",
-                        naturalidade: "Taquara/RS",
-                        filiacao: "Carlos Oliveira e Ana Oliveira",
-                        nis: "987.65432.10-9",
-                        inep: "87654321",
-                        disciplinas: [
-                            { nome: "Língua Portuguesa", ano1: { nota: "7,5", ch: "160" }, ano2: { nota: "8,0", ch: "160" }, ano3: { nota: "8,2", ch: "160" } },
-                            { nome: "Matemática", ano1: { nota: "8,8", ch: "160" }, ano2: { nota: "9,2", ch: "160" }, ano3: { nota: "9,5", ch: "160" } },
-                            { nome: "História", ano1: { nota: "8,2", ch: "80" }, ano2: { nota: "8,7", ch: "80" }, ano3: { nota: "9,0", ch: "80" } },
-                            { nome: "Geografia", ano1: { nota: "8,0", ch: "80" }, ano2: { nota: "8,5", ch: "80" }, ano3: { nota: "8,3", ch: "80" } },
-                            { nome: "Ciências", ano1: { nota: "9,2", ch: "80" }, ano2: { nota: "9,0", ch: "80" }, ano3: { nota: "9,4", ch: "80" } },
-                            { nome: "Artes", ano1: { nota: "8,5", ch: "40" }, ano2: { nota: "9,0", ch: "40" }, ano3: { nota: "9,2", ch: "40" } },
-                            { nome: "Educação Física", ano1: { nota: "10,0", ch: "40" }, ano2: { nota: "10,0", ch: "40" }, ano3: { nota: "10,0", ch: "40" } }
-                        ],
-                        observacoes: "Aluno com excelente desempenho em Matemática e Ciências."
-                    }
-                ]
-            };
-
-            // Variável para armazenar aluno selecionado
             let alunoSelecionado = null;
 
-            // Carrega alunos quando uma turma é selecionada
-            $('#turma').change(function () {
-                const turmaSelecionada = $(this).val();
-                const alunosContainer = $('#alunos-container');
+            const $ano = $('#ano-letivo');
+            const $turno = $('#turno');
+            const $turma = $('#turma');
+            const $alunos = $('#alunos-container');
 
-                if (turmaSelecionada && alunosPorTurma[turmaSelecionada]) {
-                    alunosContainer.empty();
+            // Carregar anos
+            $.getJSON('../includes/ajax/listar_anos_letivos.php', function (resp) {
+                if (resp.success) {
+                    $ano.empty().append('<option value="">Selecione</option>');
+                    resp.data.forEach(ano => $ano.append(`<option value="${ano}">${ano}</option>`));
+                }
+            });
 
-                    alunosPorTurma[turmaSelecionada].forEach(aluno => {
-                        alunosContainer.append(`
-                            <div class="student-card p-3 mb-2" data-id="${aluno.id}">
-                                <h6>${aluno.nome}</h6>
-                                <small class="text-white">Matrícula: ${aluno.matricula}</small>
-                            </div>
-                        `);
-                    });
+            $ano.on('change', function(){
+                const anoVal = $(this).val();
+                $turma.prop('disabled', true).empty().append('<option value="">Carregando...</option>');
+                $alunos.html('<p class="text-white">Selecione uma turma para visualizar os alunos.</p>');
+                $('#visualizar-historico').prop('disabled', true);
+                if (!anoVal){
+                    $turma.prop('disabled', true).empty().append('<option value="">Selecione o ano</option>');
+                    return;
+                }
+                carregarTurmas(anoVal, $turno.val());
+            });
 
-                    // Adiciona evento de clique nos cards de aluno
-                    $('.student-card').click(function () {
+            $turno.on('change', function(){
+                const anoVal = $ano.val();
+                if (anoVal) carregarTurmas(anoVal, $(this).val());
+            });
+
+            function carregarTurmas(ano, turno){
+                $turma.prop('disabled', true).empty().append('<option value="">Carregando...</option>');
+                $.getJSON('../includes/ajax/listar_turmas.php', { ano, turno }, function(resp){
+                    $turma.empty();
+                    if (resp.success && resp.data.length){
+                        $turma.append('<option value="">Selecione</option>');
+                        resp.data.forEach(t => $turma.append(`<option value="${t.ID_Turma}">${t.Nome_Turma} ${t.Etapa ? '('+t.Etapa+')' : ''}</option>`));
+                        $turma.prop('disabled', false);
+                    } else {
+                        $turma.append('<option value="">Nenhuma turma encontrada</option>');
+                    }
+                });
+            }
+
+            $turma.on('change', function(){
+                const turmaId = $(this).val();
+                alunoSelecionado = null;
+                $('#visualizar-historico').prop('disabled', true);
+                if (!turmaId){
+                    $alunos.html('<p class="text-white">Selecione uma turma para visualizar os alunos.</p>');
+                    return;
+                }
+                $alunos.html('<p class="text-white">Carregando alunos...</p>');
+                $.getJSON('../includes/ajax/listar_alunos_por_turma.php', { turma_id: turmaId }, function(resp){
+                    if (!resp.success){
+                        $alunos.html('<p class="text-muted">Erro ao carregar alunos.</p>');
+                        return;
+                    }
+                    const lista = resp.data || [];
+                    if (!lista.length){
+                        $alunos.html('<p class="text-muted">Nenhum aluno encontrado.</p>');
+                        return;
+                    }
+                    const html = lista.map(a => `
+                        <div class="student-card p-3 mb-2" data-id="${a.ID_Aluno}" data-mat="${a.Matricula || ''}">
+                            <h6>${a.Nome_Completo}</h6>
+                            <small class="text-white">Matrícula: ${a.Matricula || '—'}</small>
+                        </div>
+                    `).join('');
+                    $alunos.html(html);
+                    $('.student-card').click(function(){
                         $('.student-card').removeClass('selected');
                         $(this).addClass('selected');
-
-                        const alunoId = $(this).data('id');
-                        alunoSelecionado = alunosPorTurma[turmaSelecionada].find(a => a.id == alunoId);
-
+                        alunoSelecionado = {
+                            ID_Aluno: $(this).data('id'),
+                            Matricula: $(this).data('mat')
+                        };
                         $('#visualizar-historico').prop('disabled', false);
                     });
-                } else {
-                    alunosContainer.html('<p class="text-white">Nenhum aluno encontrado para esta turma.</p>');
-                    $('#visualizar-historico').prop('disabled', true);
-                }
+                });
             });
 
             // Visualizar o histórico
             $('#visualizar-historico').click(function () {
                 if (!alunoSelecionado) return;
-
-                // Redireciona para a página do histórico com os parâmetros do aluno
-                window.location.href = `visualizarHistorico.php?nome=${encodeURIComponent(alunoSelecionado.nome)}` +
-                    `&matricula=${alunoSelecionado.matricula}` +
-                    `&inep=${alunoSelecionado.inep}` +
-                    `&nascimento=${encodeURIComponent(alunoSelecionado.nascimento)}` +
-                    `&nacionalidade=${encodeURIComponent(alunoSelecionado.nacionalidade)}` +
-                    `&naturalidade=${encodeURIComponent(alunoSelecionado.naturalidade)}` +
-                    `&filiacao=${encodeURIComponent(alunoSelecionado.filiacao)}` +
-                    `&nis=${alunoSelecionado.nis}` +
-                    `&observacoes=${encodeURIComponent(alunoSelecionado.observacoes)}`;
+                const id = alunoSelecionado.ID_Aluno;
+                window.location.href = `visualizarHistorico.php?aluno_id=${encodeURIComponent(id)}`;
             });
 
             // Imprimir o histórico

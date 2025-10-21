@@ -107,15 +107,12 @@
             <h5 class="card-title text-white">Dados do aluno</h5>
             <p class="text-white"><strong>Nome:</strong> <span id="resultadoNome"></span></p>
             <p class="text-white"><strong>Matrícula:</strong> <span id="resultadoMatricula">20251001</span></p>
-            <p class="text-white"><strong>Turma atual:</strong> <span id="resultadoTurma">1º Ano A</span></p>
+            <p class="text-white"><strong>Turma atual:</strong> <span id="resultadoTurma">—</span></p>
 
             <div class="form-group mt-3">
               <label for="novaTurma">Nova turma:</label>
               <select id="novaTurma" class="form-control">
                 <option value="">Selecione a nova turma...</option>
-                <option>1º Ano B</option>
-                <option>2º Ano A</option>
-                <option>3º Ano A</option>
               </select>
             </div>
 
@@ -142,28 +139,90 @@
   <script src="../assets/js/sidebar-menu.js"></script>
   <script src="../assets/js/app-script.js"></script>
   <script>
-    $(document).ready(function () {
+    $(function () {
+      let aluno = null;
+
+      function carregarTurmasPorAno(ano) {
+        const $sel = $('#novaTurma');
+        $sel.empty().append('<option value="">Carregando turmas...</option>');
+        fetch(`../includes/ajax/listar_turmas.php?ano=${encodeURIComponent(ano)}`)
+          .then(r => r.json())
+          .then(resp => {
+            $sel.empty().append('<option value="">Selecione a nova turma...</option>');
+            if (resp.success && resp.data) {
+              resp.data.forEach(t => {
+                const label = `${t.Nome_Turma}${t.Etapa ? ' ('+t.Etapa+')' : ''}`;
+                $sel.append(`<option value="${t.ID_Turma}">${label}</option>`);
+              });
+            } else {
+              $sel.append('<option value="">Nenhuma turma encontrada</option>');
+            }
+          })
+          .catch(() => {
+            $sel.empty().append('<option value="">Erro ao listar turmas</option>');
+          });
+      }
+
       $('#formBuscaAluno').on('submit', function (e) {
         e.preventDefault();
         const termo = $('#buscaAluno').val().trim();
-
-        if (termo !== '') {
-          $('#resultadoNome').text(termo);
-          $('#resultadoMatricula').text('20251001');
-          $('#resultadoTurma').text('1º Ano A');
-          $('#resultadoBusca').removeClass('d-none');
-          $('html, body').animate({ scrollTop: $('#resultadoBusca').offset().top - 100 }, 500);
+        if (termo.length < 2) {
+          alert('Digite pelo menos 2 caracteres para pesquisar');
+          return;
         }
+        fetch(`../includes/ajax/buscar_alunos.php?q=${encodeURIComponent(termo)}`)
+          .then(r => r.json())
+          .then(resp => {
+            if (!resp.success || !resp.data || !resp.data.length) {
+              alert('Aluno não encontrado.');
+              return;
+            }
+            // pega o primeiro da lista (pode evoluir para lista selecionável)
+            const a = resp.data[0];
+            aluno = a;
+            $('#resultadoNome').text(a.Nome_Completo || 'Aluno');
+            $('#resultadoMatricula').text(a.Matricula || '—');
+            const turmaAtual = a.Nome_Turma ? `${a.Nome_Turma}${a.Etapa ? ' ('+a.Etapa+')' : ''}` : '—';
+            $('#resultadoTurma').text(turmaAtual);
+            $('#resultadoBusca').removeClass('d-none');
+            $('html, body').animate({ scrollTop: $('#resultadoBusca').offset().top - 100 }, 300);
+            if (a.Ano_Letivo) carregarTurmasPorAno(a.Ano_Letivo);
+          })
+          .catch(() => alert('Erro ao pesquisar aluno.'));
       });
 
-      $('#btnConfirmarTroca').on('click', function () {
-        const novaTurma = $('#novaTurma').val();
-        if (!novaTurma) {
-          alert('Por favor, selecione uma nova turma.');
-        } else {
-          const nome = $('#resultadoNome').text();
-          alert('Aluno ' + nome + ' transferido para: ' + novaTurma);
+      $('#btnConfirmarTroca').on('click', function (e) {
+        e.preventDefault();
+        if (!aluno) {
+          alert('Pesquise e selecione um aluno primeiro.');
+          return;
         }
+        const novaTurmaId = $('#novaTurma').val();
+        if (!novaTurmaId) {
+          alert('Selecione a nova turma.');
+          return;
+        }
+
+        const body = new URLSearchParams();
+        body.append('aluno_id', String(aluno.ID_Aluno));
+        body.append('nova_turma_id', String(novaTurmaId));
+        fetch('../includes/ajax/trocar_turma.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: body.toString()
+        })
+          .then(r => r.json())
+          .then(resp => {
+            if (!resp.success) {
+              alert('Erro: ' + (resp.message || 'falha na troca'));
+              return;
+            }
+            alert('Troca realizada com sucesso.');
+            // opcional: atualizar turma atual na UI
+            const novaOptText = $('#novaTurma option:selected').text();
+            $('#resultadoTurma').text(novaOptText || '—');
+          })
+          .catch(() => alert('Erro ao confirmar troca.'));
       });
     });
   </script>

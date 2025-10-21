@@ -197,6 +197,7 @@
                                         </button>
                                     </div>
                                 </div>
+                                <small class="text-muted">Digite pelo menos 2 caracteres para pesquisar.</small>
                             </div>
 
                             <!-- Resultados da pesquisa -->
@@ -227,12 +228,7 @@
                                     </div>
                                     <div class="form-group">
                                         <div class="bold-title">Ano letivo</div>
-                                        <select id="ano-letivo" class="form-control">
-                                            <option value="">Selecione o ano letivo</option>
-                                            <option value="2025">2025</option>
-                                            <option value="2024">2024</option>
-                                            <option value="2023">2023</option>
-                                        </select>
+                                        <select id="ano-letivo" class="form-control"></select>
                                     </div>
                                 </div>
 
@@ -243,12 +239,6 @@
                                         <div class="bold-title">Turma</div>
                                         <select id="nova-turma" class="form-control">
                                             <option value="">Selecione a nova turma</option>
-                                            <option value="1A">1º Ano A</option>
-                                            <option value="1B">1º Ano B</option>
-                                            <option value="2A">2º Ano A</option>
-                                            <option value="2B">2º Ano B</option>
-                                            <option value="3A">3º Ano A</option>
-                                            <option value="3B">3º Ano B</option>
                                         </select>
                                     </div>
                                 </div>
@@ -313,57 +303,100 @@
   
 
     <script>
-        $(document).ready(function () {
+        $(function () {
             let alunoSelecionado = null;
 
-            const anoAtual = new Date().getFullYear();
-            $('#ano-letivo').val(anoAtual);
+            // Carrega anos letivos e define padrão (ano atual e/ou próximo)
+            function carregarAnos() {
+                const $ano = $('#ano-letivo');
+                $ano.empty().append('<option value="">Carregando anos...</option>');
+                fetch('../includes/ajax/listar_anos_letivos.php')
+                    .then(r => r.json())
+                    .then(resp => {
+                        $ano.empty().append('<option value="">Selecione o ano letivo</option>');
+                        if (resp.success && resp.data && resp.data.length) {
+                            // popula anos existentes (já ordenados desc no backend)
+                            resp.data.forEach(a => $ano.append(`<option value="${a}">${a}</option>`));
+                            // opcional: oferecer próximo ano, mas NÃO selecionar por padrão
+                            const maxAno = Math.max.apply(null, resp.data.map(Number));
+                            if (Number.isFinite(maxAno)) {
+                                $ano.prepend(`<option value="${maxAno + 1}">${maxAno + 1}</option>`);
+                                // Seleciona o maior ano existente por padrão (garante turmas)
+                                $ano.val(String(maxAno));
+                            }
+                        } else {
+                            const anoAtual = new Date().getFullYear();
+                            $ano.append(`<option value="${anoAtual}">${anoAtual}</option>`).val(String(anoAtual));
+                        }
+                        atualizarTurmasPorAno();
+                    })
+                    .catch(() => {
+                        const anoAtual = new Date().getFullYear();
+                        $ano.empty().append(`<option value="${anoAtual}">${anoAtual}</option>`).val(String(anoAtual));
+                        atualizarTurmasPorAno();
+                    });
+            }
 
-            const turmas = ['1A', '1B', '2A', '2B', '3A', '3B'];
-            const turnos = ['manha', 'tarde', 'noite'];
+            function atualizarTurmasPorAno() {
+                const ano = $('#ano-letivo').val();
+                const $turma = $('#nova-turma');
+                if (!ano) { $turma.empty().append('<option value="">Selecione o ano primeiro</option>'); return; }
+                $turma.empty().append('<option value="">Carregando turmas...</option>');
+                fetch(`../includes/ajax/listar_turmas.php?ano=${encodeURIComponent(ano)}`)
+                    .then(r => r.json())
+                    .then(resp => {
+                        $turma.empty().append('<option value="">Selecione a nova turma</option>');
+                        if (resp.success && resp.data) {
+                            resp.data.forEach(t => {
+                                const label = `${t.Nome_Turma}${t.Etapa ? ' ('+t.Etapa+')' : ''}`;
+                                $turma.append(`<option value="${t.ID_Turma}">${label}</option>`);
+                            });
+                        } else {
+                            $turma.append('<option value="">Nenhuma turma encontrada</option>');
+                        }
+                    })
+                    .catch(() => $turma.empty().append('<option value="">Erro ao carregar turmas</option>'));
+            }
+
+            $('#ano-letivo').on('change', atualizarTurmasPorAno);
+            carregarAnos();
 
             // Botão de pesquisa
             $('#btn-pesquisar').click(function () {
                 const termo = $('#search-aluno').val().trim();
-
-                if (termo.length < 3) {
-                    alert('Digite pelo menos 3 caracteres para pesquisar');
+                if (termo.length < 2) {
+                    alert('Digite pelo menos 2 caracteres para pesquisar');
                     return;
                 }
-
-                const resultsContainer = $('#search-results');
-                resultsContainer.empty();
-
-                // Simula um aluno com base no termo digitado
-                const alunoSimulado = {
-                    id: Date.now(),
-                    nome: termo.charAt(0).toUpperCase() + termo.slice(1),
-                    matricula: '2025' + Math.floor(Math.random() * 9000 + 1000),
-                    turma: turmas[Math.floor(Math.random() * turmas.length)],
-                    turno: turnos[Math.floor(Math.random() * turnos.length)],
-                    telefone: '(51) 9' + Math.floor(100000000 + Math.random() * 900000000),
-                    endereco: 'Rua Simulada, nº ' + Math.floor(Math.random() * 1000),
-                    email: termo.toLowerCase().replace(/\s/g, '') + '@escola.com'
-                };
-
-                resultsContainer.append(`
-                <div class="student-card" 
-                    data-id="${alunoSimulado.id}" 
-                    data-nome="${alunoSimulado.nome}" 
-                    data-matricula="${alunoSimulado.matricula}" 
-                    data-turma="${alunoSimulado.turma}" 
-                    data-turno="${alunoSimulado.turno}" 
-                    data-telefone="${alunoSimulado.telefone}"
-                    data-endereco="${alunoSimulado.endereco}"
-                    data-email="${alunoSimulado.email}">
-                    <div class="student-info">${alunoSimulado.nome}</div>
-                    <div class="student-details">
-                        Matrícula: ${alunoSimulado.matricula} | Turma: ${alunoSimulado.turma} | Turno: ${alunoSimulado.turno}
-                    </div>
-                </div>
-            `);
-
-                resultsContainer.show();
+                const $res = $('#search-results');
+                $res.empty().append('<div class="text-white">Pesquisando...</div>').show();
+                fetch(`../includes/ajax/buscar_alunos.php?q=${encodeURIComponent(termo)}`)
+                    .then(r => r.json())
+                    .then(resp => {
+                        $res.empty();
+                        if (!resp.success || !resp.data || !resp.data.length) {
+                            $res.append('<div class="text-white">Nenhum aluno encontrado.</div>');
+                            return;
+                        }
+                        resp.data.forEach(a => {
+                            const turma = a.Nome_Turma ? `${a.Nome_Turma}${a.Etapa ? ' ('+a.Etapa+')' : ''}` : '—';
+                            const card = `
+                                <div class="student-card"
+                                    data-id="${a.ID_Aluno}"
+                                    data-nome="${a.Nome_Completo || ''}"
+                                    data-matricula="${a.Matricula || ''}"
+                                    data-turma="${turma}"
+                                    data-turno="${a.Turno || ''}"
+                                    data-telefone="${a.Telefone || ''}"
+                                    data-endereco="${a.Endereco || ''}"
+                                    data-email="${a.Email || ''}">
+                                    <div class="student-info">${a.Nome_Completo || 'Aluno'}</div>
+                                    <div class="student-details">Matrícula: ${a.Matricula || '—'} | Turma: ${turma} | Turno: ${a.Turno || '—'}</div>
+                                </div>`;
+                            $res.append(card);
+                        });
+                    })
+                    .catch(() => { $res.empty().append('<div class="text-danger">Erro ao pesquisar.</div>'); });
             });
 
             // Selecionar aluno
@@ -378,95 +411,71 @@
                     endereco: $(this).data('endereco'),
                     email: $(this).data('email')
                 };
-
-                $('#selected-student-name').text(alunoSelecionado.nome);
-                $('#selected-student-matricula').text(alunoSelecionado.matricula);
-                $('#selected-student-turma').text(alunoSelecionado.turma);
-                $('#selected-student-turno').text(alunoSelecionado.turno);
+                $('#selected-student-name').text(alunoSelecionado.nome || 'Aluno');
+                $('#selected-student-matricula').text(alunoSelecionado.matricula || '—');
+                $('#selected-student-turma').text(alunoSelecionado.turma || '—');
+                $('#selected-student-turno').text(alunoSelecionado.turno || '—');
                 $('#selected-student').show();
-
-                $('#nome-aluno').val(alunoSelecionado.nome);
-                $('#matricula-aluno').val(alunoSelecionado.matricula);
-                $('#telefone').val(alunoSelecionado.telefone);
-                $('#endereco').val(alunoSelecionado.endereco);
-                $('#email').val(alunoSelecionado.email);
-
+                $('#nome-aluno').val(alunoSelecionado.nome || '');
+                $('#matricula-aluno').val(alunoSelecionado.matricula || '');
+                $('#telefone').val(alunoSelecionado.telefone || '');
+                $('#endereco').val(alunoSelecionado.endereco || '');
+                $('#email').val(alunoSelecionado.email || '');
                 $('#search-results').hide();
             });
 
-            // Botão Confirmar
+            // Confirmar rematrícula
             $('#btn-confirmar').click(function () {
-                if (!alunoSelecionado) {
-                    alert('Por favor, selecione um aluno primeiro');
-                    return;
-                }
-
+                if (!alunoSelecionado) { alert('Selecione um aluno.'); return; }
                 if (!validarFormulario()) return;
-
-                const dadosRematricula = {
-                    aluno: alunoSelecionado,
-                    anoLetivo: $('#ano-letivo').val(),
-                    novaTurma: $('#nova-turma').val(),
-                    novoTurno: $('#novo-turno').val(),
-                    telefone: $('#telefone').val(),
-                    endereco: $('#endereco').val(),
-                    email: $('#email').val()
-                };
-
-                console.log('Dados para rematrícula:', dadosRematricula);
-                alert('Rematrícula registrada com sucesso!');
-                limparFormulario();
+                const body = new URLSearchParams();
+                body.append('aluno_id', String(alunoSelecionado.id));
+                body.append('ano_letivo', $('#ano-letivo').val());
+                body.append('nova_turma_id', $('#nova-turma').val());
+                body.append('telefone', $('#telefone').val());
+                body.append('endereco', $('#endereco').val());
+                body.append('email', $('#email').val());
+                fetch('../includes/ajax/rematricular_aluno.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: body.toString()
+                })
+                    .then(r => r.json())
+                    .then(resp => {
+                        if (!resp.success) { alert('Erro: ' + (resp.message || 'falha na rematrícula')); return; }
+                        alert('Rematrícula registrada com sucesso.');
+                        limparFormulario();
+                    })
+                    .catch(() => alert('Erro ao rematricular.'));
             });
 
-            // Botão Cancelar
+            // Cancelar
             $('#btn-cancelar').click(function () {
                 if (confirm('Deseja realmente cancelar a operação? Todos os dados não salvos serão perdidos.')) {
                     limparFormulario();
                 }
             });
 
-            // Validação
             function validarFormulario() {
-                if ($('#ano-letivo').val() === '') {
-                    alert('Por favor, selecione o ano letivo');
-                    return false;
-                }
-                if ($('#nova-turma').val() === '') {
-                    alert('Por favor, selecione a nova turma');
-                    return false;
-                }
-                if ($('#novo-turno').val() === '') {
-                    alert('Por favor, selecione o novo turno');
-                    return false;
-                }
-                if ($('#telefone').val() === '') {
-                    alert('Por favor, informe o telefone');
-                    return false;
-                }
-                if ($('#endereco').val() === '') {
-                    alert('Por favor, informe o endereço');
-                    return false;
-                }
-                if ($('#email').val() === '') {
-                    alert('Por favor, informe o e-mail');
-                    return false;
-                }
+                if (!$('#ano-letivo').val()) { alert('Selecione o ano letivo'); return false; }
+                if (!$('#nova-turma').val()) { alert('Selecione a nova turma'); return false; }
+                if (!$('#telefone').val()) { alert('Informe o telefone'); return false; }
+                if (!$('#endereco').val()) { alert('Informe o endereço'); return false; }
+                if (!$('#email').val()) { alert('Informe o e-mail'); return false; }
                 return true;
             }
 
-            // Limpar formulário
             function limparFormulario() {
                 $('#search-aluno').val('');
                 $('#search-results').empty().hide();
                 $('#selected-student').hide();
                 alunoSelecionado = null;
-
                 $('#nome-aluno').val('');
                 $('#matricula-aluno').val('');
                 $('#telefone').val('');
                 $('#endereco').val('');
                 $('#email').val('');
-                $('#ano-letivo').val(anoAtual);
+                carregarAnos();
                 $('#nova-turma').val('');
                 $('#novo-turno').val('');
             }

@@ -172,6 +172,23 @@
             background-color: rgba(0, 0, 0, 0.2) !important;
             backdrop-filter: blur(10px);
         }
+        /* Avatar e wrapper exatamente como em notas.php */
+        .aluno-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .aluno-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background-color: #71affe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -205,21 +222,15 @@
                         <div class="form-group">
                             <label for="year-select">Ano Letivo</label>
                             <select class="form-control" id="year-select">
-                                <option>2023</option>
-                                <option selected>2024</option>
-                                <option>2025</option>
+                                <option value="">Selecione</option>
                             </select>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="grade-select">Turma</label>
-                            <select class="form-control" id="grade-select">
-                                <option value="">Selecione uma turma</option>
-                                <option value="1A">1º Ano - Turma A</option>
-                                <option value="1B">1º Ano - Turma B</option>
-                                <option value="2A">2º Ano - Turma A</option>
-                                <option value="2B">2º Ano - Turma B</option>
+                            <select class="form-control" id="grade-select" disabled>
+                                <option value="">Selecione o ano primeiro</option>
                             </select>
                         </div>
                     </div>
@@ -288,69 +299,50 @@
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
 
     <script>
-        // Dados de exemplo
-        const sampleAttendance = {
-            "1A": [
-                {
-                    id: 1,
-                    name: "Aluno 1",
-                    photo: "../user_adm/imagens/icon_ex1.jpg",
-                    registration: "202411001",
-                    attendance: {
-                        present: 18,
-                        absent: 2,
-                        justified: 1,
-                        percentage: 85.7
-                    }
-                },
-                {
-                    id: 2,
-                    name: "Aluno 2",
-                    photo: "../user_adm/imagens/icon_ex2.jpg",
-                    registration: "202411002",
-                    attendance: {
-                        present: 20,
-                        absent: 0,
-                        justified: 0,
-                        percentage: 100
-                    }
-                }
-            ],
-            "2A": [
-                {
-                    id: 3,
-                    name: "Aluno 3",
-                    photo: "../user_adm/imagens/icon_ex3.jpg",
-                    registration: "202421001",
-                    attendance: {
-                        present: 15,
-                        absent: 5,
-                        justified: 1,
-                        percentage: 71.4
-                    }
-                }
-            ]
-        };
-
         $(document).ready(function () {
             // Atualiza a data para impressão
             const now = new Date();
             $('#print-date').text('Emitido em: ' + now.toLocaleDateString() + ' às ' + now.toLocaleTimeString());
 
-            // Manipula a seleção de turma
-            $('#grade-select').change(function () {
-                const selectedClass = $(this).val();
+            const $ano = $('#year-select');
+            const $turma = $('#grade-select');
 
-                if (selectedClass) {
+            function carregarAnos() {
+                $.getJSON('../includes/ajax/listar_anos_letivos.php', function (resp) {
+                    if (resp.success) {
+                        $ano.empty().append('<option value="">Selecione</option>');
+                        resp.data.forEach(ano => $ano.append(`<option value="${ano}">${ano}</option>`));
+                    }
+                });
+            }
+
+            function carregarTurmas(ano) {
+                $turma.prop('disabled', true).empty().append('<option value="">Carregando...</option>');
+                $.getJSON('../includes/ajax/listar_turmas.php', { ano }, function (resp) {
+                    $turma.empty();
+                    if (resp.success && resp.data.length) {
+                        $turma.append('<option value="">Selecione</option>');
+                        resp.data.forEach(t => $turma.append(`<option value="${t.ID_Turma}">${t.Nome_Turma} (${t.Etapa || ''})</option>`));
+                        $turma.prop('disabled', false);
+                    } else {
+                        $turma.append('<option value="">Nenhuma turma encontrada</option>');
+                    }
+                });
+            }
+
+            $ano.on('change', function(){
+                const val = $(this).val();
+                if (val) carregarTurmas(val);
+            });
+
+            $turma.on('change', function () {
+                const turmaId = $(this).val();
+                if (turmaId) {
                     $('#empty-state').hide();
                     $('#attendance-list').show();
-
-                    // Atualiza o título
                     const classText = $('#grade-select option:selected').text();
                     $('#class-title').text('Frequência da Turma: ' + classText);
-
-                    // Carrega os dados
-                    loadAttendanceData(selectedClass);
+                    loadAttendanceData(turmaId);
                 } else {
                     $('#empty-state').show();
                     $('#attendance-list').hide();
@@ -358,10 +350,7 @@
             });
 
             // Função para carregar dados de frequência
-            function loadAttendanceData(classId) {
-                const students = sampleAttendance[classId] || [];
-                const totalStudents = students.length;
-
+            function loadAttendanceData(turmaId) {
                 // Destrói a DataTable se já existir
                 if ($.fn.DataTable.isDataTable('#attendance-table')) {
                     $('#attendance-table').DataTable().destroy();
@@ -369,72 +358,70 @@
 
                 // Limpa a tabela
                 $('#attendance-table tbody').empty();
-
-                if (totalStudents === 0) {
-                    $('#attendance-data').html('<tr><td colspan="6" class="text-center">Nenhum dado de frequência disponível</td></tr>');
-                    return;
-                }
-
-                // Calcula totais
-                let totalPresent = 0;
-                let totalAbsent = 0;
-                let totalJustified = 0;
-
-                let tableContent = '';
-                students.forEach(student => {
-                    totalPresent += student.attendance.present;
-                    totalAbsent += student.attendance.absent;
-                    totalJustified += student.attendance.justified;
-
-                    tableContent += `
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <img src="${student.photo}" alt="${student.name}" 
-                                         class="student-photo mr-2" onerror="this.src='../assets/images/default-user.png'">
-                                    ${student.name}
-                                </div>
-                            </td>
-                            <td>${student.registration}</td>
-                            <td>${student.attendance.present}</td>
-                            <td>${student.attendance.absent}</td>
-                            <td>${student.attendance.justified}</td>
-                            <td>
-                                <span class="d-block d-print-none">
-                                    <div class="progress" style="height: 20px;">
-                                    <div class="progress-bar ${getPercentageColor(student.attendance.percentage)}"
-                                        role="progressbar" style="width: ${student.attendance.percentage}%"
-                                        aria-valuenow="${student.attendance.percentage}" 
-                                        aria-valuemin="0" aria-valuemax="100">
-                                        ${student.attendance.percentage}%
-                                    </div>
-                                    </div>
-                                </span>
-                                <span class="d-none d-print-block">
-                                    ${student.attendance.percentage}%
-                                </span>
-                            </td>
-                        </tr>
-                    `;
-                });
-
-                $('#attendance-data').html(tableContent);
-                $('#attendance-summary').html(`
-                    ${totalStudents} alunos | 
-                    Presenças: ${totalPresent} | 
-                    Faltas: ${totalAbsent} | 
-                    Justificadas: ${totalJustified}
-                `);
-
-                // Inicializa DataTable
-                $('#attendance-table').DataTable({
-                    responsive: true,
-                    language: {
-                        url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/pt-BR.json'
-                    },
-                    dom: '<"top"f>rt<"bottom"lip><"clear">',
-                    initComplete: function () {
+                $.getJSON('../includes/ajax/listar_frequencia_por_turma.php', { turma_id: turmaId }, function(resp){
+                    if (!resp.success) {
+                        $('#attendance-data').html('<tr><td colspan="6" class="text-center">Erro ao carregar frequência</td></tr>');
+                        return;
                     }
+                    const alunos = resp.data;
+                    if (!alunos.length) {
+                        $('#attendance-data').html('<tr><td colspan="6" class="text-center">Nenhum dado de frequência disponível</td></tr>');
+                        return;
+                    }
+
+                    let totalPresent = 0;
+                    let totalAbsent = 0;
+                    let totalJustified = 0; 
+
+                    let tableContent = '';
+                        alunos.forEach(a => {
+                        const perc = a.Percentual;
+                        totalPresent += parseInt(a.Presentes || 0, 10);
+                        totalAbsent += parseInt(a.Faltas || 0, 10);
+                        const iniciais = (function(name){
+                            if (!name) return '';
+                            const parts = name.trim().split(/\s+/);
+                            const first = parts[0] ? parts[0][0] : '';
+                            const last = parts.length > 1 ? parts[parts.length-1][0] : '';
+                            return (first + last).toUpperCase();
+                        })(a.Nome_Completo);
+                        tableContent += `
+                            <tr>
+                                <td>
+                                        <div class=\"aluno-info\">
+                                            <div class=\"aluno-avatar\">${iniciais}</div>
+                                            ${a.Nome_Completo}
+                                        </div>
+                                </td>
+                                <td>${a.Matricula || ''}</td>
+                                <td>${a.Presentes || 0}</td>
+                                <td>${a.Faltas || 0}</td>
+                                <td>0</td>
+                                <td>
+                                    <span class="d-block d-print-none">
+                                        <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar ${getPercentageColor(perc)}"
+                                            role="progressbar" style="width: ${perc}%"
+                                            aria-valuenow="${perc}" aria-valuemin="0" aria-valuemax="100">
+                                            ${perc}%
+                                        </div>
+                                        </div>
+                                    </span>
+                                    <span class="d-none d-print-block">${perc}%</span>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    $('#attendance-data').html(tableContent);
+                    $('#attendance-summary').html(`
+                        ${alunos.length} alunos | Presenças: ${totalPresent} | Faltas: ${totalAbsent} | Justificadas: ${totalJustified}
+                    `);
+
+                    $('#attendance-table').DataTable({
+                        responsive: true,
+                        language: { url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/pt-BR.json' },
+                        dom: '<"top"f>rt<"bottom"lip><"clear">'
+                    });
                 });
             }
 
@@ -472,6 +459,8 @@
                     alert('Por favor, selecione uma turma antes de gerar o relatório.');
                 }
             });
+            // Inicialização
+            carregarAnos();
         });
     </script>
 </body>

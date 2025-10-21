@@ -199,51 +199,102 @@
     <!-- Script para PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
-        // Função para pegar parâmetros da URL
-        function getUrlParams() {
+        function getAlunoIdParam(){
             const params = new URLSearchParams(window.location.search);
-            return {
-                nome: params.get('nome') || 'Aluno',
-                matricula: params.get('matricula') || '20230001',
-                inep: params.get('inep') || '12345678',
-                nascimento: params.get('nascimento') || '10/05/2010',
-                nacionalidade: params.get('nacionalidade') || 'Brasileira',
-                naturalidade: params.get('naturalidade') || 'Parobé/RS',
-                filiacao: params.get('filiacao') || 'Pai e Mãe',
-                nis: params.get('nis') || '123.45678.90-1',
-                observacoes: params.get('observacoes') || 'Aluno apresentou ótimo desempenho durante todo o período letivo.'
-            };
+            return params.get('aluno_id');
         }
 
-        // Preenche os dados do aluno quando a página carrega
-        window.onload = function() {
-            const params = getUrlParams();
-            
-            // Preenche os dados pessoais
-            document.getElementById('nome-aluno').textContent = params.nome;
-            document.getElementById('matricula-aluno').textContent = params.matricula;
-            document.getElementById('inep-aluno').textContent = params.inep;
-            document.getElementById('nascimento-aluno').textContent = params.nascimento;
-            document.getElementById('nacionalidade-aluno').textContent = params.nacionalidade;
-            document.getElementById('naturalidade-aluno').textContent = params.naturalidade;
-            document.getElementById('filiacao-aluno').textContent = params.filiacao;
-            document.getElementById('nis-aluno').textContent = params.nis;
-            document.getElementById('observacoes-aluno').textContent = params.observacoes;
-            
-            // Atualiza a data de emissão
+        function preencherCabecalho(aluno){
+            document.getElementById('nome-aluno').textContent = aluno.Nome_Completo || '—';
+            document.getElementById('matricula-aluno').textContent = aluno.Matricula || '—';
+            document.getElementById('inep-aluno').textContent = aluno.INEP || '—';
+            document.getElementById('nascimento-aluno').textContent = aluno.Data_Nascimento ? new Date(aluno.Data_Nascimento).toLocaleDateString('pt-BR') : '—';
+            document.getElementById('nacionalidade-aluno').textContent = aluno.Nacionalidade || '—';
+            document.getElementById('naturalidade-aluno').textContent = aluno.Naturalidade || '—';
+            document.getElementById('filiacao-aluno').textContent = aluno.Filiacao || '—';
+            document.getElementById('nis-aluno').textContent = aluno.NIS || '—';
+            document.getElementById('observacoes-aluno').textContent = ' ';
+
             const hoje = new Date();
             document.getElementById('data-emissao').textContent = hoje.toLocaleDateString('pt-BR');
-            
-            // Gera um código de verificação único
-            document.getElementById('codigo-verificacao').textContent = 
-                `HIST-${params.matricula}-${gerarCodigoAleatorio()}`;
+            document.getElementById('codigo-verificacao').textContent = `HIST-${aluno.Matricula || 'ALUNO'}-${gerarCodigoAleatorio()}`;
+        }
+
+        function preencherDisciplinas(anos, disciplinas){
+            const tbody = document.getElementById('dados-disciplinas');
+            tbody.innerHTML = '';
+            if (!disciplinas || !disciplinas.length){
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 7;
+                td.textContent = 'Sem registros de notas.';
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                return;
+            }
+            // Cabeçalho já está fixo como 1º, 2º, 3º ano — se desejar dinamizar, precisaremos gerar o thead.
+            disciplinas.forEach(d => {
+                const tr = document.createElement('tr');
+                const tdNome = document.createElement('td');
+                tdNome.textContent = d.nome;
+                tr.appendChild(tdNome);
+                const colAnos = [0,1,2];
+                colAnos.forEach((i)=>{
+                    const ano = anos[i];
+                    const info = ano ? d.porAno[String(ano)] : null;
+                    const tdNota = document.createElement('td');
+                    tdNota.textContent = info && info.nota != null ? String(info.nota).replace('.', ',') : '—';
+                    tr.appendChild(tdNota);
+                    const tdCH = document.createElement('td');
+                    tdCH.textContent = info && info.ch != null ? info.ch : '—';
+                    tr.appendChild(tdCH);
+                });
+                tbody.appendChild(tr);
+            });
+        }
+
+        function atualizarCabecalhoAnos(anos){
+            const ths = document.querySelectorAll('.tabela-disciplinas thead tr:first-child th');
+            // ths[0] é "Disciplinas"; depois 3 colunas (colspan=2) para os anos
+            for (let i = 0; i < 3; i++){
+                const idx = i + 1;
+                if (ths[idx]){
+                    const label = anos[i] ? String(anos[i]) : `${i+1}º Ano`;
+                    ths[idx].textContent = label;
+                }
+            }
+        }
+
+        window.onload = function(){
+            const alunoId = getAlunoIdParam();
+            if (!alunoId){
+                alert('Parâmetro aluno_id ausente.');
+                return;
+            }
+            fetch(`../includes/ajax/obter_historico_aluno.php?aluno_id=${encodeURIComponent(alunoId)}`)
+                .then(r => r.json())
+                .then(resp => {
+                    if (!resp.success){
+                        alert('Erro ao carregar histórico: ' + (resp.message || 'desconhecido'));
+                        return;
+                    }
+                    preencherCabecalho(resp.aluno || {});
+                    if (resp.observacoes) {
+                        document.getElementById('observacoes-aluno').textContent = resp.observacoes;
+                    }
+                    // Se houver mais de 3 anos, usamos os primeiros 3 em ordem asc
+                    const anos = (resp.anos || []).slice(0,3);
+                    atualizarCabecalhoAnos(anos);
+                    preencherDisciplinas(anos, resp.disciplinas || []);
+                })
+                .catch(err => alert('Erro: ' + err));
         };
 
         // Função para gerar PDF
         function gerarPDF() {
             const element = document.getElementById('conteudo-historico');
-            const params = getUrlParams();
-            const filename = `historico_${params.matricula}.pdf`;
+            const matricula = document.getElementById('matricula-aluno').textContent || 'aluno';
+            const filename = `historico_${matricula}.pdf`;
             
             html2pdf().set({
                 margin: 10,

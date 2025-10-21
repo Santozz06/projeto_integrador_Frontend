@@ -158,6 +158,24 @@ if (!$modoSelecao) {
         .content-wrapper .text-muted {
             color: #cbd3da !important; 
         }
+
+        /* Modal transparente no estilo da tela de transferências */
+        #confirmVinculoModal .modal-content {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            color: #ecf0f1;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        #confirmVinculoModal .modal-header { border-bottom: 1px solid rgba(255, 255, 255, 0.15); }
+        #confirmVinculoModal .modal-title { color: #71affe; font-weight: bold; }
+        #confirmVinculoModal .modal-body p,
+        #confirmVinculoModal .modal-body small,
+        #confirmVinculoModal .modal-body div { color: #ecf0f1; }
+        #confirmVinculoModal .btn-primary { background-color: #1abc9c; border: none; }
+        #confirmVinculoModal .btn-primary:hover { background-color: #16a085; }
+        #confirmVinculoModal .btn-secondary { background-color: #7f8c8d; border: none; }
+        #confirmVinculoModal .btn-secondary:hover { background-color: #616a6b; }
     </style>
 </head>
 
@@ -405,22 +423,39 @@ if (!$modoSelecao) {
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
 
+    <!-- Modal de confirmação de vínculo (somente aluno) -->
+    <div class="modal fade" id="confirmVinculoModal" tabindex="-1" role="dialog" aria-labelledby="confirmVinculoLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmVinculoLabel">Confirmar novo vínculo</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Ao vincular este aluno à turma abaixo, qualquer matrícula ativa anterior será encerrada automaticamente.</p>
+                    <div class="p-2" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;">
+                        <strong>Nova turma:</strong>
+                        <div id="turmaResumo" class="mt-1"></div>
+                    </div>
+                    <small class="text-muted d-block mt-2">A matrícula anterior receberá Status "Inativa" e Data de Saída (quando disponível).</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="confirmVinculoBtn">Confirmar vínculo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         $(document).ready(function () {
-            // Submissão do formulário de vínculo
-            $('#formVinculo').on('submit', function (e) {
-                e.preventDefault();
-
+            function enviarVinculo() {
                 const turmaId = $('#turma').val();
                 const tipoUsuario = $('#tipoUsuario').val();
                 const idUsuario = $('#idUsuario').val();
 
-                if (!turmaId) {
-                    alert('Por favor, selecione uma turma para vincular.');
-                    return;
-                }
-
-                // Enviar dados para o servidor via AJAX
                 $.ajax({
                     url: '../includes/ajax/vincular_usuario_turma.php',
                     type: 'POST',
@@ -432,23 +467,48 @@ if (!$modoSelecao) {
                     },
                     success: function(response) {
                         if (response.success) {
+                            $('#confirmVinculoModal').modal('hide');
                             $('#successMessage').removeClass('d-none').fadeIn();
                             $('#errorMessage').addClass('d-none');
-                            
-                            // Atualizar situação e recarregar a página após 2 segundos
-                            setTimeout(() => {
-                                location.reload();
-                            }, 2000);
+                            setTimeout(() => { location.reload(); }, 1500);
                         } else {
                             $('#errorMessage').text(response.message).removeClass('d-none');
                             $('#successMessage').addClass('d-none');
+                            $('#confirmVinculoModal').modal('hide');
                         }
                     },
                     error: function() {
                         $('#errorMessage').text('Erro ao conectar com o servidor.').removeClass('d-none');
                         $('#successMessage').addClass('d-none');
+                        $('#confirmVinculoModal').modal('hide');
                     }
                 });
+            }
+
+            // Submissão do formulário de vínculo
+            $('#formVinculo').on('submit', function (e) {
+                e.preventDefault();
+
+                const turmaId = $('#turma').val();
+                const tipoUsuario = $('#tipoUsuario').val();
+
+                if (!turmaId) {
+                    alert('Por favor, selecione uma turma para vincular.');
+                    return;
+                }
+
+                if (tipoUsuario === 'aluno') {
+                    const turmaTexto = $('#turma option:selected').text();
+                    $('#turmaResumo').text(turmaTexto || '—');
+                    $('#confirmVinculoModal').modal('show');
+                } else {
+                    // Professores seguem fluxo direto
+                    enviarVinculo();
+                }
+            });
+
+            $('#confirmVinculoBtn').on('click', function(){
+                enviarVinculo();
             });
         });
 

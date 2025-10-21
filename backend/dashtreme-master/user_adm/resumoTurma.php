@@ -127,33 +127,20 @@
                                 <div class="form-group">
                                     <label for="ano-filter">Ano Letivo</label>
                                     <select class="form-control" id="ano-filter">
-                                        <option>2024</option>
-                                        <option>2023</option>
-                                        <option>2022</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="serie-filter">Série</label>
-                                    <select class="form-control" id="serie-filter">
-                                        <option value="">Todas</option>
-                                        <option>1º Ano</option>
-                                        <option>2º Ano</option>
-                                        <option>3º Ano</option>
+                                        <option value="">Selecione</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="turma-filter">Turma</label>
-                                    <select class="form-control" id="turma-filter">
-                                        <option value="">Todas</option>
-                                        <option>Turma A</option>
-                                        <option>Turma B</option>
-                                        <option>Turma C</option>
+                                    <select class="form-control" id="turma-filter" disabled>
+                                        <option value="">Selecione o ano primeiro</option>
                                     </select>
                                 </div>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button id="btn-carregar" class="btn btn-primary btn-block" disabled>Carregar</button>
                             </div>
                         </div>
                     </div>
@@ -163,7 +150,7 @@
                         <div class="col-md-4">
                             <div class="card summary-card students">
                                 <div class="card-body text-center">
-                                    <div class="summary-value" id="total-alunos">42</div>
+                                    <div class="summary-value" id="total-alunos">0</div>
                                     <div class="summary-label">Alunos</div>
                                 </div>
                             </div>
@@ -171,7 +158,7 @@
                         <div class="col-md-4">
                             <div class="card summary-card teachers">
                                 <div class="card-body text-center">
-                                    <div class="summary-value" id="total-professores">8</div>
+                                    <div class="summary-value" id="total-professores">0</div>
                                     <div class="summary-label">Professores</div>
                                 </div>
                             </div>
@@ -179,7 +166,7 @@
                         <div class="col-md-4">
                             <div class="card summary-card disciplines">
                                 <div class="card-body text-center">
-                                    <div class="summary-value" id="total-disciplinas">12</div>
+                                    <div class="summary-value" id="total-disciplinas">0</div>
                                     <div class="summary-label">Disciplinas</div>
                                 </div>
                             </div>
@@ -188,7 +175,7 @@
 
                     <!-- Detalhes por Turma -->
                     <div class="turma-header">
-                        <h5><i class="zmdi zmdi-filter mr-2"></i> Turma: 1º Ano A</h5>
+                        <h5><i class="zmdi zmdi-filter mr-2"></i> Turma: Selecione acima</h5>
                     </div>
 
                     <div class="table-responsive">
@@ -201,25 +188,8 @@
                                     <th>Aulas Semanais</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Matemática</td>
-                                    <td>Maria da Silva</td>
-                                    <td>42</td>
-                                    <td>5</td>
-                                </tr>
-                                <tr>
-                                    <td>Português</td>
-                                    <td>João Oliveira</td>
-                                    <td>42</td>
-                                    <td>5</td>
-                                </tr>
-                                <tr>
-                                    <td>Ciências</td>
-                                    <td>Ana Santos</td>
-                                    <td>42</td>
-                                    <td>3</td>
-                                </tr>
+                            <tbody id="detalhes-turma-body">
+                                <tr><td colspan="4" class="text-center">Selecione uma turma e clique em Carregar</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -238,129 +208,91 @@
    
     <script>
         $(document).ready(function () {
-            // Dados completos e fixos para todas as turmas
-            const dadosCompletos = {
-                '2024': {
-                    '1º Ano': {
-                        'Turma A': {
-                            alunos: 42,
-                            professores: 8,
-                            disciplinas: 12,
-                            detalhes: [
-                                ['Matemática', 'Maria da Silva', '42', '5'],
-                                ['Português', 'João Oliveira', '42', '5'],
-                                ['Ciências', 'Ana Santos', '42', '3']
-                            ]
-                        },
-                        'Turma B': {
-                            alunos: 40,
-                            professores: 7,
-                            disciplinas: 11,
-                            detalhes: [
-                                ['Matemática', 'Carlos Mendes', '40', '5'],
-                                ['Português', 'Fernanda Lima', '40', '5']
-                            ]
-                        }
-                    },
-                    '2º Ano': {
-                        'Turma A': {
-                            alunos: 45,
-                            professores: 9,
-                            disciplinas: 13,
-                            detalhes: [
-                                ['Matemática', 'Patrícia Gomes', '45', '5'],
-                                ['Literatura', 'Ricardo Silva', '45', '4']
-                            ]
-                        }
-                    },
-                    '3º Ano': {
-                        'Turma A': {
-                            alunos: 38,
-                            professores: 8,
-                            disciplinas: 12,
-                            detalhes: [
-                                ['Matemática', 'André Luiz', '38', '5'],
-                                ['Redação', 'Juliana Martins', '38', '4']
-                            ]
-                        }
+            const $ano = $('#ano-filter');
+            const $turma = $('#turma-filter');
+            const $btn = $('#btn-carregar');
+
+            function carregarAnos() {
+                $.getJSON('../includes/ajax/listar_anos_letivos.php', function (resp) {
+                    if (resp.success) {
+                        $ano.empty().append('<option value="">Selecione</option>');
+                        resp.data.forEach(ano => $ano.append(`<option value="${ano}">${ano}</option>`));
                     }
-                }
-            };
-
-            // Inicializa com totais gerais
-            const totaisGerais = {
-                alunos: 181,
-                professores: 22,
-                disciplinas: 42
-            };
-
-            // Filtros dinâmicos
-            $('#ano-filter, #serie-filter, #turma-filter').change(function () {
-                const ano = $('#ano-filter').val();
-                const serie = $('#serie-filter').val();
-                const turma = $('#turma-filter').val();
-
-                if (turma && turma !== 'Todas' && serie && serie !== 'Todas') {
-                    // Busca dados da turma específica
-                    const turmaData = dadosCompletos[ano]?.[serie]?.[turma] || {
-                        alunos: 40,
-                        professores: 5,
-                        disciplinas: 10,
-                        detalhes: [
-                            ['Disciplina', 'Professor', '40', '5']
-                        ]
-                    };
-
-                    // Atualiza os cards
-                    $('#total-alunos').text(turmaData.alunos);
-                    $('#total-professores').text(turmaData.professores);
-                    $('#total-disciplinas').text(turmaData.disciplinas);
-
-                    // Atualiza o cabeçalho
-                    $('.turma-header h5').text(`Turma: ${serie} ${turma}`);
-
-                    // Atualiza a tabela
-                    updateTableData(turmaData.detalhes);
-                } else {
-                    // Mostra totais gerais quando "Todas" está selecionado
-                    $('#total-alunos').text(totaisGerais.alunos);
-                    $('#total-professores').text(totaisGerais.professores);
-                    $('#total-disciplinas').text(totaisGerais.disciplinas);
-                    $('.turma-header h5').text('Resumo Geral');
-                    resetTableData();
-                }
-            });
-
-            // Função para atualizar a tabela
-            function updateTableData(dados) {
-                const $tableBody = $('table tbody');
-                $tableBody.empty();
-
-                dados.forEach(row => {
-                    $tableBody.append(`<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td></tr>`);
                 });
             }
 
-            // Função para resetar a tabela
-            function resetTableData() {
-                const $tableBody = $('table tbody');
-                $tableBody.empty();
-                $tableBody.append(`
-                <tr><td colspan="4" class="text-center">Selecione uma turma específica para ver os detalhes</td></tr>
-            `);
+            function carregarTurmas(ano) {
+                $turma.prop('disabled', true).empty().append('<option value="">Carregando...</option>');
+                $.getJSON('../includes/ajax/listar_turmas.php', { ano }, function (resp) {
+                    $turma.empty();
+                    if (resp.success && resp.data.length) {
+                        $turma.append('<option value="">Selecione</option>');
+                        resp.data.forEach(t => $turma.append(`<option value="${t.ID_Turma}">${t.Nome_Turma} (${t.Etapa || ''})</option>`));
+                        $turma.prop('disabled', false);
+                    } else {
+                        $turma.append('<option value="">Nenhuma turma encontrada</option>');
+                    }
+                });
             }
 
-            // Botão de impressão
-            $('#print-btn').click(function () {
-                window.print();
+            $ano.on('change', function(){
+                const val = $(this).val();
+                $btn.prop('disabled', !val);
+                if (val) carregarTurmas(val);
             });
 
-            // Inicializa a tela com os totais gerais
-            $('#total-alunos').text(totaisGerais.alunos);
-            $('#total-professores').text(totaisGerais.professores);
-            $('#total-disciplinas').text(totaisGerais.disciplinas);
-            $('.turma-header h5').text('Resumo Geral');
-            resetTableData();
+            $btn.on('click', function(e){
+                e.preventDefault();
+                const turmaId = $turma.val();
+                if (!turmaId) { alert('Selecione uma turma'); return; }
+                carregarResumo(turmaId);
+            });
+
+            function carregarResumo(turmaId) {
+                // 1) Alunos
+                $.getJSON('../includes/ajax/listar_alunos_por_turma.php', { turma_id: turmaId }, function(resp){
+                    if (resp.success) {
+                        $('#total-alunos').text(resp.data.length);
+                    } else {
+                        $('#total-alunos').text('0');
+                    }
+                });
+
+                // 2) Professores
+                $.getJSON('../includes/ajax/listar_professores_por_turma.php', { turma_id: turmaId }, function(resp){
+                    if (resp.success) {
+                        $('#total-professores').text(resp.data.length);
+                    } else {
+                        $('#total-professores').text('0');
+                    }
+                });
+
+                // 3) Disciplinas + detalhes
+                $.getJSON('../includes/ajax/listar_disciplinas_por_turma.php', { turma_id: turmaId }, function(resp){
+                    const $tbody = $('#detalhes-turma-body');
+                    $tbody.empty();
+                    if (resp.success && resp.data.length) {
+                        $('#total-disciplinas').text(resp.data.length);
+                        // Para cada disciplina, alunos = total alunos da turma (já carregado acima). Aqui exibimos apenas a quantidade no momento do carregamento.
+                        // Como chamadas são assíncronas, buscamos o texto atual do card.
+                        const alunosTxt = $('#total-alunos').text();
+                        resp.data.forEach(d => {
+                            $tbody.append(`<tr><td>${d.Nome_Disciplina}</td><td>${d.Professor || ''}</td><td>${alunosTxt}</td><td>${d.Carga_Horaria || ''}</td></tr>`);
+                        });
+                        const turmaText = $turma.find('option:selected').text();
+                        $('.turma-header h5').text(`Turma: ${turmaText}`);
+                    } else {
+                        $('#total-disciplinas').text('0');
+                        $tbody.append('<tr><td colspan="4" class="text-center">Nenhuma disciplina encontrada</td></tr>');
+                    }
+                });
+            }
+
+            // Inicialização
+            carregarAnos();
+
+            // Impressão
+            $('#print-btn').click(function () { window.print(); });
         });
     </script>
 </body>

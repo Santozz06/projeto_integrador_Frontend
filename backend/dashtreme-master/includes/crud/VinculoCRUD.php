@@ -12,12 +12,14 @@ class VinculoCRUD extends BaseCRUD
     public function vincularAluno($idAluno, $idTurma)
     {
         try {
+            $this->pdo->beginTransaction();
             // Verificar se o aluno já está vinculado a esta turma
             $sqlCheck = "SELECT * FROM Matriculas WHERE ID_Aluno = ? AND ID_Turma = ? AND Status = 'Ativa'";
             $stmtCheck = $this->pdo->prepare($sqlCheck);
             $stmtCheck->execute([$idAluno, $idTurma]);
 
             if ($stmtCheck->fetch()) {
+                $this->pdo->rollBack();
                 throw new Exception("Este aluno já está vinculado a esta turma.");
             }
 
@@ -30,16 +32,47 @@ class VinculoCRUD extends BaseCRUD
             $turma = $stmtCapacidade->fetch(PDO::FETCH_ASSOC);
 
             if ($turma['alunos_matriculados'] >= $turma['Capacidade_Alunos']) {
+                $this->pdo->rollBack();
                 throw new Exception("A turma atingiu sua capacidade máxima de alunos.");
             }
 
-        // Fazer o vínculo (usar CURDATE() pois a coluna é do tipo DATE)
-        $sql = "INSERT INTO Matriculas (ID_Aluno, ID_Turma, Data_Matricula, Status) 
-            VALUES (?, ?, CURDATE(), 'Ativa')";
-            $stmt = $this->pdo->prepare($sql);
-            return $stmt->execute([$idAluno, $idTurma]);
+            // Obtém Ano_Letivo da turma (se existir)
+            $stmtAno = $this->pdo->prepare("SELECT Ano_Letivo FROM Turmas WHERE ID_Turma = ?");
+            $stmtAno->execute([$idTurma]);
+            $rowAno = $stmtAno->fetch(PDO::FETCH_ASSOC);
+            $anoLetivo = $rowAno && isset($rowAno['Ano_Letivo']) ? (int)$rowAno['Ano_Letivo'] : null;
+
+            // Encerra quaisquer matrículas ativas prévias do aluno (evita duplicidades)
+            $hasDataSaida = false;
+            try {
+                $col = $this->pdo->query("SHOW COLUMNS FROM Matriculas LIKE 'Data_Saida'");
+                $hasDataSaida = (bool)$col->fetch(PDO::FETCH_ASSOC);
+            } catch (Exception $e) { $hasDataSaida = false; }
+            if ($hasDataSaida) {
+                $sqlClose = "UPDATE Matriculas SET Status='Inativa', Data_Saida = IFNULL(Data_Saida, CURDATE()) WHERE ID_Aluno = ? AND Status = 'Ativa'";
+            } else {
+                $sqlClose = "UPDATE Matriculas SET Status='Inativa' WHERE ID_Aluno = ? AND Status = 'Ativa'";
+            }
+            $this->pdo->prepare($sqlClose)->execute([$idAluno]);
+
+            // Fazer o vínculo (usar CURDATE() pois a coluna é do tipo DATE)
+            if ($anoLetivo !== null) {
+                $sql = "INSERT INTO Matriculas (ID_Aluno, ID_Turma, Data_Matricula, Status, Ano_Letivo, Tipo_Matricula)
+                        VALUES (?, ?, CURDATE(), 'Ativa', ?, 'Vinculo')";
+                $stmt = $this->pdo->prepare($sql);
+                $ok = $stmt->execute([$idAluno, $idTurma, $anoLetivo]);
+            } else {
+                $sql = "INSERT INTO Matriculas (ID_Aluno, ID_Turma, Data_Matricula, Status, Tipo_Matricula)
+                        VALUES (?, ?, CURDATE(), 'Ativa', 'Vinculo')";
+                $stmt = $this->pdo->prepare($sql);
+                $ok = $stmt->execute([$idAluno, $idTurma]);
+            }
+
+            $this->pdo->commit();
+            return $ok;
 
         } catch (PDOException $e) {
+            if ($this->pdo->inTransaction()) { $this->pdo->rollBack(); }
             throw new Exception("Erro ao vincular aluno: " . $e->getMessage());
         }
     }

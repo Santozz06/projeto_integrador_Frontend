@@ -6,6 +6,28 @@ class MatriculaCRUD extends BaseCRUD {
         parent::__construct($pdo, 'Matriculas', 'ID_Matricula');
     }
     
+    private function hasDataSaidaColumn() {
+        try {
+            $col = $this->pdo->query("SHOW COLUMNS FROM Matriculas LIKE 'Data_Saida'");
+            return (bool)$col->fetch(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+    
+    private function encerrarMatriculasAtivasDoAluno($idAluno, $novoStatus = 'Inativa') {
+        $hasDataSaida = $this->hasDataSaidaColumn();
+        if ($hasDataSaida) {
+            $sql = "UPDATE Matriculas SET Status = ?, Data_Saida = IFNULL(Data_Saida, CURDATE()) WHERE ID_Aluno = ? AND Status = 'Ativa'";
+            $st = $this->pdo->prepare($sql);
+            $st->execute([$novoStatus, $idAluno]);
+        } else {
+            $sql = "UPDATE Matriculas SET Status = ? WHERE ID_Aluno = ? AND Status = 'Ativa'";
+            $st = $this->pdo->prepare($sql);
+            $st->execute([$novoStatus, $idAluno]);
+        }
+    }
+    
     // MATRICULAR ALUNO
     public function matricularAluno($idAluno, $idTurma, $tipoMatricula = 'Regular', $anoLetivo = null) {
         try {
@@ -18,6 +40,9 @@ class MatriculaCRUD extends BaseCRUD {
             if ($stmtVerifica->fetch()) {
                 throw new Exception("Aluno já está matriculado nesta turma para o ano letivo informado.");
             }
+            
+            // Garante que o aluno não fique com mais de uma matrícula ativa
+            $this->encerrarMatriculasAtivasDoAluno($idAluno, 'Inativa');
             
             $dadosMatricula = [
                 'ID_Aluno' => $idAluno,
@@ -111,7 +136,11 @@ class MatriculaCRUD extends BaseCRUD {
             $this->pdo->beginTransaction();
             
             // Cancela matrícula atual
-            $this->atualizar($idMatricula, ['Status' => 'Transferida']);
+            if ($this->hasDataSaidaColumn()) {
+                $this->atualizar($idMatricula, ['Status' => 'Transferida', 'Data_Saida' => date('Y-m-d')]);
+            } else {
+                $this->atualizar($idMatricula, ['Status' => 'Transferida']);
+            }
             
             // Busca dados da matrícula original
             $matricula = $this->buscarPorId($idMatricula);
@@ -161,6 +190,22 @@ class MatriculaCRUD extends BaseCRUD {
         } catch (PDOException $e) {
             throw new Exception("Erro ao verificar matrícula: " . $e->getMessage());
         }
+    }
+
+    // Finaliza matrícula com resultado (Aprovado/Reprovado) e data de saída
+    public function finalizarMatricula($idMatricula, $resultado = null, $dataSaida = null) {
+        $campos = ['Status' => 'Concluida'];
+        if ($this->hasDataSaidaColumn()) {
+            $campos['Data_Saida'] = $dataSaida ?: date('Y-m-d');
+        }
+        // Atualiza coluna Resultado se existir
+        try {
+            $col = $this->pdo->query("SHOW COLUMNS FROM Matriculas LIKE 'Resultado'");
+            if ($col->fetch(PDO::FETCH_ASSOC) && $resultado) {
+                $campos['Resultado'] = $resultado; // 'Aprovado' | 'Reprovado'
+            }
+        } catch (Exception $e) { /* ignore */ }
+        return $this->atualizar($idMatricula, $campos);
     }
 }
 ?>
