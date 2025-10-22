@@ -283,7 +283,11 @@
                 if (resp.success) {
                     $ano.empty().append('<option value="">Selecione</option>');
                     resp.data.forEach(ano => $ano.append(`<option value="${ano}">${ano}</option>`));
+                } else {
+                    console.error('Falha ao carregar anos:', resp.message);
                 }
+            }).fail(function(jq){
+                console.error('Erro ao consultar anos:', jq.statusText || jq.status);
             });
 
             $ano.on('change', function(){
@@ -314,6 +318,9 @@
                     } else {
                         $turma.append('<option value="">Nenhuma turma encontrada</option>');
                     }
+                }).fail(function(jq){
+                    $turma.empty().append('<option value="">Erro ao carregar turmas</option>');
+                    console.error('Erro ao consultar turmas:', jq.statusText || jq.status);
                 });
             }
 
@@ -352,6 +359,9 @@
                         };
                         $('#visualizar-historico').prop('disabled', false);
                     });
+                }).fail(function(jq){
+                    $alunos.html('<p class="text-muted">Erro de comunicação ao carregar alunos.</p>');
+                    console.error('Erro ao consultar alunos:', jq.statusText || jq.status);
                 });
             });
 

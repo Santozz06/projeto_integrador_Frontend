@@ -7,13 +7,27 @@ header('Content-Type: application/json');
 
 $ano = isset($_GET['ano']) ? (int)$_GET['ano'] : null;
 $turno = isset($_GET['turno']) && $_GET['turno'] !== '' ? $_GET['turno'] : null;
+$professorId = isset($_GET['professor_id']) && $_GET['professor_id'] !== '' ? (int)$_GET['professor_id'] : null;
 
 try {
     $params = [];
-    $sql = "SELECT ID_Turma, Nome_Turma, Ano_Letivo, Turno, Etapa FROM Turmas WHERE 1=1";
-    if ($ano) { $sql .= " AND Ano_Letivo = ?"; $params[] = $ano; }
-    if ($turno) { $sql .= " AND Turno = ?"; $params[] = $turno; }
-    $sql .= " ORDER BY Nome_Turma";
+    $isProfessor = isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'professor' && isset($_SESSION['usuario_id']);
+
+    // Sempre use alias 't' para consistência nas condições
+    $sql = "SELECT t.ID_Turma, t.Nome_Turma, t.Ano_Letivo, t.Turno, t.Etapa FROM Turmas t WHERE 1=1";
+
+    if ($isProfessor) {
+        $sql .= " AND EXISTS (SELECT 1 FROM Professores_Turmas pt WHERE pt.ID_Turma = t.ID_Turma AND pt.ID_Professor = ?)";
+        $params[] = (int)$_SESSION['usuario_id'];
+    } elseif ($professorId) {
+        // Quando admin filtra por professor
+        $sql .= " AND EXISTS (SELECT 1 FROM Professores_Turmas pt WHERE pt.ID_Turma = t.ID_Turma AND pt.ID_Professor = ?)";
+        $params[] = $professorId;
+    }
+
+    if ($ano) { $sql .= " AND t.Ano_Letivo = ?"; $params[] = $ano; }
+    if ($turno) { $sql .= " AND t.Turno = ?"; $params[] = $turno; }
+    $sql .= " ORDER BY t.Nome_Turma";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);

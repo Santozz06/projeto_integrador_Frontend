@@ -80,6 +80,7 @@
                         <ul class="sidebar-submenu">
                             <li><a href="calendario.php"><i class="zmdi zmdi-calendar"></i> Calendário</a></li>
                             <li><a href="documentos.php"><i class="zmdi zmdi-file"></i> Documentos</a></li>
+                            <li><a href="caderno_chamada.php"><i class="zmdi zmdi-accounts-list"></i> Caderno de Chamada</a></li>
                         </ul>
                     </li>
                 </ul>

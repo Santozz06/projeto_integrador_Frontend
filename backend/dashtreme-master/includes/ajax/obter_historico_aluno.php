@@ -144,18 +144,34 @@ try {
         }
     }
 
-    // Matriculas do aluno por ano letivo
-    $sqlMat = "SELECT ID_Matricula, Ano_Letivo FROM Matriculas WHERE ID_Aluno = ? ORDER BY Ano_Letivo ASC";
+    // Matriculas do aluno por ano letivo, com série (Etapa) da turma quando disponível
+    $sqlMat = "SELECT m.ID_Matricula, m.Ano_Letivo, t.Etapa, t.Nome_Turma
+               FROM Matriculas m
+               LEFT JOIN Turmas t ON t.ID_Turma = m.ID_Turma
+               WHERE m.ID_Aluno = ?
+               ORDER BY m.Ano_Letivo ASC";
     $stmt = $pdo->prepare($sqlMat);
     $stmt->execute([$alunoId]);
     $matriculas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $anos = [];
     $mapMatAno = [];
+    $seriesPorAno = [];
     foreach ($matriculas as $m) {
-        $mapMatAno[$m['ID_Matricula']] = (int)$m['Ano_Letivo'];
-        if (!in_array((int)$m['Ano_Letivo'], $anos, true)) {
-            $anos[] = (int)$m['Ano_Letivo'];
+        $anoLetivo = (int)$m['Ano_Letivo'];
+        $mapMatAno[$m['ID_Matricula']] = $anoLetivo;
+        if (!in_array($anoLetivo, $anos, true)) {
+            $anos[] = $anoLetivo;
+        }
+        // Série: preferir Etapa; fallback Nome_Turma
+        $serie = null;
+        if (isset($m['Etapa']) && $m['Etapa'] !== null && trim($m['Etapa']) !== '') {
+            $serie = $m['Etapa'];
+        } elseif (isset($m['Nome_Turma']) && $m['Nome_Turma'] !== null && trim($m['Nome_Turma']) !== '') {
+            $serie = $m['Nome_Turma'];
+        }
+        if ($serie !== null) {
+            $seriesPorAno[(string)$anoLetivo] = $serie;
         }
     }
 
@@ -163,20 +179,47 @@ try {
 
     $disciplinas = [];
     if (!empty($mapMatAno)) {
+        // Buscar se existe coluna Trimestre na tabela Notas
+        $hasTri = false;
+        try {
+            $chk = $pdo->query("SHOW COLUMNS FROM Notas LIKE 'Trimestre'");
+            $hasTri = $chk && $chk->rowCount() > 0;
+        } catch (Throwable $e) { $hasTri = false; }
+
         // Buscar médias por disciplina para cada matrícula (ano)
         $placeholders = implode(',', array_fill(0, count($mapMatAno), '?'));
         $params = array_keys($mapMatAno);
 
-        $sqlNotas = "SELECT 
-                        n.ID_Matricula,
-                        d.Nome_Disciplina,
-                        d.Carga_Horaria,
-                        ROUND(AVG(n.Nota), 2) AS Media
-                     FROM Notas n
-                     INNER JOIN Disciplinas d ON d.ID_Disciplina = n.ID_Disciplina
-                     WHERE n.ID_Matricula IN ($placeholders)
-                     GROUP BY n.ID_Matricula, d.ID_Disciplina, d.Nome_Disciplina, d.Carga_Horaria
-                     ORDER BY d.Nome_Disciplina";
+        if ($hasTri) {
+            // 1) Média por trimestre = AVG(Etapas) no trimestre
+            // 2) Média anual = AVG(médias de cada trimestre) para a disciplina
+            $sqlNotas = "SELECT 
+                            x.ID_Matricula,
+                            d.Nome_Disciplina,
+                            d.Carga_Horaria,
+                            ROUND(AVG(x.Media_Trimestre), 2) AS Media
+                         FROM (
+                            SELECT n.ID_Matricula, n.ID_Disciplina, n.Trimestre, AVG(n.Nota) AS Media_Trimestre
+                            FROM Notas n
+                            WHERE n.ID_Matricula IN ($placeholders)
+                            GROUP BY n.ID_Matricula, n.ID_Disciplina, n.Trimestre
+                         ) x
+                         INNER JOIN Disciplinas d ON d.ID_Disciplina = x.ID_Disciplina
+                         GROUP BY x.ID_Matricula, x.ID_Disciplina, d.Nome_Disciplina, d.Carga_Horaria
+                         ORDER BY d.Nome_Disciplina";
+        } else {
+            // Compatibilidade: média direta das notas cadastradas (sem trimestre)
+            $sqlNotas = "SELECT 
+                            n.ID_Matricula,
+                            d.Nome_Disciplina,
+                            d.Carga_Horaria,
+                            ROUND(AVG(n.Nota), 2) AS Media
+                         FROM Notas n
+                         INNER JOIN Disciplinas d ON d.ID_Disciplina = n.ID_Disciplina
+                         WHERE n.ID_Matricula IN ($placeholders)
+                         GROUP BY n.ID_Matricula, d.ID_Disciplina, d.Nome_Disciplina, d.Carga_Horaria
+                         ORDER BY d.Nome_Disciplina";
+        }
 
         $stmt = $pdo->prepare($sqlNotas);
         $stmt->execute($params);
@@ -207,6 +250,7 @@ try {
         'success' => true,
         'aluno' => $aluno,
         'anos' => $anos,
+        'series_por_ano' => $seriesPorAno,
         'disciplinas' => $disciplinas,
         'observacoes' => null
     ]);

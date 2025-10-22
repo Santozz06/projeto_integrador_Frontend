@@ -68,7 +68,10 @@ CREATE TABLE `Calendario_Academico` (
   `Data_Inicio` date NOT NULL,
   `Data_Fim` date DEFAULT NULL,
   `Tipo_Evento` varchar(50) DEFAULT NULL,
-  `Ano_Letivo` int DEFAULT NULL
+  `Publico_Alvo` varchar(20) DEFAULT 'todos',
+  `Ano_Letivo` int DEFAULT NULL,
+  `Google_Event_Id` varchar(128) DEFAULT NULL,
+  `Google_Calendar_Id` varchar(128) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -5777,6 +5780,7 @@ CREATE TABLE `Notas` (
   `ID_Nota` int NOT NULL,
   `ID_Matricula` int NOT NULL,
   `ID_Disciplina` int NOT NULL,
+  `Trimestre` tinyint DEFAULT NULL,
   `Etapa` varchar(50) DEFAULT NULL,
   `Nota` decimal(4,2) DEFAULT NULL,
   `Observacoes` text

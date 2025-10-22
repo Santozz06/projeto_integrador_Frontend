@@ -238,6 +238,8 @@
                 </div>
                 <button class="btn-salvar" id="btn-salvar-preferencias">Salvar</button>
             </div>
+
+            <!-- Integração com Google Calendar removida; mantendo calendário local e feeds ICS -->
         </div>
     </div>
 
@@ -352,6 +354,8 @@
         $(function () {
             $('.sidebar-menu').sidebarMenu();
         });
+
+        // Google Calendar desativado
     </script>
 </body>
 

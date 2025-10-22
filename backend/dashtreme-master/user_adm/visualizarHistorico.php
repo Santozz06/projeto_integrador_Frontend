@@ -145,21 +145,8 @@
         </table>
 
         <table class="tabela-disciplinas">
-            <thead>
-                <tr>
-                    <th rowspan="2">Disciplinas</th>
-                    <th colspan="2">1º Ano</th>
-                    <th colspan="2">2º Ano</th>
-                    <th colspan="2">3º Ano</th>
-                </tr>
-                <tr>
-                    <th>Nota</th>
-                    <th>CH</th>
-                    <th>Nota</th>
-                    <th>CH</th>
-                    <th>Nota</th>
-                    <th>CH</th>
-                </tr>
+            <thead id="thead-disciplinas">
+                <!-- Cabeçalho dinâmico gerado via JS -->
             </thead>
             <tbody id="dados-disciplinas">
             </tbody>
@@ -226,7 +213,8 @@
             if (!disciplinas || !disciplinas.length){
                 const tr = document.createElement('tr');
                 const td = document.createElement('td');
-                td.colSpan = 7;
+                // 1 (Disciplina) + 2 colunas por ano
+                td.colSpan = 1 + (anos && anos.length ? anos.length*2 : 0);
                 td.textContent = 'Sem registros de notas.';
                 tr.appendChild(td);
                 tbody.appendChild(tr);
@@ -238,10 +226,8 @@
                 const tdNome = document.createElement('td');
                 tdNome.textContent = d.nome;
                 tr.appendChild(tdNome);
-                const colAnos = [0,1,2];
-                colAnos.forEach((i)=>{
-                    const ano = anos[i];
-                    const info = ano ? d.porAno[String(ano)] : null;
+                (anos || []).forEach((ano)=>{
+                    const info = d.porAno[String(ano)] || null;
                     const tdNota = document.createElement('td');
                     tdNota.textContent = info && info.nota != null ? String(info.nota).replace('.', ',') : '—';
                     tr.appendChild(tdNota);
@@ -253,16 +239,28 @@
             });
         }
 
-        function atualizarCabecalhoAnos(anos){
-            const ths = document.querySelectorAll('.tabela-disciplinas thead tr:first-child th');
-            // ths[0] é "Disciplinas"; depois 3 colunas (colspan=2) para os anos
-            for (let i = 0; i < 3; i++){
-                const idx = i + 1;
-                if (ths[idx]){
-                    const label = anos[i] ? String(anos[i]) : `${i+1}º Ano`;
-                    ths[idx].textContent = label;
-                }
-            }
+        function montarCabecalhoAnos(anos, seriesPorAno){
+            const thead = document.getElementById('thead-disciplinas');
+            const trTop = document.createElement('tr');
+            const thDisc = document.createElement('th');
+            thDisc.rowSpan = 2;
+            thDisc.textContent = 'Disciplinas';
+            trTop.appendChild(thDisc);
+            (anos || []).forEach((ano)=>{
+                const th = document.createElement('th');
+                th.colSpan = 2;
+                const serie = seriesPorAno && seriesPorAno[String(ano)] ? ` (${seriesPorAno[String(ano)]})` : '';
+                th.textContent = String(ano) + serie;
+                trTop.appendChild(th);
+            });
+            const trSub = document.createElement('tr');
+            (anos || []).forEach(()=>{
+                const thNota = document.createElement('th'); thNota.textContent = 'Nota'; trSub.appendChild(thNota);
+                const thCH = document.createElement('th'); thCH.textContent = 'CH'; trSub.appendChild(thCH);
+            });
+            thead.innerHTML = '';
+            thead.appendChild(trTop);
+            thead.appendChild(trSub);
         }
 
         window.onload = function(){
@@ -282,9 +280,9 @@
                     if (resp.observacoes) {
                         document.getElementById('observacoes-aluno').textContent = resp.observacoes;
                     }
-                    // Se houver mais de 3 anos, usamos os primeiros 3 em ordem asc
-                    const anos = (resp.anos || []).slice(0,3);
-                    atualizarCabecalhoAnos(anos);
+                    // Mostrar todos os anos cursados (ordenados)
+                    const anos = (resp.anos || []).slice().sort((a,b)=>a-b);
+                    montarCabecalhoAnos(anos, resp.series_por_ano || {});
                     preencherDisciplinas(anos, resp.disciplinas || []);
                 })
                 .catch(err => alert('Erro: ' + err));

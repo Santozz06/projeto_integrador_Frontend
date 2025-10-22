@@ -24,6 +24,11 @@
                         </a>
                     </li>
                     <li>
+                        <a href="notas.php">
+                            <i class="zmdi zmdi-check-circle"></i> <span>Notas</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="plano_ensino.php">
                             <i class="zmdi zmdi-assignment"></i> <span>Plano de Ensino</span>
                             <i class="zmdi zmdi-caret-down float-right"></i>

@@ -287,8 +287,8 @@ if (!$modoSelecao) {
                                 <a href="cadastro.php" class="btn btn-custom-primary mr-3">
                                     <i class="zmdi zmdi-account-add mr-2"></i>Cadastrar Novo Usuário
                                 </a>
-                                <a href="cadastroTurmas.php" class="btn btn-custom-secondary">
-                                    <i class="zmdi zmdi-plus mr-2"></i>Gerenciar Turmas
+                                <a href="trocarTurma.php" class="btn btn-custom-secondary">
+                                    <i class="zmdi zmdi-plus mr-2"></i>Trocar Turma
                                 </a>
                             </div>
                         </div>

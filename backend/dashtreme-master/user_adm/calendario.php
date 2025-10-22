@@ -440,6 +440,15 @@
                                 <option value="formacao">Formações</option>
                             </select>
                         </div>
+                        <div class="mb-3">
+                            <label>Público-alvo:</label>
+                            <select id="publico-alvo" class="form-control form-control-sm">
+                                <option value="all">Todos</option>
+                                <option value="todos">Todos os usuários</option>
+                                <option value="professores">Somente Professores</option>
+                                <option value="alunos">Somente Alunos</option>
+                            </select>
+                        </div>
                         <button id="btn-adicionar" class="btn btn-primary btn-sm btn-block mt-2">Adicionar
                             Evento</button>
                         <button id="btn-gerenciar-tipos" class="btn btn-secondary btn-sm btn-block mt-2">Gerenciar
@@ -466,6 +475,12 @@
                     <div class="card p-3">
                         <div id="calendar-container">
                             <div id="calendar"></div>
+                        </div>
+                        <div class="mt-3 small">
+                            <button class="btn btn-info btn-sm" id="btn-assinar-google">
+                                <i class="zmdi zmdi-calendar-alt"></i> Assinar no Google Agenda
+                            </button>
+                            <!-- Sincronização Google desativada: usando apenas feeds ICS -->
                         </div>
                     </div>
                 </div>
@@ -495,6 +510,14 @@
                                         </select>
                                     </div>
                                     <div class="form-group">
+                                        <label>Público-alvo</label>
+                                        <select class="form-control" id="evento-publico" required>
+                                            <option value="todos">Todos os usuários</option>
+                                            <option value="professores">Somente Professores</option>
+                                            <option value="alunos">Somente Alunos</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
                                         <label>Início</label>
                                         <input type="datetime-local" class="form-control" id="evento-inicio" required>
                                     </div>
@@ -519,7 +542,7 @@
                 </div>
 
                 <!-- Modal Gerenciar Tipos -->
-                <<div class="modal fade" id="tiposModal" tabindex="-1" role="dialog">
+                <div class="modal fade" id="tiposModal" tabindex="-1" role="dialog">
                     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -570,6 +593,32 @@
                             </div>
                         </div>
                     </div>
+            </div>
+
+            <!-- Modal Assinatura Google -->
+            <div class="modal fade" id="googleModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content p-3">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Assinar no Google Agenda</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Você pode assinar estes links no Google Agenda (ou outro app) para receber os eventos automaticamente:</p>
+                            <ul>
+                                <li><a id="link-ics-todos" target="_blank" rel="noopener">Calendário (Todos)</a></li>
+                                <li><a id="link-ics-prof" target="_blank" rel="noopener">Calendário (Professores)</a></li>
+                                <li><a id="link-ics-alunos" target="_blank" rel="noopener">Calendário (Alunos)</a></li>
+                            </ul>
+                            <p class="mb-0">No Google Agenda, use a opção "+" &gt; "A partir da URL" e cole o link.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -671,46 +720,28 @@
                             container: 'body'
                         });
                     }
-                }
-                , events: [
-                    {
-                        title: 'Feriado Municipal',
-                        start: new Date(),
-                        extendedProps: {
-                            tipo: 'feriado',
-                            description: 'Aniversário da cidade - Ponto facultativo'
-                        }
-                    },
-                    {
-                        title: 'Reunião Pedagógica',
-                        start: new Date(new Date().setDate(new Date().getDate() + 7)),
-                        end: new Date(new Date().setDate(new Date().getDate() + 7.5)),
-                        extendedProps: {
-                            tipo: 'reuniao',
-                            description: 'Planejamento trimestral - Sala dos professores'
-                        }
-                    },
-                    {
-                        title: 'Feira Cultural',
-                        start: new Date(new Date().setDate(new Date().getDate() + 14)),
-                        extendedProps: {
-                            tipo: 'evento',
-                            description: 'Evento aberto à comunidade - Quadra poliesportiva'
-                        }
-                    },
-                    {
-                        title: 'Conselho de Classe',
-                        start: new Date(new Date().setDate(new Date().getDate() + 21)),
-                        extendedProps: {
-                            tipo: 'conselho',
-                            description: 'Avaliação do 1º bimestre - Sala de reuniões'
-                        }
-                    }
-                ],
+                },
+                events: function(fetchInfo, successCallback, failureCallback) {
+                    const params = {
+                        start: fetchInfo.startStr,
+                        end: fetchInfo.endStr,
+                        tipo: $('#tipo-evento').val(),
+                        publico: $('#publico-alvo').val()
+                    };
+                    $.getJSON('../includes/ajax/calendario/listar_eventos.php', params)
+                        .done(function(res){
+                            if (res.success) successCallback(res.data || []);
+                            else failureCallback(res.message || 'Falha ao carregar eventos');
+                        })
+                        .fail(function(xhr){
+                            failureCallback(xhr.statusText || 'Erro ao carregar eventos');
+                        });
+                },
                 dateClick: function (info) {
                     currentEvent = null;
                     $('#form-evento')[0].reset();
                     $('#evento-inicio').val(info.dateStr + 'T08:00');
+                    $('#evento-publico').val('todos');
                     $('#btn-excluir-evento').hide();
                     $('#eventoModal').modal('show');
                 },
@@ -719,14 +750,16 @@
                     $('#evento-titulo').val(info.event.title);
                     $('#evento-tipo').val(info.event.extendedProps.tipo || 'evento');
                     $('#evento-descricao').val(info.event.extendedProps.description || '');
-                    $('#evento-notificar').prop('checked', false);
+                    $('#evento-publico').val(info.event.extendedProps.publico || 'todos');
 
                     $('#evento-inicio').val(info.event.start.toISOString().slice(0, 16));
                     $('#evento-fim').val(info.event.end ? info.event.end.toISOString().slice(0, 16) : '');
                     $('#btn-excluir-evento').show();
                     $('#eventoModal').modal('show');
                     info.jsEvent.preventDefault();
-                }
+                },
+                eventDrop: function(info){ atualizarDatasEvento(info.event); },
+                eventResize: function(info){ atualizarDatasEvento(info.event); }
             });
 
             calendar.render();
@@ -753,13 +786,9 @@
             $('.toggle-menu').click(() => setTimeout(() => calendar.updateSize(), 300));
             $(window).resize(() => calendar.updateSize());
 
-            // Filtro por tipo
-            $('#tipo-evento').change(function () {
-                const tipo = $(this).val();
-                calendar.getEvents().forEach(event => {
-                    const show = tipo === 'all' || event.extendedProps.tipo === tipo;
-                    event.setProp('display', show ? 'auto' : 'none');
-                });
+            // Filtros: recarregar do backend
+            $('#tipo-evento, #publico-alvo').change(function () {
+                calendar.refetchEvents();
             });
 
             // Legendas
@@ -837,48 +866,69 @@
                 const start = $('#evento-inicio').val();
                 const end = $('#evento-fim').val();
                 const description = $('#evento-descricao').val();
-                const notificar = $('#evento-notificar').is(':checked');
+                const publico = $('#evento-publico').val();
 
                 if (!title) return alert('Título é obrigatório.');
 
-                const tipoEvento = tiposEventos.find(t => t.nome === tipo);
-                const color = tipoEvento ? tipoEvento.cor : '#6c757d';
-
-                const eventData = {
-                    title,
-                    start,
-                    end: end || null,
-                    color,
-                    extendedProps: {
-                        tipo,
-                        description
-                    }
+                const payload = {
+                    id: currentEvent ? currentEvent.id : undefined,
+                    title: title,
+                    tipo: tipo,
+                    descricao: description,
+                    inicio: start,
+                    fim: end || null,
+                    publico: publico
                 };
 
-                if (currentEvent) {
-                    currentEvent.setProp('title', title);
-                    currentEvent.setStart(start);
-                    currentEvent.setEnd(end || null);
-                    currentEvent.setProp('color', color);
-                    currentEvent.setExtendedProp('tipo', tipo);
-                    currentEvent.setExtendedProp('description', description);
-                } else {
-                    calendar.addEvent(eventData);
-                }
-
-                if (notificar) {
-                    alert('Usuários serão notificados!');
-                }
-
-                $('#eventoModal').modal('hide');
+                $.ajax({
+                    url: '../includes/ajax/calendario/salvar_evento.php',
+                    method: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(payload),
+                    dataType: 'json'
+                }).done(function(res){
+                    if (res.success){
+                        $('#eventoModal').modal('hide');
+                        calendar.refetchEvents();
+                    } else {
+                        alert(res.message || 'Falha ao salvar evento');
+                    }
+                }).fail(function(xhr){
+                    alert('Erro ao salvar: ' + (xhr.responseText || xhr.statusText));
+                });
             });
 
             $('#btn-excluir-evento').click(function () {
                 if (currentEvent && confirm('Deseja excluir este evento?')) {
-                    currentEvent.remove();
-                    $('#eventoModal').modal('hide');
+                    $.post('../includes/ajax/calendario/excluir_evento.php', { id: currentEvent.id })
+                        .done(function(res){
+                            try { res = typeof res === 'string' ? JSON.parse(res) : res; } catch(e) {}
+                            if (res && res.success) {
+                                $('#eventoModal').modal('hide');
+                                calendar.refetchEvents();
+                            } else {
+                                alert((res && res.message) || 'Falha ao excluir');
+                            }
+                        }).fail(function(xhr){
+                            alert('Erro ao excluir: ' + (xhr.responseText || xhr.statusText));
+                        });
                 }
             });
+
+            function atualizarDatasEvento(event){
+                const payload = {
+                    id: event.id,
+                    title: event.title,
+                    tipo: event.extendedProps.tipo || 'evento',
+                    descricao: event.extendedProps.description || '',
+                    inicio: event.startStr,
+                    fim: event.endStr,
+                    publico: event.extendedProps.publico || 'todos'
+                };
+                $.ajax({ url: '../includes/ajax/calendario/salvar_evento.php', method: 'POST', contentType:'application/json', data: JSON.stringify(payload) })
+                    .done(function(res){ if (!(res && res.success)) alert('Falha ao atualizar evento.'); })
+                    .fail(function(){ alert('Erro ao atualizar evento.'); });
+            }
 
             $('#btn-importar-calendario').click(function () {
                 alert('Funcionalidade de importação será implementada aqui');
@@ -889,9 +939,17 @@
             });
 
             $('#btn-publicar-calendario').click(function () {
-                if (confirm('Deseja publicar as alterações?')) {
-                    alert('Calendário publicado com sucesso!');
-                }
+                $('#btn-assinar-google').trigger('click');
+            });
+
+            $('#btn-assinar-google').click(function(){
+                const urlTodos = new URL('../includes/ajax/calendario/ics.php?publico=todos', window.location.href).href;
+                const urlProf = new URL('../includes/ajax/calendario/ics.php?publico=professores', window.location.href).href;
+                const urlAlunos = new URL('../includes/ajax/calendario/ics.php?publico=alunos', window.location.href).href;
+                $('#link-ics-todos').attr('href', urlTodos).text(urlTodos);
+                $('#link-ics-prof').attr('href', urlProf).text(urlProf);
+                $('#link-ics-alunos').attr('href', urlAlunos).text(urlAlunos);
+                $('#googleModal').modal('show');
             });
         });
 

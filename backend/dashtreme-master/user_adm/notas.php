@@ -341,109 +341,105 @@
 
     <script>
         $(document).ready(function () {
-            // Dados de exemplo corrigidos
-            const dadosAlunos = [
-                {
-                    id: 1,
-                    nome: "João Silva",
-                    matricula: "2025001",
-                    turma: "2A",
-                    disciplina: "Matemática",
-                    notas: [8.5, 7.0, 9.2, 8.8],
-                    avatar: "JS"
-                },
-                {
-                    id: 2,
-                    nome: "Maria Andrade",
-                    matricula: "2025002",
-                    turma: "2A",
-                    disciplina: "Matemática",
-                    notas: [6.5, 5.0, 7.2, 6.8],
-                    avatar: "MA"
-                },
-                {
-                    id: 3,
-                    nome: "Carlos Pereira",
-                    matricula: "2025003",
-                    turma: "2A",
-                    disciplina: "Português",
-                    notas: [4.5, 3.0, 5.2, 4.8],
-                    avatar: "CP"
-                },
-                {
-                    id: 4,
-                    nome: "Ana Souza",
-                    matricula: "2025004",
-                    turma: "2B",
-                    disciplina: "Português",
-                    notas: [9.5, 8.0, 9.2, 9.8],
-                    avatar: "AS"
-                },
-                {
-                    id: 5,
-                    nome: "Pedro Oliveira",
-                    matricula: "2025005",
-                    turma: "3A",
-                    disciplina: "História",
-                    notas: [7.5, 8.0, 6.5, 7.0],
-                    avatar: "PO"
+            // Estado global simples
+            let turmas = [];
+            let disciplinas = [];
+            let dadosNotas = []; // resposta do backend para tabela
+            let turmaSelecionada = null;
+            let disciplinaSelecionada = null;
+
+            // Inicialização: carregar anos e setar padrão
+            carregarAnos().then(() => {
+                const anoAtual = new Date().getFullYear();
+                if ($(`#ano-letivo option[value="${anoAtual}"]`).length) {
+                    $('#ano-letivo').val(anoAtual);
+                } else {
+                    // se não houver ano atual, usa o primeiro
+                    const first = $('#ano-letivo option:first').val();
+                    if (first) $('#ano-letivo').val(first);
                 }
-            ];
+                atualizarTurmas();
+            });
 
-            // Definir ano atual como padrão
-            const anoAtual = new Date().getFullYear();
-            $('#ano-letivo').val(anoAtual);
+            // Eventos de filtros
+            $('#ano-letivo').on('change', function () {
+                atualizarTurmas();
+            });
 
-            // Botão Cancelar
+            $('#turma').on('change', function () {
+                turmaSelecionada = $(this).val() ? parseInt($(this).val(), 10) : null;
+                atualizarDisciplinas();
+            });
+
+            $('#disciplina').on('change', function () {
+                disciplinaSelecionada = $(this).val() ? parseInt($(this).val(), 10) : null;
+                carregarNotas();
+            });
+
+            // Trimestre: troca o contexto de notas (recarrega dados do trimestre selecionado)
+            $('#trimestre').on('change', function () {
+                carregarNotas();
+            });
+
+            // Botão Cancelar: recarrega notas do backend
             $('#btn-cancelar').click(function () {
                 if (confirm('Deseja realmente cancelar? Todas as alterações não salvas serão perdidas.')) {
-                    carregarTabela();
+                    carregarNotas();
                 }
             });
 
-            // Função para calcular média
-            function calcularMedia(notas) {
-                const soma = notas.reduce((total, nota) => total + parseFloat(nota), 0);
-                return (soma / notas.length).toFixed(1);
+            // Cálculo de média e status
+            function calcularMedia(notasArray) {
+                const nums = notasArray.filter(n => n !== null && n !== '' && !isNaN(parseFloat(n))).map(Number);
+                if (nums.length === 0) return '0.0';
+                const soma = nums.reduce((acc, v) => acc + v, 0);
+                return (soma / nums.length).toFixed(1);
             }
 
-            // Função para determinar status
             function determinarStatus(media) {
-                if (media >= 7) return { texto: 'Aprovado', classe: 'status-aprovado' };
-                if (media >= 5) return { texto: 'Recuperação', classe: 'status-recuperacao' };
+                const m = parseFloat(media);
+                if (m >= 7) return { texto: 'Aprovado', classe: 'status-aprovado' };
+                if (m >= 5) return { texto: 'Recuperação', classe: 'status-recuperacao' };
                 return { texto: 'Reprovado', classe: 'status-reprovado' };
             }
 
-            // Função para carregar tabela corrigida
-            function carregarTabela(dados = dadosAlunos) {
+            function avatarFromNome(nome) {
+                const parts = (nome || '').trim().split(/\s+/);
+                const ini = (parts[0] ? parts[0][0] : '') + (parts[parts.length - 1] ? parts[parts.length - 1][0] : '');
+                return ini.toUpperCase();
+            }
+
+            function renderTabela(data) {
                 const tbody = $('#tabela-notas tbody');
                 tbody.empty();
 
-                if (dados.length === 0) {
+                if (!data || data.length === 0) {
                     $('#no-results').show();
                     return;
                 } else {
                     $('#no-results').hide();
                 }
 
-                dados.forEach(aluno => {
-                    const media = calcularMedia(aluno.notas);
+                data.forEach(item => {
+                    const notas = [item.Notas['1'], item.Notas['2'], item.Notas['3'], item.Notas['4']];
+                    const media = calcularMedia(notas);
                     const status = determinarStatus(media);
+                    const avatar = avatarFromNome(item.Nome);
 
                     const row = `
-                        <tr data-id="${aluno.id}" data-turma="${aluno.turma}" data-disciplina="${aluno.disciplina}">
+                        <tr data-id-matricula="${item.ID_Matricula}">
                             <td>
                                 <div class="aluno-info">
-                                    <div class="aluno-avatar">${aluno.avatar}</div>
-                                    ${aluno.nome}
+                                    <div class="aluno-avatar">${avatar}</div>
+                                    ${item.Nome}
                                 </div>
                             </td>
-                            <td>${aluno.matricula}</td>
-                            <td><span class="badge-turma">${formatarTurma(aluno.turma)}</span></td>
-                            <td><input type="number" class="input-nota" value="${aluno.notas[0]}" min="0" max="10" step="0.1"></td>
-                            <td><input type="number" class="input-nota" value="${aluno.notas[1]}" min="0" max="10" step="0.1"></td>
-                            <td><input type="number" class="input-nota" value="${aluno.notas[2]}" min="0" max="10" step="0.1"></td>
-                            <td><input type="number" class="input-nota" value="${aluno.notas[3]}" min="0" max="10" step="0.1"></td>
+                            <td>${item.Matricula || ''}</td>
+                            <td><span class="badge-turma">${item.Turma || ''}</span></td>
+                            <td><input type="number" class="input-nota" data-etapa="1" value="${notas[0] ?? ''}" min="0" max="10" step="0.1"></td>
+                            <td><input type="number" class="input-nota" data-etapa="2" value="${notas[1] ?? ''}" min="0" max="10" step="0.1"></td>
+                            <td><input type="number" class="input-nota" data-etapa="3" value="${notas[2] ?? ''}" min="0" max="10" step="0.1"></td>
+                            <td><input type="number" class="input-nota" data-etapa="4" value="${notas[3] ?? ''}" min="0" max="10" step="0.1"></td>
                             <td class="media">${media}</td>
                             <td class="status-cell ${status.classe}">${status.texto}</td>
                             <td>
@@ -451,107 +447,152 @@
                             </td>
                         </tr>
                     `;
-
                     tbody.append(row);
                 });
+
+                // As 4 notas ficam sempre ativas; trimestre apenas troca o conjunto carregado
             }
 
-            // Função auxiliar para formatar turma
-            function formatarTurma(turma) {
-                return turma.replace(/(\d)([AB])/, '$1º Ano $2');
-            }
-
-            // Carregar tabela inicialmente
-            carregarTabela();
-
-            // Atualizar médias quando as notas são alteradas
-            $(document).on('change', '.input-nota', function () {
+            // Atualização da média ao editar
+            $(document).on('input change', '.input-nota', function () {
                 const row = $(this).closest('tr');
-                const notas = row.find('.input-nota');
-
-                let soma = 0;
-                let count = 0;
-
-                notas.each(function () {
-                    const valor = parseFloat($(this).val());
-                    if (!isNaN(valor)) {
-                        soma += valor;
-                        count++;
-                    }
-                });
-
-                const media = count > 0 ? (soma / count).toFixed(1) : 0;
+                const valores = row.find('.input-nota').map(function () {
+                    const v = $(this).val();
+                    return v === '' ? null : parseFloat(v);
+                }).get();
+                const media = calcularMedia(valores);
                 row.find('.media').text(media);
-
-                // Atualizar status
-                const statusCell = row.find('.status-cell');
                 const status = determinarStatus(media);
-                statusCell.removeClass('status-aprovado status-reprovado status-recuperacao')
+                row.find('.status-cell').removeClass('status-aprovado status-reprovado status-recuperacao')
                     .addClass(status.classe)
                     .text(status.texto);
             });
 
-            // Salvar notas individuais
-            $(document).on('click', '.btn-salvar', function () {
+            // Salvar linha
+            $(document).on('click', '.btn-salvar', async function () {
+                if (!disciplinaSelecionada) { alert('Selecione uma disciplina.'); return; }
                 const row = $(this).closest('tr');
-                const id = row.data('id');
-                const notas = [];
+                const idMatricula = parseInt(row.data('id-matricula'), 10);
+                const updates = row.find('.input-nota').map(function () {
+                    const etapa = $(this).data('etapa').toString();
+                    const val = $(this).val();
+                    return { id_matricula: idMatricula, etapa: etapa, nota: val === '' ? null : parseFloat(val) };
+                }).get();
 
-                row.find('.input-nota').each(function () {
-                    notas.push($(this).val());
-                });
-
-                // Atualizar nos dados originais
-                const alunoIndex = dadosAlunos.findIndex(a => a.id == id);
-                if (alunoIndex !== -1) {
-                    dadosAlunos[alunoIndex].notas = notas.map(parseFloat);
+                try {
+                    await salvarNotas(disciplinaSelecionada, updates);
+                    alert('Notas salvas com sucesso.');
+                } catch (e) {
+                    alert('Erro ao salvar notas: ' + (e?.message || e));
                 }
-
-                alert('Notas salvas com sucesso para o aluno ' + row.find('.aluno-info').text().trim());
             });
 
-            // Salvar todas as notas
-            $('#btn-salvar-todos').on('click', function () {
+            // Salvar todas
+            $('#btn-salvar-todos').on('click', async function () {
+                if (!disciplinaSelecionada) { alert('Selecione uma disciplina.'); return; }
+                const updates = [];
                 $('#tabela-notas tbody tr').each(function () {
                     const row = $(this);
-                    const id = row.data('id');
-                    const notas = [];
-
+                    const idMatricula = parseInt(row.data('id-matricula'), 10);
                     row.find('.input-nota').each(function () {
-                        notas.push($(this).val());
+                        const etapa = $(this).data('etapa').toString();
+                        const val = $(this).val();
+                        updates.push({ id_matricula: idMatricula, etapa: etapa, nota: val === '' ? null : parseFloat(val) });
                     });
-
-                    // Atualizar nos dados originais
-                    const alunoIndex = dadosAlunos.findIndex(a => a.id == id);
-                    if (alunoIndex !== -1) {
-                        dadosAlunos[alunoIndex].notas = notas.map(parseFloat);
-                    }
                 });
-
-                alert('Todas as notas foram salvas com sucesso!');
+                if (updates.length === 0) { alert('Nada para salvar.'); return; }
+                try {
+                    await salvarNotas(disciplinaSelecionada, updates);
+                    alert('Todas as notas foram salvas com sucesso!');
+                } catch (e) {
+                    alert('Erro ao salvar notas: ' + (e?.message || e));
+                }
             });
 
-            // Filtros
-            $('#disciplina, #turma, #trimestre').on('change', function () {
-                const disciplina = $('#disciplina').val();
-                const turma = $('#turma').val();
-                const trimestre = $('#trimestre').val();
-
-                let dadosFiltrados = dadosAlunos;
-
-                // Aplicar filtros
-                if (disciplina) {
-                    dadosFiltrados = dadosFiltrados.filter(aluno =>
-                        aluno.disciplina.toLowerCase() === $('#disciplina option:selected').text().toLowerCase()
-                    );
+            // Carregadores de filtros
+            async function carregarAnos() {
+                try {
+                    const res = await $.getJSON('../includes/ajax/listar_anos_letivos.php');
+                    const $sel = $('#ano-letivo');
+                    $sel.empty();
+                    if (res.success && Array.isArray(res.data)) {
+                        res.data.forEach(ano => $sel.append(`<option value="${ano}">${ano}</option>`));
+                    }
+                } catch (e) {
+                    // mantém opções estáticas se falhar
                 }
+            }
 
-                if (turma) {
-                    dadosFiltrados = dadosFiltrados.filter(aluno => aluno.turma === turma);
+            async function atualizarTurmas() {
+                const ano = $('#ano-letivo').val();
+                try {
+                    const res = await $.getJSON('../includes/ajax/listar_turmas.php', { ano });
+                    turmas = (res.success && Array.isArray(res.data)) ? res.data : [];
+                } catch { turmas = []; }
+
+                const $sel = $('#turma');
+                $sel.empty();
+                $sel.append('<option value="">Todas turmas</option>');
+                turmas.forEach(t => $sel.append(`<option value="${t.ID_Turma}">${t.Nome_Turma}</option>`));
+                turmaSelecionada = null;
+                $('#disciplina').empty().append('<option value="">Todas disciplinas</option>');
+                disciplinaSelecionada = null;
+                renderTabela([]);
+            }
+
+            async function atualizarDisciplinas() {
+                const $sel = $('#disciplina');
+                $sel.empty();
+                $sel.append('<option value="">Todas disciplinas</option>');
+                if (!turmaSelecionada) { disciplinas = []; renderTabela([]); return; }
+                try {
+                    const res = await $.getJSON('../includes/ajax/listar_disciplinas_por_turma.php', { turma_id: turmaSelecionada });
+                    disciplinas = (res.success && Array.isArray(res.data)) ? res.data : [];
+                } catch { disciplinas = []; }
+                disciplinas.forEach(d => $sel.append(`<option value="${d.ID_Disciplina}">${d.Nome_Disciplina}</option>`));
+                disciplinaSelecionada = null;
+                renderTabela([]);
+            }
+
+            async function carregarNotas() {
+                if (!turmaSelecionada || !disciplinaSelecionada) { renderTabela([]); return; }
+                try {
+                    const res = await $.getJSON('../includes/ajax/notas/listar_notas.php', {
+                        turma_id: turmaSelecionada,
+                        disciplina_id: disciplinaSelecionada,
+                        trimestre: $('#trimestre').val()
+                    });
+                    dadosNotas = (res.success && Array.isArray(res.data)) ? res.data : [];
+                    renderTabela(dadosNotas);
+                } catch (e) {
+                    dadosNotas = [];
+                    renderTabela([]);
                 }
+            }
 
-                carregarTabela(dadosFiltrados);
-            });
+            function salvarNotas(disciplinaId, updates) {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        url: '../includes/ajax/notas/salvar_notas.php',
+                        method: 'POST',
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify({ turma_id: turmaSelecionada, disciplina_id: disciplinaId, trimestre: parseInt($('#trimestre').val(), 10), updates }),
+                        dataType: 'json'
+                    }).done(function (res) {
+                        if (res && res.success) { resolve(res); }
+                        else { reject(new Error(res && res.message ? res.message : 'Falha ao salvar')); }
+                    }).fail(function (xhr) {
+                        try {
+                            const r = JSON.parse(xhr.responseText);
+                            reject(new Error(r.message || 'Erro no servidor'));
+                        } catch {
+                            reject(new Error('Erro no servidor'));
+                        }
+                    });
+                });
+            }
+
+            // Removido: não restringimos inputs por trimestre; 4 notas pertencem ao trimestre atual
         });
     </script>
 </body>

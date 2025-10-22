@@ -13,16 +13,24 @@ if ($idTurma <= 0) {
 try {
     // Disciplinas (com professor, quando atribuído via Disciplinas.ID_Professor)
     $sql = "SELECT DISTINCT d.ID_Disciplina, d.Nome_Disciplina,
-                   u.Nome_Completo AS Professor,
-                   d.Carga_Horaria, d.Etapa
-            FROM Disciplinas d
-            LEFT JOIN Professores p ON p.ID_Professor = d.ID_Professor
-            LEFT JOIN Usuarios u ON u.ID_Usuario = p.ID_Professor
-            WHERE d.Ano_Letivo = (SELECT Ano_Letivo FROM Turmas WHERE ID_Turma = ?)
-            ORDER BY d.Nome_Disciplina";
+                       u.Nome_Completo AS Professor,
+                       d.Carga_Horaria, d.Etapa
+                FROM Disciplinas d
+                LEFT JOIN Professores p ON p.ID_Professor = d.ID_Professor
+                LEFT JOIN Usuarios u ON u.ID_Usuario = p.ID_Professor
+                WHERE d.Ano_Letivo = (SELECT Ano_Letivo FROM Turmas WHERE ID_Turma = ?)";
 
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$idTurma]);
+        $params = [$idTurma];
+        // Se o usuário logado for professor, restringe às disciplinas dele
+        if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'professor' && isset($_SESSION['usuario_id'])) {
+            $sql .= " AND (d.ID_Professor = ? OR d.ID_Professor IS NULL)"; // permite ver sem professor atribuído
+            $params[] = (int)$_SESSION['usuario_id'];
+        }
+
+        $sql .= " ORDER BY d.Nome_Disciplina";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
     $disciplinas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode(['success' => true, 'data' => $disciplinas]);

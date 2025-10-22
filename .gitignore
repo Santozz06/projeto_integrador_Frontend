@@ -1,0 +1,17 @@
+# Secrets and environment
+.env
+
+# Google credentials anywhere in repo
+**/credentials/*.json
+**/credential/*.json
+**/*service-account*.json
+
+# Composer artifacts
+/vendor/
+composer.phar
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
