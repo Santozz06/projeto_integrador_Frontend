@@ -18,6 +18,43 @@ $estados = $localidadeCRUD->listarEstados();
 $paises = $localidadeCRUD->listarPaises();
 $orgaos_expedidores = $localidadeCRUD->listarOrgaosExpedidores();
 
+// Exclusão (Aluno/Servidor)
+try {
+    if (isset($_GET['excluirAluno']) && ctype_digit($_GET['excluirAluno'])) {
+        $id = (int) $_GET['excluirAluno'];
+        // Confirma que é de fato um aluno
+        $aluno = $usuarioCRUD->buscarAlunoCompleto($id);
+        if ($aluno) {
+            // Exclusão lógica em Usuarios (Ativo = 0) via BaseCRUD
+            $usuarioCRUD->excluir($id);
+            header('Location: cadastro.php?sucesso=' . urlencode('Aluno excluído com sucesso.'));
+            exit;
+        } else {
+            header('Location: cadastro.php?erro=' . urlencode('Aluno não encontrado.'));
+            exit;
+        }
+    }
+
+    if (isset($_GET['excluirServidor']) && ctype_digit($_GET['excluirServidor'])) {
+        $id = (int) $_GET['excluirServidor'];
+        // Confirma que é de fato um servidor (professor)
+        $prof = $usuarioCRUD->buscarProfessorCompleto($id);
+        if ($prof) {
+            // Exclusão lógica em Usuarios (Ativo = 0) via BaseCRUD
+            $usuarioCRUD->excluir($id);
+            header('Location: cadastro.php?sucesso=' . urlencode('Servidor excluído com sucesso.'));
+            exit;
+        } else {
+            header('Location: cadastro.php?erro=' . urlencode('Servidor não encontrado.'));
+            exit;
+        }
+    }
+} catch (Exception $e) {
+    error_log('Erro ao excluir: ' . $e->getMessage());
+    header('Location: cadastro.php?erro=' . urlencode('Erro ao excluir: ' . $e->getMessage()));
+    exit;
+}
+
 // Se estiver editando aluno
 $municipios_aluno = [];
 if (isset($_GET['editarAluno']) && !empty($_GET['editarAluno'])) {
@@ -68,8 +105,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'Raca_Etnia' => $_POST['racaCor'],
                 'Orgao_Exp' => $_POST['orgaoExpedidor'],
                 'UF_Exp' => $_POST['ufDocumento'],
-                'Telefone' => $_POST['celular'],
+                'Telefone' => $_POST['telefone'] ?? '',
+                'Celular' => $_POST['celular'] ?? '',
+                'CEP' => $_POST['cep'] ?? '',
                 'Endereco' => $_POST['logradouro'] . ', ' . $_POST['numero'] . ' - ' . $_POST['bairro'],
+                'Numero' => $_POST['numero'] ?? '',
+                'Complemento' => $_POST['complemento'] ?? '',
+                'Bairro' => $_POST['bairro'] ?? '',
+                'UF_Endereco' => $_POST['ufEndereco'] ?? null,
+                'Municipio_Endereco' => $_POST['municipio'] ?? null,
+                'Data_Expedicao' => $_POST['dataExpedicao'] ?? null,
                 'Possui_Necessidades_Especiais' => (isset($_POST['nee']) && $_POST['nee'] === 'sim') ? 1 : 0
             ];
 
@@ -136,6 +181,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($id_aluno) {
                 // Atualização
                 $usuarioCRUD->atualizarAluno($id_aluno, $dadosUsuario, $matricula);
+                // Persistir NEE do aluno
+                $usuarioCRUD->salvarNeeAluno((int)$id_aluno, [
+                    'possui' => (isset($_POST['nee']) && $_POST['nee'] === 'sim'),
+                    'aee' => $_POST['aee'] ?? 0,
+                    'salaAee' => $_POST['salaAee'] ?? 0,
+                    'monitor' => $_POST['monitor'] ?? 0,
+                    'interprete' => $_POST['interprete'] ?? 0,
+                    'materialAdaptado' => $_POST['materialAdaptado'] ?? 0,
+                    'tecnologiaAssistiva' => $_POST['tecnologiaAssistiva'] ?? 0,
+                    'outras' => $_POST['outrasNecessidades'] ?? ''
+                ]);
                 $sucesso = "Aluno atualizado com sucesso!";
                 // Redireciona mantendo o ID para edição
                 header("Location: cadastro.php?editarAluno=" . $id_aluno . "&sucesso=" . urlencode($sucesso));
@@ -143,6 +199,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 // Novo cadastro
                 $idAluno = $usuarioCRUD->cadastrarAluno($dadosUsuario, $matricula);
+                // Persistir NEE do aluno
+                $usuarioCRUD->salvarNeeAluno((int)$idAluno, [
+                    'possui' => (isset($_POST['nee']) && $_POST['nee'] === 'sim'),
+                    'aee' => $_POST['aee'] ?? 0,
+                    'salaAee' => $_POST['salaAee'] ?? 0,
+                    'monitor' => $_POST['monitor'] ?? 0,
+                    'interprete' => $_POST['interprete'] ?? 0,
+                    'materialAdaptado' => $_POST['materialAdaptado'] ?? 0,
+                    'tecnologiaAssistiva' => $_POST['tecnologiaAssistiva'] ?? 0,
+                    'outras' => $_POST['outrasNecessidades'] ?? ''
+                ]);
                 $sucesso = "Aluno cadastrado com sucesso! Matrícula: " . $matricula;
                 // Redireciona para edição do aluno recém-criado
                 header("Location: cadastro.php?editarAluno=" . $idAluno . "&sucesso=" . urlencode($sucesso));
@@ -172,16 +239,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'Data_Nascimento' => $_POST['dataNascimentoServidor'],
                 'Sexo' => $_POST['sexoServidor'],
                 'CPF' => $_POST['cpfServidor'],
+                'RG' => $_POST['rgServidor'] ?? '',
                 'Raca_Etnia' => $_POST['racaCorServidor'],
                 'Estado_Civil' => $_POST['estadoCivilServidor'],
                 'Nacionalidade' => $_POST['nacionalidadeServidor'],
-                'Naturalidade' => $_POST['naturalidadeServidor'],
+                // Naturalidade do servidor será salva como "Cidade/UF" (texto), similar ao aluno
+                // Abaixo, montaremos este campo após buscar o município/UF
                 'Filiacao' => $_POST['filiacaoServidor'],
                 'Orgao_Exp' => $_POST['orgaoExpedidorServidor'],
                 'UF_Exp' => $_POST['ufDocumentoServidor'],
-                'Telefone' => $_POST['celularServidor'],
-                'Endereco' => $_POST['logradouroServidor'] . ', ' . $_POST['numeroServidor'] . ' - ' . $_POST['bairroServidor']
+                'Telefone' => $_POST['telefoneServidor'] ?? '',
+                'Celular' => $_POST['celularServidor'] ?? '',
+                'CEP' => $_POST['cepServidor'] ?? '',
+                'Endereco' => $_POST['logradouroServidor'] . ', ' . $_POST['numeroServidor'] . ' - ' . $_POST['bairroServidor'],
+                'Numero' => $_POST['numeroServidor'] ?? '',
+                'Complemento' => $_POST['complementoServidor'] ?? '',
+                'Bairro' => $_POST['bairroServidor'] ?? '',
+                'UF_Endereco' => $_POST['ufEnderecoServidor'] ?? null,
+                'Municipio_Endereco' => $_POST['municipioServidor'] ?? null
             ];
+
+            // Naturalidade (Servidor): converte selecionados em texto "Cidade/UF"
+            if (!empty($_POST['naturalidadeServidor'])) {
+                $municipioId = $_POST['naturalidadeServidor'];
+                $municipio = $localidadeCRUD->buscarMunicipio($municipioId);
+                $naturalidadeTexto = $municipio && !empty($municipio['nome']) ? $municipio['nome'] : '';
+
+                $ufSigla = '';
+                if (!empty($_POST['ufNaturalidadeServidor'])) {
+                    try {
+                        $stmtUf = $pdo->prepare("SELECT uf FROM estados WHERE codigo_uf = ?");
+                        $stmtUf->execute([$_POST['ufNaturalidadeServidor']]);
+                        $rowUf = $stmtUf->fetch(PDO::FETCH_ASSOC);
+                        if ($rowUf && !empty($rowUf['uf'])) {
+                            $ufSigla = $rowUf['uf'];
+                        }
+                    } catch (Exception $e) {
+                        // silencioso
+                    }
+                }
+
+                if ($naturalidadeTexto !== '') {
+                    $dadosUsuario['Naturalidade'] = $ufSigla ? ($naturalidadeTexto . '/' . $ufSigla) : $naturalidadeTexto;
+                }
+            }
+
+            // Caso naturalidade não seja enviada (edição sem alteração), mantém o valor atual
+            if (!isset($dadosUsuario['Naturalidade'])) {
+                $dadosUsuario['Naturalidade'] = $servidor_para_edicao['Naturalidade'] ?? '';
+            }
 
             // Senha: obrigatória para novo cadastro; em edição, só altera se informada e confirmar coincidir
             $senhaServidor = $_POST['senha'] ?? '';

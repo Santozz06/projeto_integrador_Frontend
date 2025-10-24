@@ -20,6 +20,39 @@ class UsuarioCRUD extends BaseCRUD
         }
     }
 
+    private function filterCamposValidos(array $dados): array
+    {
+        if (empty($dados)) return $dados;
+        $cols = array_keys($dados);
+        $placeholders = rtrim(str_repeat('?,', count($cols)), ',');
+        try {
+            $sql = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'Usuarios' AND COLUMN_NAME IN ($placeholders)";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($cols);
+            $validas = array_map(fn($r) => $r['COLUMN_NAME'], $stmt->fetchAll(PDO::FETCH_ASSOC));
+            return array_intersect_key($dados, array_flip($validas));
+        } catch (Exception $e) {
+            // Fallback para whitelist básica
+            $whitelist = [
+                'Login','Senha','Nome_Completo','Data_Nascimento','Sexo','CPF','Orgao_Exp','UF_Exp','Raca_Etnia','Endereco','Telefone','Email','Possui_Necessidades_Especiais','IsAdmin','Ativo','Estado_Civil','Nacionalidade','Naturalidade','Filiacao',
+                'RG','Data_Expedicao','CEP','Numero','Complemento','Bairro','UF_Endereco','Municipio_Endereco','Celular'
+            ];
+            return array_intersect_key($dados, array_flip($whitelist));
+        }
+    }
+
+    private function inserirUsuario(array $dadosUsuario): int
+    {
+        if (empty($dadosUsuario['Login']) && !empty($dadosUsuario['Email'])) {
+            $dadosUsuario['Login'] = $dadosUsuario['Email'];
+        }
+        if (!empty($dadosUsuario['Senha']) && strlen($dadosUsuario['Senha']) < 60) {
+            $dadosUsuario['Senha'] = password_hash($dadosUsuario['Senha'], PASSWORD_DEFAULT);
+        }
+        $dadosFiltrados = $this->filterCamposValidos($dadosUsuario);
+        return $this->criar($dadosFiltrados);
+    }
+
     // CADASTRO DE ALUNO
     /**
      * @param array $dadosUsuario
@@ -35,8 +68,7 @@ class UsuarioCRUD extends BaseCRUD
                 // Gera senha temporária segura (12 chars) se não veio do formulário
                 $dadosUsuario['Senha'] = bin2hex(random_bytes(6));
             }
-            $dadosUsuario['Senha'] = password_hash($dadosUsuario['Senha'], PASSWORD_DEFAULT);
-            $idUsuario = $this->criar($dadosUsuario);
+            $idUsuario = $this->inserirUsuario($dadosUsuario);
             // 2. Cadastra na tabela Alunos
             $sqlAluno = "INSERT INTO Alunos (ID_Aluno, Matricula) VALUES (?, ?)";
             $stmtAluno = $this->pdo->prepare($sqlAluno);
@@ -60,7 +92,7 @@ class UsuarioCRUD extends BaseCRUD
             $sql = "SELECT u.ID_Usuario, u.Nome_Completo, u.Email, u.Telefone, u.Data_Nascimento, a.Matricula
                 FROM Usuarios u
                 INNER JOIN Alunos a ON u.ID_Usuario = a.ID_Aluno
-                WHERE 1=1";
+                WHERE u.Ativo = 1";
 
             $params = [];
             if ($filtro) {
@@ -100,7 +132,7 @@ class UsuarioCRUD extends BaseCRUD
             $sql = "SELECT COUNT(u.ID_Usuario) 
                     FROM Usuarios u 
                     INNER JOIN Alunos a ON u.ID_Usuario = a.ID_Aluno
-                    WHERE 1=1";
+                    WHERE u.Ativo = 1";
             
             $params = [];
             if ($filtro) {
@@ -127,33 +159,11 @@ class UsuarioCRUD extends BaseCRUD
     {
         try {
             $this->pdo->beginTransaction();
-
-            // Inserir na tabela Usuarios
-            $sqlUsuario = "INSERT INTO Usuarios (Login, Nome_Completo, Email, Senha, Data_Nascimento, Sexo, CPF, Raca_Etnia, Estado_Civil, Nacionalidade, Naturalidade, Filiacao, Orgao_Exp, UF_Exp, Telefone, Endereco) 
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-            $stmtUsuario = $this->pdo->prepare($sqlUsuario);
-            $stmtUsuario->execute([
-                // Login passa a ser o próprio Email para facilitar login por e-mail
-                $dadosUsuario['Email'],
-                $dadosUsuario['Nome_Completo'],
-                $dadosUsuario['Email'],
-                password_hash($dadosUsuario['Senha'], PASSWORD_DEFAULT),
-                $dadosUsuario['Data_Nascimento'],
-                $dadosUsuario['Sexo'],
-                $dadosUsuario['CPF'],
-                $dadosUsuario['Raca_Etnia'],
-                $dadosUsuario['Estado_Civil'],
-                $dadosUsuario['Nacionalidade'],
-                $dadosUsuario['Naturalidade'],
-                $dadosUsuario['Filiacao'],
-                $dadosUsuario['Orgao_Exp'],
-                $dadosUsuario['UF_Exp'],
-                $dadosUsuario['Telefone'],
-                $dadosUsuario['Endereco']
-            ]);
-
-            $idUsuario = $this->pdo->lastInsertId();
+            // Inserir na tabela Usuarios (dinâmico)
+            if (empty($dadosUsuario['Login']) && !empty($dadosUsuario['Email'])) {
+                $dadosUsuario['Login'] = $dadosUsuario['Email'];
+            }
+            $idUsuario = $this->inserirUsuario($dadosUsuario);
 
             // Inserir na tabela Professor (inclui Matricula quando fornecida)
             $sqlProfessor = "INSERT INTO Professores (ID_Professor, Formacao, Data_Ingresso, Area_Atuacao, Matricula) 
@@ -185,47 +195,17 @@ class UsuarioCRUD extends BaseCRUD
     {
         try {
             $this->pdo->beginTransaction();
-
-            // Atualizar tabela Usuarios
-            $sqlUsuario = "UPDATE Usuarios SET 
-                      Login = ?, Nome_Completo = ?, Email = ?, Data_Nascimento = ?, 
-                      Sexo = ?, CPF = ?, Raca_Etnia = ?, Estado_Civil = ?, 
-                      Nacionalidade = ?, Naturalidade = ?, Filiacao = ?, 
-                      Orgao_Exp = ?, UF_Exp = ?, Telefone = ?, Endereco = ?";
-
-            if (!empty($dadosUsuario['Senha'])) {
-                $sqlUsuario .= ", Senha = ?";
+            // Atualizar tabela Usuarios via BaseCRUD
+            if (empty($dadosUsuario['Login']) && !empty($dadosUsuario['Email'])) {
+                $dadosUsuario['Login'] = $dadosUsuario['Email'];
             }
-
-            $sqlUsuario .= " WHERE ID_Usuario = ?";
-
-            $stmtUsuario = $this->pdo->prepare($sqlUsuario);
-
-            $params = [
-                // Login atualizado para e-mail
-                $dadosUsuario['Email'],
-                $dadosUsuario['Nome_Completo'],
-                $dadosUsuario['Email'],
-                $dadosUsuario['Data_Nascimento'],
-                $dadosUsuario['Sexo'],
-                $dadosUsuario['CPF'],
-                $dadosUsuario['Raca_Etnia'],
-                $dadosUsuario['Estado_Civil'],
-                $dadosUsuario['Nacionalidade'],
-                $dadosUsuario['Naturalidade'],
-                $dadosUsuario['Filiacao'],
-                $dadosUsuario['Orgao_Exp'],
-                $dadosUsuario['UF_Exp'],
-                $dadosUsuario['Telefone'],
-                $dadosUsuario['Endereco']
-            ];
-
-            if (!empty($dadosUsuario['Senha'])) {
-                $params[] = password_hash($dadosUsuario['Senha'], PASSWORD_DEFAULT);
+            if (!empty($dadosUsuario['Senha']) && strlen($dadosUsuario['Senha']) < 60) {
+                $dadosUsuario['Senha'] = password_hash($dadosUsuario['Senha'], PASSWORD_DEFAULT);
             }
-
-            $params[] = $idProfessor;
-            $stmtUsuario->execute($params);
+            $dadosFiltrados = $this->filterCamposValidos($dadosUsuario);
+            if (!empty($dadosFiltrados)) {
+                $this->atualizar($idProfessor, $dadosFiltrados);
+            }
 
             // Atualizar tabela Professores
             $sqlProfessor = "UPDATE Professores SET 
@@ -259,10 +239,13 @@ class UsuarioCRUD extends BaseCRUD
             $this->pdo->beginTransaction();
 
             // Atualiza a tabela Usuarios (assumindo que o método `atualizar` existe na BaseCRUD)
-            if (isset($dadosUsuario['Senha']) && !empty($dadosUsuario['Senha'])) {
+            if (isset($dadosUsuario['Senha']) && !empty($dadosUsuario['Senha']) && strlen($dadosUsuario['Senha']) < 60) {
                 $dadosUsuario['Senha'] = password_hash($dadosUsuario['Senha'], PASSWORD_DEFAULT);
             }
-            $this->atualizar($idUsuario, $dadosUsuario);
+            $dadosFiltrados = $this->filterCamposValidos($dadosUsuario);
+            if (!empty($dadosFiltrados)) {
+                $this->atualizar($idUsuario, $dadosFiltrados);
+            }
 
             // Atualiza a matrícula na tabela Alunos
             $sql = "UPDATE Alunos SET Matricula = ? WHERE ID_Aluno = ?";
@@ -284,13 +267,27 @@ class UsuarioCRUD extends BaseCRUD
     public function buscarAlunoCompleto($idAluno)
     {
         try {
-            $sql = "SELECT u.*, a.Matricula 
-                    FROM Usuarios u 
-                    INNER JOIN Alunos a ON u.ID_Usuario = a.ID_Aluno 
-                    WHERE u.ID_Usuario = ?";
+            // Extrai cidade e UF de u.Naturalidade no formato "Cidade/UF" se existir
+            $sql = "
+                SELECT 
+                    u.*, 
+                    a.Matricula,
+                    m.codigo_ibge AS naturalidade_id,
+                    e.codigo_uf AS uf_naturalidade
+                FROM Usuarios u
+                INNER JOIN Alunos a ON u.ID_Usuario = a.ID_Aluno
+                LEFT JOIN (
+                    SELECT codigo_ibge, nome, codigo_uf FROM municipios
+                ) m ON m.nome = SUBSTRING_INDEX(u.Naturalidade, '/', 1)
+                LEFT JOIN (
+                    SELECT codigo_uf, uf FROM estados
+                ) e ON e.uf = NULLIF(SUBSTRING_INDEX(u.Naturalidade, '/', -1), u.Naturalidade)
+                    AND (m.codigo_uf IS NULL OR m.codigo_uf = e.codigo_uf)
+                WHERE u.ID_Usuario = ?
+            ";
+
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([$idAluno]);
-
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             throw new Exception("Erro ao buscar aluno: " . $e->getMessage());
@@ -308,13 +305,52 @@ class UsuarioCRUD extends BaseCRUD
             ? "SELECT u.*, p.Formacao, p.Data_Ingresso, p.Area_Atuacao, p.Matricula"
             : "SELECT u.*, p.Formacao, p.Data_Ingresso, p.Area_Atuacao";
 
-        $sql = $select . " FROM Usuarios u 
+        // Deriva naturalidade_id e uf_naturalidade a partir do texto em u.Naturalidade
+        $sql = $select . ", m.codigo_ibge AS naturalidade_id, e.codigo_uf AS uf_naturalidade
+            FROM Usuarios u 
             INNER JOIN Professores p ON u.ID_Usuario = p.ID_Professor 
+            LEFT JOIN (
+                SELECT codigo_ibge, nome, codigo_uf FROM municipios
+            ) m ON m.nome = SUBSTRING_INDEX(u.Naturalidade, '/', 1)
+            LEFT JOIN (
+                SELECT codigo_uf, uf FROM estados
+            ) e ON e.uf = NULLIF(SUBSTRING_INDEX(u.Naturalidade, '/', -1), u.Naturalidade)
+                AND (m.codigo_uf IS NULL OR m.codigo_uf = e.codigo_uf)
             WHERE u.ID_Usuario = ?";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([$idProfessor]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Salvar Necessidades Especiais do Aluno (Acompanhamento_NEE)
+    public function salvarNeeAluno(int $idAluno, array $nee): void
+    {
+        if (!$idAluno) return;
+        $this->pdo->beginTransaction();
+        try {
+            $del = $this->pdo->prepare("DELETE FROM Acompanhamento_NEE WHERE ID_Aluno = ?");
+            $del->execute([$idAluno]);
+
+            if (!empty($nee['possui'])) {
+                $descricao = isset($nee['outras']) ? trim((string)$nee['outras']) : null;
+                $payload = [
+                    'aee' => !empty($nee['aee']) ? 1 : 0,
+                    'salaAee' => !empty($nee['salaAee']) ? 1 : 0,
+                    'monitor' => !empty($nee['monitor']) ? 1 : 0,
+                    'interprete' => !empty($nee['interprete']) ? 1 : 0,
+                    'materialAdaptado' => !empty($nee['materialAdaptado']) ? 1 : 0,
+                    'tecnologiaAssistiva' => !empty($nee['tecnologiaAssistiva']) ? 1 : 0,
+                ];
+                $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
+                $ins = $this->pdo->prepare("INSERT INTO Acompanhamento_NEE (ID_Acompanhamento, ID_Aluno, Tipo, Descricao, Acompanhamento_Especializado) VALUES (NULL, ?, 'NEE', ?, ?)");
+                $ins->execute([$idAluno, $descricao, $json]);
+            }
+            $this->pdo->commit();
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            error_log('Erro salvar NEE: ' . $e->getMessage());
+        }
     }
 
 
@@ -334,6 +370,7 @@ class UsuarioCRUD extends BaseCRUD
         $sql = $select . "
             FROM Usuarios u 
             INNER JOIN Professores p ON u.ID_Usuario = p.ID_Professor 
+            WHERE u.Ativo = 1
             ORDER BY u.Nome_Completo
             LIMIT :limite OFFSET :offset";
 
@@ -350,9 +387,10 @@ class UsuarioCRUD extends BaseCRUD
      */
     public function countProfessores()
     {
-        $sql = "SELECT COUNT(u.ID_Usuario) 
-                FROM Usuarios u 
-                INNER JOIN Professores p ON u.ID_Usuario = p.ID_Professor";
+    $sql = "SELECT COUNT(u.ID_Usuario) 
+        FROM Usuarios u 
+        INNER JOIN Professores p ON u.ID_Usuario = p.ID_Professor
+        WHERE u.Ativo = 1";
         
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchColumn();

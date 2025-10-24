@@ -6179,6 +6179,18 @@ CREATE TABLE `Usuarios` (
   `Filiacao` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Ajustes adicionais de colunas para suportar todos os campos do cadastro
+ALTER TABLE `Usuarios`
+  ADD COLUMN `RG` varchar(20) NULL AFTER `CPF`,
+  ADD COLUMN `Data_Expedicao` date NULL AFTER `RG`,
+  ADD COLUMN `CEP` varchar(9) NULL AFTER `Email`,
+  ADD COLUMN `Numero` varchar(10) NULL AFTER `Endereco`,
+  ADD COLUMN `Complemento` varchar(50) NULL AFTER `Numero`,
+  ADD COLUMN `Bairro` varchar(100) NULL AFTER `Complemento`,
+  ADD COLUMN `UF_Endereco` int NULL AFTER `Bairro`,
+  ADD COLUMN `Municipio_Endereco` int NULL AFTER `UF_Endereco`,
+  ADD COLUMN `Celular` varchar(20) NULL AFTER `Telefone`;
+
 --
 -- Despejando dados para a tabela `Usuarios`
 --
