@@ -367,12 +367,20 @@
                 endTime: '18:00'
             },
             eventDidMount: function (info) {
-                // Adiciona classes CSS baseadas no tipo de evento
-                if (info.event.extendedProps.tipo) {
-                    info.el.classList.add(info.event.extendedProps.tipo);
-                }
+                // Cores baseadas no tipo vindo do backend
+                const tipo = (info.event.extendedProps.tipo || '').toLowerCase();
+                const cores = {
+                    'feriado': '#ffc107',
+                    'reuniao': '#28a745',
+                    'evento': '#6f42c1',
+                    'conselho': '#17a2b8',
+                    'formacao': '#6610f2'
+                };
+                const cor = cores[tipo] || '#6c757d';
+                info.el.style.backgroundColor = cor;
+                info.el.style.borderColor = cor;
 
-                // Adiciona tooltip
+                // Tooltip para descrição
                 if (info.event.extendedProps.description) {
                     $(info.el).tooltip({
                         title: info.event.extendedProps.description,
@@ -382,50 +390,19 @@
                     });
                 }
             },
-            events: [
-                {
-                    title: 'Aula de Matemática',
-                    start: new Date(),
-                    color: '#007bff',
-                    extendedProps: {
-                        turma: 'B',
-                        tipo: 'aula',
-                        description: 'Aula de Álgebra Linear - Prof. Carlos'
-                    }
-                },
-                {
-                    title: 'Prova de História',
-                    start: new Date(new Date().setDate(new Date().getDate() + 2)),
-                    color: '#dc3545',
-                    extendedProps: {
-                        turma: 'A',
-                        tipo: 'prova',
-                        description: 'Prova do 2º Bimestre - Idade Média'
-                    }
-                },
-                {
-                    title: 'Reunião de Pais',
-                    start: new Date(new Date().setDate(new Date().getDate() + 7)),
-                    end: new Date(new Date().setDate(new Date().getDate() + 7.5)),
-                    color: '#28a745',
-                    extendedProps: {
-                        turma: 'all',
-                        tipo: 'reuniao',
-                        description: 'Reunião para entrega de boletins - Sala 12'
-                    }
-                },
-                {
-                    title: 'Evento Dia Inteiro',
-                    start: new Date(new Date().setDate(new Date().getDate() + 3)),
-                    allDay: true,
-                    display: 'background',
-                    color: '#f0f0f0',
-                    extendedProps: {
-                        turma: 'all',
-                        tipo: 'outro'
-                    }
-                }
-            ],
+            events: function(fetchInfo, successCallback, failureCallback){
+                const params = {
+                    start: fetchInfo.startStr,
+                    end: fetchInfo.endStr
+                    // sem 'publico' para incluir 'todos' + 'alunos' via sessão
+                };
+                $.getJSON('../includes/ajax/calendario/listar_eventos.php', params)
+                    .done(function(res){
+                        if (res.success) successCallback(res.data || []);
+                        else failureCallback(res.message || 'Falha ao carregar eventos');
+                    })
+                    .fail(function(xhr){ failureCallback(xhr.statusText || 'Erro ao carregar eventos'); });
+            },
             dateClick: function (info) {
                 // Preenche a data inicial quando clica em um dia
                 $('#evento-inicio').val(info.dateStr + 'T08:00');

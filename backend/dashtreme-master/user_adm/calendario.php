@@ -408,14 +408,6 @@
             <div class="row mb-3">
                 <div class="col-12">
                     <div class="d-flex flex-wrap gap-2">
-                        <button class="btn btn-primary" id="btn-importar-calendario">
-                            <i class="zmdi zmdi-cloud-upload"></i>
-                            <span class="d-none d-sm-inline"> Importar</span>
-                        </button>
-                        <button class="btn btn-info" id="btn-exportar-calendario">
-                            <i class="zmdi zmdi-cloud-download"></i>
-                            <span class="d-none d-sm-inline"> Exportar</span>
-                        </button>
                         <button class="btn btn-success" id="btn-publicar-calendario">
                             <i class="zmdi zmdi-check-all"></i>
                             <span class="d-none d-sm-inline"> Publicar</span>
@@ -476,12 +468,7 @@
                         <div id="calendar-container">
                             <div id="calendar"></div>
                         </div>
-                        <div class="mt-3 small">
-                            <button class="btn btn-info btn-sm" id="btn-assinar-google">
-                                <i class="zmdi zmdi-calendar-alt"></i> Assinar no Google Agenda
-                            </button>
-                            <!-- Sincronização Google desativada: usando apenas feeds ICS -->
-                        </div>
+                        
                     </div>
                 </div>
 
@@ -595,31 +582,7 @@
                     </div>
             </div>
 
-            <!-- Modal Assinatura Google -->
-            <div class="modal fade" id="googleModal" tabindex="-1" role="dialog">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content p-3">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Assinar no Google Agenda</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <p>Você pode assinar estes links no Google Agenda (ou outro app) para receber os eventos automaticamente:</p>
-                            <ul>
-                                <li><a id="link-ics-todos" target="_blank" rel="noopener">Calendário (Todos)</a></li>
-                                <li><a id="link-ics-prof" target="_blank" rel="noopener">Calendário (Professores)</a></li>
-                                <li><a id="link-ics-alunos" target="_blank" rel="noopener">Calendário (Alunos)</a></li>
-                            </ul>
-                            <p class="mb-0">No Google Agenda, use a opção "+" &gt; "A partir da URL" e cole o link.</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
 
         </div>
         <div class="overlay toggle-menu"></div>
@@ -930,26 +893,35 @@
                     .fail(function(){ alert('Erro ao atualizar evento.'); });
             }
 
-            $('#btn-importar-calendario').click(function () {
-                alert('Funcionalidade de importação será implementada aqui');
-            });
-
-            $('#btn-exportar-calendario').click(function () {
-                alert('Funcionalidade de exportação será implementada aqui');
-            });
+            // Importar/Exportar removidos a pedido — sem handlers
 
             $('#btn-publicar-calendario').click(function () {
-                $('#btn-assinar-google').trigger('click');
-            });
+                const publico = $('#publico-alvo').val();
+                const tipo = $('#tipo-evento').val();
+                const view = calendar.view;
+                const start = view.activeStart.toISOString().slice(0,10);
+                const end = view.activeEnd.toISOString().slice(0,10);
 
-            $('#btn-assinar-google').click(function(){
-                const urlTodos = new URL('../includes/ajax/calendario/ics.php?publico=todos', window.location.href).href;
-                const urlProf = new URL('../includes/ajax/calendario/ics.php?publico=professores', window.location.href).href;
-                const urlAlunos = new URL('../includes/ajax/calendario/ics.php?publico=alunos', window.location.href).href;
-                $('#link-ics-todos').attr('href', urlTodos).text(urlTodos);
-                $('#link-ics-prof').attr('href', urlProf).text(urlProf);
-                $('#link-ics-alunos').attr('href', urlAlunos).text(urlAlunos);
-                $('#googleModal').modal('show');
+                if (!publico || !['todos','professores','alunos'].includes(publico)) {
+                    alert('Selecione um público-alvo válido (Todos, Professores ou Alunos).');
+                    return;
+                }
+
+                if (!confirm(`Publicar eventos de ${start} a ${end} para: ${publico}?`)) return;
+
+                $.post('../includes/ajax/calendario/publicar.php', { publico, start, end, tipo })
+                    .done(function(res){
+                        try { res = typeof res === 'string' ? JSON.parse(res) : res; } catch(e) {}
+                        if (res && res.success) {
+                            alert('Calendário publicado com sucesso!');
+                            calendar.refetchEvents();
+                        } else {
+                            alert((res && res.message) || 'Falha ao publicar.');
+                        }
+                    })
+                    .fail(function(xhr){
+                        alert('Erro ao publicar: ' + (xhr.responseText || xhr.statusText));
+                    });
             });
         });
 

@@ -1,7 +1,6 @@
 <?php
 require_once '../../bootstrap.php';
 require_once '../../conexao.php';
-// Integração com Google desativada: mantendo apenas calendário local/ICS
 
 header('Content-Type: application/json');
 
@@ -12,7 +11,6 @@ try {
         exit;
     }
 
-    // Apenas admin por enquanto
     if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
         http_response_code(403);
         echo json_encode(['success' => false, 'message' => 'Acesso negado']);
@@ -21,20 +19,28 @@ try {
 
     $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
     if ($id <= 0) {
-        $raw = file_get_contents('php://input');
-        $json = json_decode($raw, true);
-        if ($json && isset($json['id'])) { $id = (int)$json['id']; }
-    }
-
-    if ($id <= 0) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'id é obrigatório']);
+        echo json_encode(['success' => false, 'message' => 'id inválido']);
         exit;
     }
 
-    // Apagar no banco
-    $st = $pdo->prepare('DELETE FROM Calendario_Academico WHERE ID_Evento = ?');
+    $st = $pdo->prepare('SELECT Arquivo_Caminho FROM Documentos WHERE ID_Documento = ?');
     $st->execute([$id]);
+    $row = $st->fetch(PDO::FETCH_ASSOC);
+    if (!$row) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Documento não encontrado']);
+        exit;
+    }
+
+    // Excluir arquivo
+    $root = dirname(__DIR__, 3);
+    $full = $root . '/' . $row['Arquivo_Caminho'];
+    if (is_file($full)) { @unlink($full); }
+
+    // Excluir do banco
+    $del = $pdo->prepare('DELETE FROM Documentos WHERE ID_Documento = ?');
+    $del->execute([$id]);
 
     echo json_encode(['success' => true]);
 } catch (Throwable $e) {

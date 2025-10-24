@@ -220,7 +220,7 @@
 
                             <!-- Formulário para upload de documentos -->
                             <div class="form-container">
-                                <form id="form-documento">
+                                <form id="form-documento" enctype="multipart/form-data">
                                     <h5 class="section-title">ADICIONAR NOVO DOCUMENTO</h5>
 
                                     <div class="form-group">
@@ -291,49 +291,7 @@
                                                     <th>Ações</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>Regulamento</td>
-                                                    <td>Regulamento Geral da Instituição</td>
-                                                    <td>Documento com as normas gerais da instituição</td>
-                                                    <td>15/03/2023</td>
-                                                    <td>
-                                                        <button class="btn btn-sm action-btn btn-primary"><i
-                                                                class="zmdi zmdi-download"></i></button>
-                                                        <button class="btn btn-sm action-btn btn-secondary"><i
-                                                                class="zmdi zmdi-edit"></i></button>
-                                                        <button class="btn btn-sm action-btn btn-danger"><i
-                                                                class="zmdi zmdi-delete"></i></button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Norma</td>
-                                                    <td>Normas de Conduta Discente</td>
-                                                    <td>Regras de comportamento para alunos</td>
-                                                    <td>10/02/2023</td>
-                                                    <td>
-                                                        <button class="btn btn-sm action-btn btn-primary"><i
-                                                                class="zmdi zmdi-download"></i></button>
-                                                        <button class="btn btn-sm action-btn btn-secondary"><i
-                                                                class="zmdi zmdi-edit"></i></button>
-                                                        <button class="btn btn-sm action-btn btn-danger"><i
-                                                                class="zmdi zmdi-delete"></i></button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Portaria</td>
-                                                    <td>Portaria de Designação de Coordenadores</td>
-                                                    <td>Designação dos coordenadores de curso para 2023</td>
-                                                    <td>05/01/2023</td>
-                                                    <td>
-                                                        <button class="btn btn-sm action-btn btn-primary"><i
-                                                                class="zmdi zmdi-download"></i></button>
-                                                        <button class="btn btn-sm action-btn btn-secondary"><i
-                                                                class="zmdi zmdi-edit"></i></button>
-                                                        <button class="btn btn-sm action-btn btn-danger"><i
-                                                                class="zmdi zmdi-delete"></i></button>
-                                                    </td>
-                                                </tr>
+                                            <tbody id="lista-documentos">
                                             </tbody>
                                         </table>
                                     </div>
@@ -362,27 +320,67 @@
                 $('#file-name').text(fileName || 'Nenhum arquivo selecionado');
             });
 
+            // Carregar lista inicial
+            function carregarDocumentos() {
+                $.getJSON('../includes/ajax/documentos/listar.php')
+                    .done(function(res){
+                        if (res.success) {
+                            const tbody = $('#lista-documentos');
+                            tbody.empty();
+                            (res.data || []).forEach(function(doc){
+                                const data = doc.Data_Vigencia ? new Date(doc.Data_Vigencia).toLocaleDateString('pt-BR') : new Date(doc.Criado_Em).toLocaleDateString('pt-BR');
+                                const tr = `
+                                    <tr data-id="${doc.ID_Documento}">
+                                        <td>${(doc.Tipo || '').charAt(0).toUpperCase() + (doc.Tipo || '').slice(1)}</td>
+                                        <td>${doc.Titulo || ''}</td>
+                                        <td>${doc.Descricao || '-'}</td>
+                                        <td>${data}</td>
+                                        <td>
+                                            <button class="btn btn-sm action-btn btn-primary btn-download"><i class="zmdi zmdi-download"></i></button>
+                                            <button class="btn btn-sm action-btn btn-danger btn-excluir"><i class="zmdi zmdi-delete"></i></button>
+                                        </td>
+                                    </tr>`;
+                                tbody.append(tr);
+                            });
+                        } else {
+                            alert(res.message || 'Falha ao listar documentos');
+                        }
+                    })
+                    .fail(function(xhr){ alert('Erro ao listar: ' + (xhr.responseText || xhr.statusText)); });
+            }
+            carregarDocumentos();
+
             // Validação e envio do formulário
             $('#form-documento').submit(function (e) {
                 e.preventDefault();
+                if (!validarFormulario()) return;
 
-                if (validarFormulario()) {
-                    const documento = {
-                        tipo: $('#tipo-documento option:selected').text(),
-                        tipoValor: $('#tipo-documento').val(),
-                        titulo: $('#titulo-documento').val(),
-                        descricao: $('#descricao-documento').val(),
-                        dataVigencia: $('#data-vigencia').val(),
-                        arquivo: $('#arquivo-documento').val().split('\\').pop()
-                    };
+                const fd = new FormData();
+                fd.append('tipo', $('#tipo-documento').val());
+                fd.append('titulo', $('#titulo-documento').val());
+                fd.append('descricao', $('#descricao-documento').val());
+                fd.append('data_vigencia', $('#data-vigencia').val());
+                const file = $('#arquivo-documento')[0].files[0];
+                fd.append('arquivo', file);
 
-                    console.log('Dados do documento:', documento);
-                    alert('Documento enviado com sucesso!');
-
-                    // Aqui você adicionaria o documento à tabela 
-                    adicionarDocumentoNaTabela(documento);
-                    limparFormulario();
-                }
+                $.ajax({
+                    url: '../includes/ajax/documentos/upload.php',
+                    method: 'POST',
+                    data: fd,
+                    processData: false,
+                    contentType: false
+                }).done(function(res){
+                    try { res = typeof res === 'string' ? JSON.parse(res) : res; } catch(e) {}
+                    if (res && res.success) {
+                        alert('Documento enviado com sucesso!');
+                        limparFormulario();
+                        carregarDocumentos();
+                    } else {
+                        alert((res && res.message) || 'Falha ao enviar');
+                    }
+                }).fail(function(xhr){
+                    alert('Erro ao enviar: ' + (xhr.responseText || xhr.statusText));
+                });
             });
 
             // Botão Limpar
@@ -413,47 +411,26 @@
                 $('#file-name').text('Nenhum arquivo selecionado');
             }
 
-            // Função para adicionar documento na tabela 
-            function adicionarDocumentoNaTabela(documento) {
-                const dataFormatada = documento.dataVigencia ?
-                    new Date(documento.dataVigencia).toLocaleDateString('pt-BR') :
-                    new Date().toLocaleDateString('pt-BR');
-
-                const newRow = `
-                    <tr>
-                        <td>${documento.tipo}</td>
-                        <td>${documento.titulo}</td>
-                        <td>${documento.descricao || '-'}</td>
-                        <td>${dataFormatada}</td>
-                        <td>
-                            <button class="btn btn-sm action-btn btn-primary"><i class="zmdi zmdi-download"></i></button>
-                            <button class="btn btn-sm action-btn btn-secondary"><i class="zmdi zmdi-edit"></i></button>
-                            <button class="btn btn-sm action-btn btn-danger"><i class="zmdi zmdi-delete"></i></button>
-                        </td>
-                    </tr>
-                `;
-
-                $('.documentos-table tbody').prepend(newRow);
-            }
-
-            // Eventos para os botões de ação na tabela
-            $(document).on('click', '.action-btn.btn-primary', function () {
-                const row = $(this).closest('tr');
-                const titulo = row.find('td:eq(1)').text();
-                alert(`Download do documento: ${titulo}`);
+            // Eventos de ações na tabela
+            $(document).on('click', '.btn-download', function(){
+                const id = $(this).closest('tr').data('id');
+                window.location = '../includes/ajax/documentos/download.php?id=' + id;
             });
 
-            $(document).on('click', '.action-btn.btn-secondary', function () {
-                const row = $(this).closest('tr');
-                const titulo = row.find('td:eq(1)').text();
-                alert(`Editar documento: ${titulo}`);
-            });
-
-            $(document).on('click', '.action-btn.btn-danger', function () {
-                if (confirm('Tem certeza que deseja excluir este documento?')) {
-                    $(this).closest('tr').remove();
-                    alert('Documento excluído com sucesso!');
-                }
+            $(document).on('click', '.btn-excluir', function(){
+                const id = $(this).closest('tr').data('id');
+                if (!confirm('Tem certeza que deseja excluir este documento?')) return;
+                $.post('../includes/ajax/documentos/delete.php', { id })
+                    .done(function(res){
+                        try { res = typeof res === 'string' ? JSON.parse(res) : res; } catch(e) {}
+                        if (res && res.success) {
+                            carregarDocumentos();
+                        } else {
+                            alert((res && res.message) || 'Falha ao excluir');
+                        }
+                    }).fail(function(xhr){
+                        alert('Erro ao excluir: ' + (xhr.responseText || xhr.statusText));
+                    });
             });
         });
     </script>

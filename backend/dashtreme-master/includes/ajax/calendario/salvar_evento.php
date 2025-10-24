@@ -1,6 +1,6 @@
 <?php
-require_once '../../includes/bootstrap.php';
-require_once '../../includes/conexao.php';
+require_once '../../bootstrap.php';
+require_once '../../conexao.php';
 // Integração com Google desativada: mantendo apenas calendário local/ICS
 
 header('Content-Type: application/json');

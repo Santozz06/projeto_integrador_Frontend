@@ -355,14 +355,6 @@
                 <div class="row mb-3">
                     <div class="col-12">
                         <div class="d-flex flex-wrap gap-2">
-                            <button class="btn btn-primary" id="btn-importar-calendario">
-                                <i class="zmdi zmdi-cloud-upload"></i>
-                                <span class="d-none d-sm-inline"> Importar</span>
-                            </button>
-                            <button class="btn btn-info" id="btn-exportar-calendario">
-                                <i class="zmdi zmdi-cloud-download"></i>
-                                <span class="d-none d-sm-inline"> Exportar</span>
-                            </button>
                             <button class="btn btn-success" id="btn-publicar-calendario">
                                 <i class="zmdi zmdi-check-all"></i>
                                 <span class="d-none d-sm-inline"> Publicar</span>
@@ -616,42 +608,20 @@
                                 container: 'body'
                             });
                         }
-                    }
-                    , events: [
-                        {
-                            title: 'Feriado Municipal',
-                            start: new Date(),
-                            extendedProps: {
-                                tipo: 'feriado',
-                                description: 'Aniversário da cidade - Ponto facultativo'
-                            }
-                        },
-                        {
-                            title: 'Reunião Pedagógica',
-                            start: new Date(new Date().setDate(new Date().getDate() + 7)),
-                            end: new Date(new Date().setDate(new Date().getDate() + 7.5)),
-                            extendedProps: {
-                                tipo: 'reuniao',
-                                description: 'Planejamento trimestral - Sala dos professores'
-                            }
-                        },
-                        {
-                            title: 'Feira Cultural',
-                            start: new Date(new Date().setDate(new Date().getDate() + 14)),
-                            extendedProps: {
-                                tipo: 'evento',
-                                description: 'Evento aberto à comunidade - Quadra poliesportiva'
-                            }
-                        },
-                        {
-                            title: 'Conselho de Classe',
-                            start: new Date(new Date().setDate(new Date().getDate() + 21)),
-                            extendedProps: {
-                                tipo: 'conselho',
-                                description: 'Avaliação do 1º bimestre - Sala de reuniões'
-                            }
-                        }
-                    ],
+                    },
+                    events: function(fetchInfo, successCallback, failureCallback){
+                        const params = {
+                            start: fetchInfo.startStr,
+                            end: fetchInfo.endStr
+                            // sem 'publico' para incluir 'todos' + 'professores' via sessão
+                        };
+                        $.getJSON('../includes/ajax/calendario/listar_eventos.php', params)
+                            .done(function(res){
+                                if (res.success) successCallback(res.data || []);
+                                else failureCallback(res.message || 'Falha ao carregar eventos');
+                            })
+                            .fail(function(xhr){ failureCallback(xhr.statusText || 'Erro ao carregar eventos'); });
+                    },
                     dateClick: function (info) {
                         currentEvent = null;
                         $('#form-evento')[0].reset();
@@ -825,13 +795,7 @@
                     }
                 });
 
-                $('#btn-importar-calendario').click(function () {
-                    alert('Funcionalidade de importação será implementada aqui');
-                });
-
-                $('#btn-exportar-calendario').click(function () {
-                    alert('Funcionalidade de exportação será implementada aqui');
-                });
+                // Importar/Exportar removidos a pedido — sem handlers
 
                 $('#btn-publicar-calendario').click(function () {
                     if (confirm('Deseja publicar as alterações?')) {
