@@ -68,6 +68,12 @@ if (isset($_GET['editarAluno']) && !empty($_GET['editarAluno'])) {
     if ($aluno_para_edicao && isset($aluno_para_edicao['UF_Endereco']) && $aluno_para_edicao['UF_Endereco']) {
         $municipios_aluno = $localidadeCRUD->listarMunicipiosPorEstado($aluno_para_edicao['UF_Endereco']);
     }
+
+    // Compatibilidade: se não houver coluna 'Logradouro' mas existir 'Endereco', tenta derivar o logradouro para preencher o formulário
+    if ($aluno_para_edicao && (!isset($aluno_para_edicao['Logradouro']) || $aluno_para_edicao['Logradouro'] === '') && !empty($aluno_para_edicao['Endereco'])) {
+        $partesEndereco = explode(',', (string)$aluno_para_edicao['Endereco']);
+        $aluno_para_edicao['Logradouro'] = trim($partesEndereco[0]);
+    }
 }
 
 // Se estiver editando servidor
@@ -79,6 +85,12 @@ if (isset($_GET['editarServidor']) && !empty($_GET['editarServidor'])) {
     // Carregar municípios baseado no UF_Endereco (se existir)
     if ($servidor_para_edicao && isset($servidor_para_edicao['UF_Endereco']) && $servidor_para_edicao['UF_Endereco']) {
         $municipios_servidor = $localidadeCRUD->listarMunicipiosPorEstado($servidor_para_edicao['UF_Endereco']);
+    }
+
+    // Compatibilidade: se não houver coluna 'Logradouro' mas existir 'Endereco', tenta derivar o logradouro para preencher o formulário
+    if ($servidor_para_edicao && (!isset($servidor_para_edicao['Logradouro']) || $servidor_para_edicao['Logradouro'] === '') && !empty($servidor_para_edicao['Endereco'])) {
+        $partesEndereco = explode(',', (string)$servidor_para_edicao['Endereco']);
+        $servidor_para_edicao['Logradouro'] = trim($partesEndereco[0]);
     }
 }
 
@@ -105,10 +117,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'Raca_Etnia' => $_POST['racaCor'],
                 'Orgao_Exp' => $_POST['orgaoExpedidor'],
                 'UF_Exp' => $_POST['ufDocumento'],
+                // Telefone e Celular: preenche ambos e, se existir coluna Telefone_Fixo, também atualiza
                 'Telefone' => $_POST['telefone'] ?? '',
+                'Telefone_Fixo' => $_POST['telefone'] ?? '',
                 'Celular' => $_POST['celular'] ?? '',
                 'CEP' => $_POST['cep'] ?? '',
+                // Armazena 'Endereco' completo e, se existir coluna 'Logradouro', preenche também
                 'Endereco' => $_POST['logradouro'] . ', ' . $_POST['numero'] . ' - ' . $_POST['bairro'],
+                'Logradouro' => $_POST['logradouro'] ?? '',
                 'Numero' => $_POST['numero'] ?? '',
                 'Complemento' => $_POST['complemento'] ?? '',
                 'Bairro' => $_POST['bairro'] ?? '',
@@ -248,10 +264,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'Filiacao' => $_POST['filiacaoServidor'],
                 'Orgao_Exp' => $_POST['orgaoExpedidorServidor'],
                 'UF_Exp' => $_POST['ufDocumentoServidor'],
+                // Telefone e Celular: preenche ambos e, se existir coluna Telefone_Fixo, também atualiza
                 'Telefone' => $_POST['telefoneServidor'] ?? '',
+                'Telefone_Fixo' => $_POST['telefoneServidor'] ?? '',
                 'Celular' => $_POST['celularServidor'] ?? '',
                 'CEP' => $_POST['cepServidor'] ?? '',
+                // Armazena 'Endereco' completo e, se existir coluna 'Logradouro', preenche também
                 'Endereco' => $_POST['logradouroServidor'] . ', ' . $_POST['numeroServidor'] . ' - ' . $_POST['bairroServidor'],
+                'Logradouro' => $_POST['logradouroServidor'] ?? '',
                 'Numero' => $_POST['numeroServidor'] ?? '',
                 'Complemento' => $_POST['complementoServidor'] ?? '',
                 'Bairro' => $_POST['bairroServidor'] ?? '',
@@ -779,7 +799,7 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>CPF</label>
-                                                <input type="text" class="form-control" name="cpf"
+                                                <input type="text" class="form-control" name="cpf" id="cpf"
                                                     placeholder="000.000.000-00" required
                                                     value="<?= htmlspecialchars($aluno_para_edicao['CPF'] ?? '') ?>">
                                             </div>
@@ -831,7 +851,7 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label>CEP</label>
-                                                <input type="text" class="form-control" name="cep"
+                                                <input type="text" class="form-control" name="cep" id="cep"
                                                     placeholder="00000-000" maxlength="9" required
                                                     value="<?= htmlspecialchars($aluno_para_edicao['CEP'] ?? '') ?>">
                                             </div>
@@ -909,17 +929,17 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Telefone</label>
-                                                <input type="text" class="form-control" name="telefone"
+                                                <input type="text" class="form-control" name="telefone" id="telefone"
                                                     placeholder="(00) 0000-0000"
-                                                    value="<?= htmlspecialchars($aluno_para_edicao['Telefone_Fixo'] ?? '') ?>">
+                                                    value="<?= htmlspecialchars($aluno_para_edicao['Telefone'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Celular</label>
-                                                <input type="text" class="form-control" name="celular"
+                                                <input type="text" class="form-control" name="celular" id="celular"
                                                     placeholder="(00) 00000-0000" required
-                                                    value="<?= htmlspecialchars($aluno_para_edicao['Telefone'] ?? '') ?>">
+                                                    value="<?= htmlspecialchars($aluno_para_edicao['Celular'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
@@ -1241,7 +1261,7 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>CPF</label>
-                                                <input type="text" class="form-control" name="cpfServidor" required
+                                                <input type="text" class="form-control" name="cpfServidor" id="cpfServidor" required
                                                     value="<?= htmlspecialchars($servidor_para_edicao['CPF'] ?? '') ?>">
                                             </div>
                                         </div>
@@ -1293,7 +1313,7 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label>CEP</label>
-                                                <input type="text" class="form-control" name="cepServidor"
+                                                <input type="text" class="form-control" name="cepServidor" id="cepServidor"
                                                     placeholder="00000-000" maxlength="9" required
                                                     value="<?= htmlspecialchars($servidor_para_edicao['CEP'] ?? '') ?>">
                                             </div>
@@ -1337,7 +1357,7 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                                     <option value="">Selecione...</option>
                                                     <?php foreach ($estados as $estado): ?>
                                                         <option value="<?= $estado['id'] ?>"
-                                                            <?= ($servidor_para_edicao['estado_id'] ?? '') == $estado['id'] ? 'selected' : '' ?>>
+                                                            <?= ($servidor_para_edicao['UF_Endereco'] ?? '') == $estado['id'] ? 'selected' : '' ?>>
                                                             <?= htmlspecialchars($estado['nome']) ?>
                                                         </option>
                                                     <?php endforeach; ?>
@@ -1353,7 +1373,7 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                                     <?php if (!empty($municipios_servidor)): ?>
                                                         <?php foreach ($municipios_servidor as $municipio): ?>
                                                             <option value="<?= $municipio['id'] ?>"
-                                                                <?= ($servidor_para_edicao['municipio_id'] ?? '') == $municipio['id'] ? 'selected' : '' ?>>
+                                                                <?= ($servidor_para_edicao['Municipio_Endereco'] ?? '') == $municipio['id'] ? 'selected' : '' ?>>
                                                                 <?= htmlspecialchars($municipio['nome']) ?>
                                                             </option>
                                                         <?php endforeach; ?>
@@ -1371,15 +1391,15 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Telefone</label>
-                                                <input type="text" class="form-control" name="telefoneServidor"
-                                                    value="<?= htmlspecialchars($servidor_para_edicao['Telefone_Fixo'] ?? '') ?>">
+                                                <input type="text" class="form-control" name="telefoneServidor" id="telefoneServidor"
+                                                    value="<?= htmlspecialchars($servidor_para_edicao['Telefone'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Celular</label>
-                                                <input type="text" class="form-control" name="celularServidor" required
-                                                    value="<?= htmlspecialchars($servidor_para_edicao['Telefone'] ?? '') ?>">
+                                                <input type="text" class="form-control" name="celularServidor" id="celularServidor" required
+                                                    value="<?= htmlspecialchars($servidor_para_edicao['Celular'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
@@ -1671,6 +1691,288 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
 
             $('#cepServidor').on('input', function () {
                 aplicarMascaraCEP(this);
+            });
+
+            // Carrega mapeamento de UFs (sigla -> codigo_uf) via endpoint existente
+            let ufMapPromise = fetch('../includes/ajax/listar_estados.php')
+                .then(r => r.json())
+                .then(j => {
+                    if (!j || !j.success) throw new Error('Falha ao listar estados');
+                    const map = {};
+                    (j.data || []).forEach(e => { if (e.uf) map[e.uf] = e.id; });
+                    return map;
+                })
+                .catch(err => {
+                    console.error('Erro ao carregar estados:', err);
+                    return {};
+                });
+
+            // Consulta ViaCEP e preenche campos
+            async function preencherEnderecoPorCEP(cep, contexto) {
+                const somenteDigitos = (cep || '').replace(/\D/g, '');
+                if (somenteDigitos.length !== 8) return; // CEP inválido/incompleto
+                try {
+                    const resp = await fetch(`https://viacep.com.br/ws/${somenteDigitos}/json/`);
+                    if (!resp.ok) throw new Error('Resposta inválida do ViaCEP');
+                    const data = await resp.json();
+                    if (data.erro) throw new Error('CEP não encontrado');
+
+                    // Preenche logradouro e bairro quando disponíveis
+                    if (contexto.$logradouro && data.logradouro) contexto.$logradouro.val(data.logradouro);
+                    if (contexto.$bairro && data.bairro) contexto.$bairro.val(data.bairro);
+                    if (contexto.$complemento && data.complemento) contexto.$complemento.val(data.complemento);
+
+                    // Seleciona UF no select (mapeando sigla -> codigo_uf)
+                    const ufMap = await ufMapPromise;
+                    const codigoUF = ufMap[data.uf] || null;
+                    if (codigoUF && contexto.$uf) {
+                        contexto.$uf.val(String(codigoUF)).trigger('change');
+
+                        // Após carregar municípios (assíncrono), selecionar pelo IBGE
+                        const tentarSelecionarMunicipio = () => {
+                            if (!contexto.$municipio) return;
+                            // Aguarda options carregarem
+                            setTimeout(() => {
+                                if (data.ibge) {
+                                    contexto.$municipio.val(String(data.ibge)).trigger('change');
+                                } else if (data.localidade) {
+                                    // fallback por nome se ibge indisponível
+                                    const nomeCidade = (data.localidade || '').toLowerCase();
+                                    let escolhido = null;
+                                    contexto.$municipio.find('option').each(function(){
+                                        if (($(this).text() || '').toLowerCase() === nomeCidade) {
+                                            escolhido = $(this).val();
+                                        }
+                                    });
+                                    if (escolhido) contexto.$municipio.val(escolhido).trigger('change');
+                                }
+                            }, 400);
+                        };
+                        tentarSelecionarMunicipio();
+                    }
+                } catch (e) {
+                    console.warn('Não foi possível preencher endereço pelo CEP:', e.message || e);
+                }
+            }
+
+            // Amarra CEP -> auto-preenchimento (Aluno)
+            $('#cep').on('blur', function(){
+                preencherEnderecoPorCEP(this.value, {
+                    $uf: $('#ufEndereco'),
+                    $municipio: $('#municipio'),
+                    $logradouro: $('input[name="logradouro"]'),
+                    $bairro: $('input[name="bairro"]'),
+                    $complemento: $('input[name="complemento"]')
+                });
+            });
+            // Também quando completar 9 chars (com hífen) durante digitação
+            $('#cep').on('input', function(){
+                const raw = this.value.replace(/\D/g, '');
+                if (raw.length === 8) {
+                    preencherEnderecoPorCEP(this.value, {
+                        $uf: $('#ufEndereco'),
+                        $municipio: $('#municipio'),
+                        $logradouro: $('input[name="logradouro"]'),
+                        $bairro: $('input[name="bairro"]'),
+                        $complemento: $('input[name="complemento"]')
+                    });
+                }
+            });
+
+            // Amarra CEP -> auto-preenchimento (Servidor)
+            $('#cepServidor').on('blur', function(){
+                preencherEnderecoPorCEP(this.value, {
+                    $uf: $('#ufEnderecoServidor'),
+                    $municipio: $('#municipioServidor'),
+                    $logradouro: $('input[name="logradouroServidor"]'),
+                    $bairro: $('input[name="bairroServidor"]'),
+                    $complemento: $('input[name="complementoServidor"]')
+                });
+            });
+            $('#cepServidor').on('input', function(){
+                const raw = this.value.replace(/\D/g, '');
+                if (raw.length === 8) {
+                    preencherEnderecoPorCEP(this.value, {
+                        $uf: $('#ufEnderecoServidor'),
+                        $municipio: $('#municipioServidor'),
+                        $logradouro: $('input[name="logradouroServidor"]'),
+                        $bairro: $('input[name="bairroServidor"]'),
+                        $complemento: $('input[name="complementoServidor"]')
+                    });
+                }
+            });
+
+            // === CPF: máscara e validação ===
+            function aplicarMascaraCPF(input) {
+                let v = (input.value || '').replace(/\D/g, '');
+                if (v.length > 11) v = v.substring(0,11);
+                if (v.length > 9) input.value = v.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, '$1.$2.$3-$4');
+                else if (v.length > 6) input.value = v.replace(/(\d{3})(\d{3})(\d{0,3})/, '$1.$2.$3');
+                else if (v.length > 3) input.value = v.replace(/(\d{3})(\d{0,3})/, '$1.$2');
+                else input.value = v;
+            }
+
+            function validarCPFValor(cpfStr) {
+                const cpf = (cpfStr || '').replace(/\D/g, '');
+                if (!cpf || cpf.length !== 11) return false;
+                if (/^(\d)\1{10}$/.test(cpf)) return false; // repetidos
+                let soma = 0;
+                for (let i = 0; i < 9; i++) soma += parseInt(cpf.charAt(i)) * (10 - i);
+                let resto = (soma * 10) % 11;
+                if (resto === 10 || resto === 11) resto = 0;
+                if (resto !== parseInt(cpf.charAt(9))) return false;
+                soma = 0;
+                for (let i = 0; i < 10; i++) soma += parseInt(cpf.charAt(i)) * (11 - i);
+                resto = (soma * 10) % 11;
+                if (resto === 10 || resto === 11) resto = 0;
+                if (resto !== parseInt(cpf.charAt(10))) return false;
+                return true;
+            }
+
+            // Liga máscaras CPF e remove estado inválido durante digitação
+            $('#cpf, #cpfServidor').on('input', function(){
+                aplicarMascaraCPF(this);
+                $(this).removeClass('is-invalid');
+            });
+
+            // Valida CPF ao sair do campo (sem alert, só marca visualmente)
+            $('#cpf').on('blur', function(){
+                const v = (this.value || '').trim();
+                if (!v) { $(this).removeClass('is-invalid'); return; }
+                const ok = validarCPFValor(v);
+                $(this).toggleClass('is-invalid', !ok);
+            });
+            $('#cpfServidor').on('blur', function(){
+                const v = (this.value || '').trim();
+                if (!v) { $(this).removeClass('is-invalid'); return; }
+                const ok = validarCPFValor(v);
+                $(this).toggleClass('is-invalid', !ok);
+            });
+
+            // === Máscaras de Telefone/Celular (BR) ===
+            function aplicarMascaraTelefone(input) {
+                // Mantém apenas dígitos
+                let val = (input.value || '').replace(/\D/g, '');
+                // Limita a 11 dígitos (DDD + número)
+                if (val.length > 11) val = val.substring(0, 11);
+
+                // Monta a máscara progressivamente
+                if (val.length > 0) {
+                    // DDD
+                    if (val.length <= 2) {
+                        val = '(' + val;
+                    } else {
+                        val = '(' + val.substring(0, 2) + ') ' + val.substring(2);
+                    }
+
+                    // Hífen conforme 10 (fixo) ou 11 (celular) dígitos
+                    const digitos = input.value.replace(/\D/g, '');
+                    const total = digitos.length;
+                    // Posição do hífen: 10 dígitos => 4-4 | 11 dígitos => 5-4
+                    if (total >= 7) {
+                        // Remove tudo que não é dígito para recálculo
+                        const soDigitos = val.replace(/\D/g, '');
+                        const ddd = soDigitos.substring(0, 2);
+                        const restante = soDigitos.substring(2);
+                        if (total === 11) {
+                            // (00) 00000-0000
+                            const parte1 = restante.substring(0, 5);
+                            const parte2 = restante.substring(5);
+                            val = `(${ddd}) ${parte1}` + (parte2 ? `-${parte2}` : '');
+                        } else {
+                            // (00) 0000-0000 (ou montagem parcial)
+                            const parte1 = restante.substring(0, 4);
+                            const parte2 = restante.substring(4);
+                            val = `(${ddd}) ${parte1}` + (parte2 ? `-${parte2}` : '');
+                        }
+                    }
+                }
+
+                input.value = val;
+            }
+
+            function validarTelefoneCampo($input, obrigatorioCelular = false) {
+                const raw = ($input.val() || '').replace(/\D/g, '');
+                if (!raw) return true; // vazio permitido em campos não obrigatórios
+                if (obrigatorioCelular) {
+                    // Celular deve ter 11 dígitos no Brasil
+                    return raw.length === 11;
+                }
+                // Telefone pode ser fixo (10) ou celular (11)
+                return raw.length === 10 || raw.length === 11;
+            }
+
+            // Liga máscaras
+            $('#telefone, #celular, #telefoneServidor, #celularServidor').on('input', function () {
+                aplicarMascaraTelefone(this);
+            });
+
+            // Validação ao enviar formulários
+            $('#formAluno').on('submit', function (e) {
+                // CEP precisa ter 8 dígitos
+                const cepRaw = ($('#cep').val() || '').replace(/\D/g, '');
+                if (cepRaw.length !== 8) {
+                    e.preventDefault();
+                    alert('CEP do aluno inválido. Use o formato 00000-000.');
+                    $('#cep').focus();
+                    return false;
+                }
+                // CPF precisa ser válido
+                const $cpf = $('#cpf');
+                if ($cpf.length && !validarCPFValor($cpf.val())) {
+                    e.preventDefault();
+                    alert('CPF do aluno inválido. Verifique e tente novamente.');
+                    $cpf.focus();
+                    return false;
+                }
+                const $tel = $('#telefone');
+                const $cel = $('#celular');
+                // valida somente se preenchidos; celular é required no HTML, mas reforçamos regra de 11 dígitos
+                if ($cel.length && !validarTelefoneCampo($cel, true)) {
+                    e.preventDefault();
+                    alert('Celular do aluno inválido. Use o formato (00) 00000-0000.');
+                    $cel.focus();
+                    return false;
+                }
+                if ($tel.length && $tel.val().trim() !== '' && !validarTelefoneCampo($tel, false)) {
+                    e.preventDefault();
+                    alert('Telefone do aluno inválido. Use (00) 0000-0000 ou (00) 00000-0000.');
+                    $tel.focus();
+                    return false;
+                }
+            });
+
+            $('#formServidor').on('submit', function (e) {
+                // CEP precisa ter 8 dígitos
+                const cepRaw = ($('#cepServidor').val() || '').replace(/\D/g, '');
+                if (cepRaw.length !== 8) {
+                    e.preventDefault();
+                    alert('CEP do servidor inválido. Use o formato 00000-000.');
+                    $('#cepServidor').focus();
+                    return false;
+                }
+                // CPF precisa ser válido
+                const $cpf = $('#cpfServidor');
+                if ($cpf.length && !validarCPFValor($cpf.val())) {
+                    e.preventDefault();
+                    alert('CPF do servidor inválido. Verifique e tente novamente.');
+                    $cpf.focus();
+                    return false;
+                }
+                const $tel = $('#telefoneServidor');
+                const $cel = $('#celularServidor');
+                if ($cel.length && !validarTelefoneCampo($cel, true)) {
+                    e.preventDefault();
+                    alert('Celular do servidor inválido. Use o formato (00) 00000-0000.');
+                    $cel.focus();
+                    return false;
+                }
+                if ($tel.length && $tel.val().trim() !== '' && !validarTelefoneCampo($tel, false)) {
+                    e.preventDefault();
+                    alert('Telefone do servidor inválido. Use (00) 0000-0000 ou (00) 00000-0000.');
+                    $tel.focus();
+                    return false;
+                }
             });
 
             // Se estiver editando e já tiver um estado selecionado, carrega os municípios para endereço (Aluno)

@@ -8,6 +8,34 @@ class UsuarioCRUD extends BaseCRUD
         parent::__construct($pdo, 'Usuarios', 'ID_Usuario');
     }
 
+    /**
+     * Normaliza campos do usuário removendo máscaras e mantendo apenas dígitos
+     * para CPF, CEP, Telefone, Celular e Telefone_Fixo.
+     * Limita tamanhos máximos para evitar estouro na coluna do banco.
+     *
+     * @param array $dados
+     * @return array
+     */
+    private function sanitizeUsuarioFields(array $dados): array
+    {
+        $numericOnly = ['CPF', 'CEP', 'Telefone', 'Celular', 'Telefone_Fixo'];
+        foreach ($numericOnly as $k) {
+            if (isset($dados[$k]) && $dados[$k] !== null) {
+                $val = preg_replace('/\D+/', '', (string)$dados[$k]);
+                // limites razoáveis por campo
+                if ($k === 'CPF') {
+                    $val = substr($val, 0, 11);
+                } elseif ($k === 'CEP') {
+                    $val = substr($val, 0, 8);
+                } else { // telefones
+                    $val = substr($val, 0, 11); // DDD + número
+                }
+                $dados[$k] = $val;
+            }
+        }
+        return $dados;
+    }
+
     private function hasColumn($table, $column)
     {
         try {
@@ -35,7 +63,7 @@ class UsuarioCRUD extends BaseCRUD
             // Fallback para whitelist básica
             $whitelist = [
                 'Login','Senha','Nome_Completo','Data_Nascimento','Sexo','CPF','Orgao_Exp','UF_Exp','Raca_Etnia','Endereco','Telefone','Email','Possui_Necessidades_Especiais','IsAdmin','Ativo','Estado_Civil','Nacionalidade','Naturalidade','Filiacao',
-                'RG','Data_Expedicao','CEP','Numero','Complemento','Bairro','UF_Endereco','Municipio_Endereco','Celular'
+                'RG','Data_Expedicao','CEP','Numero','Complemento','Bairro','UF_Endereco','Municipio_Endereco','Celular','Logradouro','Telefone_Fixo'
             ];
             return array_intersect_key($dados, array_flip($whitelist));
         }
@@ -46,6 +74,8 @@ class UsuarioCRUD extends BaseCRUD
         if (empty($dadosUsuario['Login']) && !empty($dadosUsuario['Email'])) {
             $dadosUsuario['Login'] = $dadosUsuario['Email'];
         }
+        // Normaliza documentos e telefones antes de persistir
+        $dadosUsuario = $this->sanitizeUsuarioFields($dadosUsuario);
         if (!empty($dadosUsuario['Senha']) && strlen($dadosUsuario['Senha']) < 60) {
             $dadosUsuario['Senha'] = password_hash($dadosUsuario['Senha'], PASSWORD_DEFAULT);
         }
@@ -199,6 +229,8 @@ class UsuarioCRUD extends BaseCRUD
             if (empty($dadosUsuario['Login']) && !empty($dadosUsuario['Email'])) {
                 $dadosUsuario['Login'] = $dadosUsuario['Email'];
             }
+            // Normaliza documentos e telefones
+            $dadosUsuario = $this->sanitizeUsuarioFields($dadosUsuario);
             if (!empty($dadosUsuario['Senha']) && strlen($dadosUsuario['Senha']) < 60) {
                 $dadosUsuario['Senha'] = password_hash($dadosUsuario['Senha'], PASSWORD_DEFAULT);
             }
@@ -239,6 +271,8 @@ class UsuarioCRUD extends BaseCRUD
             $this->pdo->beginTransaction();
 
             // Atualiza a tabela Usuarios (assumindo que o método `atualizar` existe na BaseCRUD)
+            // Normaliza documentos e telefones
+            $dadosUsuario = $this->sanitizeUsuarioFields($dadosUsuario);
             if (isset($dadosUsuario['Senha']) && !empty($dadosUsuario['Senha']) && strlen($dadosUsuario['Senha']) < 60) {
                 $dadosUsuario['Senha'] = password_hash($dadosUsuario['Senha'], PASSWORD_DEFAULT);
             }
@@ -288,7 +322,29 @@ class UsuarioCRUD extends BaseCRUD
 
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([$idAluno]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            $aluno = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($aluno) {
+                // Carregar NEE mais recente e mapear para campos esperados pelo formulário
+                try {
+                    $neeStmt = $this->pdo->prepare("SELECT Descricao, Acompanhamento_Especializado FROM Acompanhamento_NEE WHERE ID_Aluno = ? AND Tipo = 'NEE' ORDER BY ID_Acompanhamento DESC LIMIT 1");
+                    $neeStmt->execute([$idAluno]);
+                    if ($row = $neeStmt->fetch(PDO::FETCH_ASSOC)) {
+                        $payload = json_decode((string)$row['Acompanhamento_Especializado'], true) ?: [];
+                        $aluno['AEE'] = !empty($payload['aee']) ? 1 : 0;
+                        $aluno['Sala_AEE'] = !empty($payload['salaAee']) ? 1 : 0;
+                        $aluno['Monitor'] = !empty($payload['monitor']) ? 1 : 0;
+                        $aluno['Interprete_Libras'] = !empty($payload['interprete']) ? 1 : 0;
+                        $aluno['Material_Adaptado'] = !empty($payload['materialAdaptado']) ? 1 : 0;
+                        $aluno['Tecnologia_Assistiva'] = !empty($payload['tecnologiaAssistiva']) ? 1 : 0;
+                        $aluno['Outras_Necessidades'] = isset($row['Descricao']) ? (string)$row['Descricao'] : '';
+                    }
+                } catch (Exception $e) {
+                    // silencioso, segue sem NEE
+                }
+            }
+
+            return $aluno;
         } catch (PDOException $e) {
             throw new Exception("Erro ao buscar aluno: " . $e->getMessage());
         }
