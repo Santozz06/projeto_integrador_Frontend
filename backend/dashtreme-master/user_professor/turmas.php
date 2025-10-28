@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../css/style.css">
     <style>
         body {
             background: linear-gradient(to right, #2c3e50, #3498db);
@@ -20,7 +20,7 @@
 
         .container-select {
             max-width: 900px;
-            margin: 40px auto;
+            margin: 2px auto; /* reduz o espaço abaixo da navbar */
             background: rgba(255, 255, 255, 0.05);
             padding: 30px;
             border-radius: 12px;
@@ -95,12 +95,9 @@
                 <h2>Selecione a Turma</h2>
                 <select id="selectTurma" class="form-select">
                     <option value="" disabled selected>-- Escolha uma turma --</option>
-                    <option value="turmaA">Turma A</option>
-                    <option value="turmaB">Turma B</option>
-                    <option value="turmaC">Turma C</option>
                 </select>
 
-                <button class="btn" onclick="carregarTurma()">Visualizar</button>
+                <button class="btn" id="btnVisualizar">Visualizar</button>
 
                 <div id="dadosTurma" class="turma-dados">
                     <div class="card-section">
@@ -139,91 +136,145 @@
    
     <script>
         $(function () {
-            $('.sidebar-menu').sidebarMenu();
+            if ($.sidebarMenu) { $.sidebarMenu($('.sidebar-menu')); }
+
+            // Carrega turmas do professor para o ano de 2025
+            carregarTurmasSelect();
+
+            // Botão visualizar
+            $('#btnVisualizar').on('click', function (e) {
+                e.preventDefault();
+                carregarTurmaSelecionada();
+            });
         });
-    </script>
 
-    <script>
-        const turmasFake = {
-            turmaA: {
-                nome: "Turma A",
-                professor: "Profa. Ana Souza",
-                turno: "Manhã",
-                alunos: [
-                    { nome: "João Silva", status: "Ativo" },
-                    { nome: "Maria Oliveira", status: "Ativo" },
-                    { nome: "Carlos Lima", status: "Transferido" },
-                ],
-                conteudos: [
-                    "Aula sobre relevo - 17/11/25",
-                    "Atividade prática sobre mapas - 20/11/25"
-                ],
-                avisos: [
-                    "Atividade avaliativa no dia 21/11/25"
-                ]
-            },
-            turmaB: {
-                nome: "Turma B",
-                professor: "Prof. Marcos Lima",
-                turno: "Tarde",
-                alunos: [
-                    { nome: "Fernanda Costa", status: "Ativo" },
-                    { nome: "Bruno Castro", status: "Ativo" },
-                    { nome: "Larissa Teixeira", status: "Ativo" }
-                ],
-                conteudos: [
-                    "Revisão de geografia urbana - 15/11/25"
-                ],
-                avisos: [
-                    "Entrega do trabalho até 22/11/25"
-                ]
-            },
-            turmaC: {
-                nome: "Turma C",
-                professor: "Profa. Beatriz Nunes",
-                turno: "Noite",
-                alunos: [
-                    { nome: "Eduardo Silva", status: "Ativo" },
-                    { nome: "Juliana Alves", status: "Transferido" }
-                ],
-                conteudos: [
-                    "Introdução ao clima - 14/11/25"
-                ],
-                avisos: [
-                    "Prova dia 23/11/25"
-                ]
-            }
-        };
+        function carregarTurmasSelect() {
+            const ano = 2025; // filtro solicitado
+            const $sel = $('#selectTurma');
+            $sel.prop('disabled', true).empty()
+                .append('<option value="" disabled selected>Carregando turmas...</option>');
 
-        function carregarTurma() {
-            const turmaSelecionada = document.getElementById("selectTurma").value;
-            if (!turmaSelecionada || !turmasFake[turmaSelecionada]) return;
+                // Busca diretamente todas as turmas de 2025 (sem restringir por professor)
+                $.getJSON('../includes/ajax/listar_turmas.php', { ano, all: 1 })
+                .done(function (res) {
+                    $sel.empty().append('<option value="" disabled selected>-- Escolha uma turma --</option>');
+                    if (res && res.success && Array.isArray(res.data) && res.data.length) {
+                        res.data.forEach(t => {
+                            const label = `${t.Nome_Turma} (${t.Turno || ''} - ${t.Ano_Letivo || ''})`;
+                            $sel.append(`<option value="${t.ID_Turma}">${label}</option>`);
+                        });
+                        $sel.prop('disabled', false);
+                        } else {
+                            $sel.append('<option value="" disabled>Nenhuma turma encontrada</option>');
+                    }
+                })
+                .fail(function () {
+                    $sel.empty().append('<option value="" disabled>Falha ao carregar turmas</option>');
+                });
+        }
 
-            const turma = turmasFake[turmaSelecionada];
+        function carregarTurmaSelecionada() {
+            const turmaId = $('#selectTurma').val();
+            if (!turmaId) return;
 
-            document.getElementById("nomeTurma").innerText = turma.nome;
-            document.getElementById("professorTurma").innerText = turma.professor;
-            document.getElementById("turnoTurma").innerText = turma.turno;
+            // Limpa e mostra placeholders
+            $('#nomeTurma').text('...');
+            $('#professorTurma').text('Carregando...');
+            $('#turnoTurma').text('...');
+            $('#alunosLista').html('<div class="empty-message">Carregando alunos...</div>');
+            $('#conteudosLista').html('<li class="empty-message">Carregando disciplinas...</li>');
+            $('#avisosLista').html('<li class="empty-message">Carregando avisos...</li>');
+            $('#dadosTurma').show();
 
-            const alunosDiv = document.getElementById("alunosLista");
-            alunosDiv.innerHTML = "";
-            turma.alunos.forEach(aluno => {
-                alunosDiv.innerHTML += `<div class="aluno"><span>${aluno.nome}</span><span class="status">${aluno.status}</span></div>`;
-            });
+            // Carrega info da turma
+            $.getJSON('../includes/ajax/buscar_turma.php', { id: turmaId })
+                .done(function (turma) {
+                    if (turma && !turma.error) {
+                        $('#nomeTurma').text(turma.Nome_Turma || '');
+                        $('#turnoTurma').text(turma.Turno || '');
+                    }
+                });
 
-            const conteudosUl = document.getElementById("conteudosLista");
-            conteudosUl.innerHTML = "";
-            turma.conteudos.forEach(c => {
-                conteudosUl.innerHTML += `<li>${c}</li>`;
-            });
+            // Carrega professores da turma
+            $.getJSON('../includes/ajax/listar_professores_por_turma.php', { turma_id: turmaId })
+                .done(function (res) {
+                    if (res && res.success && Array.isArray(res.data) && res.data.length) {
+                        const nomes = res.data.map(p => p.Nome_Completo).join(', ');
+                        $('#professorTurma').text(nomes);
+                    } else {
+                        $('#professorTurma').text('Sem professores vinculados');
+                    }
+                })
+                .fail(function () {
+                    $('#professorTurma').text('Erro ao carregar professores');
+                });
 
-            const avisosUl = document.getElementById("avisosLista");
-            avisosUl.innerHTML = "";
-            turma.avisos.forEach(a => {
-                avisosUl.innerHTML += `<li>${a}</li>`;
-            });
+            // Carrega alunos por turma (ativos)
+            $.getJSON('../includes/ajax/listar_alunos_por_turma.php', { turma_id: turmaId })
+                .done(function (res) {
+                    if (res && res.success && Array.isArray(res.data)) {
+                        if (res.data.length === 0) {
+                            $('#alunosLista').html('<div class="empty-message">Nenhum aluno ativo nesta turma</div>');
+                        } else {
+                            const html = res.data.map(a =>
+                                `<div class="aluno"><span>${a.Nome_Completo}</span><span class="status">${a.Status}</span></div>`
+                            ).join('');
+                            $('#alunosLista').html(html);
+                        }
+                    } else {
+                        $('#alunosLista').html('<div class="empty-message">Falha ao carregar alunos</div>');
+                    }
+                })
+                .fail(function () {
+                    $('#alunosLista').html('<div class="empty-message">Erro ao carregar alunos</div>');
+                });
 
-            document.getElementById("dadosTurma").style.display = "block";
+            // Carrega disciplinas do ano/relacionadas à turma (mesmo ano da turma)
+            $.getJSON('../includes/ajax/listar_disciplinas_por_turma.php', { turma_id: turmaId })
+                .done(function (res) {
+                    if (res && res.success && Array.isArray(res.data)) {
+                        if (res.data.length === 0) {
+                            $('#conteudosLista').html('<li class="empty-message">Nenhuma disciplina encontrada</li>');
+                        } else {
+                            const html = res.data.map(d =>
+                                `<li>${d.Nome_Disciplina}${d.Professor ? ' — ' + d.Professor : ''}</li>`
+                            ).join('');
+                            $('#conteudosLista').html(html);
+                        }
+                    } else {
+                        $('#conteudosLista').html('<li class="empty-message">Falha ao carregar disciplinas</li>');
+                    }
+                })
+                .fail(function () {
+                    $('#conteudosLista').html('<li class="empty-message">Erro ao carregar disciplinas</li>');
+                });
+
+            // Carrega avisos (eventos próximos 30 dias)
+            const start = new Date();
+            const end = new Date();
+            end.setDate(end.getDate() + 30);
+            const toISO = d => d.toISOString().slice(0, 10);
+            $.getJSON('../includes/ajax/calendario/listar_eventos.php', { start: toISO(start), end: toISO(end) })
+                .done(function (res) {
+                    if (res && res.success && Array.isArray(res.data)) {
+                        if (res.data.length === 0) {
+                            $('#avisosLista').html('<li class="empty-message">Sem avisos nos próximos 30 dias</li>');
+                        } else {
+                            const itens = res.data.slice(0, 6).map(ev => {
+                                const dt = (ev.start || '').split('T')[0];
+                                const [y, m, d] = dt.split('-');
+                                const dataBR = `${d}/${m}/${y}`;
+                                return `<li>${dataBR} — ${ev.title || ''}</li>`;
+                            }).join('');
+                            $('#avisosLista').html(itens);
+                        }
+                    } else {
+                        $('#avisosLista').html('<li class="empty-message">Falha ao carregar avisos</li>');
+                    }
+                })
+                .fail(function () {
+                    $('#avisosLista').html('<li class="empty-message">Erro ao carregar avisos</li>');
+                });
         }
     </script>
 </body>

@@ -103,6 +103,39 @@
 }
 /*Fim do css user_adm/alunosPorTurma.php */
 
+/* Global overrides for green buttons across states (avoid theme purple on active) */
+.btn-primary {
+    background-color: #1abc9c !important;
+    border-color: #1abc9c !important;
+    color: #fff !important;
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:not(:disabled):not(.disabled).active,
+.btn-primary:not(:disabled):not(.disabled):active,
+.show > .btn-primary.dropdown-toggle {
+    background-color: #16a085 !important;
+    border-color: #16a085 !important;
+    box-shadow: none !important;
+    color: #fff !important;
+}
+
+.btn-success {
+    background-color: #04b962 !important;
+    border-color: #04b962 !important;
+    color: #fff !important;
+}
+.btn-success:hover,
+.btn-success:focus,
+.btn-success:not(:disabled):not(.disabled).active,
+.btn-success:not(:disabled):not(.disabled):active,
+.show > .btn-success.dropdown-toggle {
+    background-color: #019e4c !important;
+    border-color: #019e4c !important;
+    box-shadow: none !important;
+    color: #fff !important;
+}
+
 /*Inicio css user_adm/home.php*/
 html,
 body {

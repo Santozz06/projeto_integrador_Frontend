@@ -68,8 +68,10 @@
                         </a>
                         <ul class="sidebar-submenu">
                             <li><a href="cadastrar.php"><i class="zmdi zmdi-plus-circle"></i> Cadastrar</a></li>
-                            <li><a href="notas.php" class="active"><i class="zmdi zmdi-check-circle"></i> Notas</a></li>
+                            <li><a href="notas.php"><i class="zmdi zmdi-check-circle"></i> Notas</a></li>
                             <li><a href="atribuirDisciplinas.php"><i class="zmdi zmdi-assignment"></i> Atribuir a Professores</a></li>
+                            <li><a href="horarios.php"><i class="zmdi zmdi-time"></i> Horários de Aulas</a></li>
+                            <li><a href="caderno_chamada.php"><i class="zmdi zmdi-accounts-list"></i> Caderno de Chamada</a></li>
                         </ul>
                     </li>
                     <li>
@@ -80,7 +82,6 @@
                         <ul class="sidebar-submenu">
                             <li><a href="calendario.php"><i class="zmdi zmdi-calendar"></i> Calendário</a></li>
                             <li><a href="documentos.php"><i class="zmdi zmdi-file"></i> Documentos</a></li>
-                            <li><a href="caderno_chamada.php"><i class="zmdi zmdi-accounts-list"></i> Caderno de Chamada</a></li>
                         </ul>
                     </li>
                 </ul>

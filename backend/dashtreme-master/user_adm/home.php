@@ -234,7 +234,8 @@
 <body class="bg-theme bg-theme1">
 
   <?php
-  require("menu_home.php");
+  // Unificar o menu com as demais páginas para refletir novas opções imediatamente
+  require("menu_padrão.php");
   ?>
 
 

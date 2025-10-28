@@ -145,6 +145,53 @@
             background-color: rgba(0, 0, 0, 0.2) !important;
             backdrop-filter: blur(10px);
         }
+
+        /* Uploader - estilos dedicados */
+        #uploader {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        #uploader label {
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .uploader-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .uploader-item {
+            flex: 1 1 260px;
+            min-width: 240px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            padding: 14px;
+        }
+        .uploader-item input[type="file"] {
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 8px;
+        }
+        #listaExtras {
+            list-style: none;
+            padding-left: 0;
+        }
+        #listaExtras li {
+            margin: 6px 0;
+        }
+        #listaExtras a { color: #e9f2ff; text-decoration: underline; }
+        #listaExtras a:hover { color: #1abc9c; }
+        .btn-excluir-extra {
+            padding: 6px 10px;
+            border-width: 1px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
     </style>
 </head>
 
@@ -162,24 +209,21 @@
                     <div class="col-md-3 norma-item">
                         <i class="zmdi zmdi-collection-folder-image"></i>
                         <p>Normas Acadêmicas</p>
-                        <a href="../user_professor/ArquivosParaExemplos/normas_academicas.pdf" class="download-btn"
-                            download>
+                        <a href="#" class="download-btn" data-key="normas" download>
                             <i class="zmdi zmdi-download"></i>
                         </a>
                     </div>
                     <div class="col-md-3 norma-item">
                         <i class="zmdi zmdi-file-text"></i>
                         <p>Avaliações e Recuperações</p>
-                        <a href="../user_professor/ArquivosParaExemplos/avaliacoes_recuperacoes.pdf"
-                            class="download-btn" download>
+                        <a href="#" class="download-btn" data-key="avaliacoes" download>
                             <i class="zmdi zmdi-download"></i>
                         </a>
                     </div>
                     <div class="col-md-3 norma-item">
                         <i class="zmdi zmdi-time"></i>
                         <p>Frequência e Pontualidade</p>
-                        <a href="../user_professor/ArquivosParaExemplos/frequencia_pontualidade.pdf"
-                            class="download-btn" download>
+                        <a href="#" class="download-btn" data-key="frequencia" download>
                             <i class="zmdi zmdi-download"></i>
                         </a>
                     </div>
@@ -188,10 +232,35 @@
 
                 <div class="actions">
                     <button class="btn-normas btn-baixar-todas">Baixar todas as normas em PDF</button>
-                    <button class="btn-normas" onclick="atualizarNormas()">Atualizar Normas</button>
+                    <button class="btn-normas" id="btnMostrarUploader">Atualizar Normas</button>
                 </div>
 
                 <div class="alert-success" id="alertaSucesso">Normas atualizadas com sucesso!</div>
+
+                <div id="uploader" style="display:none; margin-top:20px; text-align:left;">
+                    <p style="margin-bottom:10px; color:#fff;">Envie novos PDFs para substituir os padrões ou adicionar outros arquivos.</p>
+                    <div class="uploader-grid">
+                        <div class="uploader-item">
+                            <label>Normas Acadêmicas (PDF)</label>
+                            <input type="file" id="fileNormas" accept="application/pdf">
+                            <button class="btn-normas" style="margin-top:8px;" onclick="enviarArquivo('normas', 'fileNormas')">Enviar</button>
+                        </div>
+                        <div class="uploader-item">
+                            <label>Avaliações e Recuperações (PDF)</label>
+                            <input type="file" id="fileAvaliacoes" accept="application/pdf">
+                            <button class="btn-normas" style="margin-top:8px;" onclick="enviarArquivo('avaliacoes', 'fileAvaliacoes')">Enviar</button>
+                        </div>
+                        <div class="uploader-item">
+                            <label>Frequência e Pontualidade (PDF)</label>
+                            <input type="file" id="fileFrequencia" accept="application/pdf">
+                            <button class="btn-normas" style="margin-top:8px;" onclick="enviarArquivo('frequencia', 'fileFrequencia')">Enviar</button>
+                        </div>
+                    </div>
+                    <div style="margin-top:20px; color:#fff;">
+                        <strong>Outros enviados:</strong>
+                        <ul id="listaExtras" style="margin-top:8px;"></ul>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="overlay toggle-menu"></div>
@@ -203,12 +272,8 @@
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
     <script>
-        // Caminhos dos PDFs
-        const pdfs = {
-            normas: '../user_professor/ArquivosParaExemplos/normas_academicas.pdf',
-            avaliacoes: '../user_professor/ArquivosParaExemplos/avaliacoes_recuperacoes.pdf',
-            frequencia: '../user_professor/ArquivosParaExemplos/frequencia_pontualidade.pdf'
-        };
+        // Mapa de PDFs (preenchido pelo backend)
+        let pdfs = { normas: '#', avaliacoes: '#', frequencia: '#' };
 
         // Simula o download de um arquivo
         function baixarPDF(caminho, nomeArquivo) {
@@ -221,11 +286,11 @@
         }
 
         // Clique em cada botão individual
-        document.querySelectorAll('.download-btn').forEach((btn, index) => {
-            btn.addEventListener('click', () => {
-                const keys = Object.keys(pdfs);
-                const key = keys[index];
-                baixarPDF(pdfs[key], `${key}.pdf`);
+        document.querySelectorAll('.download-btn').forEach(function(btn){
+            btn.addEventListener('click', function(){
+                const key = this.getAttribute('data-key');
+                const url = pdfs[key] || '#';
+                baixarPDF(url, key + '.pdf');
             });
         });
 
@@ -238,13 +303,105 @@
         // Atribui função ao botão
         document.querySelector('.btn-baixar-todas').addEventListener('click', baixarTodasNormas);
 
-        function atualizarNormas() {
-            const alerta = document.getElementById('alertaSucesso');
-            alerta.style.display = 'block';
-            setTimeout(() => {
-                alerta.style.display = 'none';
-            }, 3000);
+        // Backend: listar e atualizar
+        function carregarMap(){
+            return $.getJSON('../includes/ajax/professor/normas/listar.php')
+                .done(function(resp){
+                    if (!resp || !resp.success) throw new Error('Falha ao listar');
+                    pdfs = resp.data.map || pdfs;
+                    // Atualiza hrefs (por segurança)
+                    document.querySelectorAll('.download-btn').forEach(function(btn){
+                        const key = btn.getAttribute('data-key');
+                        if (key && pdfs[key]) btn.setAttribute('href', pdfs[key]);
+                    });
+                    // Lista extras
+                    const extras = resp.data.extras || [];
+                    const ul = document.getElementById('listaExtras');
+                    if (ul){
+                        ul.innerHTML = '';
+                        extras.forEach(function(e){
+                            const li = document.createElement('li');
+                            const a = document.createElement('a'); a.href = e.url; a.textContent = e.name; a.download = e.name;
+                            li.appendChild(a);
+                            // Botão Excluir ao lado de cada item extra
+                            const btn = document.createElement('button');
+                            btn.className = 'btn-normas btn-excluir-extra';
+                            btn.setAttribute('type', 'button');
+                            btn.setAttribute('data-name', e.name);
+                            btn.textContent = 'Excluir';
+                            li.appendChild(btn);
+                            ul.appendChild(li);
+                        });
+                    }
+                });
         }
+
+        function enviarArquivo(categoria, inputId){
+            const input = document.getElementById(inputId);
+            if (!input || !input.files || input.files.length === 0){ alert('Selecione um PDF'); return; }
+            const fd = new FormData();
+            fd.append('categoria', categoria);
+            fd.append('arquivo', input.files[0]);
+            $.ajax({
+                url: '../includes/ajax/professor/normas/upload.php',
+                method: 'POST',
+                processData: false,
+                contentType: false,
+                data: fd,
+                dataType: 'json'
+            }).done(function(resp){
+                if (resp && resp.success){
+                    const alerta = document.getElementById('alertaSucesso');
+                    alerta.style.display = 'block';
+                    setTimeout(function(){ alerta.style.display = 'none'; }, 3000);
+                    carregarMap();
+                } else {
+                    alert(resp && resp.message ? resp.message : 'Falha ao enviar');
+                }
+            }).fail(function(xhr){
+                let msg = 'Erro ao enviar arquivo';
+                try { const r = JSON.parse(xhr.responseText); if (r.message) msg = r.message; } catch{}
+                alert(msg);
+            });
+        }
+
+        // Excluir arquivo extra
+        function excluirArquivo(nome){
+            if (!nome) return;
+            if (!confirm('Tem certeza que deseja excluir este arquivo?')) return;
+            $.ajax({
+                url: '../includes/ajax/professor/normas/remover.php',
+                method: 'POST',
+                data: { name: nome },
+                dataType: 'json'
+            }).done(function(resp){
+                if (resp && resp.success){
+                    carregarMap();
+                } else {
+                    alert(resp && resp.message ? resp.message : 'Falha ao excluir');
+                }
+            }).fail(function(xhr){
+                let msg = 'Erro ao excluir arquivo';
+                try { const r = JSON.parse(xhr.responseText); if (r.message) msg = r.message; } catch{}
+                alert(msg);
+            });
+        }
+
+        // Mostrar/Ocultar uploader
+        document.getElementById('btnMostrarUploader').addEventListener('click', function(){
+            const up = document.getElementById('uploader');
+            up.style.display = (up.style.display === 'none' || up.style.display === '') ? 'block' : 'none';
+            if (up.style.display === 'block'){ carregarMap(); }
+        });
+
+        // Carrega mapeamento ao iniciar
+        $(function(){ carregarMap(); });
+
+        // Delegação de evento para excluir
+        $('#listaExtras').on('click', '.btn-excluir-extra', function(){
+            var nome = this.getAttribute('data-name');
+            excluirArquivo(nome);
+        });
     </script>
 
 </body>

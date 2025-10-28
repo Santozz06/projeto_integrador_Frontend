@@ -162,18 +162,17 @@
 
                 <div class="form-inline">
                     <div class="form-group">
-                        <label for="turma">Turma</label>
-                        <select id="turma">
-                            <option value="" disabled selected>Selecione a turma</option>
-                            <option>Turma A</option>
-                            <option>Turma B</option>
-                            <option>Turma C</option>
+                        <label for="turmaSelect">Turma</label>
+                        <select id="turmaSelect">
+                            <option value="" disabled selected>Carregando turmas...</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="aluno">Aluno</label>
-                        <input type="text" id="aluno" placeholder="Digite o nome do aluno" />
+                        <label for="alunoSelect">Aluno</label>
+                        <select id="alunoSelect" disabled>
+                            <option value="" disabled selected>Selecione uma turma primeiro</option>
+                        </select>
                     </div>
 
                     <div class="form-group">
@@ -214,7 +213,45 @@
                 <div class="form-inline" style="margin-top: 30px;">
                     <button class="btn" onclick="salvarOcorrencias()">Salvar</button>
                     <button class="btn btn-limpar" onclick="limparOcorrencias()">Limpar</button>
-                    <button class="btn btn-cancelar" onclick="window.location.href='ocorrencias.html'">Cancelar</button>
+                    <button class="btn btn-cancelar" onclick="window.location.href='ocorrencias.php'">Cancelar</button>
+                </div>
+
+                <hr style="border-color: rgba(255,255,255,0.2); margin: 30px 0;" />
+
+                <h4 style="margin: 0 0 10px 0;">Ocorrências salvas</h4>
+                <div class="form-inline" style="gap: 10px; align-items: flex-end;">
+                    <div class="form-group">
+                        <label for="inicioFiltro">Início</label>
+                        <input type="date" id="inicioFiltro" />
+                    </div>
+                    <div class="form-group">
+                        <label for="fimFiltro">Fim</label>
+                        <input type="date" id="fimFiltro" />
+                    </div>
+                    <div class="form-group">
+                        <label for="alunoFiltro">Aluno</label>
+                        <select id="alunoFiltro" disabled>
+                            <option value="" selected>Todos</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button class="btn" onclick="carregarOcorrencias()">Buscar</button>
+                    </div>
+                </div>
+
+                <div style="overflow-x:auto; margin-top: 10px;">
+                    <table id="tabelaOcorrenciasSalvas">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Aluno</th>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                                <th style="width:120px">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -227,30 +264,124 @@
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
     <script>
+        let turmaAtual = '';
+        let alunosTurma = [];
+
+        $(document).ready(function(){
+            carregarTurmas();
+            // Data padrão hoje
+            const hoje = new Date().toISOString().slice(0,10);
+            $('#data').val(hoje);
+            $('#inicioFiltro').val(new Date(Date.now() - 29*24*3600*1000).toISOString().slice(0,10));
+            $('#fimFiltro').val(hoje);
+
+            $('#turmaSelect').on('change', function(){
+                turmaAtual = this.value;
+                carregarAlunos(turmaAtual);
+                // Ajusta filtro de aluno para a mesma lista
+                preencherAlunoFiltro();
+                carregarOcorrencias();
+            });
+        });
+
+        function carregarTurmas(){
+            const $sel = $('#turmaSelect');
+            $sel.prop('disabled', true).html('<option>Carregando...</option>');
+            $.getJSON('../includes/ajax/listar_turmas.php')
+                .done(function(resp){
+                    if (!resp || !resp.success){ throw new Error('Falha ao listar turmas'); }
+                    const turmas = resp.data || [];
+                    if (turmas.length === 0){
+                        $sel.html('<option value="" disabled selected>Sem turmas vinculadas</option>');
+                        return;
+                    }
+                    $sel.empty();
+                    $sel.append('<option value="" selected disabled>Selecione a turma</option>');
+                    turmas.forEach(function(t){
+                        var nome = t.Nome_Turma + (t.Turno ? ' (' + t.Turno + ')' : '');
+                        $sel.append('<option value="' + t.ID_Turma + '">' + nome + '</option>');
+                    });
+                })
+                .fail(function(){
+                    $sel.html('<option value="" disabled selected>Erro ao carregar turmas</option>');
+                })
+                .always(function(){ $sel.prop('disabled', false); });
+        }
+
+        function carregarAlunos(idTurma){
+            const $sel = $('#alunoSelect');
+            $sel.prop('disabled', true).html('<option>Carregando alunos...</option>');
+            alunosTurma = [];
+            if (!idTurma){
+                $sel.html('<option value="" disabled selected>Selecione uma turma primeiro</option>');
+                return;
+            }
+            $.getJSON('../includes/ajax/listar_alunos_por_turma.php', { turma_id: idTurma })
+                .done(function(resp){
+                    if (!resp || !resp.success){ throw new Error('Falha ao listar alunos'); }
+                    alunosTurma = resp.data || [];
+                    if (alunosTurma.length === 0){
+                        $sel.html('<option value="" disabled selected>Sem alunos na turma</option>');
+                        return;
+                    }
+                    $sel.empty();
+                    $sel.append('<option value="" selected disabled>Selecione o aluno</option>');
+                    alunosTurma.forEach(function(a){
+                        var label = a.Nome_Completo + ' - Matrícula: ' + a.Matricula;
+                        $sel.append('<option value="' + a.ID_Matricula + '">' + label + '</option>');
+                    });
+                    $sel.prop('disabled', false);
+                    preencherAlunoFiltro();
+                })
+                .fail(function(){
+                    $sel.html('<option value="" disabled selected>Erro ao carregar alunos</option>');
+                });
+        }
+
+        function preencherAlunoFiltro(){
+            const $f = $('#alunoFiltro');
+            $f.empty();
+            $f.append('<option value="" selected>Todos</option>');
+            if (alunosTurma.length === 0){
+                $f.prop('disabled', true);
+                return;
+            }
+            alunosTurma.forEach(function(a){
+                $f.append('<option value="' + a.ID_Matricula + '">' + a.Nome_Completo + ' - ' + a.Matricula + '</option>');
+            });
+            $f.prop('disabled', false);
+        }
+
         function adicionarOcorrencia() {
-            const turma = document.getElementById('turma').value;
-            const aluno = document.getElementById('aluno').value.trim();
+            const turmaSel = document.getElementById('turmaSelect');
+            const alunoSel = document.getElementById('alunoSelect');
+            const turmaId = turmaSel.value;
+            const turmaTxt = turmaSel.options[turmaSel.selectedIndex] ? turmaSel.options[turmaSel.selectedIndex].text : '';
+            const idMatricula = alunoSel.value;
+            const alunoTxt = alunoSel.options[alunoSel.selectedIndex] ? alunoSel.options[alunoSel.selectedIndex].text : '';
             const data = document.getElementById('data').value;
             const tipo = document.getElementById('tipo').value.trim();
             const descricao = document.getElementById('descricao').value.trim();
 
-            if (!turma || !aluno || !data || !tipo || !descricao) {
+            if (!turmaId || !idMatricula || !data || !tipo || !descricao) {
                 alert('Preencha todos os campos antes de adicionar.');
                 return;
             }
 
             const tbody = document.querySelector('#tabelaOcorrencias tbody');
             const linha = document.createElement('tr');
-            linha.innerHTML = `
-        <td>${data}</td>
-        <td>${turma}</td>
-        <td>${aluno}</td>
-        <td>${tipo}</td>
-        <td>${descricao}</td>
-      `;
+            linha.setAttribute('data-idmatricula', idMatricula);
+            linha.setAttribute('data-turmaid', turmaId);
+            linha.innerHTML =
+                '<td>' + data + '</td>' +
+                '<td>' + turmaTxt + '</td>' +
+                '<td>' + alunoTxt + '</td>' +
+                '<td>' + tipo + '</td>' +
+                '<td>' + descricao + '</td>';
             tbody.appendChild(linha);
 
-            document.getElementById('aluno').value = '';
+            // Limpa campos específicos
+            document.getElementById('alunoSelect').value = '';
             document.getElementById('tipo').value = '';
             document.getElementById('descricao').value = '';
         }
@@ -260,8 +391,157 @@
         }
 
         function salvarOcorrencias() {
-            alert('Ocorrências salvas com sucesso (simulação)');
+            const turmaSel = document.getElementById('turmaSelect');
+            const turmaId = turmaSel.value;
+            if (!turmaId){ alert('Selecione a turma.'); return; }
+
+            const itens = [];
+            document.querySelectorAll('#tabelaOcorrencias tbody tr').forEach(function(tr){
+                const idMat = parseInt(tr.getAttribute('data-idmatricula'), 10);
+                const tds = tr.querySelectorAll('td');
+                const data = tds[0] ? tds[0].textContent.trim() : '';
+                const tipo = tds[3] ? tds[3].textContent.trim() : '';
+                const descricao = tds[4] ? tds[4].textContent.trim() : '';
+                if (idMat && data && tipo && descricao){
+                    itens.push({ id_matricula: idMat, data: data, tipo: tipo, descricao: descricao });
+                }
+            });
+
+            if (itens.length === 0){ alert('Adicione ao menos uma ocorrência na tabela.'); return; }
+
+            $.ajax({
+                url: '../includes/ajax/professor/ocorrencias/salvar.php',
+                method: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify({ turma_id: parseInt(turmaId,10), ocorrencias: itens })
+            }).done(function(res){
+                if (res && res.success){
+                    alert(`Ocorrências salvas. Inseridas: ${res.inserted||0}`);
+                    limparOcorrencias();
+                    carregarOcorrencias();
+                } else {
+                    alert(res && res.message ? res.message : 'Falha ao salvar ocorrências');
+                }
+            }).fail(function(xhr){
+                let msg = 'Erro ao salvar ocorrências';
+                try { const r = JSON.parse(xhr.responseText); if (r.message) msg = r.message; } catch{}
+                alert(msg);
+            });
         }
+
+        function carregarOcorrencias(){
+            const turmaId = $('#turmaSelect').val();
+            if (!turmaId){ return; }
+            const inicio = $('#inicioFiltro').val();
+            const fim = $('#fimFiltro').val();
+            const idMatricula = $('#alunoFiltro').val();
+
+            const params = { turma_id: turmaId, inicio, fim };
+            if (idMatricula) params.id_matricula = idMatricula;
+
+            $.getJSON('../includes/ajax/professor/ocorrencias/listar.php', params)
+                .done(function(resp){
+                    if (!resp || !resp.success){ alert('Falha ao carregar ocorrências'); return; }
+                    const tbody = document.querySelector('#tabelaOcorrenciasSalvas tbody');
+                    tbody.innerHTML = '';
+                    (resp.data || []).forEach(function(o){
+                        const tr = document.createElement('tr');
+                        tr.setAttribute('data-id', o.ID_Ocorrencia);
+                        tr.innerHTML =
+                            '<td>' + o.Data + '</td>' +
+                            '<td>' + escapeHtml(o.Nome_Aluno) + ' - ' + escapeHtml(o.Matricula) + '</td>' +
+                            '<td class="td-tipo">' + escapeHtml(o.Tipo) + '</td>' +
+                            '<td class="td-desc">' + escapeHtml(o.Descricao) + '</td>' +
+                            '<td>' +
+                                '<button class="btn btn-editar" style="padding:6px 10px" data-id="' + o.ID_Ocorrencia + '">Editar</button> ' +
+                                '<button class="btn btn-cancelar btn-excluir" style="padding:6px 10px" data-id="' + o.ID_Ocorrencia + '">Excluir</button>' +
+                            '</td>';
+                        tbody.appendChild(tr);
+                    });
+                })
+                .fail(function(){ alert('Erro ao carregar ocorrências'); });
+        }
+
+        function entrarEdicao(id){
+            const tr = document.querySelector(`#tabelaOcorrenciasSalvas tr[data-id="${id}"]`);
+            if (!tr) return;
+            const tdTipo = tr.querySelector('.td-tipo');
+            const tdDesc = tr.querySelector('.td-desc');
+            const antigoTipo = tdTipo.textContent;
+            const antigoDesc = tdDesc.textContent;
+            tdTipo.innerHTML = '<input type="text" class="form-control" id="editTipo_' + id + '" value="' + escapeAttr(antigoTipo) + '">';
+            tdDesc.innerHTML = '<textarea class="form-control" id="editDesc_' + id + '" rows="2">' + escapeHtml(antigoDesc) + '</textarea>';
+            const tdAcoes = tr.querySelector('td:last-child');
+            tdAcoes.innerHTML = '' +
+                '<button class="btn btn-salvar-ed" style="padding:6px 10px" data-id="' + id + '">Salvar</button> ' +
+                '<button class="btn btn-cancelar btn-cancelar-ed" style="padding:6px 10px" data-id="' + id + '">Cancelar</button>';
+        }
+
+        function salvarEdicao(id){
+            const tipo = document.getElementById(`editTipo_${id}`).value.trim();
+            const descricao = document.getElementById(`editDesc_${id}`).value.trim();
+            if (!tipo || !descricao){ alert('Tipo e descrição são obrigatórios'); return; }
+            $.ajax({
+                url: '../includes/ajax/professor/ocorrencias/editar.php',
+                method: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify({ id_ocorrencia: id, tipo, descricao })
+            }).done(function(res){
+                if (res && res.success){ carregarOcorrencias(); }
+                else { alert(res && res.message ? res.message : 'Falha ao editar ocorrência'); }
+            }).fail(function(){ alert('Erro ao editar ocorrência'); });
+        }
+
+        function cancelarEdicao(id){ carregarOcorrencias(); }
+
+        function excluirOcorrencia(id){
+            if (!confirm('Confirma excluir esta ocorrência?')) return;
+            $.ajax({
+                url: '../includes/ajax/professor/ocorrencias/remover.php',
+                method: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify({ id_ocorrencia: id })
+            }).done(function(res){
+                if (res && res.success){ carregarOcorrencias(); }
+                else { alert(res && res.message ? res.message : 'Falha ao excluir ocorrência'); }
+            }).fail(function(){ alert('Erro ao excluir ocorrência'); });
+        }
+
+        function escapeHtml(s){
+            return (s||'').replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; });
+        }
+        function escapeAttr(s){
+            return (s||'').replace(/["']/g, function(c){ return c === '"' ? '&quot;' : '&#39;'; });
+        }
+        function escapeJs(s){
+            s = s == null ? '' : String(s);
+            s = s.replace(/\\/g, '\\\\');
+            s = s.replace(/\n/g, '\\n');
+            s = s.replace(/\r/g, '\\r');
+            s = s.replace(/'/g, "\\'");
+            return s;
+        }
+
+        // Delegação de eventos para Ações na tabela de salvas
+        $('#tabelaOcorrenciasSalvas').on('click', '.btn-editar', function(){
+            const id = $(this).data('id');
+            entrarEdicao(id);
+        });
+        $('#tabelaOcorrenciasSalvas').on('click', '.btn-excluir', function(){
+            const id = $(this).data('id');
+            excluirOcorrencia(id);
+        });
+        $('#tabelaOcorrenciasSalvas').on('click', '.btn-salvar-ed', function(){
+            const id = $(this).data('id');
+            salvarEdicao(id);
+        });
+        $('#tabelaOcorrenciasSalvas').on('click', '.btn-cancelar-ed', function(){
+            const id = $(this).data('id');
+            cancelarEdicao(id);
+        });
     </script>
 </body>
 

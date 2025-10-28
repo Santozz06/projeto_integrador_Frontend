@@ -90,6 +90,18 @@
             background-color: #16a085;
         }
 
+        /* Mantém o botão verde ao clicar/focar (evita roxo padrão do tema) */
+        .btn-primary:not(:disabled):not(.disabled):active,
+        .btn-primary:not(:disabled):not(.disabled).active,
+        .show>.btn-primary.dropdown-toggle {
+            background-color: #16a085;
+            box-shadow: none;
+        }
+        .btn-primary:focus {
+            background-color: #16a085;
+            box-shadow: none;
+        }
+
         .btn-secondary {
             background-color: #7f8c8d;
         }
@@ -298,19 +310,19 @@
 
                 <select id="selectTurma" class="form-select">
                     <option value="" disabled selected>-- Escolha uma turma --</option>
-                    <option value="turmaA">Turma A</option>
-                    <option value="turmaB">Turma B</option>
-                    <option value="turmaC">Turma C</option>
                 </select>
 
-                <button class="btn btn-primary" onclick="carregarAvaliacoes()">Visualizar</button>
+                <button class="btn btn-primary" id="btnVisualizar">Visualizar</button>
 
                 <div id="avaliacoesContainer" class="avaliacoes-container">
                     <div class="card-section">
                         <h4 id="formTitle">Nova Avaliação</h4>
                         <div class="form-group">
                             <label for="disciplina">Disciplina</label>
-                            <input type="text" class="form-control" id="disciplina" placeholder="Ex: Matemática">
+                            <select class="form-control" id="disciplina">
+                                <option value="" disabled selected>Carregue uma turma</option>
+                            </select>
+                            <small id="disciplinaHelp" class="form-text text-muted" style="display:none;">Nenhuma disciplina vinculada a você nesta turma.</small>
                         </div>
                         <div class="form-group">
                             <label for="tipo">Tipo</label>
@@ -376,28 +388,18 @@
    
     
     <script>
-
         $(function () {
-            $('.sidebar-menu').sidebarMenu();
+            if ($.sidebarMenu) { $.sidebarMenu($('.sidebar-menu')); }
+            carregarTurmasSelect();
+            // Visualizar via botão ou ao mudar a turma
+            $('#btnVisualizar').on('click', function(e){ e.preventDefault(); carregarAvaliacoes(); });
+            $('#selectTurma').on('change', function(){ carregarAvaliacoes(); });
         });
 
-        const avaliacoesFake = {
-            turmaA: [
-                { id: 1, disciplina: "Geografia", tipo: "Prova", data: "2025-11-20" },
-                { id: 2, disciplina: "História", tipo: "Trabalho", data: "2025-11-22" },
-            ],
-            turmaB: [
-                { id: 3, disciplina: "Matemática", tipo: "Simulado", data: "2025-11-18" },
-                { id: 4, disciplina: "Ciências", tipo: "Atividade Avaliativa", data: "2025-11-21" },
-            ],
-            turmaC: [
-                { id: 5, disciplina: "Português", tipo: "Redação", data: "2025-11-23" }
-            ]
-        };
-
-        let turmaAtual = "";
+        let turmaAtual = null;
         let editandoId = null;
         let avaliacaoParaRemover = null;
+        let avaliacoesCache = [];
 
         // Elementos DOM
         const btnSalvar = document.getElementById('btnSalvar');
@@ -413,36 +415,94 @@
         confirmYes.addEventListener('click', confirmarRemocao);
         confirmNo.addEventListener('click', fecharModal);
 
+        function carregarTurmasSelect(){
+            const ano = 2025;
+            const $sel = $('#selectTurma');
+            $sel.prop('disabled', true).empty().append('<option value="" disabled selected>Carregando turmas...</option>');
+            $.getJSON('../includes/ajax/listar_turmas.php', { ano, all: 1 })
+                .done(function(res){
+                    $sel.empty().append('<option value="" disabled selected>-- Escolha uma turma --</option>');
+                    if (res && res.success && Array.isArray(res.data) && res.data.length){
+                        res.data.forEach(t => {
+                            const label = `${t.Nome_Turma} (${t.Turno || ''} - ${t.Ano_Letivo || ''})`;
+                            $sel.append(`<option value="${t.ID_Turma}">${label}</option>`);
+                        });
+                        $sel.prop('disabled', false);
+                    } else {
+                        $sel.append('<option value="" disabled>Nenhuma turma encontrada</option>');
+                    }
+                })
+                .fail(function(){
+                    $sel.empty().append('<option value="" disabled>Falha ao carregar turmas</option>');
+                });
+        }
+
         function carregarAvaliacoes() {
-            turmaAtual = document.getElementById("selectTurma").value;
-            if (!turmaAtual || !avaliacoesFake[turmaAtual]) {
-                alert("Selecione uma turma válida");
-                return;
-            }
+            turmaAtual = document.getElementById('selectTurma').value;
+            if (!turmaAtual) { return; }
+            // Mostra o formulário/lista imediatamente
+            document.getElementById('avaliacoesContainer').style.display = 'block';
+            // Carrega disciplinas vinculadas para a turma selecionada
+            carregarDisciplinas(turmaAtual);
+            const $lista = $('#avaliacoesLista');
+            $lista.html('<tr><td colspan="4" class="empty-message">Carregando avaliações...</td></tr>');
+            $.getJSON('../includes/ajax/professor/avaliacoes/listar.php', { turma_id: turmaAtual })
+                .done(function(res){
+                    $lista.empty();
+                    avaliacoesCache = (res && res.success && Array.isArray(res.data)) ? res.data : [];
+                    if (avaliacoesCache.length === 0){
+                        $lista.html('<tr><td colspan="4" class="empty-message">Nenhuma avaliação registrada</td></tr>');
+                    } else {
+                        avaliacoesCache.forEach(av => {
+                            const dataFormatada = formatarData(av.Data);
+                            $lista.append(`
+                                <tr data-id="${av.ID_Avaliacao}">
+                                    <td>${av.Disciplina}</td>
+                                    <td>${av.Tipo}</td>
+                                    <td>${dataFormatada}</td>
+                                    <td>
+                                        <button class="btn btn-primary action-btn" onclick="editarAvaliacao(${av.ID_Avaliacao})">
+                                            <i class="zmdi zmdi-edit"></i> <span class="action-text">Editar</span>
+                                        </button>
+                                        <button class="btn btn-danger action-btn" onclick="solicitarRemocao(${av.ID_Avaliacao})">
+                                            <i class="zmdi zmdi-delete"></i> <span class="action-text">Remover</span>
+                                        </button>
+                                    </td>
+                                </tr>`);
+                        });
+                    }
+                })
+                .fail(function(){
+                    $lista.html('<tr><td colspan="4" class="empty-message">Erro ao carregar avaliações</td></tr>');
+                });
+        }
 
-            const avalLista = document.getElementById("avaliacoesLista");
-            avalLista.innerHTML = "";
-
-            avaliacoesFake[turmaAtual].forEach(avaliacao => {
-                const dataFormatada = formatarData(avaliacao.data);
-                avalLista.innerHTML += `
-                    <tr data-id="${avaliacao.id}">
-                        <td>${avaliacao.disciplina}</td>
-                        <td>${avaliacao.tipo}</td>
-                        <td>${dataFormatada}</td>
-                        <td>
-                            <button class="btn btn-primary action-btn" onclick="editarAvaliacao(${avaliacao.id})">
-                                <i class="zmdi zmdi-edit"></i> <span class="action-text">Editar</span>
-                            </button>
-                            <button class="btn btn-danger action-btn" onclick="solicitarRemocao(${avaliacao.id})">
-                                <i class="zmdi zmdi-delete"></i> <span class="action-text">Remover</span>
-                            </button>
-                        </td>
-                    </tr>`;
-            });
-
-            document.getElementById("avaliacoesContainer").style.display = "block";
-            cancelarAvaliacao();
+        function carregarDisciplinas(turmaId){
+            const $disc = $('#disciplina');
+            const $help = $('#disciplinaHelp');
+            $help.hide();
+            $disc.prop('disabled', true).empty().append('<option value="" disabled selected>Carregando disciplinas...</option>');
+            $.getJSON('../includes/ajax/listar_disciplinas_por_turma.php', { turma_id: turmaId })
+                .done(function(res){
+                    $disc.empty();
+                    if (res && res.success && Array.isArray(res.data) && res.data.length){
+                        $disc.append('<option value="" disabled selected>-- Selecione --</option>');
+                        res.data.forEach(function(d){
+                            // Usamos o nome como valor pois a tabela de Avaliações armazena texto
+                            const nome = d.Nome_Disciplina || '';
+                            if (nome){ $disc.append('<option value="'+ nome +'">'+ nome +'</option>'); }
+                        });
+                        $disc.prop('disabled', false);
+                    } else {
+                        $disc.append('<option value="" disabled selected>Nenhuma disciplina encontrada</option>');
+                        $disc.prop('disabled', true);
+                        $help.show();
+                    }
+                })
+                .fail(function(){
+                    $disc.empty().append('<option value="" disabled selected>Erro ao carregar</option>');
+                    $disc.prop('disabled', true);
+                });
         }
 
         function formatarData(dataString) {
@@ -451,54 +511,36 @@
         }
 
         function adicionarAvaliacao() {
-            if (!turmaAtual) {
-                alert("Selecione uma turma antes de continuar.");
-                return;
-            }
+            if (!turmaAtual) { alert('Selecione uma turma antes de continuar.'); return; }
+            const disciplina = document.getElementById('disciplina').value.trim();
+            const tipo = document.getElementById('tipo').value;
+            const data = document.getElementById('data').value;
+            if (!disciplina || !data) { alert('Preencha todos os campos obrigatórios.'); return; }
 
-            const disciplina = document.getElementById("disciplina").value.trim();
-            const tipo = document.getElementById("tipo").value;
-            const data = document.getElementById("data").value;
+            const payload = new FormData();
+            payload.append('turma_id', turmaAtual);
+            payload.append('disciplina', disciplina);
+            payload.append('tipo', tipo);
+            payload.append('data', data);
+            if (editandoId) { payload.append('id', editandoId); }
 
-            if (!disciplina || !data) {
-                alert("Preencha todos os campos obrigatórios.");
-                return;
-            }
-
-            if (editandoId) {
-                // Editar avaliação existente
-                const index = avaliacoesFake[turmaAtual].findIndex(a => a.id === editandoId);
-                if (index !== -1) {
-                    avaliacoesFake[turmaAtual][index] = {
-                        id: editandoId,
-                        disciplina,
-                        tipo,
-                        data
-                    };
-                }
-                editandoId = null;
-                btnSalvar.textContent = "Adicionar Avaliação";
-                formTitle.textContent = "Nova Avaliação";
-            } else {
-                // Adicionar nova avaliação
-                const novoId = avaliacoesFake[turmaAtual].length > 0
-                    ? Math.max(...avaliacoesFake[turmaAtual].map(a => a.id)) + 1
-                    : 1;
-                avaliacoesFake[turmaAtual].push({
-                    id: novoId,
-                    disciplina,
-                    tipo,
-                    data
-                });
-            }
-
-            // Limpa campos e recarrega a lista
-            cancelarAvaliacao();
-            carregarAvaliacoes();
+            fetch('../includes/ajax/professor/avaliacoes/salvar.php', { method: 'POST', body: payload })
+                .then(r => r.json())
+                .then(res => {
+                    if (res && res.success) {
+                        cancelarAvaliacao();
+                        carregarAvaliacoes();
+                    } else {
+                        alert(res && res.message ? res.message : 'Falha ao salvar');
+                    }
+                })
+                .catch(() => alert('Erro ao salvar'));
         }
 
         function cancelarAvaliacao() {
-            document.getElementById("disciplina").value = "";
+            // Reseta select para a primeira opção
+            const sel = document.getElementById("disciplina");
+            if (sel) { sel.selectedIndex = 0; }
             document.getElementById("tipo").value = "Prova";
             document.getElementById("data").value = "";
             editandoId = null;
@@ -508,15 +550,27 @@
         }
 
         function editarAvaliacao(id) {
-            const avaliacao = avaliacoesFake[turmaAtual].find(a => a.id === id);
+            const avaliacao = avaliacoesCache.find(a => a.ID_Avaliacao === id);
             if (avaliacao) {
-                document.getElementById("disciplina").value = avaliacao.disciplina;
-                document.getElementById("tipo").value = avaliacao.tipo;
-                document.getElementById("data").value = avaliacao.data;
+                // Seleciona a disciplina correspondente; se não existir na lista, adiciona temporariamente
+                const sel = document.getElementById('disciplina');
+                let found = false;
+                for (let i = 0; i < sel.options.length; i++) {
+                    if (sel.options[i].value === avaliacao.Disciplina) { found = true; break; }
+                }
+                if (!found && avaliacao.Disciplina) {
+                    const opt = document.createElement('option');
+                    opt.value = avaliacao.Disciplina;
+                    opt.textContent = avaliacao.Disciplina + ' (não listada)';
+                    sel.appendChild(opt);
+                }
+                sel.value = avaliacao.Disciplina;
+                document.getElementById('tipo').value = avaliacao.Tipo;
+                document.getElementById('data').value = avaliacao.Data;
                 editandoId = id;
                 btnSalvar.textContent = "Atualizar Avaliação";
                 formTitle.textContent = "Editar Avaliação";
-                document.getElementById("disciplina").focus();
+                document.getElementById('disciplina').focus();
 
                 // Scroll para o formulário
                 document.querySelector('.card-section').scrollIntoView({
@@ -532,11 +586,20 @@
         }
 
         function confirmarRemocao() {
-            if (avaliacaoParaRemover) {
-                avaliacoesFake[turmaAtual] = avaliacoesFake[turmaAtual].filter(a => a.id !== avaliacaoParaRemover);
-                carregarAvaliacoes();
-                fecharModal();
-            }
+            if (!avaliacaoParaRemover) return;
+            const payload = new FormData();
+            payload.append('id', avaliacaoParaRemover);
+            fetch('../includes/ajax/professor/avaliacoes/excluir.php', { method: 'POST', body: payload })
+                .then(r => r.json())
+                .then(res => {
+                    if (res && res.success) {
+                        carregarAvaliacoes();
+                        fecharModal();
+                    } else {
+                        alert(res && res.message ? res.message : 'Falha ao excluir');
+                    }
+                })
+                .catch(() => alert('Erro ao excluir'));
         }
 
         function fecharModal() {

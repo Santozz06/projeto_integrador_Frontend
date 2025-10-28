@@ -1,5 +1,5 @@
 <?php require_once '../includes/bootstrap.php'; ?>
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 
 <head>
@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../css/style.css">
     <style>
         body {
             background: linear-gradient(to right, #2c3e50, #3498db);
@@ -20,7 +20,7 @@
 
         .content-wrapper {
             padding: 20px;
-            padding-top: 80px;
+            padding-top: 20px; /* reduz o espaço entre navbar e conteúdo */
         }
 
         .dashboard-card {
@@ -30,11 +30,14 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             margin-bottom: 30px;
             height: 100%;
-            transition: transform 0.3s;
+            position: relative;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .dashboard-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-2px);
+            z-index: 2;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
         }
 
         .card-title {
@@ -214,6 +217,16 @@
             }
         }
 
+        /* Aumenta o espaçamento horizontal entre colunas desta linha específica */
+        .row-cards {
+            margin-left: -12px;
+            margin-right: -12px;
+        }
+        .row-cards > [class*="col-"] {
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+
         @media (max-width: 768px) {
             .content-wrapper {
                 padding-top: 60px;
@@ -280,6 +293,11 @@
             backdrop-filter: blur(10px);
         }
 
+        /* Espaço vertical extra entre linhas de cards para evitar sobreposição no hover */
+        .section-gap {
+            margin-top: 28px; /* aumenta o respiro entre as linhas */
+        }
+
         /* Efeito para o botão Sair */
         #logout-btn {
             transition: all 0.3s ease;
@@ -323,76 +341,42 @@
 
                             <div class="quick-stats">
                                 <div class="stat-item">
-                                    <div class="stat-value">5</div>
+                                    <div class="stat-value" id="stat-turmas">-</div>
                                     <div class="stat-label">Turmas</div>
                                 </div>
                                 <div class="stat-item">
-                                    <div class="stat-value">32</div>
+                                    <div class="stat-value" id="stat-alunos">-</div>
                                     <div class="stat-label">Alunos</div>
                                 </div>
                                 <div class="stat-item">
-                                    <div class="stat-value">4</div>
+                                    <div class="stat-value" id="stat-disciplinas">-</div>
                                     <div class="stat-label">Disciplinas</div>
                                 </div>
-                                <div class="stat-item">
-                                    <div class="stat-value">2</div>
-                                    <div class="stat-label">Avisos</div>
-                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row row-cards">
                     <!-- Horários e Salas de Aula -->
                     <div class="col-lg-6">
-                        <div class="dashboard-card">
+                        <div class="dashboard-card" id="panel-horarios">
                             <h5 class="card-title"><i class="zmdi zmdi-time mr-2"></i> Horários e Salas de Aula</h5>
-
-                            <div class="class-item">
-                                <div class="class-name">Matemática - Turma A</div>
-                                <div class="class-time">Segunda-feira, 7:30 - 9:40</div>
-                                <div class="class-room">Sala 10</div>
-                            </div>
-
-                            <div class="class-item">
-                                <div class="class-name">Geografia - Turma B</div>
-                                <div class="class-time">Terça-feira, 10:00 - 11:30</div>
-                                <div class="class-room">Sala 15</div>
-                            </div>
-
-                            <div class="class-item">
-                                <div class="class-name">História - Turma A</div>
-                                <div class="class-time">Quarta-feira, 13:00 - 14:30</div>
-                                <div class="class-room">Sala 10</div>
-                            </div>
+                            <div class="empty-message">Carregando horários...</div>
                         </div>
                     </div>
-
-                    <!-- Avisos da Instituição -->
+                    <!-- Eventos Próximos -->
                     <div class="col-lg-6">
-                        <div class="dashboard-card">
-                            <h5 class="card-title"><i class="zmdi zmdi-notifications-active mr-2"></i> Avisos da
-                                Instituição</h5>
-
-                            <div class="event-item">
-                                <div class="event-date">15/03/2024</div>
-                                <div class="event-title">Reunião pedagógica - Todos os professores</div>
-                            </div>
-
-                            <div class="event-item">
-                                <div class="event-date">20/03/2024</div>
-                                <div class="event-title">Prazo final para lançamento de notas do 1º bimestre</div>
-                            </div>
-
-                            <div class="empty-message">Nenhum outro aviso no momento</div>
+                        <div class="dashboard-card" id="panel-eventos-proximos">
+                            <h5 class="card-title"><i class="zmdi zmdi-calendar-note mr-2"></i> Eventos Próximos</h5>
+                            <div class="empty-message">Carregando eventos...</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row section-gap">
                     <!-- Tarefas Pendentes -->
-                    <div class="col-lg-6">
+                    <div class="col-lg-12">
                         <div class="dashboard-card">
                             <h5 class="card-title"><i class="zmdi zmdi-assignment mr-2"></i> Tarefas Pendentes</h5>
 
@@ -409,25 +393,6 @@
                             <div class="empty-message">Nenhuma outra tarefa pendente</div>
                         </div>
                     </div>
-
-                    <!-- Eventos Próximos -->
-                    <div class="col-lg-6">
-                        <div class="dashboard-card">
-                            <h5 class="card-title"><i class="zmdi zmdi-calendar-note mr-2"></i> Eventos Próximos</h5>
-
-                            <div class="event-item">
-                                <div class="event-date">12/03/2024</div>
-                                <div class="event-title">Conselho de Classe - Turma A</div>
-                            </div>
-
-                            <div class="event-item">
-                                <div class="event-date">25/03/2024</div>
-                                <div class="event-title">Feriado Municipal - Não haverá aula</div>
-                            </div>
-
-                            <div class="empty-message">Nenhum outro evento agendado</div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -441,103 +406,115 @@
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
     <script>
-        // Verifica se o usuário está logado e no lugar certo
-        const expectedUserType = window.location.pathname.includes('professor') ? 'professor' :
-            window.location.pathname.includes('aluno') ? 'aluno' : 'admin';
-
-        if (localStorage.getItem('isLoggedIn') !== 'true' ||
-            localStorage.getItem('userType') !== expectedUserType) {
-            localStorage.clear();
-            window.location.href = '../login.php';
-        }
-        // Verificação de autenticação
+        // Inicialização da página (sem redirecionamentos via localStorage)
         document.addEventListener('DOMContentLoaded', function () {
-            // Verifica se o usuário está logado
-            if (localStorage.getItem('isLoggedIn') !== 'true') {
-                window.location.href = '../index.php';
-                return;
-            }
-
-            // Atualiza o nome do usuário no menu
-            const username = localStorage.getItem('username') || 'Professor';
+            const username = (localStorage.getItem('username') || 'Professor');
             $('.user-title').text(username);
             $('.welcome-title').text(`Bem-vindo, ${username.split(' ')[0]}!`);
-
-            // Configura o botão de logout
-            $('.dropdown-item').last().on('click', function (e) {
-                e.preventDefault();
-                logout();
-            });
-
-            // Carrega dados do professor
             loadProfessorData();
         });
 
-        // Função para carregar dados do professor
+        // Função para carregar dados do professor (via backend)
         function loadProfessorData() {
-            // Simula dados do professor
-            const professorData = {
-                nome: localStorage.getItem('username') || 'Professor Exemplo',
-                turmas: 5,
-                alunos: 32,
-                disciplinas: 4
-            };
+            // Atualiza nome
+            const nome = localStorage.getItem('username') || 'Professor';
+            $('.user-title').text(nome);
+            $('.welcome-title').text('Bem-vindo, ' + nome.split(' ')[0] + '!');
 
-            // Atualiza a interface
-            $('.user-title').text(professorData.nome);
-            $('.welcome-title').text('Bem-vindo, ' + professorData.nome.split(' ')[0] + '!');
-            $('.stat-value').eq(0).text(professorData.turmas);
-            $('.stat-value').eq(1).text(professorData.alunos);
-            $('.stat-value').eq(2).text(professorData.disciplinas);
+            // Ano letivo fixo solicitado (2025)
+            const anoAtual = 2025;
 
-            // Simula carregamento de horários
-            const horarios = [
-                { disciplina: 'Matemática', turma: 'Turma A', dia: 'Segunda-feira', horario: '7:30 - 9:40', sala: 'Sala 10' },
-                { disciplina: 'Geografia', turma: 'Turma B', dia: 'Terça-feira', horario: '10:00 - 11:30', sala: 'Sala 15' },
-                { disciplina: 'História', turma: 'Turma A', dia: 'Quarta-feira', horario: '13:00 - 14:30', sala: 'Sala 10' }
-            ];
+            // Carrega estatísticas do dashboard (filtradas por 2025)
+            $.getJSON('../includes/ajax/professor/dashboard_stats.php', { ano: anoAtual })
+                .done(function (res) {
+                    if (res && res.success && res.data) {
+                        $('#stat-turmas').text(res.data.turmas);
+                        $('#stat-alunos').text(res.data.alunos);
+                        $('#stat-disciplinas').text(res.data.disciplinas);
+                    } else {
+                        $('#stat-turmas, #stat-alunos, #stat-disciplinas').text('0');
+                    }
+                })
+                .fail(function () {
+                    $('#stat-turmas, #stat-alunos, #stat-disciplinas').text('0');
+                });
 
-            let html = '';
-            horarios.forEach(aula => {
-                html += `
-    <div class="class-item">
-        <div class="class-name">${aula.disciplina} - ${aula.turma}</div>
-        <div class="class-time">${aula.dia}, ${aula.horario}</div>
-        <div class="class-room">${aula.sala}</div>
-    </div>
-    `;
-            });
-            $('.dashboard-card').eq(0).find('.class-item').first().parent().html(html);
+            // Carrega avisos (eventos do calendário) para os próximos 30 dias
+            const start = new Date();
+            const end = new Date();
+            end.setDate(end.getDate() + 30);
+            const toISO = d => d.toISOString().slice(0, 10);
 
-            // Simula carregamento de avisos
-            const avisos = [
-                { data: '15/03/2024', titulo: 'Reunião pedagógica - Todos os professores' },
-                { data: '20/03/2024', titulo: 'Prazo final para lançamento de notas do 1º bimestre' }
-            ];
+            $.getJSON('../includes/ajax/calendario/listar_eventos.php', { start: toISO(start), end: toISO(end) })
+                .done(function (res) {
+                    let eventos = (res && res.success && Array.isArray(res.data)) ? res.data : [];
+                    // Ordena por data
+                    eventos.sort((a, b) => (a.start || '').localeCompare(b.start || ''));
 
-            html = '';
-            avisos.forEach(aviso => {
-                html += `
-    <div class="event-item">
-        <div class="event-date">${aviso.data}</div>
-        <div class="event-title">${aviso.titulo}</div>
-    </div>
-    `;
-            });
-            html += '<div class="empty-message">Nenhum outro aviso no momento</div>';
-            $('.dashboard-card').eq(1).find('.event-item').first().parent().html(html);
+                    // Popula painel de Eventos Próximos
+                    let htmlEventos = '';
+                    if (eventos.length === 0) {
+                        htmlEventos = '<div class="empty-message">Nenhum evento agendado nos próximos 30 dias</div>';
+                    } else {
+                        eventos.slice(0, 6).forEach(ev => {
+                            const dt = (ev.start || '').split('T')[0];
+                            const [y, m, d] = dt.split('-');
+                            const dataBR = `${d}/${m}/${y}`;
+                            htmlEventos += `
+                                <div class="event-item">
+                                    <div class="event-date">${dataBR}</div>
+                                    <div class="event-title">${ev.title || ''}</div>
+                                </div>`;
+                        });
+                        if (eventos.length > 6) {
+                            htmlEventos += '<div class="empty-message">Mais eventos no Calendário</div>';
+                        }
+                    }
+                    $('#panel-eventos-proximos').find('.card-title').nextAll().remove();
+                    $('#panel-eventos-proximos').append(htmlEventos);
+                })
+                .fail(function () {
+                    $('#panel-eventos-proximos').find('.card-title').nextAll().remove();
+                    $('#panel-eventos-proximos').append('<div class="empty-message">Não foi possível carregar os eventos</div>');
+                });
+
+            // Carrega horários do professor somente do ano de 2025 (fixo)
+            $.getJSON('../includes/ajax/professor/horarios.php', { ano: anoAtual })
+                .done(function(res){
+                    const dados = (res && res.success && Array.isArray(res.data)) ? res.data : [];
+                    const NOMES = {1:'Segunda-feira',2:'Terça-feira',3:'Quarta-feira',4:'Quinta-feira',5:'Sexta-feira',6:'Sábado',7:'Domingo'};
+                    let html = '';
+                    if (dados.length === 0){
+                        html = '<div class="empty-message">Nenhum horário cadastrado</div>';
+                    } else {
+                        dados.slice(0,6).forEach(aula => {
+                            const hi = (aula.Hora_Inicio||'').substring(0,5);
+                            const hf = (aula.Hora_Fim||'').substring(0,5);
+                            html += `
+                                <div class="class-item">
+                                    <div class="class-name">${aula.Nome_Disciplina} - ${aula.Nome_Turma}</div>
+                                    <div class="class-time">${NOMES[aula.Dia_Semana]||aula.Dia_Semana}, ${hi} - ${hf}</div>
+                                    <div class="class-room">${aula.Sala ? ('Sala ' + aula.Sala) : ''}</div>
+                                </div>`;
+                        });
+                        if (dados.length > 6){
+                            html += '<div class="empty-message">Mais aulas disponíveis em Horários</div>';
+                        }
+                    }
+                    $('#panel-horarios').find('.class-item, .empty-message').remove();
+                    $('#panel-horarios').append(html);
+                })
+                .fail(function(){
+                    $('#panel-horarios').find('.class-item, .empty-message').remove();
+                    $('#panel-horarios').append('<div class="empty-message">Não foi possível carregar os horários</div>');
+                });
+
+            // Estatísticas já carregadas acima com ano fixo
+
+            // Logout é tratado via link ../logout.php no menu
         }
 
-        // Função para logout
-        function logout() {
-            // Remove os dados de autenticação
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('username');
-
-            // Redireciona para a página de login
-            window.location.href = '../login.php';
-        }
+    
     </script>
-</body>
-
-</html>
+    </body>
+    </html>

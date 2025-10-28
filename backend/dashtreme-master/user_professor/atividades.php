@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../css/style.css">
     <style>
         body {
             background: linear-gradient(to right, #2c3e50, #3498db);
@@ -20,12 +20,13 @@
 
         .container-select {
             max-width: 900px;
-            margin: 40px auto;
+            margin: 2px auto; /* reduz o espaço abaixo da navbar */
             background: rgba(255, 255, 255, 0.05);
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
+
 
         .atividade-form select,
         .atividade-form input[type="text"],
@@ -51,6 +52,23 @@
 
         .btn:hover {
             background-color: #16a085;
+        }
+
+        /* Mantém verde nos estados de foco/ativo para botões "Editar" (.btn-primary) */
+        .btn-primary {
+            background-color: #1abc9c;
+            border-color: #1abc9c;
+            color: #fff;
+        }
+        .btn-primary:hover,
+        .btn-primary:focus,
+        .btn-primary:not(:disabled):not(.disabled).active,
+        .btn-primary:not(:disabled):not(.disabled):active,
+        .show > .btn-primary.dropdown-toggle {
+            background-color: #16a085;
+            border-color: #16a085;
+            box-shadow: none;
+            color: #fff;
         }
 
         .btn-secondary {
@@ -110,27 +128,21 @@
             <div class="container-select">
                 <h2>Gerenciar Atividades</h2>
                 <div class="atividade-form">
-                    <select id="filtroDisciplina">
-                        <option value="Todas">Todas as Disciplinas</option>
-                        <option value="Matemática">Matemática</option>
-                        <option value="História">História</option>
-                        <option value="Geografia">Geografia</option>
+                    <select id="selectTurma">
+                        <option value="" disabled selected>-- Escolha uma turma --</option>
                     </select>
 
                     <input type="text" id="tituloAtividade" placeholder="Título da atividade">
                     <input type="date" id="dataAtividade">
-                    <select id="disciplinaAtividade">
-                        <option value="Matemática">Matemática</option>
-                        <option value="História">História</option>
-                        <option value="Geografia">Geografia</option>
+                    <select id="disciplinaAtividade" disabled>
+                        <option value="" disabled selected>Carregue uma turma</option>
                     </select>
-                    <div class="btn-group" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button class="btn btn-sm" id="btnSalvarAtividade" onclick="salvarAtividade()">Adicionar
-                            Atividade</button>
-                        <button class="btn btn-secondary btn-sm" id="btnCancelarEdicao" style="display: none;"
-                            onclick="cancelarEdicao()">Cancelar</button>
-                    </div>
+                    <small id="disciplinaHelp" class="form-text text-muted" style="display:none;">Nenhuma disciplina vinculada a você nesta turma.</small>
 
+                    <div class="btn-group" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-sm" id="btnSalvarAtividade">Adicionar Atividade</button>
+                        <button class="btn btn-secondary btn-sm" id="btnCancelarEdicao" style="display: none;">Cancelar</button>
+                    </div>
                 </div>
 
                 <div id="listaAtividades"></div>
@@ -146,95 +158,167 @@
      
 
         <script>
-            const atividades = [
-                { titulo: "Exercício de Gráficos", data: "2025-08-20", disciplina: "Matemática" },
-                { titulo: "Mapa do Brasil", data: "2025-08-21", disciplina: "Geografia" },
-            ];
+            $(function(){
+                inicializarAtividades();
+            });
 
-            let indiceEditando = null;
+            let turmaAtual = null;
+            let editandoId = null;
+            let atividadesCache = [];
 
-            function renderizarAtividades() {
-                const filtro = document.getElementById("filtroDisciplina").value;
-                const lista = document.getElementById("listaAtividades");
-                lista.innerHTML = "";
+            function inicializarAtividades(){
+                $('#btnSalvarAtividade').on('click', function(e){ e.preventDefault(); salvarAtividade(); });
+                $('#btnCancelarEdicao').on('click', function(e){ e.preventDefault(); cancelarEdicao(); });
+                $('#selectTurma').on('change', function(){ turmaAtual = this.value; carregarDisciplinas(turmaAtual); carregarAtividades(); });
+                carregarTurmas();
+            }
 
-                const filtradas = atividades.filter((a) => filtro === "Todas" || a.disciplina === filtro);
+            function carregarTurmas(){
+                const ano = 2025;
+                const $sel = $('#selectTurma');
+                $sel.prop('disabled', true).empty().append('<option value="" disabled selected>Carregando turmas...</option>');
+                $.getJSON('../includes/ajax/listar_turmas.php', { ano, all: 1 })
+                    .done(function(res){
+                        $sel.empty().append('<option value="" disabled selected>-- Escolha uma turma --</option>');
+                        if (res && res.success && Array.isArray(res.data) && res.data.length){
+                            res.data.forEach(t => {
+                                const label = `${t.Nome_Turma} (${t.Turno || ''} - ${t.Ano_Letivo || ''})`;
+                                $sel.append(`<option value="${t.ID_Turma}">${label}</option>`);
+                            });
+                            $sel.prop('disabled', false);
+                        } else {
+                            $sel.append('<option value="" disabled>Nenhuma turma encontrada</option>');
+                        }
+                    })
+                    .fail(function(){ $sel.empty().append('<option value="" disabled>Falha ao carregar turmas</option>'); });
+            }
 
-                if (filtradas.length === 0) {
-                    lista.innerHTML = '<p style="text-align:center; color:#bdc3c7; font-style:italic;">Nenhuma atividade encontrada</p>';
+            function carregarDisciplinas(turmaId){
+                const $formSel = $('#disciplinaAtividade');
+                const $help = $('#disciplinaHelp');
+                $help.hide();
+                $formSel.prop('disabled', true).empty().append('<option value="" disabled selected>Carregando disciplinas...</option>');
+                if (!turmaId) return;
+                $.getJSON('../includes/ajax/listar_disciplinas_por_turma.php', { turma_id: turmaId })
+                    .done(function(res){
+                        $formSel.empty();
+                        if (res && res.success && Array.isArray(res.data) && res.data.length){
+                            $formSel.append('<option value="" disabled selected>-- Selecione --</option>');
+                            res.data.forEach(function(d){
+                                const nome = d.Nome_Disciplina || '';
+                                if (nome){
+                                    $formSel.append('<option value="'+ nome +'">'+ nome +'</option>');
+                                }
+                            });
+                            $formSel.prop('disabled', false);
+                        } else {
+                            $formSel.append('<option value="" disabled selected>Nenhuma disciplina encontrada</option>');
+                            $formSel.prop('disabled', true);
+                            $help.show();
+                        }
+                    })
+                    .fail(function(){
+                        $formSel.empty().append('<option value="" disabled selected>Erro ao carregar</option>');
+                        $formSel.prop('disabled', true);
+                    });
+            }
+
+            function carregarAtividades(){
+                const $lista = $('#listaAtividades');
+                if (!turmaAtual){ $lista.html('<p style="text-align:center; color:#bdc3c7; font-style:italic;">Selecione uma turma</p>'); return; }
+                $lista.html('<p style="text-align:center; color:#bdc3c7; font-style:italic;">Carregando atividades...</p>');
+                $.getJSON('../includes/ajax/professor/atividades/listar.php', { turma_id: turmaAtual })
+                    .done(function(res){
+                        atividadesCache = (res && res.success && Array.isArray(res.data)) ? res.data : [];
+                        renderizarAtividades();
+                    })
+                    .fail(function(){ $lista.html('<p style="text-align:center; color:#bdc3c7; font-style:italic;">Erro ao carregar atividades</p>'); });
+            }
+
+            function formatarDataBR(dataString){
+                if (!dataString) return '';
+                const d = new Date(dataString);
+                const dia = String(d.getUTCDate()).padStart(2,'0');
+                const mes = String(d.getUTCMonth()+1).padStart(2,'0');
+                const ano = d.getUTCFullYear();
+                return `${dia}/${mes}/${ano}`;
+            }
+
+            function renderizarAtividades(){
+                const $lista = $('#listaAtividades');
+                $lista.empty();
+                if (!atividadesCache.length){
+                    $lista.html('<p style="text-align:center; color:#bdc3c7; font-style:italic;">Nenhuma atividade encontrada</p>');
                     return;
                 }
-
-                filtradas.forEach((a, index) => {
-                    const div = document.createElement("div");
-                    div.className = "atividade-item";
-                    div.innerHTML = `
-          <div class="atividade-titulo">${a.titulo}</div>
-          <div class="atividade-info">${a.data} - ${a.disciplina}</div>
-          <div style="margin-top: 10px;">
-            <button class="btn btn-sm btn-primary" onclick="editarAtividade(${index})">Editar</button>
-            <button class="btn btn-sm btn-danger" onclick="removerAtividade(${index})">Remover</button>
-          </div>
-        `;
-                    lista.appendChild(div);
+                atividadesCache.forEach(function(a){
+                    const id = a.ID_Atividade;
+                    const titulo = a.Titulo;
+                    const data = formatarDataBR(a.Data);
+                    const disciplina = a.Disciplina;
+                    const $div = $('<div>').addClass('atividade-item').attr('data-id', id);
+                    $div.append(`<div class="atividade-titulo">${titulo}</div>`);
+                    $div.append(`<div class="atividade-info">${data} - ${disciplina}</div>`);
+                    const $btns = $('<div style="margin-top:10px;"></div>');
+                    $btns.append(`<button class="btn btn-sm btn-primary" onclick="editarAtividade(${id})">Editar</button>`);
+                    $btns.append(`<button class="btn btn-sm btn-danger" onclick="removerAtividade(${id})">Remover</button>`);
+                    $div.append($btns);
+                    $lista.append($div);
                 });
             }
 
-            function salvarAtividade() {
-                const titulo = document.getElementById("tituloAtividade").value.trim();
-                const data = document.getElementById("dataAtividade").value;
-                const disciplina = document.getElementById("disciplinaAtividade").value;
-
-                if (!titulo || !data) {
-                    alert("Preencha todos os campos.");
-                    return;
-                }
-
-                if (indiceEditando !== null) {
-                    atividades[indiceEditando] = { titulo, data, disciplina };
-                    indiceEditando = null;
-                    document.getElementById("btnSalvarAtividade").textContent = "Adicionar Atividade";
-                    document.getElementById("btnCancelarEdicao").style.display = "none";
-                } else {
-                    atividades.push({ titulo, data, disciplina });
-                }
-
-                limparFormulario();
-                renderizarAtividades();
+            function salvarAtividade(){
+                if (!turmaAtual){ alert('Selecione uma turma.'); return; }
+                const titulo = $('#tituloAtividade').val().trim();
+                const data = $('#dataAtividade').val();
+                const disciplina = $('#disciplinaAtividade').val();
+                if (!titulo || !data || !disciplina){ alert('Preencha todos os campos.'); return; }
+                const payload = new FormData();
+                payload.append('turma_id', turmaAtual);
+                payload.append('titulo', titulo);
+                payload.append('disciplina', disciplina);
+                payload.append('data', data);
+                if (editandoId){ payload.append('id', editandoId); }
+                fetch('../includes/ajax/professor/atividades/salvar.php', { method: 'POST', body: payload })
+                    .then(r => r.json())
+                    .then(res => { if (res && res.success){ cancelarEdicao(); carregarAtividades(); } else { alert(res && res.message ? res.message : 'Falha ao salvar'); } })
+                    .catch(() => alert('Erro ao salvar'));
             }
 
-            function editarAtividade(index) {
-                const atividade = atividades[index];
-                document.getElementById("tituloAtividade").value = atividade.titulo;
-                document.getElementById("dataAtividade").value = atividade.data;
-                document.getElementById("disciplinaAtividade").value = atividade.disciplina;
-                document.getElementById("btnSalvarAtividade").textContent = "Atualizar Atividade";
-                document.getElementById("btnCancelarEdicao").style.display = "inline-block";
-                indiceEditando = index;
+            function cancelarEdicao(){
+                $('#tituloAtividade').val('');
+                $('#dataAtividade').val('');
+                editandoId = null;
+                $('#btnSalvarAtividade').text('Adicionar Atividade');
+                $('#btnCancelarEdicao').hide();
+                $('#tituloAtividade').focus();
             }
 
-            function removerAtividade(index) {
-                if (confirm("Deseja remover esta atividade?")) {
-                    atividades.splice(index, 1);
-                    renderizarAtividades();
-                    cancelarEdicao();
-                }
+            window.editarAtividade = function(id){
+                const a = atividadesCache.find(x => x.ID_Atividade === id);
+                if (!a) return;
+                // garantir disciplina presente no select
+                const sel = document.getElementById('disciplinaAtividade');
+                let found = false;
+                for (let i=0;i<sel.options.length;i++){ if (sel.options[i].value === a.Disciplina){ found = true; break; } }
+                if (!found){ const opt = document.createElement('option'); opt.value = a.Disciplina; opt.textContent = a.Disciplina + ' (não listada)'; sel.appendChild(opt); }
+                $('#tituloAtividade').val(a.Titulo);
+                $('#dataAtividade').val(a.Data);
+                $('#disciplinaAtividade').val(a.Disciplina);
+                editandoId = id;
+                $('#btnSalvarAtividade').text('Atualizar Atividade');
+                $('#btnCancelarEdicao').show();
             }
 
-            function cancelarEdicao() {
-                limparFormulario();
-                indiceEditando = null;
-                document.getElementById("btnSalvarAtividade").textContent = "Adicionar Atividade";
-                document.getElementById("btnCancelarEdicao").style.display = "none";
+            window.removerAtividade = function(id){
+                if (!confirm('Deseja remover esta atividade?')) return;
+                const payload = new FormData();
+                payload.append('id', id);
+                fetch('../includes/ajax/professor/atividades/excluir.php', { method: 'POST', body: payload })
+                    .then(r => r.json())
+                    .then(res => { if (res && res.success){ carregarAtividades(); cancelarEdicao(); } else { alert(res && res.message ? res.message : 'Falha ao excluir'); } })
+                    .catch(() => alert('Erro ao excluir'));
             }
-
-            function limparFormulario() {
-                document.getElementById("tituloAtividade").value = "";
-                document.getElementById("dataAtividade").value = "";
-            }
-
-            document.getElementById("filtroDisciplina").addEventListener("change", renderizarAtividades);
-            renderizarAtividades();
         </script>
 </body>
 

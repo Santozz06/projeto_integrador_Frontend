@@ -6130,6 +6130,25 @@ CREATE TABLE `Professores_Turmas` (
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `Horarios`
+--
+
+CREATE TABLE `Horarios` (
+  `ID_Horario` int NOT NULL,
+  `ID_Turma` int NOT NULL,
+  `ID_Disciplina` int NOT NULL,
+  `ID_Professor` int NOT NULL,
+  `Dia_Semana` tinyint NOT NULL COMMENT '1=Seg,2=Ter,3=Qua,4=Qui,5=Sex,6=Sáb,7=Dom',
+  `Hora_Inicio` time NOT NULL,
+  `Hora_Fim` time NOT NULL,
+  `Sala` varchar(20) DEFAULT NULL,
+  `Ano_Letivo` int DEFAULT NULL,
+  `Observacao` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `Turmas`
 --
 
@@ -6304,6 +6323,15 @@ ALTER TABLE `Professores_Turmas`
   ADD KEY `ID_Turma` (`ID_Turma`);
 
 --
+-- Índices de tabela `Horarios`
+--
+ALTER TABLE `Horarios`
+  ADD PRIMARY KEY (`ID_Horario`),
+  ADD KEY `ID_Turma` (`ID_Turma`),
+  ADD KEY `ID_Disciplina` (`ID_Disciplina`),
+  ADD KEY `ID_Professor` (`ID_Professor`);
+
+--
 -- Índices de tabela `Turmas`
 --
 ALTER TABLE `Turmas`
@@ -6371,6 +6399,12 @@ ALTER TABLE `Planos_Ensino`
   MODIFY `ID_Plano` int NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de tabela `Horarios`
+--
+ALTER TABLE `Horarios`
+  MODIFY `ID_Horario` int NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de tabela `Turmas`
 --
 ALTER TABLE `Turmas`
@@ -6435,6 +6469,14 @@ ALTER TABLE `Notas`
 --
 ALTER TABLE `Planos_Ensino`
   ADD CONSTRAINT `Planos_Ensino_ibfk_1` FOREIGN KEY (`ID_Disciplina`) REFERENCES `Disciplinas` (`ID_Disciplina`);
+
+--
+-- Restrições para tabelas `Horarios`
+--
+ALTER TABLE `Horarios`
+  ADD CONSTRAINT `Horarios_ibfk_1` FOREIGN KEY (`ID_Turma`) REFERENCES `Turmas` (`ID_Turma`),
+  ADD CONSTRAINT `Horarios_ibfk_2` FOREIGN KEY (`ID_Disciplina`) REFERENCES `Disciplinas` (`ID_Disciplina`),
+  ADD CONSTRAINT `Horarios_ibfk_3` FOREIGN KEY (`ID_Professor`) REFERENCES `Professores` (`ID_Professor`);
 
 --
 -- Restrições para tabelas `Professores`
