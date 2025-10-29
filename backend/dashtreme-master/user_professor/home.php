@@ -375,22 +375,11 @@
                 </div>
 
                 <div class="row section-gap">
-                    <!-- Tarefas Pendentes -->
+                    <!-- Avaliações -->
                     <div class="col-lg-12">
-                        <div class="dashboard-card">
-                            <h5 class="card-title"><i class="zmdi zmdi-assignment mr-2"></i> Tarefas Pendentes</h5>
-
-                            <div class="event-item">
-                                <div class="event-date">Para 18/03/2024</div>
-                                <div class="event-title">Preparar material para aula sobre Revolução Industrial</div>
-                            </div>
-
-                            <div class="event-item">
-                                <div class="event-date">Para 20/03/2024</div>
-                                <div class="event-title">Corrigir provas do 1º bimestre</div>
-                            </div>
-
-                            <div class="empty-message">Nenhuma outra tarefa pendente</div>
+                        <div class="dashboard-card" id="panel-avaliacoes">
+                            <h5 class="card-title"><i class="zmdi zmdi-check-circle mr-2"></i> Avaliações</h5>
+                            <div class="empty-message">Carregando avaliações...</div>
                         </div>
                     </div>
                 </div>
@@ -476,6 +465,38 @@
                 .fail(function () {
                     $('#panel-eventos-proximos').find('.card-title').nextAll().remove();
                     $('#panel-eventos-proximos').append('<div class="empty-message">Não foi possível carregar os eventos</div>');
+                });
+
+            // Carrega Avaliações do professor (próximas)
+            $.getJSON('../includes/ajax/professor/avaliacoes/listar_professor.php', { futuras: 1, limit: 8 })
+                .done(function(res){
+                    var avs = (res && res.success && Array.isArray(res.data)) ? res.data : [];
+                    var html = '';
+                    if (avs.length === 0) {
+                        html = '<div class="empty-message">Nenhuma avaliação agendada</div>';
+                    } else {
+                        for (var i = 0; i < avs.length; i++){
+                            var av = avs[i];
+                            var dt = (av.Data || '').split('T')[0] || av.Data; // Data é DATE
+                            var parts = (dt || '').split('-');
+                            var dataBR = (parts.length === 3) ? (parts[2] + '/' + parts[1] + '/' + parts[0]) : dt;
+                            var turma = (av.Nome_Turma || ('Turma ' + av.ID_Turma));
+                            var disc = av.Disciplina || '';
+                            html += ''+
+                                '<div class="event-item">' +
+                                '  <div class="event-date">' + dataBR + '</div>' +
+                                '  <div class="event-title">' + turma + '</div>' +
+                                (disc ? ('  <div class="class-time">Disciplina: ' + disc + '</div>') : '') +
+                                '</div>';
+                        }
+                        html += '<div class="empty-message"><a href="avaliacoes.php">Ver todas as avaliações</a></div>';
+                    }
+                    $('#panel-avaliacoes').find('.event-item, .empty-message').remove();
+                    $('#panel-avaliacoes').append(html);
+                })
+                .fail(function(){
+                    $('#panel-avaliacoes').find('.event-item, .empty-message').remove();
+                    $('#panel-avaliacoes').append('<div class="empty-message">Não foi possível carregar as avaliações</div>');
                 });
 
             // Carrega horários do professor somente do ano de 2025 (fixo)

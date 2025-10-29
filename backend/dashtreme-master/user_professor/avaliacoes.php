@@ -389,7 +389,6 @@
     
     <script>
         $(function () {
-            if ($.sidebarMenu) { $.sidebarMenu($('.sidebar-menu')); }
             carregarTurmasSelect();
             // Visualizar via botão ou ao mudar a turma
             $('#btnVisualizar').on('click', function(e){ e.preventDefault(); carregarAvaliacoes(); });

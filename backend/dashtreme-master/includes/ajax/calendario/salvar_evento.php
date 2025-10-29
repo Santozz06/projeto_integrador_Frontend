@@ -12,8 +12,8 @@ try {
         exit;
     }
 
-    // Permitir apenas admin por enquanto
-    if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
+    // Permitir admin e professor (professor só pode criar/editar seus próprios eventos)
+    if (!isset($_SESSION['user_type']) || !in_array($_SESSION['user_type'], ['admin','professor'])) {
         http_response_code(403);
         echo json_encode(['success' => false, 'message' => 'Acesso negado']);
         exit;
@@ -38,25 +38,56 @@ try {
         exit;
     }
 
-    // Light migration: garantir apenas coluna Publico_Alvo (usada pelos feeds ICS)
+    // Light migration: garantir colunas necessárias
     try {
         $chk = $pdo->query("SHOW COLUMNS FROM Calendario_Academico LIKE 'Publico_Alvo'");
         if ($chk->rowCount() === 0) {
             $pdo->exec("ALTER TABLE Calendario_Academico ADD COLUMN Publico_Alvo VARCHAR(20) DEFAULT 'todos' AFTER Tipo_Evento");
         }
+        $chk2 = $pdo->query("SHOW COLUMNS FROM Calendario_Academico LIKE 'Criado_Por'");
+        if ($chk2->rowCount() === 0) {
+            $pdo->exec("ALTER TABLE Calendario_Academico ADD COLUMN Criado_Por INT NULL AFTER Publico_Alvo");
+        }
     } catch (Throwable $e) { /* ignore */ }
 
+    $isAdmin = isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'admin';
+    $isProfessor = isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'professor';
+    $usuarioId = isset($_SESSION['usuario_id']) ? (int)$_SESSION['usuario_id'] : null;
+
+    if ($isProfessor) {
+        // Força público padrão para eventos de professor
+        $publico = 'professores';
+    }
+
     if ($id > 0) {
+        if ($isProfessor) {
+            // Professores só podem editar eventos que eles criaram
+            $chkEvt = $pdo->prepare("SELECT Criado_Por FROM Calendario_Academico WHERE ID_Evento = ?");
+            $chkEvt->execute([$id]);
+            $own = $chkEvt->fetch(PDO::FETCH_ASSOC);
+            if (!$own || (int)$own['Criado_Por'] !== $usuarioId) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'message' => 'Você não tem permissão para editar este evento.']);
+                exit;
+            }
+        }
         $st = $pdo->prepare("UPDATE Calendario_Academico
                               SET Nome_Evento = ?, Descricao = ?, Data_Inicio = ?, Data_Fim = ?,
                                   Tipo_Evento = ?, Ano_Letivo = ?, Publico_Alvo = ?
                               WHERE ID_Evento = ?");
         $st->execute([$titulo, $descricao, $inicio, $fim, $tipo, $anoLetivo, $publico, $id]);
     } else {
-        $st = $pdo->prepare("INSERT INTO Calendario_Academico
-            (Nome_Evento, Descricao, Data_Inicio, Data_Fim, Tipo_Evento, Ano_Letivo, Publico_Alvo)
-            VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $st->execute([$titulo, $descricao, $inicio, $fim, $tipo, $anoLetivo, $publico]);
+        if ($isProfessor) {
+            $st = $pdo->prepare("INSERT INTO Calendario_Academico
+                (Nome_Evento, Descricao, Data_Inicio, Data_Fim, Tipo_Evento, Ano_Letivo, Publico_Alvo, Criado_Por)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $st->execute([$titulo, $descricao, $inicio, $fim, $tipo, $anoLetivo, $publico, $usuarioId]);
+        } else {
+            $st = $pdo->prepare("INSERT INTO Calendario_Academico
+                (Nome_Evento, Descricao, Data_Inicio, Data_Fim, Tipo_Evento, Ano_Letivo, Publico_Alvo)
+                VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $st->execute([$titulo, $descricao, $inicio, $fim, $tipo, $anoLetivo, $publico]);
+        }
         $id = (int)$pdo->lastInsertId();
     }
 

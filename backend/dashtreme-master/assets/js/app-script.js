@@ -8,20 +8,38 @@ $.sidebarMenu($('.sidebar-menu'));
 
 // === toggle-menu js
 $(".toggle-menu").on("click", function(e) {
-        e.preventDefault();
-        $("#wrapper").toggleClass("toggled");
-    });	 
+    e.preventDefault();
+    $("#wrapper").toggleClass("toggled");
+    $("body").toggleClass("menu-closed");
+  });
 	   
-// === sidebar menu activation js
-
+// === sidebar menu activation js (persist open submenu for current page)
 $(function() {
-        for (var i = window.location, o = $(".sidebar-menu a").filter(function() {
-            return this.href == i;
-        }).addClass("active").parent().addClass("active"); ;) {
-            if (!o.is("li")) break;
-            o = o.parent().addClass("in").parent().addClass("active");
-        }
-    }), 	   
+  try {
+    var href = window.location.href;
+    var file = href.split('#')[0].split('?')[0].split('/').pop();
+    var $links = $(".sidebar-menu a");
+    var $activeLink = null;
+    $links.each(function(){
+      var linkHref = $(this).attr('href') || '';
+      var linkFile = linkHref.split('#')[0].split('?')[0].split('/').pop();
+      if (linkFile && file && linkFile.toLowerCase() === file.toLowerCase()) {
+        $activeLink = $(this);
+        return false; // break
+      }
+    });
+
+    if ($activeLink && $activeLink.length) {
+      $activeLink.addClass('active');
+      var $li = $activeLink.parent('li').addClass('active');
+      var $submenu = $activeLink.closest('ul.sidebar-submenu');
+      if ($submenu.length) {
+        $submenu.show().addClass('menu-open');
+        $submenu.parent('li').addClass('active');
+      }
+    }
+  } catch (e) { /* noop */ }
+}),
 	   
 
 /* Top Header */

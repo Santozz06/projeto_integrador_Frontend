@@ -136,7 +136,7 @@
    
     <script>
         $(function () {
-            if ($.sidebarMenu) { $.sidebarMenu($('.sidebar-menu')); }
+            // Sidebar menu já é inicializado em app-script.js; evitar dupla inicialização
 
             // Carrega turmas do professor para o ano de 2025
             carregarTurmasSelect();

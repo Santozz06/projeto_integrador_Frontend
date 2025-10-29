@@ -24,8 +24,24 @@ try {
                    COALESCE(Publico_Alvo, 'todos') AS Publico_Alvo
             FROM Calendario_Academico WHERE 1=1";
 
-    if ($start) { $sql .= " AND Data_Inicio >= ?"; $params[] = substr($start, 0, 10); }
-    if ($end)   { $sql .= " AND (Data_Fim IS NULL OR Data_Fim <= ?)"; $params[] = substr($end, 0, 10); }
+    // Date window: include events that OVERLAP the [start, end] range
+    // If both provided: (single-day between) OR (multi-day overlaps)
+    if ($start && $end) {
+        $s = substr($start, 0, 10);
+        $e = substr($end, 0, 10);
+        $sql .= " AND ((Data_Fim IS NULL AND Data_Inicio BETWEEN ? AND ?) OR (Data_Fim IS NOT NULL AND Data_Inicio <= ? AND Data_Fim >= ?))";
+        $params[] = $s; $params[] = $e; $params[] = $e; $params[] = $s;
+    } elseif ($start) {
+        // Only start: any event ending after start
+        $s = substr($start, 0, 10);
+        $sql .= " AND ((Data_Fim IS NULL AND Data_Inicio >= ?) OR (Data_Fim IS NOT NULL AND Data_Fim >= ?))";
+        $params[] = $s; $params[] = $s;
+    } elseif ($end) {
+        // Only end: any event starting before end
+        $e = substr($end, 0, 10);
+        $sql .= " AND ((Data_Fim IS NULL AND Data_Inicio <= ?) OR (Data_Fim IS NOT NULL AND Data_Inicio <= ?))";
+        $params[] = $e; $params[] = $e;
+    }
     if ($tipo)  { $sql .= " AND Tipo_Evento = ?"; $params[] = $tipo; }
 
     // Role-based default filter when not admin (future proof)
@@ -41,7 +57,8 @@ try {
         // professors or students see only their audience + 'todos'
         $aud = isset($_SESSION['user_type']) ? $_SESSION['user_type'] : 'alunos';
         if ($aud === 'professor' || $aud === 'professores') {
-            $sql .= " AND (Publico_Alvo IN ('todos','professores') OR Publico_Alvo IS NULL)";
+            // Professores visualizam tudo por padrão no dashboard: 'todos', 'professores' e 'alunos'
+            $sql .= " AND (Publico_Alvo IN ('todos','professores','alunos') OR Publico_Alvo IS NULL)";
         } else {
             $sql .= " AND (Publico_Alvo IN ('todos','alunos') OR Publico_Alvo IS NULL)";
         }

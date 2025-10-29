@@ -245,7 +245,8 @@
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.1/dist/jspdf.plugin.autotable.min.js"></script>
 
     <script>
-        $(function(){ if ($.sidebarMenu) { $.sidebarMenu($('.sidebar-menu')); } inicializar(); });
+        // Evita reinicializar o sidebar-menu aqui (app-script.js já faz isso globalmente)
+        $(function(){ inicializar(); });
 
         let turmaAtual = null;
         let alunosCache = [];

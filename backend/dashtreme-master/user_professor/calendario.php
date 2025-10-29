@@ -356,8 +356,8 @@
                     <div class="col-12">
                         <div class="d-flex flex-wrap gap-2">
                             <button class="btn btn-success" id="btn-publicar-calendario">
-                                <i class="zmdi zmdi-check-all"></i>
-                                <span class="d-none d-sm-inline"> Publicar</span>
+                                <i class="zmdi zmdi-save"></i>
+                                <span class="d-none d-sm-inline"> Salvar</span>
                             </button>
                         </div>
                     </div>
@@ -800,57 +800,64 @@
                     var start = $('#evento-inicio').val();
                     var end = $('#evento-fim').val();
                     var description = $('#evento-descricao').val();
-                    var notificar = $('#evento-notificar').is(':checked');
 
-                    if (!title) return alert('Título é obrigatório.');
+                    if (!title) { alert('Título é obrigatório.'); return; }
 
-                    var color = '#6c757d';
-                    for (var c = 0; c < tiposEventos.length; c++){
-                        if (tiposEventos[c].nome === tipo){ color = tiposEventos[c].cor || '#6c757d'; break; }
-                    }
-
-                    var eventData = {
+                    var payload = {
+                        id: currentEvent ? (parseInt(currentEvent.id, 10) || 0) : 0,
                         title: title,
-                        start: start,
-                        end: end || null,
-                        color: color,
-                        extendedProps: {
-                            tipo: tipo,
-                            description: description
-                        }
+                        tipo: tipo,
+                        inicio: start,
+                        fim: end || '',
+                        descricao: description
                     };
 
-                    if (currentEvent) {
-                        currentEvent.setProp('title', title);
-                        currentEvent.setStart(start);
-                        currentEvent.setEnd(end || null);
-                        currentEvent.setProp('color', color);
-                        currentEvent.setExtendedProp('tipo', tipo);
-                        currentEvent.setExtendedProp('description', description);
-                    } else {
-                        calendar.addEvent(eventData);
-                    }
-
-                    if (notificar) {
-                        alert('Usuários serão notificados!');
-                    }
-
-                    $('#eventoModal').modal('hide');
+                    $.ajax({
+                        url: '../includes/ajax/calendario/salvar_evento.php',
+                        method: 'POST',
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify(payload),
+                        dataType: 'json'
+                    }).done(function(res){
+                        if (res && res.success) {
+                            $('#eventoModal').modal('hide');
+                            calendar.refetchEvents();
+                        } else {
+                            alert((res && res.message) || 'Falha ao salvar evento');
+                        }
+                    }).fail(function(xhr){
+                        alert('Erro ao salvar evento: ' + (xhr.responseText || xhr.statusText));
+                    });
                 });
 
                 $('#btn-excluir-evento').click(function () {
-                    if (currentEvent && confirm('Deseja excluir este evento?')) {
-                        currentEvent.remove();
-                        $('#eventoModal').modal('hide');
-                    }
+                    if (!currentEvent) return;
+                    if (!confirm('Deseja excluir este evento?')) return;
+                    var id = parseInt(currentEvent.id, 10) || 0;
+                    if (id <= 0) { alert('Evento sem ID salvo.'); return; }
+                    $.ajax({
+                        url: '../includes/ajax/calendario/excluir_evento.php',
+                        method: 'POST',
+                        data: { id: id },
+                        dataType: 'json'
+                    }).done(function(res){
+                        if (res && res.success) {
+                            $('#eventoModal').modal('hide');
+                            calendar.refetchEvents();
+                        } else {
+                            alert((res && res.message) || 'Falha ao excluir evento');
+                        }
+                    }).fail(function(xhr){
+                        alert('Erro ao excluir evento: ' + (xhr.responseText || xhr.statusText));
+                    });
                 });
 
                 // Importar/Exportar removidos a pedido — sem handlers
 
                 $('#btn-publicar-calendario').click(function () {
-                    if (confirm('Deseja publicar as alterações?')) {
-                        alert('Calendário publicado com sucesso!');
-                    }
+                    // Neste contexto, o botão "Salvar" apenas força um recarregamento dos eventos
+                    calendar.refetchEvents();
+                    alert('Eventos sincronizados.');
                 });
                 } // fecha function initCalendar
             });

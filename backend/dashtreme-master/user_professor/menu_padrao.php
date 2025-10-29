@@ -1,7 +1,4 @@
 <nav id="menu_padrao">
-
-    <body class="bg-theme bg-theme1">
-
         <div id="wrapper">
             <!-- Sidebar -->
             <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">

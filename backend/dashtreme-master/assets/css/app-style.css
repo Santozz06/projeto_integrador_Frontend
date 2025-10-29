@@ -40,8 +40,7 @@ File: app-style
 html {
 	 font-family: 'Roboto', sans-serif;
 	-webkit-text-size-adjust: 100%;
-	-ms-text-size-adjust: 100%;
-	-ms-overflow-style: scrollbar;
+    -ms-text-size-adjust: 100%;
 	-webkit-tap-highlight-color: transparent
 }
 
@@ -307,6 +306,17 @@ hr {
 }
 
 #wrapper.toggled .content-wrapper {
+    margin-left: 0;
+}
+
+/* Fallback universal toggle using body class for pages onde #wrapper não envolve .content-wrapper */
+body.menu-closed #sidebar-wrapper {
+    left: -250px;
+}
+body.menu-closed .content-wrapper {
+    margin-left: 0 !important;
+}
+body.menu-closed .toggle-menu i {
     margin-left: 0;
 }
 
@@ -2996,10 +3006,11 @@ table.grid td {
 /* CheckBoxes & Radios */
 
 [class*="icheck-material"] {
-  min-height: 22px;
-  margin-top: 6px;
-  margin-bottom: 6px 
-  padding-left: 0px; }
+    min-height: 22px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    padding-left: 0px;
+}
   [class*="icheck-material"] > label {
     padding-left: 29px !important;
     min-height: 22px;
