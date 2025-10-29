@@ -175,23 +175,7 @@
 
                                 <h5 class="mb-4">Selecione um ano para emitir o boletim</h5>
 
-                                <!-- 2025 - Matriculado -->
-                                <a href="boletim_detalhes.php?ano=2025" class="year-option">
-                                    <span class="year-title">2025 - 3°ano</span>
-                                    <span class="badge badge-info status-badge year-status">matriculado</span>
-                                </a>
-
-                                <!-- 2024 - Aprovado -->
-                                <a href="boletim_detalhes.php?ano=2024" class="year-option">
-                                    <span class="year-title">2024 - 2°ano</span>
-                                    <span class="badge badge-success status-badge year-status">aprovado</span>
-                                </a>
-
-                                <!-- 2023 - Aprovado -->
-                                <a href="boletim_detalhes.php?ano=2023" class="year-option">
-                                    <span class="year-title">2023 - 1°ano</span>
-                                    <span class="badge badge-success status-badge year-status">aprovado</span>
-                                </a>
+                                <div id="lista-anos"></div>
 
                                 <div class="mt-4 pt-3 border-top">
                                     <p style="color: #e0e0e0;">Selecione um ano escolar acima para visualizar ou
@@ -213,8 +197,32 @@
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
     <script src="../assets/js/sidebar-menu.js"></script>
-    <script src="../assets/js/app-script.js"></script>
-    
+        <script src="../assets/js/app-script.js"></script>
+        <script>
+            (function(){
+                function badgeClass(status){
+                    if (status === 'matriculado') return 'badge-info';
+                    if (status === 'aprovado') return 'badge-success';
+                    return 'badge-warning';
+                }
+                fetch('../includes/ajax/aluno/anos_matriculas.php')
+                    .then(r=>r.json())
+                    .then(resp=>{
+                        if(!resp.success){ return; }
+                        var cont = document.getElementById('lista-anos');
+                        cont.innerHTML = '';
+                        (resp.anos||[]).forEach(function(item){
+                            var serie = item.serie ? ' - '+item.serie : '';
+                            var div = document.createElement('a');
+                            div.className = 'year-option';
+                            div.href = 'boletim_detalhes.php?ano='+encodeURIComponent(item.ano);
+                            div.innerHTML = '<span class="year-title">'+item.ano+serie+'</span>'+
+                                                            '<span class="badge '+badgeClass(item.status)+' status-badge year-status">'+item.status+'</span>';
+                            cont.appendChild(div);
+                        });
+                    }).catch(function(){});
+            })();
+        </script>
 </body>
 
 </html>

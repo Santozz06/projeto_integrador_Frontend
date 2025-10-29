@@ -28,8 +28,19 @@ try {
     $mats = $stm->fetchAll(PDO::FETCH_ASSOC);
 
     if (!$mats) {
-        echo json_encode(['success' => true, 'data' => []]);
-        exit;
+        // Fallback: se não há ativa, usa a mais recente do ano (ou geral)
+        $params2 = [$alunoId];
+        $sqlMat2 = "SELECT m.ID_Matricula, m.ID_Turma, m.Ano_Letivo, t.Nome_Turma
+                    FROM Matriculas m
+                    INNER JOIN Turmas t ON t.ID_Turma = m.ID_Turma
+                    WHERE m.ID_Aluno = ?";
+        if ($ano) { $sqlMat2 .= " AND m.Ano_Letivo = ?"; $params2[] = $ano; }
+        $sqlMat2 .= " ORDER BY m.Ano_Letivo DESC LIMIT 1";
+        $stm2 = $pdo->prepare($sqlMat2);
+        $stm2->execute($params2);
+        $one = $stm2->fetchAll(PDO::FETCH_ASSOC);
+        if (!$one) { echo json_encode(['success' => true, 'data' => []]); exit; }
+        $mats = $one;
     }
 
     // Coletar IDs de turma

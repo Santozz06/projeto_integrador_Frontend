@@ -48,23 +48,34 @@ try {
     $idsMat = array_column($alunos, 'ID_Matricula');
     $in = implode(',', array_fill(0, count($idsMat), '?'));
 
-    $sqlFreq = "SELECT ID_Matricula, Presenca
-                FROM Frequencias
-                WHERE ID_Matricula IN ($in) AND Data BETWEEN ? AND ?";
-    $params = array_merge($idsMat, [$dataIni, $dataFim]);
-    $stF = $pdo->prepare($sqlFreq);
-    $stF->execute($params);
-    $rows = $stF->fetchAll(PDO::FETCH_ASSOC);
+    // Unificar com a tabela Presencas usada pelo caderno de chamada e painel do aluno
+    // Mapeia Status: 'P' (presente), 'A' (ausente), 'J' (justificado)
+    $sqlPres = "SELECT ID_Matricula, Status
+                FROM Presencas
+                WHERE ID_Turma = ? AND ID_Matricula IN ($in) AND Data BETWEEN ? AND ?";
+    $params = array_merge([$turmaId], $idsMat, [$dataIni, $dataFim]);
+    $stP = $pdo->prepare($sqlPres);
+    try {
+        $stP->execute($params);
+        $rows = $stP->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Throwable $e) {
+        // Compatibilidade: se Presencas não existir, retorna vazio (evita quebrar UI)
+        $rows = [];
+    }
 
     $aggr = [];
     foreach ($idsMat as $mid) { $aggr[$mid] = ['total'=>0,'presentes'=>0,'faltas'=>0]; }
     foreach ($rows as $r) {
         $mid = (int)$r['ID_Matricula'];
-        $pres = (int)$r['Presenca'] ? 1 : 0;
+        $st = strtoupper(trim((string)$r['Status']));
         if (!isset($aggr[$mid])) { $aggr[$mid] = ['total'=>0,'presentes'=>0,'faltas'=>0]; }
-        $aggr[$mid]['total'] += 1;
-        $aggr[$mid]['presentes'] += $pres;
-        $aggr[$mid]['faltas'] += (1 - $pres);
+        $aggr[$mid]['total'] += 1; // conta P, A e J no total
+        if ($st === 'P') {
+            $aggr[$mid]['presentes'] += 1;
+        } else {
+            // Trata 'A' e 'J' como ausências para o campo 'Faltas' (mantém compatibilidade da UI)
+            $aggr[$mid]['faltas'] += 1;
+        }
     }
 
     $data = [];

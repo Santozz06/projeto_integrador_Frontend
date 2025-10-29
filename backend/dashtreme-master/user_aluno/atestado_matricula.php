@@ -79,7 +79,7 @@
   </style>
 </head>
 
-<body onload="gerarPDF()">
+<body>
 
   <div id="doc">
 
@@ -95,15 +95,14 @@
 
     <div class="texto">
       Atestamos, para os fins que se fizerem necessários, que o(a) estudante abaixo identificado(a) possui vínculo
-      regular de matrícula nesta Instituição de Ensino no curso de <strong>[CURSO]</strong>, de nível <strong>[TÉCNICO /
-        SUPERIOR]</strong>, modalidade <strong>[PRESENCIAL / EAD]</strong>, no turno <strong>[MATUTINO / VESPERTINO /
-        NOTURNO / INTEGRAL]</strong>, conforme registro acadêmico atualizado.
+      regular de matrícula nesta Instituição de Ensino no curso de <strong><span id="curso">—</span></strong>, de nível <strong><span id="nivel">—</span></strong>,
+      modalidade <strong><span id="modalidade">—</span></strong>, no turno <strong><span id="turno">—</span></strong>, conforme registro acadêmico atualizado.
     </div>
 
     <div class="dados">
-      Matrícula nº: <strong>[000000000]</strong><br>
-      Período Letivo: <strong>[2025]</strong><br>
-      Duração: <strong>[13/02/2025] a [12/12/2025]</strong>
+      Matrícula nº: <strong><span id="matricula">—</span></strong><br>
+      Período Letivo: <strong><span id="periodo">—</span></strong><br>
+      Turma/Série: <strong><span id="turma">—</span></strong>
     </div>
 
     <div class="rodape">
@@ -124,28 +123,38 @@
   <!-- Script PDF automático -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
-    function gerarPDF() {
-      // deixa invisível só no carregamento
+    function popularEDepoisGerar(){
       document.body.style.opacity = '0';
+      fetch('../includes/ajax/aluno/atestado_matricula.php')
+        .then(r=>r.json())
+        .then(resp=>{
+          if(!resp.success){ throw new Error('Falha ao carregar dados'); }
+          var d = resp.data || {};
+          document.getElementById('curso').textContent = d.curso || '—';
+          document.getElementById('nivel').textContent = d.nivel || '—';
+          document.getElementById('modalidade').textContent = d.modalidade || '—';
+          document.getElementById('turno').textContent = d.turno || '—';
+          document.getElementById('matricula').textContent = d.matricula || '—';
+          document.getElementById('periodo').textContent = d.ano || '—';
+          document.getElementById('turma').textContent = d.serie || d.turma || '—';
 
-      const element = document.getElementById('doc');
-      html2pdf().set({
-        margin: 10,
-        filename: 'atestado_matricula.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      }).from(element).save().then(() => {
-        // volta para página anterior após 1 segundo
-        setTimeout(() => {
-          window.location.href = "ensino.php";
-        }, 1000);
-      }).catch(err => {
-        // se der erro, mostra o conteúdo para debug
-        document.body.style.opacity = '1';
-        console.error('Erro ao gerar PDF:', err);
-      });
+          const element = document.getElementById('doc');
+          html2pdf().set({
+            margin: 10,
+            filename: 'atestado_matricula.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+          }).from(element).save().then(function(){
+            setTimeout(function(){ window.location.href = 'ensino.php'; }, 800);
+          }).catch(function(err){
+            console.error(err);
+            document.body.style.opacity = '1';
+          });
+        })
+        .catch(function(){ document.body.style.opacity = '1'; });
     }
+    window.addEventListener('load', popularEDepoisGerar);
   </script>
 
 </body>

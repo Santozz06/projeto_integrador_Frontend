@@ -226,8 +226,8 @@
 
       // Aulas (horários)
       function carregarAulas(){
-        var anoAtual = 2025;
-        $.getJSON('../includes/ajax/aluno/horarios.php', { ano: anoAtual })
+        // Não filtra por ano aqui para garantir que horários da turma atual apareçam
+        $.getJSON('../includes/ajax/aluno/horarios.php')
           .done(function(res){
             var dados = (res && res.success && Array.isArray(res.data)) ? res.data : [];
             if (!dados.length){
@@ -243,7 +243,8 @@
               var hi = (a.Hora_Inicio||'').substring(0,5);
               var hf = (a.Hora_Fim||'').substring(0,5);
               map[a.Dia_Semana] = map[a.Dia_Semana] || [];
-              map[a.Dia_Semana].push((a.Nome_Disciplina||'') + ' — ' + hi + ' - ' + hf);
+              var turmaLabel = a.Nome_Turma ? (' (' + a.Nome_Turma + ')') : '';
+              map[a.Dia_Semana].push((a.Nome_Disciplina||'') + ' — ' + hi + ' - ' + hf + turmaLabel);
             }
             var thead = '<thead><tr>';
             var tbody = '<tbody><tr>';

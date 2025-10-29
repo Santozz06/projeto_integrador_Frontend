@@ -153,6 +153,22 @@ CREATE TABLE `Frequencias` (
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `Presencas`
+--
+
+CREATE TABLE `Presencas` (
+  `ID_Presenca` int NOT NULL,
+  `ID_Turma` int NOT NULL,
+  `ID_Matricula` int NOT NULL,
+  `Data` date NOT NULL,
+  `Status` char(1) NOT NULL,
+  `ID_Professor` int NOT NULL,
+  `DataHoraRegistro` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `Matriculas`
 --
 
@@ -6266,6 +6282,16 @@ ALTER TABLE `Frequencias`
   ADD KEY `ID_Matricula` (`ID_Matricula`);
 
 --
+-- Índices de tabela `Presencas`
+--
+ALTER TABLE `Presencas`
+  ADD PRIMARY KEY (`ID_Presenca`),
+  ADD UNIQUE KEY `uq_turma_matricula_data` (`ID_Turma`,`ID_Matricula`,`Data`),
+  ADD KEY `idx_turma` (`ID_Turma`),
+  ADD KEY `idx_data` (`Data`),
+  ADD KEY `idx_prof` (`ID_Professor`);
+
+--
 -- Índices de tabela `Matriculas`
 --
 ALTER TABLE `Matriculas`
@@ -6375,6 +6401,12 @@ ALTER TABLE `Frequencias`
   MODIFY `ID_Frequencia` int NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de tabela `Presencas`
+--
+ALTER TABLE `Presencas`
+  MODIFY `ID_Presenca` int NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de tabela `Matriculas`
 --
 ALTER TABLE `Matriculas`
@@ -6443,6 +6475,14 @@ ALTER TABLE `Disciplinas`
 --
 ALTER TABLE `Frequencias`
   ADD CONSTRAINT `Frequencias_ibfk_1` FOREIGN KEY (`ID_Matricula`) REFERENCES `Matriculas` (`ID_Matricula`);
+
+--
+-- Restrições para tabelas `Presencas`
+--
+ALTER TABLE `Presencas`
+  ADD CONSTRAINT `Presencas_ibfk_1` FOREIGN KEY (`ID_Turma`) REFERENCES `Turmas` (`ID_Turma`),
+  ADD CONSTRAINT `Presencas_ibfk_2` FOREIGN KEY (`ID_Matricula`) REFERENCES `Matriculas` (`ID_Matricula`),
+  ADD CONSTRAINT `Presencas_ibfk_3` FOREIGN KEY (`ID_Professor`) REFERENCES `Professores` (`ID_Professor`);
 
 --
 -- Restrições para tabelas `Matriculas`

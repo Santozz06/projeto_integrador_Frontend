@@ -248,10 +248,10 @@
             <div class="dados-aluno">
                 <div class="row">
                     <div class="col-md-6">
-                        <p class="mb-1"><strong>Nome:</strong> Aluno</p>
+                        <p class="mb-1"><strong>Nome:</strong> <span id="nome-aluno">—</span></p>
                     </div>
                     <div class="col-md-6">
-                        <p class="mb-1"><strong>Matrícula:</strong> xxxxxxx</p>
+                        <p class="mb-1"><strong>Matrícula:</strong> <span id="matricula">—</span></p>
                     </div>
                 </div>
                 <div class="row">
@@ -262,7 +262,7 @@
                         <p class="mb-1"><strong>Ano - Série:</strong> <span id="ano-serie">2023 - 6°</span></p>
                     </div>
                 </div>
-                <p class="mb-0"><strong>Situação:</strong> <span class="situacao-aluno">APROVADO</span></p>
+                <p class="mb-0"><strong>Situação:</strong> <span id="situacao-aluno" class="situacao-aluno">—</span></p>
             </div>
 
             <!-- Tabela de Notas -->

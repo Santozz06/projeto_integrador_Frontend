@@ -25,8 +25,8 @@ try {
         'a.Matricula AS Matricula'
     ];
 
-    // Data_Nascimento e Nacionalidade seguem a estratégia padrão (preferir Usuarios, fallback Alunos)
-    foreach (['Data_Nascimento','Nacionalidade'] as $campo) {
+    // Data_Nascimento, Nacionalidade e CPF seguem a estratégia padrão (preferir Usuarios, fallback Alunos)
+    foreach (['Data_Nascimento','Nacionalidade','CPF'] as $campo) {
         $partes = [];
         if ($hasCol('Usuarios', $campo)) $partes[] = "u.$campo";
         if ($hasCol('Alunos', $campo)) $partes[] = "a.$campo";
@@ -132,7 +132,7 @@ try {
     }
 
     // Normalizações: strings vazias -> null; datas inválidas -> null
-    foreach (['Nacionalidade','Naturalidade','Filiacao','INEP','NIS'] as $k) {
+    foreach (['Nacionalidade','Naturalidade','Filiacao','INEP','NIS','CPF'] as $k) {
         if (isset($aluno[$k])) {
             $aluno[$k] = (is_string($aluno[$k]) && trim($aluno[$k]) === '') ? null : $aluno[$k];
         }

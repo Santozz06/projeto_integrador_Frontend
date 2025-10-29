@@ -14,19 +14,43 @@ try {
     $alunoId = (int)$_SESSION['usuario_id'];
     $ano = isset($_GET['ano']) ? (int)$_GET['ano'] : null; // opcional
 
-    // Pega a matrícula ativa (do ano quando informado; senão mais recente)
+    // Coleta TODAS as matrículas relevantes do aluno
+    // Prioridade: ativas no ano -> ativas (qualquer ano) -> qualquer status no ano -> qualquer (mais recente)
+    $mats = [];
+    $lastMat = null; // referência para preencher turma/matricula na resposta
+
+    // 1) Ativas no ano
     $params = [$alunoId];
-    $sqlMat = "SELECT ID_Matricula, ID_Turma, Ano_Letivo
-               FROM Matriculas
-               WHERE ID_Aluno = ? AND Status = 'Ativa'";
-    if ($ano) { $sqlMat .= " AND Ano_Letivo = ?"; $params[] = $ano; }
-    $sqlMat .= " ORDER BY Ano_Letivo DESC LIMIT 1";
+    $sql = "SELECT ID_Matricula, ID_Turma, Ano_Letivo FROM Matriculas WHERE ID_Aluno = ? AND Status = 'Ativa'";
+    if ($ano) { $sql .= " AND Ano_Letivo = ?"; $params[] = $ano; }
+    $sql .= " ORDER BY Ano_Letivo DESC";
+    $st = $pdo->prepare($sql); $st->execute($params);
+    $mats = $st->fetchAll(PDO::FETCH_ASSOC);
 
-    $stm = $pdo->prepare($sqlMat);
-    $stm->execute($params);
-    $mat = $stm->fetch(PDO::FETCH_ASSOC);
+    // 2) Se vazio, ativas (qualquer ano)
+    if (!$mats) {
+        $st = $pdo->prepare("SELECT ID_Matricula, ID_Turma, Ano_Letivo FROM Matriculas WHERE ID_Aluno = ? AND Status = 'Ativa' ORDER BY Ano_Letivo DESC");
+        $st->execute([$alunoId]);
+        $mats = $st->fetchAll(PDO::FETCH_ASSOC);
+    }
+    // 3) Se ainda vazio, qualquer status no ano
+    if (!$mats) {
+        $params = [$alunoId];
+        $sql = "SELECT ID_Matricula, ID_Turma, Ano_Letivo FROM Matriculas WHERE ID_Aluno = ?";
+        if ($ano) { $sql .= " AND Ano_Letivo = ?"; $params[] = $ano; }
+        $sql .= " ORDER BY Ano_Letivo DESC";
+        $st = $pdo->prepare($sql); $st->execute($params);
+        $mats = $st->fetchAll(PDO::FETCH_ASSOC);
+    }
+    // 4) Se ainda vazio, pega a mais recente (qualquer)
+    if (!$mats) {
+        $st = $pdo->prepare("SELECT ID_Matricula, ID_Turma, Ano_Letivo FROM Matriculas WHERE ID_Aluno = ? ORDER BY Ano_Letivo DESC LIMIT 1");
+        $st->execute([$alunoId]);
+        $one = $st->fetchAll(PDO::FETCH_ASSOC);
+        $mats = $one ?: [];
+    }
 
-    if (!$mat) {
+    if (!$mats) {
         echo json_encode(['success' => true, 'data' => [
             'ano' => $ano ?: null,
             'matricula' => null,
@@ -38,41 +62,53 @@ try {
         exit;
     }
 
-    $matId = (int)$mat['ID_Matricula'];
-    $anoLetivo = (int)$mat['Ano_Letivo'];
-
-    // Turma nome
+    // Usa a matrícula mais recente como referência para exibição (ano/turma)
+    $lastMat = $mats[0];
+    $anoLetivo = isset($lastMat['Ano_Letivo']) ? (int)$lastMat['Ano_Letivo'] : ($ano ?: null);
     $turmaNome = null;
+    $matriculaIdRef = isset($lastMat['ID_Matricula']) ? (int)$lastMat['ID_Matricula'] : null;
+    $matriculaCodigoRef = null;
     try {
-        $stT = $pdo->prepare("SELECT Nome_Turma FROM Turmas WHERE ID_Turma = ?");
-        $stT->execute([(int)$mat['ID_Turma']]);
-        $rT = $stT->fetch(PDO::FETCH_ASSOC);
-        $turmaNome = $rT ? $rT['Nome_Turma'] : null;
+        if (isset($lastMat['ID_Turma'])) {
+            $stT = $pdo->prepare("SELECT Nome_Turma FROM Turmas WHERE ID_Turma = ?");
+            $stT->execute([(int)$lastMat['ID_Turma']]);
+            $rT = $stT->fetch(PDO::FETCH_ASSOC);
+            $turmaNome = $rT ? $rT['Nome_Turma'] : null;
+        }
+        if ($matriculaIdRef) {
+            $stM = $pdo->prepare("SELECT a.Matricula FROM Matriculas m INNER JOIN Alunos a ON a.ID_Aluno = m.ID_Aluno WHERE m.ID_Matricula = ? LIMIT 1");
+            $stM->execute([$matriculaIdRef]);
+            $rM = $stM->fetch(PDO::FETCH_ASSOC);
+            if ($rM && isset($rM['Matricula'])) { $matriculaCodigoRef = $rM['Matricula']; }
+        }
     } catch (Throwable $e) { /* ignore */ }
 
-    // Garante tabela Frequencias
-    $pdo->exec("CREATE TABLE IF NOT EXISTS Frequencias (
-        ID_Frequencia INT AUTO_INCREMENT PRIMARY KEY,
-        ID_Matricula INT NOT NULL,
-        Data DATE NOT NULL,
-        Presenca TINYINT(1) NOT NULL,
-        Observacao VARCHAR(255) NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-
-    // Resumo simples
-    $st1 = $pdo->prepare("SELECT COUNT(*) FROM Frequencias WHERE ID_Matricula = ?");
-    $st1->execute([$matId]);
-    $total = (int)$st1->fetchColumn();
-
-    $st2 = $pdo->prepare("SELECT COUNT(*) FROM Frequencias WHERE ID_Matricula = ? AND Presenca = 1");
-    $st2->execute([$matId]);
-    $pres = (int)$st2->fetchColumn();
-
-    $perc = ($total > 0) ? round(($pres / $total) * 100, 1) : null;
+    // Resumo com base na tabela Presencas (usada no caderno de chamada)
+    // Contabiliza P/A/J por matrícula e calcula % conforme relatório mensal (P / (P+A+J))
+    $totais = ['P' => 0, 'A' => 0, 'J' => 0];
+    try {
+        // Soma para todas as matrículas coletadas
+        $ids = array_map(function($m){ return (int)$m['ID_Matricula']; }, $mats);
+        $place = implode(',', array_fill(0, count($ids), '?'));
+        $sqlS = "SELECT Status, COUNT(*) AS Qtde FROM Presencas WHERE ID_Matricula IN ($place) GROUP BY Status";
+        $st = $pdo->prepare($sqlS);
+        $st->execute($ids);
+        while ($row = $st->fetch(PDO::FETCH_ASSOC)) {
+            $s = strtoupper(trim($row['Status']));
+            $q = (int)$row['Qtde'];
+            if (isset($totais[$s])) { $totais[$s] = $q; }
+        }
+    } catch (Throwable $e) {
+        // Se tabela não existir ainda, mantém zeros
+    }
+    $reg = $totais['P'] + $totais['A'] + $totais['J'];
+    $pres = $totais['P'];
+    $total = $reg;
+    $perc = ($reg > 0) ? round(($pres / $reg) * 100, 1) : null;
 
     echo json_encode(['success' => true, 'data' => [
         'ano' => $anoLetivo,
-        'matricula' => $matId,
+        'matricula' => $matriculaCodigoRef ?: $matriculaIdRef,
         'turma' => $turmaNome,
         'presencas' => $pres,
         'total' => $total,
