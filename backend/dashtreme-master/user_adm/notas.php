@@ -251,32 +251,19 @@
                                     <div class="filtro-item">
                                         <div class="bold-title">Ano Letivo</div>
                                         <select id="ano-letivo" class="form-control">
-                                            <option value="2025">2025</option>
-                                            <option value="2024">2024</option>
-                                            <option value="2023">2023</option>
+                                            <option value="">Carregando...</option>
                                         </select>
                                     </div>
                                     <div class="filtro-item">
                                         <div class="bold-title">Disciplina</div>
                                         <select id="disciplina" class="form-control">
-                                            <option value="">Todas disciplinas</option>
-                                            <option value="1">Matemática</option>
-                                            <option value="2">Português</option>
-                                            <option value="3">História</option>
-                                            <option value="4">Geografia</option>
-                                            <option value="5">Ciências</option>
+                                            <option value="">Selecione uma turma</option>
                                         </select>
                                     </div>
                                     <div class="filtro-item">
                                         <div class="bold-title">Turma</div>
                                         <select id="turma" class="form-control">
-                                            <option value="">Todas turmas</option>
-                                            <option value="1A">1º Ano A</option>
-                                            <option value="1B">1º Ano B</option>
-                                            <option value="2A">2º Ano A</option>
-                                            <option value="2B">2º Ano B</option>
-                                            <option value="3A">3º Ano A</option>
-                                            <option value="3B">3º Ano B</option>
+                                            <option value="">Selecione o ano letivo</option>
                                         </select>
                                     </div>
                                     <div class="filtro-item">

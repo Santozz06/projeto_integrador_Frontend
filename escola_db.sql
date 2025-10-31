@@ -160,6 +160,7 @@ CREATE TABLE `Presencas` (
   `ID_Presenca` int NOT NULL,
   `ID_Turma` int NOT NULL,
   `ID_Matricula` int NOT NULL,
+  `ID_Disciplina` int DEFAULT NULL,
   `Data` date NOT NULL,
   `Status` char(1) NOT NULL,
   `ID_Professor` int NOT NULL,
@@ -6313,7 +6314,8 @@ ALTER TABLE `municipios`
 ALTER TABLE `Notas`
   ADD PRIMARY KEY (`ID_Nota`),
   ADD KEY `ID_Matricula` (`ID_Matricula`),
-  ADD KEY `ID_Disciplina` (`ID_Disciplina`);
+  ADD KEY `ID_Disciplina` (`ID_Disciplina`),
+  ADD KEY `idx_notas_disc_tri_mat_etapa` (`ID_Disciplina`, `Trimestre`, `ID_Matricula`, `Etapa`);
 
 --
 -- Índices de tabela `orgaos_expedidores`
@@ -6355,7 +6357,8 @@ ALTER TABLE `Horarios`
   ADD PRIMARY KEY (`ID_Horario`),
   ADD KEY `ID_Turma` (`ID_Turma`),
   ADD KEY `ID_Disciplina` (`ID_Disciplina`),
-  ADD KEY `ID_Professor` (`ID_Professor`);
+  ADD KEY `ID_Professor` (`ID_Professor`),
+  ADD KEY `idx_horarios_turma_ano` (`ID_Turma`, `Ano_Letivo`);
 
 --
 -- Índices de tabela `Turmas`

@@ -13,6 +13,9 @@ try {
         exit;
     }
 
+    // Sanear trimestre (aceita 1..4, padrão 1)
+    if ($trimestre < 1 || $trimestre > 4) { $trimestre = 1; }
+
     // Se professor, garantir que ele tenha acesso à turma
     if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'professor' && isset($_SESSION['usuario_id'])) {
         $stmtChk = $pdo->prepare('SELECT 1 FROM Professores_Turmas WHERE ID_Professor = ? AND ID_Turma = ?');

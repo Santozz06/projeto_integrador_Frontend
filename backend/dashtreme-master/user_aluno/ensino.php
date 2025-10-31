@@ -17,59 +17,45 @@
   <link href="../assets/css/app-style.css" rel="stylesheet" />
    <link href="style.css" rel="stylesheet" />
   <style>
-    :root {
-      --azul-cabecalho: #2c5f9e;
-      /* Azul mais suave e profissional */
-      --texto-preto: #333333;
-      /* Preto mais suave que #000 */
-      --cinza-texto: #666666;
-    }
-
     .document-option {
-      transition: all 0.3s ease;
-      background-color: white;
+      transition: box-shadow 0.3s, transform 0.2s;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(20,182,255,0.13);
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 8px rgba(20,182,255,0.07);
+      padding: 22px 24px 18px 24px;
+      margin-bottom: 18px;
+      color: #fff;
     }
-
     .document-option:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      border-color: var(--azul-cabecalho) !important;
+      background: rgba(20,182,255,0.10);
+      box-shadow: 0 6px 18px rgba(20,182,255,0.13);
+      border-color: #14b6ff !important;
+      transform: translateY(-2px) scale(1.01);
+      text-decoration: none;
     }
-
-    .badge-warning {
-      background-color: #f6c23e;
-      color: #fff;
-    }
-
-    .badge-success {
-      background-color: #1cc88a;
-      color: #fff;
-    }
-
-    .card-header {
-      border-radius: 0.35rem 0.35rem 0 0 !important;
-      background-color: var(--azul-cabecalho) !important;
-    }
-
     .document-option h5 {
-      color: var(--texto-preto) !important;
+      color: #14b6ff !important;
       font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
     }
-
     .document-option p {
-      color: var(--cinza-texto) !important;
+      color: #b8c7ce !important;
+      font-size: 1em;
+      margin-bottom: 0;
     }
-
+    .card-header {
+      border-radius: 0.5rem 0.5rem 0 0 !important;
+      background: linear-gradient(90deg, #2c5f9e 60%, #14b6ff 100%) !important;
+      border: none;
+    }
     .card-header h4 {
-      color: white !important;
+      color: #fff !important;
       font-weight: 600;
+      margin-bottom: 0;
+      letter-spacing: 0.5px;
     }
-
-    .document-option {
-      padding: 20px;
-      margin-bottom: 15px;
-    }
-
     .navbar {
       background-color: rgba(0, 0, 0, 0.2) !important;
       backdrop-filter: blur(10px);
@@ -95,34 +81,26 @@
               </div>
               <div class="card-body">
                 <!-- EMITIR BOLETIM -->
-                <a href="boletim.php" class="text-decoration-none">
-                  <div class="document-option mb-4 border rounded">
-                    <h5>EMITIR BOLETIM</h5>
-                    <p class="mb-2">Acesse seu boletim acadêmico atual</p>
-                  </div>
+                <a href="boletim.php" class="document-option d-block mb-4">
+                  <h5><i class="zmdi zmdi-file-text mr-2"></i> Emitir Boletim</h5>
+                  <p>Acesse seu boletim acadêmico atual</p>
                 </a>
 
                 <!-- ATESTADO DE MATRÍCULA -->
-                <a href="atestado_matricula.php" target="_blank" class="text-decoration-none">
-                  <div class="document-option mb-4 border rounded">
-                    <h5>ATESTADO DE MATRÍCULA</h5>
-                    <p class="mb-2">Gere seu comprovante de matrícula</p>
-                  </div>
+                <a href="atestado_matricula.php" target="_blank" class="document-option d-block mb-4">
+                  <h5><i class="zmdi zmdi-assignment mr-2"></i> Atestado de Matrícula</h5>
+                  <p>Gere seu comprovante de matrícula</p>
                 </a>
                 <!-- EMITIR HISTÓRICO -->
-                <a href="historico.php" class="text-decoration-none">
-                  <div class="document-option mb-4 border rounded">
-                    <h5>EMITIR HISTÓRICO</h5>
-                    <p class="mb-2">Obtenha seu histórico escolar</p>
-                  </div>
+                <a href="historico.php" class="document-option d-block mb-4">
+                  <h5><i class="zmdi zmdi-collection-text mr-2"></i> Emitir Histórico</h5>
+                  <p>Obtenha seu histórico escolar</p>
                 </a>
 
                 <!-- ATESTADO DE FREQUÊNCIA -->
-                <a href="atestado_frequencia.php" class="text-decoration-none">
-                  <div class="document-option mb-4 border rounded">
-                    <h5>ATESTADO DE FREQUÊNCIA</h5>
-                    <p class="mb-2">Comprove sua frequência nas aulas</p>
-                  </div>
+                <a href="atestado_frequencia.php" class="document-option d-block mb-4">
+                  <h5><i class="zmdi zmdi-check-square mr-2"></i> Atestado de Frequência</h5>
+                  <p>Comprove sua frequência nas aulas</p>
                 </a>
               </div>
             </div>

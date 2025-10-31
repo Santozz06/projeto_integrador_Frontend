@@ -9,6 +9,7 @@ try {
     $start = isset($_GET['start']) ? $_GET['start'] : null; // ISO date
     $end = isset($_GET['end']) ? $_GET['end'] : null;       // ISO date
     $tipo = isset($_GET['tipo']) && $_GET['tipo'] !== 'all' ? trim($_GET['tipo']) : null;
+    $ano = isset($_GET['ano']) && $_GET['ano'] !== '' ? (int)$_GET['ano'] : null;
     $publico = isset($_GET['publico']) && $_GET['publico'] !== 'all' ? trim($_GET['publico']) : null; // 'todos','professores','alunos'
 
     // Light migration: ensure Publico_Alvo column exists
@@ -43,6 +44,7 @@ try {
         $params[] = $e; $params[] = $e;
     }
     if ($tipo)  { $sql .= " AND Tipo_Evento = ?"; $params[] = $tipo; }
+    if ($ano)   { $sql .= " AND (Ano_Letivo = ? OR Ano_Letivo IS NULL)"; $params[] = $ano; }
 
     // Role-based default filter when not admin (future proof)
     $isAdmin = isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'admin';

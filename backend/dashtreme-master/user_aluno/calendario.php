@@ -208,11 +208,9 @@
                         <div class="card-body">
                             <h6 class="card-title mb-3">FILTROS</h6>
                             <div class="mb-3">
-                                <label class="d-block small mb-1">TURMA:</label>
-                                <select id="turma-select" class="form-control form-control-sm">
-                                    <option value="all">Todas as Turmas</option>
-                                    <option value="A">Turma A</option>
-                                    <option value="B">Turma B</option>
+                                <label class="d-block small mb-1">ANO LETIVO:</label>
+                                <select id="ano-select" class="form-control form-control-sm">
+                                    <option value="">Carregando...</option>
                                 </select>
                             </div>
                             <div class="mb-3">
@@ -225,8 +223,7 @@
                                     <option value="reuniao">Reuniões</option>
                                 </select>
                             </div>
-                            <button id="btn-adicionar" class="btn btn-sm btn-primary btn-block">ADICIONAR
-                                EVENTO</button>
+                            <!-- Aluno não cria eventos -->
                         </div>
                     </div>
 
@@ -359,8 +356,8 @@
                 }
             },
             navLinks: true,
-            editable: true,
-            selectable: true,
+            editable: false,
+            selectable: false,
             businessHours: {
                 daysOfWeek: [1, 2, 3, 4, 5], // Segunda a sexta
                 startTime: '07:00',
@@ -393,7 +390,8 @@
             events: function(fetchInfo, successCallback, failureCallback){
                 const params = {
                     start: fetchInfo.startStr,
-                    end: fetchInfo.endStr
+                    end: fetchInfo.endStr,
+                    ano: $('#ano-select').val() || ''
                     // sem 'publico' para incluir 'todos' + 'alunos' via sessão
                 };
                 $.getJSON('../includes/ajax/calendario/listar_eventos.php', params)
@@ -402,35 +400,6 @@
                         else failureCallback(res.message || 'Falha ao carregar eventos');
                     })
                     .fail(function(xhr){ failureCallback(xhr.statusText || 'Erro ao carregar eventos'); });
-            },
-            dateClick: function (info) {
-                // Preenche a data inicial quando clica em um dia
-                $('#evento-inicio').val(info.dateStr + 'T08:00');
-                $('#eventoModal').modal('show');
-            },
-            eventClick: function (info) {
-                // Preenche o modal para edição quando clica em um evento
-                $('#evento-titulo').val(info.event.title);
-                $('#evento-tipo').val(info.event.extendedProps.tipo || 'aula');
-                $('#evento-turma').val(info.event.extendedProps.turma || 'all');
-                $('#evento-descricao').val(info.event.extendedProps.description || '');
-
-                // Formata as datas para o input datetime-local
-                const start = new Date(info.event.start);
-                const startStr = start.toISOString().slice(0, 16);
-                $('#evento-inicio').val(startStr);
-
-                if (info.event.end) {
-                    const end = new Date(info.event.end);
-                    const endStr = end.toISOString().slice(0, 16);
-                    $('#evento-fim').val(endStr);
-                } else {
-                    $('#evento-fim').val('');
-                }
-
-                $('#eventoModal').modal('show');
-
-                info.jsEvent.preventDefault();
             }
         });
 
@@ -448,22 +417,22 @@
             calendar.updateSize();
         });
 
-        // Filtros
-        $('#turma-select, #tipo-evento').change(function () {
-            var turma = $('#turma-select').val();
+        // Filtros (Ano e Tipo)
+        $('#ano-select, #tipo-evento').change(function () {
+            var ano = $('#ano-select').val();
             var tipo = $('#tipo-evento').val();
+
+            calendar.refetchEvents();
 
             calendar.getEvents().forEach(function (event) {
                 var showEvent = true;
-
-                if (turma !== 'all' && event.extendedProps.turma !== turma && event.extendedProps.turma !== 'all') {
+                if (tipo !== 'all' && (event.extendedProps.tipo || '') !== tipo) {
                     showEvent = false;
                 }
-
-                if (tipo !== 'all' && event.extendedProps.tipo !== tipo) {
+                if (ano && (event.extendedProps.ano_letivo && String(event.extendedProps.ano_letivo) !== String(ano))) {
+                    // Mantém eventos globais (ano_letivo null)
                     showEvent = false;
                 }
-
                 event.setProp('display', showEvent ? 'auto' : 'none');
             });
         });
@@ -490,51 +459,24 @@
             });
         });
 
-        // Botão para adicionar evento
-        $('#btn-adicionar').click(function () {
-            $('#form-evento')[0].reset();
-            $('#evento-inicio').val(new Date().toISOString().slice(0, 16));
-            $('#eventoModal').modal('show');
-        });
-
-        // Salvar evento
-        $('#btn-salvar-evento').click(function () {
-            const title = $('#evento-titulo').val();
-            const tipo = $('#evento-tipo').val();
-            const turma = $('#evento-turma').val();
-            const start = $('#evento-inicio').val();
-            const end = $('#evento-fim').val();
-            const description = $('#evento-descricao').val();
-
-            if (!title) {
-                alert('Por favor, insira um título para o evento');
-                return;
-            }
-
-            // Cores baseadas no tipo de evento
-            let color;
-            switch (tipo) {
-                case 'aula': color = '#007bff'; break;
-                case 'prova': color = '#dc3545'; break;
-                case 'feriado': color = '#ffc107'; break;
-                case 'reuniao': color = '#28a745'; break;
-                default: color = '#6c757d';
-            }
-
-            calendar.addEvent({
-                title: title,
-                start: start,
-                end: end || null,
-                color: color,
-                extendedProps: {
-                    tipo: tipo,
-                    turma: turma,
-                    description: description
+        // Carregar anos do aluno
+        (async function carregarAnos(){
+            try {
+                const res = await $.getJSON('../includes/ajax/aluno/anos_matriculas.php');
+                const $sel = $('#ano-select');
+                $sel.empty();
+                if (res.success && Array.isArray(res.anos) && res.anos.length) {
+                    $sel.append('<option value="">Todos</option>');
+                    res.anos.forEach(a => $sel.append(`<option value="${a.ano}">${a.ano}${a.serie ? ' - ' + a.serie : ''}</option>`));
+                    const anoAtual = new Date().getFullYear();
+                    if ($sel.find(`option[value="${anoAtual}"]`).length) $sel.val(anoAtual);
+                } else {
+                    $sel.append('<option value="">Todos</option>');
                 }
-            });
-
-            $('#eventoModal').modal('hide');
-        });
+            } catch (e) {
+                $('#ano-select').empty().append('<option value="">Todos</option>');
+            }
+        })();
     });
 </script>
 </body>

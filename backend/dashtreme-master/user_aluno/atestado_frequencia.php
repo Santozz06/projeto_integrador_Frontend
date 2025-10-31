@@ -175,23 +175,9 @@
 
                                 <h5 class="mb-4">Selecione um ano para emitir o atestado de frequência</h5>
 
-                                <!-- 2025 - Matriculado -->
-                                <a href="frequencia_detalhes.php?ano=2025" class="year-option">
-                                    <span class="year-title">2025 - 3°ano</span>
-                                    <span class="badge badge-info status-badge year-status">matriculado</span>
-                                </a>
-
-                                <!-- 2024 - Aprovado -->
-                                <a href="frequencia_detalhes.php?ano=2024" class="year-option">
-                                    <span class="year-title">2024 - 2°ano</span>
-                                    <span class="badge badge-success status-badge year-status">aprovado</span>
-                                </a>
-
-                                <!-- 2023 - Aprovado -->
-                                <a href="frequencia_detalhes.php?ano=2023" class="year-option">
-                                    <span class="year-title">2023 - 1°ano</span>
-                                    <span class="badge badge-success status-badge year-status">aprovado</span>
-                                </a>
+                                <div id="lista-anos">
+                                    <div class="text-muted">Carregando anos disponíveis…</div>
+                                </div>
 
                                 <div class="mt-4 pt-3 border-top">
                                     <p style="color: #e0e0e0;">Selecione um ano escolar acima para imprimir seu atestado
@@ -213,6 +199,58 @@
     <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
+    <script>
+        (function() {
+            function badgeClass(status) {
+                if (!status) return 'badge-warning';
+                var s = ('' + status).toLowerCase();
+                if (s === 'matriculado' || s === 'ativa' || s === 'ativo') return 'badge-info';
+                if (s === 'aprovado' || s === 'concluido') return 'badge-success';
+                return 'badge-warning';
+            }
+
+            function renderAnos(anos) {
+                var $container = $('#lista-anos');
+                $container.empty();
+                if (!Array.isArray(anos) || anos.length === 0) {
+                    $container.append('<div class="text-muted">Nenhum ano letivo encontrado para seu usuário.</div>');
+                    return;
+                }
+                anos.forEach(function(item){
+                    var ano = item.ano || '';
+                    var serie = item.serie ? (' - ' + item.serie) : '';
+                    var status = item.status || '';
+                    var bc = badgeClass(status);
+                    var html = [
+                        '<a class="year-option" href="frequencia_detalhes.php?ano=' + encodeURIComponent(ano) + '">',
+                        '  <span class="year-title">' + ano + serie + '</span>',
+                        '  <span class="badge ' + bc + ' status-badge year-status">' + (status || '') + '</span>',
+                        '</a>'
+                    ].join('');
+                    $container.append(html);
+                });
+            }
+
+            $(function(){
+                $.ajax({
+                    url: '../includes/ajax/aluno/anos_matriculas.php',
+                    method: 'GET',
+                    dataType: 'json',
+                    cache: false
+                }).done(function(resp){
+                    if (resp && resp.success && Array.isArray(resp.anos)) {
+                        renderAnos(resp.anos);
+                    } else {
+                        $('#lista-anos').html('<div class="text-warning">Nao foi possivel carregar os anos (resposta invalida).</div>');
+                    }
+                }).fail(function(xhr){
+                    var msg = 'Falha ao carregar anos';
+                    if (xhr && xhr.responseJSON && xhr.responseJSON.message) msg += ': ' + xhr.responseJSON.message;
+                    $('#lista-anos').html('<div class="text-danger">' + msg + '</div>');
+                });
+            });
+        })();
+    </script>
     
 </body>
 

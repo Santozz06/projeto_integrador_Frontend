@@ -127,12 +127,19 @@ try {
             continue; // ignora item inválido
         }
 
+        // Validar etapa (somente 1..4)
+        if (!in_array($etapa, ['1', '2', '3', '4'], true)) {
+            continue; // etapa inválida
+        }
+
         // Normalizar nota
         if ($nota !== null) {
             if (!is_numeric($nota)) {
                 continue; // ignora valores não numéricos
             }
-            $nota = number_format((float)$nota, 2, '.', '');
+            // Limitar intervalo 0.00 .. 10.00 e padronizar casas decimais
+            $nota = max(0.0, min(10.0, (float)$nota));
+            $nota = number_format($nota, 2, '.', '');
         }
 
         // Verifica existência

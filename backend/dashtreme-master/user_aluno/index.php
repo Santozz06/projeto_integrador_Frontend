@@ -33,6 +33,25 @@
       backdrop-filter: blur(10px);
     }
 
+    /* Bloco de frequência estilizado */
+    /* Barra de progresso padrão do template */
+    .progress {
+      height: 1.2rem;
+      background-color: rgba(255,255,255,.1);
+      border-radius: .25rem;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
+      margin-bottom: 8px;
+    }
+    .progress-bar {
+      background-color: #14b6ff;
+      font-weight: 600;
+      font-size: 1em;
+      color: #fff;
+      text-align: right;
+      padding-right: 10px;
+      transition: width .6s ease;
+    }
+
     /* Efeito para o botão Sair */
     #logout-btn {
       transition: all 0.3s ease;
@@ -102,7 +121,10 @@
                 </div>
                 <div class="row" id="freq-resumo" style="display:none;">
                   <div class="col-md-12">
-                    <div class="alert alert-info" id="freq-perc"></div>
+                    <div class="alert alert-info mb-2" id="freq-perc" style="background:rgba(20,182,255,0.12);color:#14b6ff;font-weight:600;"></div>
+                    <div class="progress" id="freq-progress" style="display:none;">
+                      <div class="progress-bar" id="freq-bar-inner" role="progressbar" style="width:0%">0%</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -159,22 +181,23 @@
   <!-- sidebar-menu js -->
   <script src="../assets/js/sidebar-menu.js"></script>
   <!-- loader scripts -->
-  <script src="../assets/js/jquery.loading-indicator.js"></script>
   <!-- Custom scripts -->
   <script src="../assets/js/app-script.js"></script>
 
   <script>
     (function(){
-      // Eventos próximos (30 dias)
+      // Eventos dos últimos 30 dias do ano atual
       function carregarEventos(){
-        var start = new Date();
-        var end = new Date(); end.setDate(end.getDate() + 30);
+        var hoje = new Date();
+        var start = new Date(); start.setDate(hoje.getDate() - 30);
+        var end = hoje;
+        var anoAtual = hoje.getFullYear();
         function toISO(d){ return d.toISOString().slice(0,10); }
-        $.getJSON('../includes/ajax/calendario/listar_eventos.php', { start: toISO(start), end: toISO(end) })
+        $.getJSON('../includes/ajax/calendario/listar_eventos.php', { start: toISO(start), end: toISO(end), ano: anoAtual })
           .done(function(res){
             var data = (res && res.success && Array.isArray(res.data)) ? res.data : [];
             if (!data.length){
-              $('#eventos-empty').text('Nenhum evento nos próximos 30 dias').show();
+              $('#eventos-empty').text('Nenhum evento nos últimos 30 dias').show();
               $('#eventos-list').empty();
               return;
             }
@@ -182,10 +205,12 @@
             var html = '';
             for (var i=0;i<data.length;i++){
               var ev = data[i];
-              var dt = (ev.start || '').split('T')[0] || ev.start;
+              var dt = (ev.start || ev.Data_Inicio || '').split('T')[0] || ev.start;
               var p = (dt||'').split('-');
               var dataBR = (p.length===3) ? (p[2]+'/'+p[1]+'/'+p[0]) : dt;
-              html += '<div class="mb-2"><strong>'+ dataBR +'</strong> - '+ (ev.title||'') +'</div>';
+              var titulo = ev.title || ev.Nome_Evento || '';
+              var tipo = (ev.extendedProps && ev.extendedProps.tipo) || ev.Tipo_Evento || '';
+              html += '<div class="mb-2"><strong>'+ dataBR +'</strong> - '+ titulo + (tipo ? ' <span class="badge badge-info">'+tipo+'</span>' : '') + '</div>';
             }
             $('#eventos-list').html(html);
           })
@@ -215,7 +240,15 @@
             $('#freq-ano').val(d.ano || '');
             $('#freq-turma').val(d.turma || '');
             $('#freq-mat').val(d.matricula || '');
-            $('#freq-perc').text('Presenças: ' + (d.presencas||0) + ' de ' + (d.total||0) + (d.percentual!==null ? ' ('+ d.percentual +'%)' : ''));
+            var perc = d.percentual !== null ? parseFloat(d.percentual) : null;
+            var percLabel = perc !== null ? perc.toFixed(1).replace('.',',') + '%' : '--';
+            $('#freq-perc').text('Presenças: ' + (d.presencas||0) + ' de ' + (d.total||0) + (perc !== null ? ' ('+ percLabel +')' : ''));
+            if (perc !== null && !isNaN(perc)) {
+              $("#freq-progress").show();
+              $("#freq-bar-inner").css("width", Math.max(0, Math.min(100, perc)) + "%").text(percLabel);
+            } else {
+              $("#freq-progress").hide();
+            }
             $('#freq-infos, #freq-resumo').show();
           })
           .fail(function(){
