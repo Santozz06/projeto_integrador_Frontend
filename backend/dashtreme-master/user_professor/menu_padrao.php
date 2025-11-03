@@ -1,4 +1,5 @@
 <nav id="menu_padrao">
+    <link rel="stylesheet" href="css/style.css">
         <div id="wrapper">
             <!-- Sidebar -->
             <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
@@ -56,22 +57,6 @@
                             <li><a href="calendario.php"><i class="zmdi zmdi-calendar"></i> Calendário</a></li>
                         </ul>
                     </li>
-                    <li>
-                        <a href="preferencias.php">
-                            <i class="zmdi zmdi-settings"></i> <span>Preferências</span>
-                            <i class="zmdi zmdi-caret-down float-right"></i>
-                        </a>
-                        <ul class="sidebar-submenu">
-                            <li><a href="perfil.php"><i class="zmdi zmdi-account"></i> Perfil Acadêmico</a></li>
-                            <li><a href="configuracoes.php"><i class="zmdi zmdi-wrench"></i> Configurações</a></li>
-                            <li>
-                                <a href="https://www.gov.br/governodigital/pt-br/identidade/assinatura-eletronica"
-                                    target="_blank">
-                                    <i class="zmdi zmdi-edit"></i> Assinatura Digital
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
                 </ul>
             </div>
 
@@ -83,12 +68,6 @@
                             <a class="nav-link toggle-menu" href="javascript:void();">
                                 <i class="icon-menu menu-icon"></i>
                             </a>
-                        </li>
-                        <li class="nav-item">
-                            <form class="search-bar">
-                                <input type="text" class="form-control" placeholder="Pesquisar">
-                                <a href="javascript:void();"><i class="icon-magnifier"></i></a>
-                            </form>
                         </li>
                     </ul>
 
@@ -110,14 +89,18 @@
                                             </div>
                                         </div>
                                     </a>
-                                </li>
+                                </li>   
                                 <li class="dropdown-divider"></li>
-                                <li class="dropdown-item"><a href="configuracoes.php"><i class="icon-settings mr-2"></i>
-                                        Configurações</a></li>
                                 <li class="dropdown-divider"></li>
                                 <li class="dropdown-item">
-                                    <a href="../logout.php" id="logout-btn" onclick="return confirm('Deseja sair?')">
-                                        <i class="icon-power mr-2"></i> Sair
+                                    <a href="perfil.php" style="display: flex; align-items: center; width: 100%;">
+                                        <i class="zmdi zmdi-account mr-2" style="min-width: 22px; text-align: center;"></i> Perfil Acadêmico
+                                    </a>
+                                </li>
+                                <li class="dropdown-divider"></li>
+                                <li class="dropdown-item">
+                                    <a href="../logout.php" id="logout-btn" onclick="return confirm('Deseja sair?')" style="display: flex; align-items: center; width: 100%;">
+                                        <i class="icon-power mr-2" style="min-width: 22px; text-align: center;"></i> Sair
                                     </a>
                                 </li>
                         </li>
@@ -125,3 +108,8 @@
                 </nav>
             </header>
 </nav>
+<style>
+.dropdown-item a {
+    padding-left: 0 !important;
+}
+</style>

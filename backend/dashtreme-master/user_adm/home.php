@@ -1,4 +1,54 @@
-<?php require_once '../includes/bootstrap.php'; ?>
+<?php
+require_once '../includes/bootstrap.php';
+
+// Ano letivo atual (maior Ano_Letivo em Turmas ou Matriculas)
+$anoLetivoAtual = null;
+try {
+  $stmt = $pdo->query("SELECT MAX(Ano_Letivo) as ano FROM Turmas");
+  $anoLetivoAtual = $stmt->fetchColumn();
+  if (!$anoLetivoAtual) {
+    $stmt = $pdo->query("SELECT MAX(Ano_Letivo) as ano FROM Matriculas");
+    $anoLetivoAtual = $stmt->fetchColumn();
+  }
+  if (!$anoLetivoAtual) {
+    $anoLetivoAtual = date('Y');
+  }
+} catch (Exception $e) {
+  $anoLetivoAtual = date('Y');
+}
+
+// Total de matrículas ativas no ano letivo atual
+$totalMatriculas = 0;
+try {
+  $stmt = $pdo->prepare("SELECT COUNT(*) FROM Matriculas WHERE Status = 'Ativa' AND Ano_Letivo = ?");
+  $stmt->execute([$anoLetivoAtual]);
+  $totalMatriculas = $stmt->fetchColumn();
+} catch (Exception $e) {}
+
+// Últimas movimentações (matrículas, transferências, rematrículas)
+$ultimasMovimentacoes = [];
+try {
+  $sql = "SELECT m.Data_Matricula as data, u.Nome_Completo as aluno, m.Tipo_Matricula as tipo
+      FROM Matriculas m
+      INNER JOIN Usuarios u ON m.ID_Aluno = u.ID_Usuario
+      WHERE m.Ano_Letivo = ?
+      ORDER BY m.Data_Matricula DESC, m.ID_Matricula DESC
+      LIMIT 5";
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute([$anoLetivoAtual]);
+  $ultimasMovimentacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {}
+
+// Avisos importantes (eventos futuros do calendário acadêmico)
+$avisos = [];
+try {
+  $hoje = date('Y-m-d');
+  $sql = "SELECT Nome_Evento, Descricao, Data_Inicio FROM Calendario_Academico WHERE Data_Inicio >= ? AND (Ano_Letivo = ? OR Ano_Letivo IS NULL) ORDER BY Data_Inicio ASC LIMIT 2";
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute([$hoje, $anoLetivoAtual]);
+  $avisos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {}
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -257,7 +307,7 @@
                   <div class="card bg-light-primary">
                     <div class="card-body">
                       <h6 class="card-title">Ano Letivo Atual</h6>
-                      <h4 class="mb-0">2025</h4>
+                      <h4 class="mb-0"><?php echo htmlspecialchars($anoLetivoAtual); ?></h4>
                     </div>
                   </div>
                 </div>
@@ -265,7 +315,7 @@
                   <div class="card bg-light-success">
                     <div class="card-body">
                       <h6 class="card-title">Total de Matrículas</h6>
-                      <h4 class="mb-0">1,245</h4>
+                      <h4 class="mb-0"><?php echo htmlspecialchars($totalMatriculas); ?></h4>
                     </div>
                   </div>
                 </div>
@@ -280,9 +330,19 @@
               <h5>Avisos Importantes</h5>
             </div>
             <div class="card-body">
-              <div class="alert alert-warning">
-                <strong>Data limite:</strong> A documentação Y deve ser enviada para a direção até 15/03/2025
-              </div>
+              <?php if (!empty($avisos)): ?>
+                <?php foreach ($avisos as $aviso): ?>
+                  <div class="alert alert-warning">
+                    <strong><?php echo htmlspecialchars($aviso['Nome_Evento']); ?>:</strong>
+                    <?php echo htmlspecialchars($aviso['Descricao']); ?>
+                    <?php if (!empty($aviso['Data_Inicio'])): ?>
+                      <br><small>Data: <?php echo date('d/m/Y', strtotime($aviso['Data_Inicio'])); ?></small>
+                    <?php endif; ?>
+                  </div>
+                <?php endforeach; ?>
+              <?php else: ?>
+                <div class="alert alert-warning">Nenhum aviso importante no momento.</div>
+              <?php endif; ?>
             </div>
           </div>
         </div>
@@ -340,21 +400,26 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>10/03/2025</td>
-                      <td>João Silva</td>
-                      <td><span class="badge badge-success">Matrícula</span></td>
-                    </tr>
-                    <tr>
-                      <td>08/03/2025</td>
-                      <td>Maria Souza</td>
-                      <td><span class="badge badge-info">Transferência</span></td>
-                    </tr>
-                    <tr>
-                      <td>05/03/2025</td>
-                      <td>Carlos Oliveira</td>
-                      <td><span class="badge badge-primary">Rematrícula</span></td>
-                    </tr>
+                    <?php if (!empty($ultimasMovimentacoes)): ?>
+                      <?php foreach ($ultimasMovimentacoes as $mov): ?>
+                        <tr>
+                          <td><?php echo date('d/m/Y', strtotime($mov['data'])); ?></td>
+                          <td><?php echo htmlspecialchars($mov['aluno']); ?></td>
+                          <td>
+                            <?php
+                              $tipo = strtolower($mov['tipo']);
+                              $badge = 'badge-secondary';
+                              if ($tipo === 'Matrícula') $badge = 'badge-success';
+                              elseif ($tipo === 'Transferência') $badge = 'badge-info';
+                              elseif ($tipo === 'Rematrícula') $badge = 'badge-primary';
+                            ?>
+                            <span class="badge <?php echo $badge; ?>"><?php echo htmlspecialchars($mov['tipo']); ?></span>
+                          </td>
+                        </tr>
+                      <?php endforeach; ?>
+                    <?php else: ?>
+                      <tr><td colspan="3">Nenhuma movimentação recente.</td></tr>
+                    <?php endif; ?>
                   </tbody>
                 </table>
               </div>

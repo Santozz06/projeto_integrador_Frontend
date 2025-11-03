@@ -432,6 +432,10 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
     <link href="../assets/plugins/select2/css/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 
     <style>
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.2) !important;
+            backdrop-filter: blur(10px);
+        }
         .form-section {
             margin-bottom: 30px;
             border-bottom: 1px solid #eee;
