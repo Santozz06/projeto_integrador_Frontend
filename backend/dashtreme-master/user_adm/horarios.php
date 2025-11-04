@@ -214,6 +214,21 @@ $('#btnLimpar').on('click', function(){
 
 $('#formHorario').on('submit', function(e){
   e.preventDefault();
+
+  // Validação simples: hora fim deve ser maior que início
+  const ini = $('#hora_inicio').val();
+  const fim = $('#hora_fim').val();
+  if (ini && fim) {
+    const [ih, im] = ini.split(':').map(Number);
+    const [fh, fm] = fim.split(':').map(Number);
+    const startMin = ih*60 + im;
+    const endMin = fh*60 + fm;
+    if (endMin <= startMin) {
+      alert('Hora de término deve ser maior que a hora de início.');
+      return;
+    }
+  }
+
   const data = $(this).serialize();
   $.post('../includes/ajax/horarios/salvar.php', data)
     .done(function(r){
@@ -223,10 +238,21 @@ $('#formHorario').on('submit', function(e){
         $('#id').val('');
         carregarLista();
       } else {
-        alert(r.message||'Erro ao salvar');
+        alert((r && r.message) ? r.message : 'Erro ao salvar');
       }
     })
-    .fail(()=> alert('Erro ao salvar'));
+    .fail(function(xhr){
+      let msg = 'Erro ao salvar';
+      if (xhr && xhr.responseText) {
+        try {
+          const j = JSON.parse(xhr.responseText);
+          if (j && j.message) msg = j.message;
+        } catch {
+          msg = xhr.status + ' ' + (xhr.statusText||'') + '\n' + xhr.responseText;
+        }
+      }
+      alert(msg);
+    });
 });
 
 $(function(){ carregarLista(); });

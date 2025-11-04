@@ -28,6 +28,26 @@ try {
         CONSTRAINT fk_horarios_prof FOREIGN KEY (ID_Professor) REFERENCES Professores(ID_Professor)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
+    // Migração leve: se a coluna ID_Horario existir sem AUTO_INCREMENT/PK (legado), ajusta estrutura
+    try {
+        $stCol = $pdo->query("SELECT EXTRA FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'Horarios' AND COLUMN_NAME = 'ID_Horario'");
+        $extra = $stCol ? $stCol->fetchColumn() : '';
+        if ($extra === false || stripos((string)$extra, 'auto_increment') === false) {
+            // Garante PK antes/depois conforme necessário
+            $stPk = $pdo->query("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'Horarios' AND CONSTRAINT_TYPE = 'PRIMARY KEY'");
+            $hasPk = $stPk && (int)$stPk->fetchColumn() > 0;
+            if (!$hasPk) {
+                // Tenta adicionar/ajustar coluna e PK
+                $pdo->exec("ALTER TABLE Horarios MODIFY ID_Horario INT NOT NULL");
+                $pdo->exec("ALTER TABLE Horarios ADD PRIMARY KEY (ID_Horario)");
+            }
+            // Finalmente aplica AUTO_INCREMENT
+            $pdo->exec("ALTER TABLE Horarios MODIFY ID_Horario INT NOT NULL AUTO_INCREMENT");
+        }
+    } catch (Throwable $eMig) {
+        // Se falhar a migração, segue; a inserção pode ainda funcionar em ambientes corretos
+    }
+
     $id = isset($_POST['id']) && $_POST['id'] !== '' ? (int)$_POST['id'] : null;
     $turma = (int)($_POST['turma_id'] ?? 0);
     $disc = (int)($_POST['disciplina_id'] ?? 0);
@@ -42,6 +62,17 @@ try {
     if (!$turma || !$disc || !$prof || $dia < 1 || $dia > 7 || $hin === '' || $hfi === '') {
         http_response_code(400);
         echo json_encode(['success' => false, 'message' => 'Campos obrigatórios faltando']);
+        exit;
+    }
+
+    // Normaliza formato de hora para HH:MM:SS se vier HH:MM
+    if (preg_match('/^\d{2}:\d{2}$/', $hin)) { $hin .= ':00'; }
+    if (preg_match('/^\d{2}:\d{2}$/', $hfi)) { $hfi .= ':00'; }
+
+    // Validação: término deve ser maior que início
+    if (strtotime($hfi) <= strtotime($hin)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Hora de término deve ser maior que a hora de início']);
         exit;
     }
 
@@ -74,5 +105,10 @@ try {
     echo json_encode(['success' => true, 'id' => $id]);
 } catch (Throwable $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    // Tenta deixar mensagens de FK mais claras
+    $msg = $e->getMessage();
+    if (strpos($msg, 'foreign key') !== false || strpos($msg, 'constraint') !== false) {
+        $msg = 'Referências inválidas: verifique Turma, Disciplina e Professor selecionados.';
+    }
+    echo json_encode(['success' => false, 'message' => $msg]);
 }
