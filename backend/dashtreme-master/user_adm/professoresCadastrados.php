@@ -172,7 +172,15 @@
             const table = $('#teachers-table').DataTable({
                 responsive: true,
                 language: { url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/pt-BR.json' },
-                dom: '<"top"f>rt<"bottom"lip><"clear">'
+                dom: '<"top"f>rt<"bottom"lip><"clear">',
+                columns: [
+                    { data: 0, defaultContent: '' }, // Foto
+                    { data: 1, defaultContent: '' }, // Nome
+                    { data: 2, defaultContent: '' }, // Matrícula
+                    { data: 3, defaultContent: '' }, // Matérias
+                    { data: 4, defaultContent: '' }, // Status
+                    { data: 5, defaultContent: '' }  // Turmas Vinculadas
+                ]
             });
 
             function carregarAnos() {
@@ -194,12 +202,13 @@
                             const matricula = p.Matricula || '';
                             const turmas = p.Turmas || '';
                             const disciplinas = p.Disciplinas || '';
+                            const status = p.Status || '';
                             table.row.add([
                                 foto,
                                 p.Nome_Completo,
                                 matricula,
                                 disciplinas,
-                                p.Status,
+                                status,
                                 turmas
                             ]);
                         });
