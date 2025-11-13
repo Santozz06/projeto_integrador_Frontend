@@ -81,7 +81,7 @@ try {
             $rM = $stM->fetch(PDO::FETCH_ASSOC);
             if ($rM && isset($rM['Matricula'])) { $matriculaCodigoRef = $rM['Matricula']; }
         }
-    } catch (Throwable $e) { /* ignore */ }
+    } catch (Throwable $e) { }
 
     // Resumo com base na tabela Presencas (usada no caderno de chamada)
     // Contabiliza P/A/J por matrícula e calcula % conforme relatório mensal (P / (P+A+J))

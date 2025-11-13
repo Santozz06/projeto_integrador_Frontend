@@ -6,25 +6,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documento de Transferência</title>
-    <style>
-        body { font-family: "Times New Roman", serif; margin: 30px 40px; color: #000; font-size: 14px; }
-        .cabecalho { text-align: center; margin-bottom: 20px; }
-        .titulo { text-align: center; font-weight: bold; font-size: 18px; margin: 20px 0; text-decoration: underline; }
-        .bloco { margin: 12px 0; }
-        .label { font-weight: bold; }
-        table.tabela { width: 100%; border-collapse: collapse; margin: 16px 0; }
-        table.tabela th, table.tabela td { border: 1px solid #000; padding: 6px; text-align: left; }
-        table.grid { width: 100%; border-collapse: collapse; margin: 16px 0; }
-        table.grid th, table.grid td { border: 1px solid #000; padding: 6px; text-align: center; }
-        table.grid th { background: #f2f2f2; }
-        .assinaturas { width: 100%; margin-top: 40px; }
-        .assinaturas td { padding-top: 50px; text-align: center; width: 50%; }
-        .no-print { margin-bottom: 12px; }
-        @media print { .no-print { display: none; } body { margin: 0; } }
-    </style>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/app-style.css">
+    <link rel="stylesheet" href="../assets/css/icons.css">
+    <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 
-<body>
+<body class="user_adm_documentoTransferencia">
     <div class="no-print">
         <button id="btn-pdf">Baixar PDF</button>
     </div>

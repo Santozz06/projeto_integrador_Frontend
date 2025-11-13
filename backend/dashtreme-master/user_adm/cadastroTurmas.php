@@ -61,9 +61,9 @@ $turmas = $turmaCRUD->listarTurmasComProfessor();
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="Cadastro de Turmas - Dashboard Acadêmico" />
+    <meta name="description" content="Cadastro de Turmas - SAS (Sistema Academico Santos)" />
     <meta name="author" content="" />
-    <title>Cadastro de Turmas - Dashboard Acadêmico</title>
+    <title>Cadastro de Turmas - SAS (Sistema Academico Santos)</title>
     <!-- loader-->
     <link href="../assets/css/pace.min.css" rel="stylesheet" />
     <script src="../assets/js/pace.min.js"></script>
@@ -81,146 +81,10 @@ $turmas = $turmaCRUD->listarTurmasComProfessor();
     <link href="../assets/css/sidebar-menu.css" rel="stylesheet" />
     <!-- Custom Style-->
     <link href="../assets/css/app-style.css" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css">
-
-    <style>
-        html,
-        body {
-            height: 100%;
-            min-height: 100%;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        body {
-            flex: 1 0 auto;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        .content-wrapper {
-            flex: 1 0 auto;
-        }
-
-        .footer {
-            flex-shrink: 0;
-            background: transparent;
-            color: #fff;
-            border: none;
-            text-align: center;
-            padding: 15px 0 10px 0;
-        }
-
-        .form-section {
-            margin-bottom: 30px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 20px;
-        }
-
-        .form-section h5 {
-            color: #71affa;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
-        .is-invalid {
-            border-color: #dc3545 !important;
-        }
-
-        .invalid-feedback {
-            display: none;
-            width: 100%;
-            margin-top: 0.25rem;
-            font-size: 80%;
-            color: #dc3545;
-        }
-
-        .alert-success {
-            color: #155724;
-            background-color: #d4edda;
-            border-color: #c3e6cb;
-            padding: 0.75rem 1.25rem;
-            margin-bottom: 1rem;
-            border: 1px solid transparent;
-            border-radius: 0.25rem;
-        }
-
-        .alert-danger {
-            color: #721c24;
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-            padding: 0.75rem 1.25rem;
-            margin-bottom: 1rem;
-            border: 1px solid transparent;
-            border-radius: 0.25rem;
-        }
-
-        .btn-Salvar {
-            background-color: #1abc9c;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 20px;
-        }
-
-        .btn-Salvar:hover {
-            background-color: #16a085;
-        }
-
-        .btn-cancelar {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 20px;
-        }
-
-        .btn-cancelar:hover {
-            background-color: #c0392b;
-        }
-
-        .navbar {
-            background-color: rgba(0, 0, 0, 0.2) !important;
-            backdrop-filter: blur(10px);
-        }
-
-        .table th {
-            background-color: #71affa;
-            color: white;
-        }
-
-        .btn-editar {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 5px 10px;
-            font-size: 12px;
-        }
-
-        .btn-editar:hover {
-            background-color: #2980b9;
-        }
-
-        .btn-excluir {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 5px 10px;
-            font-size: 12px;
-        }
-
-        .btn-excluir:hover {
-            background-color: #c0392b;
-        }
-    </style>
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_adm_cadastroTurmas">
 
     <?php require("menu_padrão.php"); ?>
 

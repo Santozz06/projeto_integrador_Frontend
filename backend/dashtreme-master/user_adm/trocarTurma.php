@@ -5,80 +5,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trocar de Turma - Dashboard Acadêmico</title>
+  <title>Trocar de Turma - SAS (Sistema Academico Santos)</title>
   <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
   <link rel="stylesheet" href="../assets/css/app-style.css">
   <link rel="stylesheet" href="../assets/css/icons.css">
   <link rel="stylesheet" href="../assets/plugins/simplebar/css/simplebar.css">
   <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-  <link rel="stylesheet" href="style.css">
-  <style>
-    html, body {
-      height: 100%;
-      min-height: 100%;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-    }
-    body {
-      flex: 1 0 auto;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    .content-wrapper {
-      flex: 1 0 auto;
-    }
-    .footer {
-      flex-shrink: 0;
-      background: transparent;
-      color: #fff;
-      border: none;
-      text-align: center;
-      padding: 15px 0 10px 0;
-    }
-    .btn-custom-primary {
-      background-color: #1abc9c !important;
-      color: white !important;
-      border: none !important;
-    }
-
-    .btn-custom-primary:hover {
-      background-color: #16a085 !important;
-    }
-
-    .btn-custom-secondary {
-      background-color: #2c5f9e !important;
-      color: white !important;
-      border: none !important;
-    }
-
-    .btn-custom-secondary:hover {
-      background-color: #1e4a7e !important;
-    }
-
-    label {
-      font-weight: bold;
-      color: #fff;
-    }
-
-    .d-none {
-      display: none;
-    }
-
-    .search-box {
-      margin-bottom: 20px;
-    }
-
-    .navbar {
-      background-color: rgba(0, 0, 0, 0.2) !important;
-      backdrop-filter: blur(10px);
-    }
-  </style>
+  <link rel="stylesheet" href="../css/style.css">
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_adm_trocarTurma">
   <?php
   require("menu_padrão.php");
   ?>

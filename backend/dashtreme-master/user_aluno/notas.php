@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <title>Minhas Notas - Dashboard Acadêmico</title>
+  <title>Minhas Notas - SAS (Sistema Academico Santos)</title>
   <link href="../assets/css/pace.min.css" rel="stylesheet" />
   <script src="../assets/js/pace.min.js"></script>
   <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
@@ -15,73 +15,10 @@
   <link href="../assets/css/icons.css" rel="stylesheet" />
   <link href="../assets/css/sidebar-menu.css" rel="stylesheet" />
   <link href="../assets/css/app-style.css" rel="stylesheet" />
-  <link href="style.css" rel="stylesheet" />
-  <style>
-    :root {
-      --azul-principal: #2c5f9e;
-      --texto-escuro: #333333;
-      --cinza-texto: #666666;
-      --borda: #e0e0e0;
-    }
-
-    .card-componente {
-      border-radius: 10px;
-      border: 1px solid var(--borda);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-
-    .card-header-componente {
-      background-color: var(--azul-principal);
-      color: white;
-      border-radius: 10px 10px 0 0 !important;
-      padding: 15px 20px;
-    }
-
-    .btn-voltar {
-      background-color: var(--azul-principal);
-      color: white;
-      border: none;
-      padding: 10px 25px;
-      border-radius: 5px;
-      margin-top: 20px;
-    }
-
-    .btn-voltar:hover {
-      background-color: #1e4a7e;
-      color: white;
-    }
-
-    .table-notas {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .table-notas th {
-      background-color: #f8f9fa;
-      color: var(--azul-principal);
-      padding: 12px 15px;
-      text-align: left;
-      border-bottom: 2px solid var(--borda);
-    }
-
-    .table-notas td {
-      padding: 12px 15px;
-      border-bottom: 1px solid var(--borda);
-    }
-
-    .table-notas tr:hover {
-      background-color: rgba(44, 95, 158, 0.1);
-      color: #000;
-    }
-
-    .navbar {
-      background-color: rgba(0, 0, 0, 0.2) !important;
-      backdrop-filter: blur(10px);
-    }
-  </style>
+  <link href="../css/style.css" rel="stylesheet" />
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_aluno_notas">
     <?php
     require("menu_padrao.php");
     ?>

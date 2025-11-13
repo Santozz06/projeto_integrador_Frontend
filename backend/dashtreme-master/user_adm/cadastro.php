@@ -13,19 +13,19 @@ require_once '../includes/crud/LocalidadeCRUD.php';
 $usuarioCRUD = new UsuarioCRUD($pdo);
 $localidadeCRUD = new LocalidadeCRUD($pdo);
 
-// Carregar dados para os selects
+// dados para selects
 $estados = $localidadeCRUD->listarEstados();
 $paises = $localidadeCRUD->listarPaises();
 $orgaos_expedidores = $localidadeCRUD->listarOrgaosExpedidores();
 
-// Exclusão (Aluno/Servidor)
+// excluir aluno/servidor
 try {
     if (isset($_GET['excluirAluno']) && ctype_digit($_GET['excluirAluno'])) {
         $id = (int) $_GET['excluirAluno'];
-        // Confirma que é de fato um aluno
+    // checa se existe aluno
         $aluno = $usuarioCRUD->buscarAlunoCompleto($id);
         if ($aluno) {
-            // Exclusão lógica em Usuarios (Ativo = 0) via BaseCRUD
+            // marca como inativo
             $usuarioCRUD->excluir($id);
             header('Location: cadastro.php?sucesso=' . urlencode('Aluno excluído com sucesso.'));
             exit;
@@ -37,10 +37,10 @@ try {
 
     if (isset($_GET['excluirServidor']) && ctype_digit($_GET['excluirServidor'])) {
         $id = (int) $_GET['excluirServidor'];
-        // Confirma que é de fato um servidor (professor)
+    // checa se existe servidor
         $prof = $usuarioCRUD->buscarProfessorCompleto($id);
         if ($prof) {
-            // Exclusão lógica em Usuarios (Ativo = 0) via BaseCRUD
+            // marca como inativo
             $usuarioCRUD->excluir($id);
             header('Location: cadastro.php?sucesso=' . urlencode('Servidor excluído com sucesso.'));
             exit;
@@ -55,53 +55,53 @@ try {
     exit;
 }
 
-// Se estiver editando aluno
+// editar aluno
 $municipios_aluno = [];
 if (isset($_GET['editarAluno']) && !empty($_GET['editarAluno'])) {
     $id_aluno_edicao = $_GET['editarAluno'];
     $aluno_para_edicao = $usuarioCRUD->buscarAlunoCompleto($id_aluno_edicao);
 
-    // DEBUG: Verificar dados do aluno
-    error_log("Dados do aluno carregado: " . print_r($aluno_para_edicao, true));
+    // debug simples
+    // error_log(print_r($aluno_para_edicao, true));
 
-    // Carregar municípios baseado no UF_Endereco (se existir)
+    // municipios pelo UF_Endereco
     if ($aluno_para_edicao && isset($aluno_para_edicao['UF_Endereco']) && $aluno_para_edicao['UF_Endereco']) {
         $municipios_aluno = $localidadeCRUD->listarMunicipiosPorEstado($aluno_para_edicao['UF_Endereco']);
     }
 
-    // Compatibilidade: se não houver coluna 'Logradouro' mas existir 'Endereco', tenta derivar o logradouro para preencher o formulário
+    // derivar logradouro se faltar
     if ($aluno_para_edicao && (!isset($aluno_para_edicao['Logradouro']) || $aluno_para_edicao['Logradouro'] === '') && !empty($aluno_para_edicao['Endereco'])) {
         $partesEndereco = explode(',', (string)$aluno_para_edicao['Endereco']);
         $aluno_para_edicao['Logradouro'] = trim($partesEndereco[0]);
     }
 }
 
-// Se estiver editando servidor
+// editar servidor
 $municipios_servidor = [];
 if (isset($_GET['editarServidor']) && !empty($_GET['editarServidor'])) {
     $id_servidor_edicao = $_GET['editarServidor'];
     $servidor_para_edicao = $usuarioCRUD->buscarProfessorCompleto($id_servidor_edicao);
 
-    // Carregar municípios baseado no UF_Endereco (se existir)
+    // municipios pelo UF_Endereco
     if ($servidor_para_edicao && isset($servidor_para_edicao['UF_Endereco']) && $servidor_para_edicao['UF_Endereco']) {
         $municipios_servidor = $localidadeCRUD->listarMunicipiosPorEstado($servidor_para_edicao['UF_Endereco']);
     }
 
-    // Compatibilidade: se não houver coluna 'Logradouro' mas existir 'Endereco', tenta derivar o logradouro para preencher o formulário
+    // derivar logradouro se faltar
     if ($servidor_para_edicao && (!isset($servidor_para_edicao['Logradouro']) || $servidor_para_edicao['Logradouro'] === '') && !empty($servidor_para_edicao['Endereco'])) {
         $partesEndereco = explode(',', (string)$servidor_para_edicao['Endereco']);
         $servidor_para_edicao['Logradouro'] = trim($partesEndereco[0]);
     }
 }
 
-// PROCESSAR FORMULÁRIO (Criação e Atualização)
+// processa formulário
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         if ($_POST['tipo'] === 'aluno') {
             $email = $_POST['email'];
             $id_aluno = $_POST['id_aluno'] ?? null;
 
-            // Verificar se o email já existe (apenas para novos cadastros)
+            // email duplicado?
             $email_existente = $usuarioCRUD->emailExiste($email, $id_aluno);
             if ($email_existente) {
                 throw new Exception("O email '$email' já está cadastrado para outro usuário.");
@@ -117,12 +117,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'Raca_Etnia' => $_POST['racaCor'],
                 'Orgao_Exp' => $_POST['orgaoExpedidor'],
                 'UF_Exp' => $_POST['ufDocumento'],
-                // Telefone e Celular: preenche ambos e, se existir coluna Telefone_Fixo, também atualiza
+                // telefones
                 'Telefone' => $_POST['telefone'] ?? '',
                 'Telefone_Fixo' => $_POST['telefone'] ?? '',
                 'Celular' => $_POST['celular'] ?? '',
                 'CEP' => $_POST['cep'] ?? '',
-                // Armazena 'Endereco' completo e, se existir coluna 'Logradouro', preenche também
+                // endereco completo
                 'Endereco' => $_POST['logradouro'] . ', ' . $_POST['numero'] . ' - ' . $_POST['bairro'],
                 'Logradouro' => $_POST['logradouro'] ?? '',
                 'Numero' => $_POST['numero'] ?? '',
@@ -134,24 +134,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'Possui_Necessidades_Especiais' => (isset($_POST['nee']) && $_POST['nee'] === 'sim') ? 1 : 0
             ];
 
-            // Salvar Nacionalidade, Naturalidade e Filiação do aluno
-            // Nacionalidade (ex.: Brasil) vem diretamente do select de países
+            // nacionalidade / naturalidade / filiacao
             if (isset($_POST['nacionalidade']) && $_POST['nacionalidade'] !== '') {
                 $dadosUsuario['Nacionalidade'] = $_POST['nacionalidade'];
             }
 
-            // Filiação (texto livre)
+            // filiacao
             if (isset($_POST['filiacao']) && trim($_POST['filiacao']) !== '') {
                 $dadosUsuario['Filiacao'] = trim($_POST['filiacao']);
             }
 
-            // Naturalidade: armazenamos o nome da cidade; se conseguirmos, concatenamos "/UF"
+            // naturalidade
             if (!empty($_POST['naturalidade'])) {
                 $municipioId = $_POST['naturalidade'];
                 $municipio = $localidadeCRUD->buscarMunicipio($municipioId);
                 $naturalidadeTexto = $municipio && !empty($municipio['nome']) ? $municipio['nome'] : '';
 
-                // Tenta buscar a sigla da UF selecionada para compor "Cidade/UF"
+                // busca sigla UF
                 $ufSigla = '';
                 if (!empty($_POST['ufNaturalidade'])) {
                     try {
@@ -162,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $ufSigla = $rowUf['uf'];
                         }
                     } catch (Exception $e) {
-                        // silencioso: se falhar, salvamos só o nome da cidade
+                        // ignora erro
                     }
                 }
 
@@ -171,7 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            // Senha do aluno: obrigatória no cadastro; em edição só altera se informada e confirmar coincidir
+            // senha aluno
             $senhaAluno = $_POST['senha'] ?? '';
             $confirmarSenhaAluno = $_POST['confirmarSenhaAluno'] ?? '';
             if ($id_aluno) {
@@ -193,11 +192,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $matricula = $_POST['matriculaAluno'];
 
-            // Verifica se é uma atualização ou um novo cadastro
+            // atualização ou novo
             if ($id_aluno) {
-                // Atualização
+                // update
                 $usuarioCRUD->atualizarAluno($id_aluno, $dadosUsuario, $matricula);
-                // Persistir NEE do aluno
+                // salva NEE
                 $usuarioCRUD->salvarNeeAluno((int)$id_aluno, [
                     'possui' => (isset($_POST['nee']) && $_POST['nee'] === 'sim'),
                     'aee' => $_POST['aee'] ?? 0,
@@ -209,13 +208,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'outras' => $_POST['outrasNecessidades'] ?? ''
                 ]);
                 $sucesso = "Aluno atualizado com sucesso!";
-                // Redireciona mantendo o ID para edição
+                // redireciona
                 header("Location: cadastro.php?editarAluno=" . $id_aluno . "&sucesso=" . urlencode($sucesso));
                 exit;
             } else {
-                // Novo cadastro
+                // create
                 $idAluno = $usuarioCRUD->cadastrarAluno($dadosUsuario, $matricula);
-                // Persistir NEE do aluno
+                // salva NEE
                 $usuarioCRUD->salvarNeeAluno((int)$idAluno, [
                     'possui' => (isset($_POST['nee']) && $_POST['nee'] === 'sim'),
                     'aee' => $_POST['aee'] ?? 0,
@@ -227,7 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'outras' => $_POST['outrasNecessidades'] ?? ''
                 ]);
                 $sucesso = "Aluno cadastrado com sucesso! Matrícula: " . $matricula;
-                // Redireciona para edição do aluno recém-criado
+                // redireciona
                 header("Location: cadastro.php?editarAluno=" . $idAluno . "&sucesso=" . urlencode($sucesso));
                 exit;
             }
@@ -237,7 +236,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email_servidor = $_POST['emailServidor'];
             $id_servidor = $_POST['id_servidor'] ?? null;
 
-            // Verificar se o email já existe
+            // email duplicado?
             $email_existente = $usuarioCRUD->emailExiste($email_servidor, $id_servidor);
             if ($email_existente) {
                 throw new Exception("O email '$email_servidor' já está cadastrado para outro usuário.");
@@ -304,12 +303,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            // Caso naturalidade não seja enviada (edição sem alteração), mantém o valor atual
+            // manter naturalidade se não vier
             if (!isset($dadosUsuario['Naturalidade'])) {
                 $dadosUsuario['Naturalidade'] = $servidor_para_edicao['Naturalidade'] ?? '';
             }
 
-            // Senha: obrigatória para novo cadastro; em edição, só altera se informada e confirmar coincidir
+            // senha servidor
             $senhaServidor = $_POST['senha'] ?? '';
             $confirmarSenhaServidor = $_POST['confirmarSenhaServidor'] ?? '';
 
@@ -331,7 +330,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if ($id_servidor) {
-                // Atualização
+                // update
                 $usuarioCRUD->atualizarProfessor(
                     $id_servidor,
                     $dadosUsuario,
@@ -344,7 +343,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header("Location: cadastro.php?editarServidor=" . $id_servidor . "&sucesso=" . urlencode($sucesso));
                 exit;
             } else {
-                // Novo cadastro
+                // create
                 $idProfessor = $usuarioCRUD->cadastrarProfessor(
                     $dadosUsuario,
                     $_POST['formacaoAcademica'],
@@ -406,9 +405,9 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="Cadastro - Dashboard Acadêmico" />
+    <meta name="description" content="Cadastro - SAS (Sistema Academico Santos)" />
     <meta name="author" content="" />
-    <title>Cadastro - Dashboard Acadêmico</title>
+    <title>Cadastro - SAS (Sistema Academico Santos)</title>
     <!-- loader-->
     <link href="../assets/css/pace.min.css" rel="stylesheet" />
     <script src="../assets/js/pace.min.js"></script>

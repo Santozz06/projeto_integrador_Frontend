@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <title>Ensino - Dashboard Acadêmico</title>
+  <title>Ensino - SAS (Sistema Academico Santos)</title>
   <link href="../assets/css/pace.min.css" rel="stylesheet" />
   <script src="../assets/js/pace.min.js"></script>
   <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
@@ -15,55 +15,10 @@
   <link href="../assets/css/icons.css" rel="stylesheet" />
   <link href="../assets/css/sidebar-menu.css" rel="stylesheet" />
   <link href="../assets/css/app-style.css" rel="stylesheet" />
-   <link href="style.css" rel="stylesheet" />
-  <style>
-    .document-option {
-      transition: box-shadow 0.3s, transform 0.2s;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(20,182,255,0.13);
-      border-radius: 0.5rem;
-      box-shadow: 0 2px 8px rgba(20,182,255,0.07);
-      padding: 22px 24px 18px 24px;
-      margin-bottom: 18px;
-      color: #fff;
-    }
-    .document-option:hover {
-      background: rgba(20,182,255,0.10);
-      box-shadow: 0 6px 18px rgba(20,182,255,0.13);
-      border-color: #14b6ff !important;
-      transform: translateY(-2px) scale(1.01);
-      text-decoration: none;
-    }
-    .document-option h5 {
-      color: #14b6ff !important;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
-    }
-    .document-option p {
-      color: #b8c7ce !important;
-      font-size: 1em;
-      margin-bottom: 0;
-    }
-    .card-header {
-      border-radius: 0.5rem 0.5rem 0 0 !important;
-      background: linear-gradient(90deg, #2c5f9e 60%, #14b6ff 100%) !important;
-      border: none;
-    }
-    .card-header h4 {
-      color: #fff !important;
-      font-weight: 600;
-      margin-bottom: 0;
-      letter-spacing: 0.5px;
-    }
-    .navbar {
-      background-color: rgba(0, 0, 0, 0.2) !important;
-      backdrop-filter: blur(10px);
-    }
-  </style>
+  <link href="../css/style.css" rel="stylesheet" />
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_aluno_ensino">
     <?php
     require("menu_padrao.php");
     ?>

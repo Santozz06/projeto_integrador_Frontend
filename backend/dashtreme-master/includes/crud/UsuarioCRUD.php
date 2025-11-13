@@ -8,14 +8,6 @@ class UsuarioCRUD extends BaseCRUD
         parent::__construct($pdo, 'Usuarios', 'ID_Usuario');
     }
 
-    /**
-     * Normaliza campos do usuário removendo máscaras e mantendo apenas dígitos
-     * para CPF, CEP, Telefone, Celular e Telefone_Fixo.
-     * Limita tamanhos máximos para evitar estouro na coluna do banco.
-     *
-     * @param array $dados
-     * @return array
-     */
     private function sanitizeUsuarioFields(array $dados): array
     {
         $numericOnly = ['CPF', 'CEP', 'Telefone', 'Celular', 'Telefone_Fixo'];
@@ -84,11 +76,6 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // CADASTRO DE ALUNO
-    /**
-     * @param array $dadosUsuario
-     * @param string $matricula
-     * @return int ID do usuário criado
-     */
     public function cadastrarAluno($dadosUsuario, $matricula)
     {
         try {
@@ -112,9 +99,6 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // LISTAR ALUNOS COM PAGINAÇÃO
-    /**
-     * @return array<int, array<string,mixed>>
-     */
     public function listarAlunos($pagina = 1, $limite = 10, $filtro = '')
     {
         try {
@@ -153,9 +137,6 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // CONTAR TOTAL DE ALUNOS
-    /**
-     * @return int
-     */
     public function countAlunos($filtro = '')
     {
         try {
@@ -181,10 +162,6 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // CADASTRO DE PROFESSOR
-    /**
-     * @param array $dadosUsuario
-     * @return int ID do professor criado
-     */
     public function cadastrarProfessor($dadosUsuario, $formacaoAcademica, $dataAdmissao, $areaAtuacao = null, $matriculaProfessor = null)
     {
         try {
@@ -195,18 +172,29 @@ class UsuarioCRUD extends BaseCRUD
             }
             $idUsuario = $this->inserirUsuario($dadosUsuario);
 
-            // Inserir na tabela Professor (inclui Matricula quando fornecida)
-            $sqlProfessor = "INSERT INTO Professores (ID_Professor, Formacao, Data_Ingresso, Area_Atuacao, Matricula) 
-                        VALUES (?, ?, ?, ?, ?)";
-
-            $stmtProfessor = $this->pdo->prepare($sqlProfessor);
-            $stmtProfessor->execute([
-                $idUsuario,
-                $formacaoAcademica,
-                $dataAdmissao,
-                $areaAtuacao,
-                $matriculaProfessor
-            ]);
+            // Insere professor, se tiver coluna Matricula usa, senão faz básico
+            $temMatricula = $this->hasColumn('Professores', 'Matricula');
+            if ($temMatricula) {
+                $sqlProfessor = "INSERT INTO Professores (ID_Professor, Formacao, Data_Ingresso, Area_Atuacao, Matricula) VALUES (?, ?, ?, ?, ?)";
+                $stmtProfessor = $this->pdo->prepare($sqlProfessor);
+                $stmtProfessor->execute([
+                    $idUsuario,
+                    $formacaoAcademica,
+                    $dataAdmissao,
+                    $areaAtuacao,
+                    $matriculaProfessor
+                ]);
+            } else {
+                // Caso a tabela não tenha Matricula
+                $sqlProfessor = "INSERT INTO Professores (ID_Professor, Formacao, Data_Ingresso, Area_Atuacao) VALUES (?, ?, ?, ?)";
+                $stmtProfessor = $this->pdo->prepare($sqlProfessor);
+                $stmtProfessor->execute([
+                    $idUsuario,
+                    $formacaoAcademica,
+                    $dataAdmissao,
+                    $areaAtuacao
+                ]);
+            }
 
             $this->pdo->commit();
             return $idUsuario;
@@ -218,9 +206,6 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // ATUALIZAR PROFESSOR
-    /**
-     * @return void
-     */
     public function atualizarProfessor($idProfessor, $dadosUsuario, $formacaoAcademica, $dataAdmissao, $areaAtuacao = null, $matriculaProfessor = null)
     {
         try {
@@ -239,19 +224,28 @@ class UsuarioCRUD extends BaseCRUD
                 $this->atualizar($idProfessor, $dadosFiltrados);
             }
 
-            // Atualizar tabela Professores
-            $sqlProfessor = "UPDATE Professores SET 
-                        Formacao = ?, Data_Ingresso = ?, Area_Atuacao = ?, Matricula = ?
-                        WHERE ID_Professor = ?";
-
-            $stmtProfessor = $this->pdo->prepare($sqlProfessor);
-            $stmtProfessor->execute([
-                $formacaoAcademica,
-                $dataAdmissao,
-                $areaAtuacao,
-                $matriculaProfessor,
-                $idProfessor
-            ]);
+            // Atualiza dados do professor; checa se existe coluna Matricula
+            $temMatricula = $this->hasColumn('Professores', 'Matricula');
+            if ($temMatricula) {
+                $sqlProfessor = "UPDATE Professores SET Formacao = ?, Data_Ingresso = ?, Area_Atuacao = ?, Matricula = ? WHERE ID_Professor = ?";
+                $stmtProfessor = $this->pdo->prepare($sqlProfessor);
+                $stmtProfessor->execute([
+                    $formacaoAcademica,
+                    $dataAdmissao,
+                    $areaAtuacao,
+                    $matriculaProfessor,
+                    $idProfessor
+                ]);
+            } else {
+                $sqlProfessor = "UPDATE Professores SET Formacao = ?, Data_Ingresso = ?, Area_Atuacao = ? WHERE ID_Professor = ?";
+                $stmtProfessor = $this->pdo->prepare($sqlProfessor);
+                $stmtProfessor->execute([
+                    $formacaoAcademica,
+                    $dataAdmissao,
+                    $areaAtuacao,
+                    $idProfessor
+                ]);
+            }
 
             $this->pdo->commit();
 
@@ -262,15 +256,11 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // ATUALIZAR ALUNO
-    /**
-     * @return int ID do usuário atualizado
-     */
     public function atualizarAluno($idUsuario, $dadosUsuario, $matricula)
     {
         try {
             $this->pdo->beginTransaction();
 
-            // Atualiza a tabela Usuarios (assumindo que o método `atualizar` existe na BaseCRUD)
             // Normaliza documentos e telefones
             $dadosUsuario = $this->sanitizeUsuarioFields($dadosUsuario);
             if (isset($dadosUsuario['Senha']) && !empty($dadosUsuario['Senha']) && strlen($dadosUsuario['Senha']) < 60) {
@@ -295,9 +285,6 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // BUSCAR ALUNO COMPLETO
-    /**
-     * @return array|false
-     */
     public function buscarAlunoCompleto($idAluno)
     {
         try {
@@ -351,9 +338,6 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // BUSCAR PROFESSOR COMPLETO
-    /**
-     * @return array|false
-     */
     public function buscarProfessorCompleto($idProfessor)
     {
         $temMatricula = $this->hasColumn('Professores', 'Matricula');
@@ -412,9 +396,6 @@ class UsuarioCRUD extends BaseCRUD
 
 
     // LISTAR PROFESSORES COM PAGINAÇÃO
-    /**
-     * @return array<int, array<string,mixed>>
-     */
     public function listarProfessores($pagina = 1, $limite = 10)
     {
         $offset = ($pagina - 1) * $limite;
@@ -438,9 +419,6 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // CONTAR TOTAL DE PROFESSORES
-    /**
-     * @return int
-     */
     public function countProfessores()
     {
     $sql = "SELECT COUNT(u.ID_Usuario) 
@@ -453,9 +431,6 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // VERIFICAR SE EMAIL JÁ EXISTE
-    /**
-     * @return bool
-     */
     public function emailExiste($email, $idUsuarioExcluir = null)
     {
         try {
@@ -477,9 +452,6 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // VERIFICAR SE CPF JÁ EXISTE
-    /**
-     * @return bool
-     */
     public function cpfExiste($cpf, $idUsuarioExcluir = null)
     {
         try {
@@ -501,9 +473,6 @@ class UsuarioCRUD extends BaseCRUD
     }
 
     // BUSCAR POR TIPO (ALUNO/PROFESSOR/ADMIN)
-    /**
-     * @return array|false
-     */
     public function buscarPorTipo($tipo, $idUsuario)
     {
         try {

@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atestado de Matrícula - Dashboard Acadêmico</title>
+    <title>Atestado de Matrícula - SAS (Sistema Academico Santos)</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
@@ -40,25 +40,19 @@
             border: none !important;
             box-shadow: none !important;
             border-left: 3px solid transparent;
-            /* Preparando para o estado selecionado */
         }
 
-        /* Contraste no hover - versão sutil */
         .student-card:hover {
             background-color: rgba(0, 0, 0, 0.03) !important;
-            /* Cinza muito claro */
             border-left: 3px solid rgba(33, 150, 243, 0.3);
-            /* Azul claro */
         }
 
-        /* Contraste quando selecionado - versão mais forte */
         .student-card.selected {
             background-color: rgba(33, 150, 243, 0.08) !important;
             border-left: 3px solid #2196F3;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
-        /* Melhor contraste para texto */
         .student-card h6 {
             margin-bottom: 4px;
             color: #333;
@@ -70,7 +64,6 @@
 
         }
 
-        /* Contraste extra no hover */
         .student-card:hover h6 {
             color: #2196F3;
         }

@@ -5,120 +5,16 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Atividades - Dashboard Acadêmico</title>
+    <title>Atividades - SAS (Sistema Academico Santos)</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
     <link rel="stylesheet" href="../css/style.css">
-    <style>
-        body {
-            background: linear-gradient(to right, #2c3e50, #3498db);
-            color: #ecf0f1;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .container-select {
-            max-width: 900px;
-            margin: 2px auto; /* reduz o espaço abaixo da navbar */
-            background: rgba(255, 255, 255, 0.05);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-
-
-        .atividade-form select,
-        .atividade-form input[type="text"],
-        .atividade-form input[type="date"] {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            border: 1px solid #71affe;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 15px;
-            width: 100%;
-        }
-
-        .btn {
-            background-color: #1abc9c;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .btn:hover {
-            background-color: #16a085;
-        }
-
-        /* Mantém verde nos estados de foco/ativo para botões "Editar" (.btn-primary) */
-        .btn-primary {
-            background-color: #1abc9c;
-            border-color: #1abc9c;
-            color: #fff;
-        }
-        .btn-primary:hover,
-        .btn-primary:focus,
-        .btn-primary:not(:disabled):not(.disabled).active,
-        .btn-primary:not(:disabled):not(.disabled):active,
-        .show > .btn-primary.dropdown-toggle {
-            background-color: #16a085;
-            border-color: #16a085;
-            box-shadow: none;
-            color: #fff;
-        }
-
-        .btn-secondary {
-            background-color: #7f8c8d;
-        }
-
-        .btn-secondary:hover {
-            background-color: #616a6b;
-        }
-
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 0.85em;
-            margin-right: 5px;
-        }
-
-        .btn-danger {
-            background-color: #e74c3c;
-            color: #fff;
-        }
-
-        .btn-danger:hover {
-            background-color: #c0392b;
-        }
-
-        .atividade-item {
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .atividade-titulo {
-            color: #ffffff;
-            font-weight: 600;
-        }
-
-        .atividade-info {
-            font-size: 0.9em;
-            color: #ffffff;
-        }
-
-        .navbar {
-            background-color: rgba(0, 0, 0, 0.2) !important;
-            backdrop-filter: blur(10px);
-        }
-    </style>
+    
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_professor_atividades">
     <?php
     require("menu_padrao.php");
     ?>

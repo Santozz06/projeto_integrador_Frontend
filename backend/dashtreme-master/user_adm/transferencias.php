@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transferências - Dashboard Acadêmico</title>
+    <title>Transferências - SAS (Sistema Academico Santos)</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
@@ -153,7 +153,6 @@
             backdrop-filter: blur(10px);
         }
 
-        /* Modal transparente no estilo do calendário */
         #localModal .modal-content {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
@@ -180,7 +179,6 @@
         #localModal .btn-secondary { background-color: #7f8c8d; border: none; }
         #localModal .btn-secondary:hover { background-color: #616a6b; }
 
-        /* Input com ícone acoplado (campo clicável) */
         .input-icon { position: relative; }
         .input-icon input { padding-right: 48px; cursor: pointer; }
         .input-icon .icon-button {
@@ -199,7 +197,6 @@
         .input-icon .icon-button i { font-size: 20px; line-height: 1; }
         .input-icon .icon-button:hover { background: rgba(113,175,250,0.2); }
 
-        /* Texto de ajuda com melhor contraste no tema escuro */
         .helper-text { color: #9cc6ff; opacity: 0.95; display: inline-block; margin-top: 6px; }
     </style>
 

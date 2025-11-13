@@ -23,7 +23,6 @@
             --cinza-texto: #666666;
         }
 
-        /* Cores dos selos de status */
         .badge-warning {
             background-color: #f6c23e;
             color: #fff;
@@ -39,7 +38,6 @@
             color: #fff;
         }
 
-        /* Cabeçalho do card */
         .card-header {
             border-radius: 0.35rem 0.35rem 0 0 !important;
             background-color: var(--azul-cabecalho) !important;
@@ -50,13 +48,11 @@
             font-weight: 600;
         }
 
-        /* Card geral */
         .card {
             background-color: rgba(0, 0, 0, 0.3);
             color: #ffffff;
         }
 
-        /* Responsividade da tabela */
         .table-responsive {
             margin-top: 20px;
         }
@@ -66,7 +62,6 @@
             color: var(--texto-preto);
         }
 
-        /* Selo de status */
         .status-badge {
             font-size: 0.85rem;
             padding: 0.35em 0.65em;
@@ -102,12 +97,10 @@
             color: #fff;
         }
 
-        /* Botão de voltar */
         .back-button {
             margin-bottom: 35px;
         }
 
-        /* Bloco de ano  */
         .year-option {
             cursor: pointer;
             transition: all 0.3s ease;
@@ -128,19 +121,16 @@
             text-decoration: none;
         }
 
-        /* Título do ano */
         .year-title {
             font-weight: 600;
             color: #ffffff;
             display: inline-block;
         }
 
-        /* Status do ano*/
         .year-status {
             float: right;
         }
 
-        /* Texto inferior*/
         .card-body p.text-muted {
             color: #e0e0e0 !important;
         }

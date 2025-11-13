@@ -1,10 +1,10 @@
 <?php
-// Inicia sessão se não estiver iniciada
+// inicia sessão se precisar
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Inclui conexão
+// inclui conexão e CRUDs
 require_once 'conexao.php';
 require_once 'crud/BaseCRUD.php';
 require_once 'crud/UsuarioCRUD.php';
@@ -18,7 +18,7 @@ $turmaCRUD = new TurmaCRUD($pdo);
 $disciplinaCRUD = new DisciplinaCRUD($pdo);
 $matriculaCRUD = new MatriculaCRUD($pdo);
 
-// Função para verificar autenticação
+// checa auth
 function verificarAuth($tipoRequerido = null) {
     if (!isset($_SESSION['usuario_id'])) {
         header("Location: ../index.php");
@@ -33,7 +33,7 @@ function verificarAuth($tipoRequerido = null) {
     return true;
 }
 
-// Verificação automática baseada na URL
+// checa tipo pelo caminho
 $url = $_SERVER['REQUEST_URI'];
 
 if (strpos($url, '/user_adm/') !== false) {

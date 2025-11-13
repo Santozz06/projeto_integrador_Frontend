@@ -6,9 +6,9 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <meta name="description" content="Dashboard Acadêmico" />
+  <meta name="description" content="SAS (Sistema Academico Santos)" />
   <meta name="author" content="" />
-  <title>Dashboard Acadêmico</title>
+  <title>SAS (Sistema Academico Santos)</title>
   <!-- loader-->
   <link href="../assets/css/pace.min.css" rel="stylesheet" />
   <script src="../assets/js/pace.min.js"></script>
@@ -26,58 +26,10 @@
   <link href="../assets/css/sidebar-menu.css" rel="stylesheet" />
   <!-- Custom Style-->
   <link href="../assets/css/app-style.css" rel="stylesheet" />
-
-  <style>
-    .navbar {
-      background-color: rgba(0, 0, 0, 0.2) !important;
-      backdrop-filter: blur(10px);
-    }
-
-    /* Bloco de frequência estilizado */
-    /* Barra de progresso padrão do template */
-    .progress {
-      height: 1.2rem;
-      background-color: rgba(255,255,255,.1);
-      border-radius: .25rem;
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
-      margin-bottom: 8px;
-    }
-    .progress-bar {
-      background-color: #14b6ff;
-      font-weight: 600;
-      font-size: 1em;
-      color: #fff;
-      text-align: right;
-      padding-right: 10px;
-      transition: width .6s ease;
-    }
-
-    /* Efeito para o botão Sair */
-    #logout-btn {
-      transition: all 0.3s ease;
-      border-radius: 4px;
-      padding: 8px 12px;
-    }
-
-    #logout-btn:hover {
-      background-color: #ff4444 !important;
-      /* Vermelho suave */
-      color: white !important;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(255, 68, 68, 0.2);
-    }
-
-    #logout-btn i {
-      transition: all 0.3s ease;
-    }
-
-    #logout-btn:hover i {
-      transform: rotate(15deg);
-    }
-  </style>
+  <link href="../css/style.css" rel="stylesheet" />
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_aluno_index">
 
   <!-- Start wrapper-->
   <div id="wrapper">

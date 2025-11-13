@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Histórico Escolar - Dashboard Acadêmico</title>
+    <title>Histórico Escolar - SAS (Sistema Academico Santos)</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
@@ -89,7 +89,6 @@
             background-color: #2980b9 !important;
         }
 
-        /* Estilos específicos para o histórico */
         .historico-container {
             background-color: white;
             padding: 30px;
@@ -97,7 +96,6 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
             display: none;
-            /* Inicialmente oculto */
         }
 
         .cabecalho-historico {

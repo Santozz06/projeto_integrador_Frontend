@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frequência por Turma - Dashboard Acadêmico</title>
+    <title>Frequência por Turma - SAS (Sistema Academico Santos)</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
@@ -172,7 +172,6 @@
             background-color: rgba(0, 0, 0, 0.2) !important;
             backdrop-filter: blur(10px);
         }
-        /* Avatar e wrapper exatamente como em notas.php */
         .aluno-info {
             display: flex;
             align-items: center;
@@ -284,7 +283,7 @@
     <footer class="footer no-print">
         <div class="container">
             <div class="text-center text-white">
-                Copyright © 2023 Dashboard Acadêmico
+                Copyright © 2023 SAS (Sistema Academico Santos)
             </div>
         </div>
     </footer>

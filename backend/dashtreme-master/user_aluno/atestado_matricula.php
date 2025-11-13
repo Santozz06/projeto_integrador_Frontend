@@ -13,7 +13,6 @@
       color: #000;
       line-height: 1.5;
       opacity: 0;
-      /* Inicia invisível */
       transition: opacity 0.1s;
     }
 
@@ -68,7 +67,6 @@
       body {
         margin: 0;
         opacity: 1;
-        /* Garante visibilidade na impressão */
       }
     }
 

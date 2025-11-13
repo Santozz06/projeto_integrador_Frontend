@@ -204,7 +204,7 @@ class MatriculaCRUD extends BaseCRUD {
             if ($col->fetch(PDO::FETCH_ASSOC) && $resultado) {
                 $campos['Resultado'] = $resultado; // 'Aprovado' | 'Reprovado'
             }
-        } catch (Exception $e) { /* ignore */ }
+    } catch (Exception $e) { }
         return $this->atualizar($idMatricula, $campos);
     }
 }

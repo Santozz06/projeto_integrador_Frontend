@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Configurações - Dashboard Acadêmico</title>
+    <title>Configurações - SAS (Sistema Academico Santos)</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
     <link rel="stylesheet" href="../assets/css/app-style.css" />
     <link rel="stylesheet" href="../assets/css/icons.css" />
@@ -143,7 +143,6 @@
             height: auto;
         }
 
-        /* Toast de notificação */
         .toast {
             position: fixed;
             bottom: 20px;

@@ -43,7 +43,7 @@ try {
             if ($chk->rowCount() === 0) {
                 $pdo->exec("ALTER TABLE Calendario_Academico ADD COLUMN Criado_Por INT NULL AFTER Publico_Alvo");
             }
-        } catch (Throwable $e) { /* ignore */ }
+    } catch (Throwable $e) { }
 
         // Verifica propriedade
         $stChk = $pdo->prepare('SELECT Criado_Por FROM Calendario_Academico WHERE ID_Evento = ?');

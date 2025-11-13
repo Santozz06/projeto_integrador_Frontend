@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Avaliações - Dashboard Acadêmico</title>
+    <title>Avaliações - SAS (Sistema Academico Santos)</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
@@ -20,7 +20,6 @@
             padding: 0;
         }
 
-        /* Header fixo */
         .topbar-nav {
             height: 60px;
             z-index: 1000;
@@ -65,7 +64,6 @@
             opacity: 0.7;
         }
 
-        /* Botões */
         .btn {
             color: #fff;
             border: none;
@@ -90,7 +88,6 @@
             background-color: #16a085;
         }
 
-        /* Mantém o botão verde ao clicar/focar (evita roxo padrão do tema) */
         .btn-primary:not(:disabled):not(.disabled):active,
         .btn-primary:not(:disabled):not(.disabled).active,
         .show>.btn-primary.dropdown-toggle {
@@ -157,7 +154,6 @@
             height: auto;
         }
 
-        /* Tabela */
         .avaliacoes-table {
             width: 100%;
             border-collapse: collapse;
@@ -182,7 +178,6 @@
             background-color: rgba(113, 175, 254, 0.1);
         }
 
-        /* Botões de ação */
         .action-btn {
             padding: 5px 10px;
             margin: 2px;
@@ -194,7 +189,6 @@
             gap: 4px;
         }
 
-        /* Grupo de botões */
         .btn-group {
             display: flex;
             flex-direction: column;
@@ -202,7 +196,6 @@
             margin-top: 20px;
         }
 
-        /* Modal */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -232,7 +225,6 @@
             margin-top: 20px;
         }
 
-        /* Responsivo */
         @media (min-width: 768px) {
             .content-wrapper {
                 padding: 30px;
@@ -284,7 +276,6 @@
             }
         }
 
-        /* Acessibilidade */
         button:focus,
         input:focus,
         select:focus {

@@ -1,4 +1,4 @@
-<?php require_once '../includes/bootstrap.php'; ?>
+    <?php require_once '../includes/bootstrap.php'; ?>
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -15,7 +15,6 @@
         .card { background-color: transparent; }
         .table th { background-color: #71affa; color: #fff; }
 
-        /* Botões sólidos (evitar transparente) */
         .btn-Salvar {
             background-color: #1abc9c;
             color: #fff;

@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Caderno de Chamada - Dashboard Acadêmico</title>
+    <title>Caderno de Chamada - SAS (Sistema Academico Santos)</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
@@ -311,7 +311,7 @@
                     // aplica seleção nas linhas
                     aplicarPresencasNaTabela();
                 })
-                .fail(function(){ /* mantém default */ });
+                .fail(function(){ });
         }
 
         function renderTabela(){

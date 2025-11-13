@@ -76,7 +76,7 @@ try {
         try {
                 $c = $pdo->query("SHOW COLUMNS FROM Disciplinas LIKE 'Ativo'");
                 $hasAtivo = (bool)$c->fetch(PDO::FETCH_ASSOC);
-        } catch (Throwable $e) { /* ignore */ }
+    } catch (Throwable $e) { }
 
             $sqlDisc = "SELECT COUNT(*) AS total FROM (
                                         SELECT DISTINCT d.ID_Disciplina

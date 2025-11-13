@@ -25,13 +25,9 @@ $semana = [1=>'Segunda-feira',2=>'Terça-feira',3=>'Quarta-feira',4=>'Quinta-fei
   <link href="../assets/css/icons.css" rel="stylesheet" />
   <link href="../assets/css/sidebar-menu.css" rel="stylesheet" />
   <link href="../assets/css/app-style.css" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css">
-  <style>
-    .form-section{margin-bottom:20px;padding:15px;border-radius:8px;background:rgba(255,255,255,0.06)}
-    .table thead th{background:#71affa;color:#fff}
-  </style>
+  <link rel="stylesheet" href="../css/style.css">
 </head>
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_adm_horarios">
 
 <?php require('menu_padrão.php'); ?>
 

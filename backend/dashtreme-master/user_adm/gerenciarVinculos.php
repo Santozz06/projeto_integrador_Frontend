@@ -66,120 +66,16 @@ if (!$modoSelecao) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciar Vínculos - Dashboard Acadêmico</title>
+    <title>Gerenciar Vínculos - SAS (Sistema Academico Santos)</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/plugins/simplebar/css/simplebar.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-    <style>
-        html, body {
-            height: 100%;
-            min-height: 100%;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-        }
-        body {
-            flex: 1 0 auto;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        .content-wrapper {
-            flex: 1 0 auto;
-        }
-        .footer {
-            flex-shrink: 0;
-            background: transparent;
-            color: #fff;
-            border: none;
-            text-align: center;
-            padding: 15px 0 10px 0;
-        }
-        .btn-custom-primary {
-            background-color: #1abc9c !important;
-            color: white !important;
-            border: none !important;
-        }
-        .btn-custom-primary:hover {
-            background-color: #16a085 !important;
-        }
-        .btn-custom-secondary {
-            background-color: #2c5f9e !important;
-            color: white !important;
-            border: none !important;
-        }
-        .btn-custom-secondary:hover {
-            background-color: #1e4a7e !important;
-        }
-        .btn-custom-danger {
-            background-color: #e74c3c !important;
-            color: white !important;
-            border: none !important;
-        }
-        .btn-custom-danger:hover {
-            background-color: #c0392b !important;
-        }
-        .btn-custom-info {
-            background-color: #17a2b8 !important;
-            color: white !important;
-            border: none !important;
-        }
-        .btn-custom-info:hover {
-            background-color: #138496 !important;
-        }
-        .info-label {
-            font-weight: bold;
-        }
-        .navbar {
-            background-color: rgba(0, 0, 0, 0.2) !important;
-            backdrop-filter: blur(10px);
-        }
-        .vinculo-item {
-            border-left: 4px solid #1abc9c;
-            padding-left: 15px;
-            margin-bottom: 10px;
-        }
-        .usuario-card {
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-        .usuario-card:hover {
-            border-color: #1abc9c;
-            transform: translateY(-2px);
-        }
-        .usuario-card.selected {
-            border-color: #1abc9c;
-            background-color: #f8f9fa;
-        }
-        .content-wrapper .text-muted {
-            color: #cbd3da !important; 
-        }
-
-        /* Modal transparente no estilo da tela de transferências */
-        #confirmVinculoModal .modal-content {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            color: #ecf0f1;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-        #confirmVinculoModal .modal-header { border-bottom: 1px solid rgba(255, 255, 255, 0.15); }
-        #confirmVinculoModal .modal-title { color: #71affe; font-weight: bold; }
-        #confirmVinculoModal .modal-body p,
-        #confirmVinculoModal .modal-body small,
-        #confirmVinculoModal .modal-body div { color: #ecf0f1; }
-        #confirmVinculoModal .btn-primary { background-color: #1abc9c; border: none; }
-        #confirmVinculoModal .btn-primary:hover { background-color: #16a085; }
-        #confirmVinculoModal .btn-secondary { background-color: #7f8c8d; border: none; }
-        #confirmVinculoModal .btn-secondary:hover { background-color: #616a6b; }
-    </style>
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_adm_gerenciarVinculos">
     <?php require("menu_padrão.php"); ?>
 
     <div class="clearfix"></div>

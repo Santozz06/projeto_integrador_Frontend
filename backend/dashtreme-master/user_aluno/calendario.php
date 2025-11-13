@@ -58,17 +58,14 @@
             font-size: 1.2em !important;
         }
 
-        /* Estilo para eventos allday */
         .fc .fc-daygrid-event-harness {
             margin-top: 1px !important;
         }
 
-        /* Espaçamento reduzido */
         .fc .fc-view-harness {
             min-height: 400px !important;
         }
 
-        /* Estilos dos eventos por tipo */
         .fc-event.aula {
             background-color: #007bff;
             border-color: #006fe6;
@@ -90,7 +87,6 @@
             border-color: #23923d;
         }
 
-        /* Painel de filtros */
         .card-title {
             font-size: 0.9rem;
             font-weight: 600;
@@ -104,12 +100,10 @@
             font-size: 0.8rem;
         }
 
-        /* Container principal do calendário */
         #calendar-container {
             transition: all 0.3s;
         }
 
-        /* Responsividade */
         @media (max-width: 992px) {
             .fc-toolbar {
                 flex-direction: column !important;

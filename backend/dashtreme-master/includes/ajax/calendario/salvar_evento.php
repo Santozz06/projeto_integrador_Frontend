@@ -48,7 +48,7 @@ try {
         if ($chk2->rowCount() === 0) {
             $pdo->exec("ALTER TABLE Calendario_Academico ADD COLUMN Criado_Por INT NULL AFTER Publico_Alvo");
         }
-    } catch (Throwable $e) { /* ignore */ }
+    } catch (Throwable $e) { }
 
     $isAdmin = isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'admin';
     $isProfessor = isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'professor';

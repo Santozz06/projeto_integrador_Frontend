@@ -10,7 +10,7 @@ class BaseCRUD {
         $this->primaryKey = $primaryKey ?: 'ID_' . $tableName;
     }
     
-    // CREATE - Criar registro
+    // criar um registro novo
     public function criar($dados) {
         try {
             $campos = implode(', ', array_keys($dados));
@@ -26,7 +26,7 @@ class BaseCRUD {
         }
     }
     
-    // READ - Buscar por ID
+    // pegar 1 registro pelo id
     public function buscarPorId($id) {
         try {
             $sql = "SELECT * FROM {$this->tableName} WHERE {$this->primaryKey} = ?";
@@ -39,7 +39,7 @@ class BaseCRUD {
         }
     }
     
-    // READ - Listar todos 
+    // listar todos (pode filtrar/ordenar se passar params)
     public function listar($condicao = '', $params = [], $ordenacao = '') {
         try {
             $sql = "SELECT * FROM {$this->tableName}";
@@ -61,7 +61,7 @@ class BaseCRUD {
         }
     }
     
-    // READ - Buscar por campo específico
+    // buscar tudo que bate com um campo
     public function buscarPorCampo($campo, $valor) {
         try {
             $sql = "SELECT * FROM {$this->tableName} WHERE $campo = ?";
@@ -74,7 +74,7 @@ class BaseCRUD {
         }
     }
     
-    // UPDATE - Atualizar registro
+    // atualizar campos de um registro
     public function atualizar($id, $dados) {
         try {
             $setClause = [];
@@ -93,7 +93,7 @@ class BaseCRUD {
         }
     }
     
-    // DELETE 
+    // excluir (se tiver campo Ativo faz remoção lógica)
     public function excluir($id) {
         try {
             $stmt = $this->pdo->prepare("SHOW COLUMNS FROM {$this->tableName} LIKE 'Ativo'");
@@ -113,7 +113,7 @@ class BaseCRUD {
         }
     }
     
-    // COUNT 
+    // contar quantos registros tem
     public function contar($condicao = '', $params = []) {
         try {
             $sql = "SELECT COUNT(*) as total FROM {$this->tableName}";
@@ -132,7 +132,7 @@ class BaseCRUD {
         }
     }
     
-    // Verificar se registro existe
+    // checa se existe pelo id
     public function existe($id) {
         try {
             $sql = "SELECT 1 FROM {$this->tableName} WHERE {$this->primaryKey} = ? LIMIT 1";

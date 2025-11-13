@@ -5,92 +5,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatório de Professores - Dashboard Acadêmico</title>
+    <title>Relatório de Professores - SAS (Sistema Academico Santos)</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-    <link rel="stylesheet" href="style.css">
-
-
-    <style>
-        .teacher-photo {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #e0e0e0;
-        }
-
-        .filter-section {
-            background-color: transparent !important;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .btn-custom-print {
-            background-color: #3498db !important;
-            color: white !important;
-            border: none !important;
-        }
-
-        .btn-custom-print:hover {
-            background-color: #2980b9 !important;
-        }
-
-        @media print {
-
-            .no-print,
-            #sidebar-wrapper,
-            .topbar-nav,
-            .dataTables_filter,
-            .dataTables_paginate,
-            .dataTables_info,
-            .dataTables_length {
-                display: none !important;
-            }
-
-            body {
-                background: white !important;
-                color: black !important;
-                font-size: 12pt !important;
-                margin: 0;
-                padding: 1cm;
-            }
-
-            .content-wrapper {
-                margin: 0 !important;
-            }
-
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 20px;
-            }
-
-            th,
-            td {
-                border: 1px solid #000 !important;
-                padding: 6px 10px !important;
-                font-size: 11pt;
-                color: #000 !important;
-            }
-
-            .teacher-photo {
-                display: none !important;
-            }
-        }
-
-        .navbar {
-            background-color: rgba(0, 0, 0, 0.2) !important;
-            backdrop-filter: blur(10px);
-        }
-    </style>
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_adm_professoresCadastrados">
     <?php
     require("menu_padrão.php");
     ?>
@@ -229,7 +153,7 @@
                 images.forEach(img => { if (!img.complete || img.naturalWidth === 0) allLoaded = false; });
                 if (!allLoaded) { alert('Espere as imagens carregarem completamente antes de imprimir.'); return; }
                 const originalTitle = document.title;
-                document.title = 'Relatório de Professores - Dashboard Acadêmico';
+                document.title = 'Relatório de Professores - SAS (Sistema Academico Santos)';
                 $('.no-print').hide();
                 $('body').addClass('printing');
                 setTimeout(() => {

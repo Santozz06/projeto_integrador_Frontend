@@ -9,20 +9,9 @@
   <link rel="stylesheet" href="../assets/css/app-style.css">
   <link rel="stylesheet" href="../assets/css/icons.css">
   <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body { background: linear-gradient(to right, #2c3e50, #3498db); color: #ecf0f1; }
-    .form-container { background: rgba(255,255,255,0.05); padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); max-width: 1100px; margin: 40px auto; }
-    .filtros-container { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
-    .filtro-item { flex: 1; min-width: 200px; }
-    .table { background-color: rgba(255,255,255,0.05); color: #ecf0f1; border-radius: 8px; overflow: hidden; }
-    .table th { background-color: rgba(113,175,254,0.3); color: #fff; }
-    .badge-turma { background-color: rgba(113,175,254,0.2); color: #eff0f1; padding: 3px 8px; border-radius: 10px; font-size: 0.8rem; }
-    .kpi { display: flex; gap: 24px; margin: 8px 0 16px; }
-    .kpi .card { background: rgba(255,255,255,0.07); border: none; padding: 12px 16px; border-radius: 8px; }
-  </style>
+  <link rel="stylesheet" href="../css/style.css">
 </head>
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_adm_cadernoChamada">
   <?php require('menu_padrão.php'); ?>
 
   <div class="content-wrapper">

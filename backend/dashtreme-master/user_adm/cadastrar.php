@@ -5,164 +5,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastrar Disciplinas - Dashboard Acadêmico</title>
+    <title>Cadastrar Disciplinas - SAS (Sistema Academico Santos)</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-    <link rel="stylesheet" href="style.css">
-    <style>
-        body {
-            background: linear-gradient(to right, #2c3e50, #3498db);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #ecf0f1;
-        }
-
-        .form-container {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
-            margin: 40px auto;
-        }
-
-        .form-group label {
-            color: #71affe;
-            font-weight: 600;
-        }
-
-        .form-control {
-            background-color: rgba(255, 255, 255, 0.15);
-            border: 1px solid #71affe;
-            color: #fff;
-            border-radius: 6px;
-        }
-
-        .form-control:focus {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: #fff;
-            border-color: #1abc9c;
-            box-shadow: 0 0 0 0.2rem rgba(26, 188, 156, 0.25);
-        }
-
-        .btn-salvar {
-            background-color: #1abc9c;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 20px;
-        }
-
-        .btn-salvar:hover {
-            background-color: #16a085;
-        }
-
-        .btn-cancelar {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 20px;
-        }
-
-        .btn-cancelar:hover {
-            background-color: #c0392b;
-        }
-
-        .btn-voltar {
-            background-color: #7f8c8d;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 20px;
-        }
-
-        .btn-voltar:hover {
-            background-color: #616a6b;
-        }
-
-        .section-title {
-            color: #71affe;
-            border-bottom: 2px solid #71affe;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-        }
-
-        input::placeholder,
-        select,
-        textarea {
-            color: #ecf0f1;
-        }
-
-        option {
-            color: #e4dfdf;
-        }
-
-        select.form-control option {
-            background-color: rgba(45, 65, 91, 0.9);
-            color: #ecf0f1;
-        }
-
-        .form-section {
-            margin-bottom: 20px;
-        }
-
-        .bold-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .navbar {
-            background-color: rgba(0, 0, 0, 0.2) !important;
-            backdrop-filter: blur(10px);
-        }
-
-        /* Modal transparente no estilo padrão do sistema */
-        #confirmExclusaoModal .modal-content {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            color: #ecf0f1;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-        #confirmExclusaoModal .modal-header { border-bottom: 1px solid rgba(255, 255, 255, 0.15); }
-        #confirmExclusaoModal .modal-title { color: #71affe; font-weight: 600; }
-        #confirmExclusaoModal .btn-primary { background-color: #e74c3c; border: none; }
-        #confirmExclusaoModal .btn-primary:hover { background-color: #c0392b; }
-        #confirmExclusaoModal .btn-secondary { background-color: #7f8c8d; border: none; }
-        #confirmExclusaoModal .btn-secondary:hover { background-color: #616a6b; }
-
-        /* Botões de ação (igual cadastroTurmas.php) */
-        .btn-editar {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 5px 10px;
-            font-size: 12px;
-        }
-        .btn-editar:hover { background-color: #2980b9; }
-
-        .btn-excluir {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 5px 10px;
-            font-size: 12px;
-        }
-        .btn-excluir:hover { background-color: #c0392b; }
-    </style>
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_adm_cadastrar">
     <?php
     require("menu_padrão.php");
     ?>
@@ -380,7 +231,7 @@
                             });
                         }
                     })
-                    .fail(function(){ /* silencioso */});
+                    .fail(function(){ });
             }
 
             $('#ano-letivo').on('change', function(){

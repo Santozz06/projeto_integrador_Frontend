@@ -41,7 +41,7 @@ try {
         if ($chk->rowCount() === 0) {
             $pdo->exec("ALTER TABLE Calendario_Academico ADD COLUMN Publico_Alvo VARCHAR(20) DEFAULT 'todos' AFTER Tipo_Evento");
         }
-    } catch (Throwable $e) { /* ignore */ }
+    } catch (Throwable $e) { }
 
     $sql = "UPDATE Calendario_Academico
             SET Publico_Alvo = :publico

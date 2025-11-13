@@ -5,141 +5,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atestado de Frequência - Dashboard Acadêmico</title>
+    <title>Atestado de Frequência - SAS (Sistema Academico Santos)</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .filter-section {
-            background-color: transparent !important;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            box-shadow: none !important;
-        }
-
-        .student-list {
-            max-height: 500px;
-            overflow-y: auto;
-            background-color: transparent !important;
-            border-radius: 8px;
-            border: none !important;
-            padding: 0 !important;
-        }
-
-        .student-card {
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background-color: transparent !important;
-            margin-bottom: 8px;
-            border-radius: 4px;
-            padding: 12px;
-            border: none !important;
-            box-shadow: none !important;
-            border-left: 3px solid transparent;
-        }
-
-        .student-card:hover {
-            background-color: rgba(0, 0, 0, 0.03) !important;
-            border-left: 3px solid rgba(33, 150, 243, 0.3);
-        }
-
-        .student-card.selected {
-            background-color: rgba(33, 150, 243, 0.08) !important;
-            border-left: 3px solid #2196F3;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        .student-card h6 {
-            margin-bottom: 4px;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .student-card small {
-            color: #555;
-        }
-
-        .student-card:hover h6 {
-            color: #2196F3;
-        }
-
-        .student-card.selected h6 {
-            color: #1565C0;
-        }
-
-        .btn-generate {
-            margin-top: 20px;
-        }
-
-        .no-print {
-            display: block;
-        }
-
-        .btn-custom-print {
-            background-color: #3498db !important;
-            color: white !important;
-            border: none !important;
-        }
-
-        .btn-custom-print:hover {
-            background-color: #2980b9 !important;
-        }
-
-        .year-option {
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 10px;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            background-color: rgba(255, 255, 255, 0.05);
-            display: block;
-            text-decoration: none !important;
-        }
-
-        .year-option:hover {
-            background-color: rgba(0, 0, 0, 0.03);
-            border-color: #2196F3;
-        }
-
-        .year-title {
-            font-weight: 600;
-            color: #333;
-            display: inline-block;
-        }
-
-        .year-status {
-            float: right;
-        }
-
-        .badge-info {
-            background-color: #36b9cc;
-            color: #fff;
-        }
-
-        .badge-success {
-            background-color: #1cc88a;
-            color: #fff;
-        }
-
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-        }
-
-        .navbar {
-            background-color: rgba(0, 0, 0, 0.2) !important;
-            backdrop-filter: blur(10px);
-        }
-    </style>
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_adm_atestadoFrequencia">
     <?php
     require("menu_padrão.php");
     ?>

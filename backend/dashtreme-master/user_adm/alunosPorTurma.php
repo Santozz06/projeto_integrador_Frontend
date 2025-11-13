@@ -5,120 +5,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alunos por Turma - Dashboard Acadêmico</title>
+    <title>Alunos por Turma - SAS (Sistema Academico Santos)</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .btn-custom-primary {
-            background-color: #1abc9c !important;
-            color: white !important;
-            border: none !important;
-        }
-
-        .btn-custom-primary:hover {
-            background-color: #16a085 !important;
-        }
-
-        .btn-custom-secondary {
-            background-color: #3498db !important;
-            color: white !important;
-            border: none !important;
-        }
-
-        .btn-custom-secondary:hover {
-            background-color: #2980b9 !important;
-        }
-
-        .filter-section {
-            background-color: transparent !important;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .student-card {
-            border-left: 4px solid #1abc9c;
-            transition: all 0.3s;
-        }
-
-        .student-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .student-photo {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #e0e0e0;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            background-color: transparent !important;
-            border-radius: 8px;
-        }
-
-        .empty-state i {
-            font-size: 60px;
-            color: #edf0f3;
-            margin-bottom: 20px;
-        }
-
-        @media print {
-
-            .no-print,
-            .sidebar-menu,
-            .topbar-nav,
-            .footer,
-            .toggle-menu,
-            #print-btn {
-                display: none !important;
-            }
-
-            body {
-                background: white !important;
-                color: black !important;
-                font-size: 12pt !important;
-                padding: 20px !important;
-            }
-
-            body,
-            .text-muted,
-            .small {
-                color: #000 !important;
-                opacity: 1 !important;
-            }
-
-            .matricula-text {
-                color: #000 !important;
-                font-weight: bold;
-            }
-
-            .student-card {
-                margin-bottom: 15px;
-                page-break-inside: avoid;
-            }
-        }
-
-        .header-print {
-            display: none;
-        }
-
-        .navbar {
-            background-color: rgba(0, 0, 0, 0.2) !important;
-            backdrop-filter: blur(10px);
-        }
-    </style>
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_adm_alunosPorTurma">
 
 <?php
     require("menu_padrão.php");
@@ -201,7 +97,7 @@
         <footer class="footer no-print">
             <div class="container">
                 <div class="text-center text-white">
-                    Copyright © 2023 Dashboard Acadêmico
+                    Copyright © 2023 SAS (Sistema Academico Santos)
                 </div>
             </div>
         </footer>

@@ -25,7 +25,7 @@ if (isset($_SESSION['usuario_id']) && isset($_SESSION['user_type'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <meta name="description" content="" />
   <meta name="author" content="" />
-  <title>Dashboard Acadêmico - Login</title>
+  <title>SAS (Sistema Academico Santos) - Login</title>
   <!-- loader-->
   <link href="assets/css/pace.min.css" rel="stylesheet" />
   <script src="assets/js/pace.min.js"></script>

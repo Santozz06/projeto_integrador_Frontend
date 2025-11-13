@@ -85,7 +85,7 @@ try {
             if ($rowAno && $rowAno['Ano_Letivo'] !== null) {
                 $ano = (int)$rowAno['Ano_Letivo'];
             }
-        } catch (Throwable $e) { /* segue sem ano explícito */ }
+    } catch (Throwable $e) { }
     }
 
     if ($id) {

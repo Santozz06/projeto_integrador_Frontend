@@ -9,7 +9,7 @@ $professorId = isset($_GET['professor_id']) && $_GET['professor_id'] !== '' ? (i
 $disciplina = isset($_GET['disciplina']) && $_GET['disciplina'] !== '' ? trim($_GET['disciplina']) : null;
 
 try {
-    // Subquery principal: disciplinas agregadas por professor (com filtros)
+    // pega disciplinas por professor (com filtros)
     $paramsD = [];
     $sqlD = "SELECT ID_Professor,
                     GROUP_CONCAT(DISTINCT Nome_Disciplina ORDER BY Nome_Disciplina SEPARATOR ', ') AS Disciplinas,
@@ -20,7 +20,7 @@ try {
     if ($professorId) { $sqlD .= " AND ID_Professor = ?"; $paramsD[] = $professorId; }
     $sqlD .= " GROUP BY ID_Professor";
 
-    // Verificar se há correspondências em Disciplinas conforme os filtros; caso contrário, usar fallback via Notas/Matriculas/Turmas
+    // se não achar nada em Disciplinas, usa um fallback com outras tabelas
     $useFallback = false;
     try {
         $countSql = "SELECT COUNT(*) FROM Disciplinas WHERE 1=1";
@@ -33,11 +33,11 @@ try {
         $hasRows = (int)$cstmt->fetchColumn() > 0;
         $useFallback = !$hasRows;
     } catch (Exception $e) {
-        // Em caso de erro na checagem, mantemos a abordagem principal
+    // se der erro aqui, segue o plano principal mesmo
         $useFallback = false;
     }
 
-    // Fallback: derivar disciplinas por professor a partir de Notas/Matriculas/Turmas se Disciplinas não tiver ID_Professor preenchido
+    // fallback: monta a lista usando Notas/Matriculas/Turmas
     $paramsDF = [];
     $sqlDF = "SELECT pt.ID_Professor,
                      GROUP_CONCAT(DISTINCT d.Nome_Disciplina ORDER BY d.Nome_Disciplina SEPARATOR ', ') AS Disciplinas,
@@ -50,10 +50,10 @@ try {
               WHERE 1=1";
     if ($ano) { $sqlDF .= " AND t.Ano_Letivo = ?"; $paramsDF[] = $ano; }
     if ($disciplina) { $sqlDF .= " AND d.Nome_Disciplina = ?"; $paramsDF[] = $disciplina; }
-    // Não filtramos por professor aqui; o filtro principal abaixo já o faz de forma consistente
+    // não filtra por professor aqui; a query final já cuida disso
     $sqlDF .= " GROUP BY pt.ID_Professor";
 
-    // Subquery: turmas agregadas por professor (respeitando ano se informado)
+    // turmas por professor (considera ano se passado)
     $paramsT = [];
     $sqlT = "SELECT pt.ID_Professor,
                     GROUP_CONCAT(DISTINCT t.Nome_Turma ORDER BY t.Nome_Turma SEPARATOR ', ') AS Turmas
@@ -62,15 +62,15 @@ try {
     if ($ano) { $sqlT .= " AND t.Ano_Letivo = ?"; $paramsT[] = $ano; }
     $sqlT .= " GROUP BY pt.ID_Professor";
 
-    // Main query unindo usuários e professores às agregações
+    // query principal juntando tudo
     $params = [];
-    // Checar existência da coluna Matricula na tabela Professores
+    // checa se Professores tem a coluna Matricula
     $temMatricula = false;
     try {
         $chk = $pdo->prepare("SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'Professores' AND COLUMN_NAME = 'Matricula'");
         $chk->execute();
         $temMatricula = (bool)$chk->fetchColumn();
-    } catch (Exception $e) { /* ignore */ }
+    } catch (Exception $e) { }
 
     $colMat = $temMatricula ? ", p.Matricula" : "";
 
@@ -87,7 +87,7 @@ try {
             LEFT JOIN (" . $sqlT . ") t ON t.ID_Professor = p.ID_Professor
             WHERE 1=1";
 
-    // Filtros no main
+    // filtros finais
     if ($professorId) { $sql .= " AND p.ID_Professor = ?"; $params[] = $professorId; }
     if ($disciplina) { $sql .= " AND d.ID_Professor IS NOT NULL"; }
 
@@ -98,7 +98,7 @@ try {
     $stmt->execute($execParams);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Enriquecer com Status amigável
+    // status amigável
     foreach ($rows as &$r) {
         $r['Status'] = ((int)$r['Ativo'] === 1) ? 'Ativo' : 'Inativo';
     }

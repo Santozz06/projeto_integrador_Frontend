@@ -6,107 +6,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Histórico Escolar</title>
-    <style>
-        body {
-            font-family: "Times New Roman", serif;
-            margin: 40px 60px;
-            font-size: 14px;
-            color: #000;
-            line-height: 1.4;
-        }
-
-        .no-print {
-            display: block;
-            margin-bottom: 20px;
-        }
-
-        .btn-print {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .btn-print:hover {
-            background-color: #2980b9;
-        }
-
-        .cabecalho {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .titulo {
-            text-align: center;
-            font-weight: bold;
-            font-size: 18px;
-            margin: 20px 0;
-            text-decoration: underline;
-        }
-
-        .dados-aluno {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        .dados-aluno td {
-            padding: 5px;
-            border: 1px solid #ddd;
-        }
-
-        .tabela-disciplinas {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-
-        .tabela-disciplinas th,
-        .tabela-disciplinas td {
-            border: 1px solid #000;
-            padding: 8px;
-            text-align: center;
-        }
-
-        .tabela-disciplinas th {
-            background-color: #f2f2f2;
-        }
-
-        .rodape {
-            margin-top: 40px;
-        }
-
-        .assinaturas {
-            width: 100%;
-            margin-top: 50px;
-        }
-
-        .assinaturas td {
-            padding-top: 50px;
-            text-align: center;
-            width: 50%;
-        }
-
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-
-            body {
-                margin: 0;
-            }
-        }
-        .navbar {
-            background-color: rgba(0, 0, 0, 0.2) !important;
-            backdrop-filter: blur(10px);
-        }
-    </style>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/app-style.css">
+    <link rel="stylesheet" href="../assets/css/icons.css">
+    <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 
-<body>
+<body class="user_adm_visualizarHistorico">
     <!-- Botão de impressão  -->
     <div class="no-print">
         <button class="btn-print" onclick="window.print()">

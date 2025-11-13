@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resumo por Turma - Dashboard Acadêmico</title>
+    <title>Resumo por Turma - SAS (Sistema Academico Santos)</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
@@ -19,7 +19,6 @@
             border-left: 4px solid;
             cursor: pointer;
             background-color: transparent !important;
-            /* Alterado para transparente */
         }
 
         .summary-card:hover {
@@ -47,7 +46,6 @@
         .summary-label {
             font-size: 1rem;
             color: #34495e !important;
-            /* Alterado para azul escuro (mais visível) */
             font-weight: 500;
         }
 
@@ -70,7 +68,6 @@
 
         .turma-header {
             background-color: transparent !important;
-            /* Alterado para transparente */
             border-radius: 8px;
             padding: 15px;
             margin-bottom: 20px;

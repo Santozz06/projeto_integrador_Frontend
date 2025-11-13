@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Turmas - Dashboard Acadêmico</title>
+    <title>Turmas - SAS (Sistema Academico Santos)</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
@@ -20,7 +20,7 @@
 
         .container-select {
             max-width: 900px;
-            margin: 2px auto; /* reduz o espaço abaixo da navbar */
+            margin: 2px auto;
             background: rgba(255, 255, 255, 0.05);
             padding: 30px;
             border-radius: 12px;

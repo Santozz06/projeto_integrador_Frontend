@@ -14,7 +14,7 @@ if ($idTurma <= 0) {
 }
 
 try {
-    // Agrega presença/ausência por aluno (matrícula) na turma, opcionalmente por intervalo de datas
+    // frequencia da turma
     $params = [$idTurma];
     $dateWhere = '';
     if ($dataInicio) { $dateWhere .= ' AND f.Data >= ?'; $params[] = $dataInicio; }
@@ -35,8 +35,7 @@ try {
             GROUP BY u.ID_Usuario, u.Nome_Completo, a.Matricula
             ORDER BY u.Nome_Completo";
 
-    // Note: params order must match placeholders: date filters first (in LEFT JOIN clause), then turma_id repeats at end
-    // Reorder params: we built with turma first; rebuild appropriately
+    // ajusta ordem dos params
     $paramsFinal = [];
     if ($dataInicio) { $paramsFinal[] = $dataInicio; }
     if ($dataFim) { $paramsFinal[] = $dataFim; }
@@ -46,12 +45,12 @@ try {
     $stmt->execute($paramsFinal);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Calcular percentuais e preencher Justificadas como 0 (schema atual não possui coluna específica)
+    // calcula percentual
     foreach ($rows as &$r) {
         $total = (int)$r['Total_Registros'];
         $presentes = (int)$r['Presentes'];
         $faltas = (int)$r['Faltas'];
-        $r['Justificadas'] = 0; // Sem suporte no schema atual
+    $r['Justificadas'] = 0; // sem coluna
         $r['Percentual'] = $total > 0 ? round(($presentes / $total) * 100, 1) : 0.0;
     }
 

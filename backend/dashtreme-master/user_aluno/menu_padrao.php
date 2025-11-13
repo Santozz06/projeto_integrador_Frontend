@@ -8,7 +8,7 @@
                 <div class="brand-logo">
                     <a href="index.php">
                         <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
-                        <h5 class="logo-text">Dashboard Acadêmico</h5>
+                        <h5 class="logo-text">SAS (Sistema Academico Santos)</h5>
                     </a>
                 </div>
                 <ul class="sidebar-menu do-nicescrol">

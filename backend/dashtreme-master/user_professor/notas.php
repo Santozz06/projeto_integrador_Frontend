@@ -254,7 +254,7 @@
                     if (res.success && Array.isArray(res.data)) {
                         res.data.forEach(ano => $sel.append(`<option value="${ano}">${ano}</option>`));
                     }
-                } catch(e) { /* ignora e mantém vazio */ }
+                } catch(e) { }
             }
             async function atualizarTurmas(){
                 const ano = $('#ano-letivo').val();
