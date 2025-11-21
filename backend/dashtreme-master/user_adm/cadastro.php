@@ -61,9 +61,6 @@ if (isset($_GET['editarAluno']) && !empty($_GET['editarAluno'])) {
     $id_aluno_edicao = $_GET['editarAluno'];
     $aluno_para_edicao = $usuarioCRUD->buscarAlunoCompleto($id_aluno_edicao);
 
-    // debug simples
-    // error_log(print_r($aluno_para_edicao, true));
-
     // municipios pelo UF_Endereco
     if ($aluno_para_edicao && isset($aluno_para_edicao['UF_Endereco']) && $aluno_para_edicao['UF_Endereco']) {
         $municipios_aluno = $localidadeCRUD->listarMunicipiosPorEstado($aluno_para_edicao['UF_Endereco']);
@@ -95,6 +92,44 @@ if (isset($_GET['editarServidor']) && !empty($_GET['editarServidor'])) {
 }
 
 // processa formulário
+// Funções auxiliares para AJAX (renderização das linhas de tabela)
+function renderLinhasAlunos(array $alunos, $editId = null): string {
+    $html = '';
+    foreach ($alunos as $al) {
+        $highlight = ($editId && (int)$editId === (int)$al['ID_Usuario']) ? ' class="table-success"' : '';
+        $html .= '<tr'.$highlight.'>'
+            .'<td>'.htmlspecialchars($al['Nome_Completo']).'</td>'
+            .'<td>'.htmlspecialchars($al['Email']).'</td>'
+            .'<td>'.htmlspecialchars($al['Matricula'] ?? 'N/A').'</td>'
+            .'<td>'.htmlspecialchars($al['Telefone'] ?? 'N/A').'</td>'
+            .'<td>'
+            .'<a href="?editarAluno='.$al['ID_Usuario'].'" class="btn btn-sm btn-primary">Editar</a> '
+            .'<a href="?excluirAluno='.$al['ID_Usuario'].'" class="btn btn-sm btn-danger" onclick="return confirm(\'Deseja realmente excluir este aluno?\');">Excluir</a>'
+            .'</td>'
+            .'</tr>';
+    }
+    return $html;
+}
+function renderLinhasServidores(array $servidores, $editId = null): string {
+    $html='';
+    foreach ($servidores as $s) {
+        $highlight = ($editId && (int)$editId === (int)$s['ID_Usuario']) ? ' class="table-success"' : '';
+        $html .= '<tr'.$highlight.'>'
+            .'<td>'.htmlspecialchars($s['Nome_Completo']).'</td>'
+            .'<td>'.htmlspecialchars($s['Email']).'</td>'
+            .'<td>'.htmlspecialchars($s['Formacao_Academica'] ?? 'N/A').'</td>'
+            .'<td>'.htmlspecialchars($s['Matricula'] ?? 'N/A').'</td>'
+            .'<td>'.htmlspecialchars($s['Telefone'] ?? 'N/A').'</td>'
+            .'<td>'
+            .'<a href="?editarServidor='.$s['ID_Usuario'].'" class="btn btn-sm btn-primary">Editar</a> '
+            .'<a href="?excluirServidor='.$s['ID_Usuario'].'" class="btn btn-sm btn-danger" onclick="return confirm(\'Deseja realmente excluir este servidor?\');">Excluir</a>'
+            .'</td>'
+            .'</tr>';
+    }
+    return $html;
+}
+
+$isAjax = ($_SERVER['REQUEST_METHOD'] === 'POST') && isset($_POST['ajax']) && $_POST['ajax'] === '1';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         if ($_POST['tipo'] === 'aluno') {
@@ -161,7 +196,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $ufSigla = $rowUf['uf'];
                         }
                     } catch (Exception $e) {
-                        // ignora erro
                     }
                 }
 
@@ -208,7 +242,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'outras' => $_POST['outrasNecessidades'] ?? ''
                 ]);
                 $sucesso = "Aluno atualizado com sucesso!";
-                // redireciona
+                if ($isAjax) {
+                    // Recarrega listagem
+                    $listaAlunos = $usuarioCRUD->listarAlunos(1, $limite_por_pagina);
+                    // Ao salvar, não manter modo edição: não enviar id para destaque
+                    echo json_encode([
+                        'success' => true,
+                        'tipo' => 'aluno',
+                        'id' => (int)$id_aluno, // ainda retornado se precisar em futuro, mas não usado para highlight
+                        'mensagem' => $sucesso,
+                        'tabela' => renderLinhasAlunos($listaAlunos, null)
+                    ]);
+                    exit;
+                }
                 header("Location: cadastro.php?editarAluno=" . $id_aluno . "&sucesso=" . urlencode($sucesso));
                 exit;
             } else {
@@ -226,7 +272,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'outras' => $_POST['outrasNecessidades'] ?? ''
                 ]);
                 $sucesso = "Aluno cadastrado com sucesso! Matrícula: " . $matricula;
-                // redireciona
+                if ($isAjax) {
+                    $listaAlunos = $usuarioCRUD->listarAlunos(1, $limite_por_pagina);
+                    // Após cadastro novo não destacar linha (sai do modo edição imediatamente)
+                    echo json_encode([
+                        'success' => true,
+                        'tipo' => 'aluno',
+                        'id' => (int)$idAluno,
+                        'mensagem' => $sucesso,
+                        'tabela' => renderLinhasAlunos($listaAlunos, null)
+                    ]);
+                    exit;
+                }
                 header("Location: cadastro.php?editarAluno=" . $idAluno . "&sucesso=" . urlencode($sucesso));
                 exit;
             }
@@ -258,17 +315,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'Raca_Etnia' => $_POST['racaCorServidor'],
                 'Estado_Civil' => $_POST['estadoCivilServidor'],
                 'Nacionalidade' => $_POST['nacionalidadeServidor'],
-                // Naturalidade do servidor será salva como "Cidade/UF" (texto), similar ao aluno
-                // Abaixo, montaremos este campo após buscar o município/UF
                 'Filiacao' => $_POST['filiacaoServidor'],
                 'Orgao_Exp' => $_POST['orgaoExpedidorServidor'],
                 'UF_Exp' => $_POST['ufDocumentoServidor'],
-                // Telefone e Celular: preenche ambos e, se existir coluna Telefone_Fixo, também atualiza
                 'Telefone' => $_POST['telefoneServidor'] ?? '',
                 'Telefone_Fixo' => $_POST['telefoneServidor'] ?? '',
                 'Celular' => $_POST['celularServidor'] ?? '',
                 'CEP' => $_POST['cepServidor'] ?? '',
-                // Armazena 'Endereco' completo e, se existir coluna 'Logradouro', preenche também
                 'Endereco' => $_POST['logradouroServidor'] . ', ' . $_POST['numeroServidor'] . ' - ' . $_POST['bairroServidor'],
                 'Logradouro' => $_POST['logradouroServidor'] ?? '',
                 'Numero' => $_POST['numeroServidor'] ?? '',
@@ -294,7 +347,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $ufSigla = $rowUf['uf'];
                         }
                     } catch (Exception $e) {
-                        // silencioso
                     }
                 }
 
@@ -325,7 +377,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if ($senhaServidor !== $confirmarSenhaServidor) {
                         throw new Exception('As senhas não coincidem.');
                     }
-                    $dadosUsuario['Senha'] = $senhaServidor; // atualizar
+                    $dadosUsuario['Senha'] = $senhaServidor;
                 }
             }
 
@@ -340,6 +392,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_POST['matriculaServidor'] ?? null
                 );
                 $sucesso = "Servidor atualizado com sucesso!";
+                if ($isAjax) {
+                    $listaServ = $usuarioCRUD->listarProfessores(1, $limite_por_pagina);
+                    // Não destacar linha após salvar atualização
+                    echo json_encode([
+                        'success' => true,
+                        'tipo' => 'servidor',
+                        'id' => (int)$id_servidor,
+                        'mensagem' => $sucesso,
+                        'tabela' => renderLinhasServidores($listaServ, null)
+                    ]);
+                    exit;
+                }
                 header("Location: cadastro.php?editarServidor=" . $id_servidor . "&sucesso=" . urlencode($sucesso));
                 exit;
             } else {
@@ -352,6 +416,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_POST['matriculaServidor'] ?? null
                 );
                 $sucesso = "Servidor cadastrado com sucesso!";
+                if ($isAjax) {
+                    $listaServ = $usuarioCRUD->listarProfessores(1, $limite_por_pagina);
+                    // Não destacar linha após cadastro
+                    echo json_encode([
+                        'success' => true,
+                        'tipo' => 'servidor',
+                        'id' => (int)$idProfessor,
+                        'mensagem' => $sucesso,
+                        'tabela' => renderLinhasServidores($listaServ, null)
+                    ]);
+                    exit;
+                }
                 header("Location: cadastro.php?editarServidor=" . $idProfessor . "&sucesso=" . urlencode($sucesso));
                 exit;
             }
@@ -360,7 +436,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (Exception $e) {
         $msg = $e->getMessage();
         $friendly = '';
-        // Tratamento para duplicidades (MySQL 1062) e violação de unique (SQLSTATE 23000)
+        // Tratamento para duplicidades 
         if ((method_exists($e, 'getCode') && (int)$e->getCode() === 23000) || stripos($msg, 'Duplicate entry') !== false) {
             if (stripos($msg, 'uniq_email') !== false || stripos($msg, 'Email') !== false) {
                 $friendly = 'Este e-mail já está cadastrado. Use outro e-mail ou recupere a senha.';
@@ -372,6 +448,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $erro = $friendly ?: ("Erro no cadastro: " . $msg);
         error_log("Erro cadastro: " . $msg);
+        if ($isAjax) {
+            echo json_encode([
+                'success' => false,
+                'mensagem' => $erro
+            ]);
+            exit;
+        }
     }
 }
 
@@ -396,6 +479,13 @@ $pagina_servidores = isset($_GET['pagina_servidores']) ? (int) $_GET['pagina_ser
 $total_servidores = $usuarioCRUD->countProfessores();
 $total_paginas_servidores = ceil($total_servidores / $limite_por_pagina);
 $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pagina);
+
+
+// Determinar aba ativa (padrao aluno, muda se edição/parametros de servidor presentes)
+$abaAtiva = 'aluno';
+if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isset($_POST['tipo']) && $_POST['tipo']==='servidor')) {
+    $abaAtiva = 'servidor';
+}
 ?>
 
 <!DOCTYPE html>
@@ -405,9 +495,9 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="Cadastro - SAS (Sistema Academico Santos)" />
+    <meta name="description" content="Cadastro - SAS" />
     <meta name="author" content="" />
-    <title>Cadastro - SAS (Sistema Academico Santos)</title>
+    <title>Cadastro - SAS</title>
     <!-- loader-->
     <link href="../assets/css/pace.min.css" rel="stylesheet" />
     <script src="../assets/js/pace.min.js"></script>
@@ -425,180 +515,16 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
     <link href="../assets/css/sidebar-menu.css" rel="stylesheet" />
     <!-- Custom Style-->
     <link href="../assets/css/app-style.css" rel="stylesheet" />
+    <link href="../css/style.css" rel="stylesheet" />
 
     <!-- Select2 CSS -->
     <link href="../assets/plugins/select2/css/select2.min.css" rel="stylesheet" />
     <link href="../assets/plugins/select2/css/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 
-    <style>
-        .navbar {
-            background-color: rgba(0, 0, 0, 0.2) !important;
-            backdrop-filter: blur(10px);
-        }
-        .form-section {
-            margin-bottom: 30px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 20px;
-        }
-
-        .form-section h5 {
-            color: #71affa;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
-        .needs-box {
-            border: 1px solid #71affa;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 20px;
-            background-color: transparent;
-            color: #212529;
-            position: relative;
-            z-index: 1;
-        }
-
-        .checkbox-label {
-            display: block;
-            position: relative;
-            padding-left: 30px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            user-select: none;
-            font-size: 14px;
-        }
-
-        .checkbox-label input {
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-            height: 0;
-            width: 0;
-        }
-
-        .checkmark {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 20px;
-            width: 20px;
-            background-color: #eee;
-            border-radius: 3px;
-        }
-
-        .checkbox-label:hover input~.checkmark {
-            background-color: #ccc;
-        }
-
-        .checkbox-label input:checked~.checkmark {
-            background-color: #2c5f9e;
-        }
-
-        .checkmark:after {
-            content: "";
-            position: absolute;
-            display: none;
-        }
-
-        .checkbox-label input:checked~.checkmark:after {
-            display: block;
-        }
-
-        .checkbox-label .checkmark:after {
-            left: 7px;
-            top: 3px;
-            width: 5px;
-            height: 10px;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-        }
-
-        .btn-Salvar {
-            background-color: #2ecc71;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 20px;
-        }
-
-        .btn-Salvar:hover {
-            background-color: #27ae60;
-        }
-
-        .btn-cancelar {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 20px;
-        }
-
-        .btn-cancelar:hover {
-            background-color: #c0392b;
-        }
-
-        .btn-info {
-            background-color: #17a2b8;
-            border-color: #17a2b8;
-            color: white;
-        }
-
-        .btn-info:hover {
-            background-color: #138496;
-            border-color: #117a8b;
-            color: white;
-        }
-
-        .btn-info.disabled {
-            background-color: #6c757d;
-            border-color: #6c757d;
-            cursor: not-allowed;
-            opacity: 0.65;
-        }
-
-        .alert-success {
-            color: #155724;
-            background-color: #d4edda;
-            border-color: #c3e6cb;
-            padding: 0.75rem 1.25rem;
-            margin-bottom: 1rem;
-            border: 1px solid transparent;
-            border-radius: 0.25rem;
-        }
-
-        .alert-danger {
-            color: #721c24;
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-            padding: 0.75rem 1.25rem;
-            margin-bottom: 1rem;
-            border: 1px solid transparent;
-            border-radius: 0.25rem;
-        }
-
-        .table th {
-            background-color: #71affa;
-            color: white;
-        }
-
-        .nav-tabs .nav-link.active {
-            background-color: #71affa;
-            color: white;
-            border-color: #71affa;
-        }
-
-        .nav-tabs .nav-link {
-            color: #71affa;
-        }
-
-        .select2-container--bootstrap-5 .select2-selection {
-            min-height: 38px;
-        }
-    </style>
+    
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_adm_cadastro">
 
     <?php require("menu_padrão.php"); ?>
 
@@ -636,12 +562,12 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                 <div class="card-body">
                     <ul class="nav nav-tabs nav-primary" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link active" data-toggle="tab" href="#aluno" role="tab">
+                            <a class="nav-link <?= $abaAtiva==='aluno' ? 'active' : '' ?>" data-toggle="tab" href="#aluno" role="tab">
                                 <i class="zmdi zmdi-accounts-alt mr-1"></i> Aluno
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#servidor" role="tab">
+                            <a class="nav-link <?= $abaAtiva==='servidor' ? 'active' : '' ?>" data-toggle="tab" href="#servidor" role="tab">
                                 <i class="zmdi zmdi-account-box mr-1"></i> Servidor
                             </a>
                         </li>
@@ -649,7 +575,7 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
 
                     <div class="tab-content pt-3">
                         <!-- Aba Aluno -->
-                        <div class="tab-pane fade show active" id="aluno" role="tabpanel">
+                        <div class="tab-pane fade show <?= $abaAtiva==='aluno' ? 'active' : '' ?>" id="aluno" role="tabpanel">
                             <form id="formAluno" method="POST">
                                 <input type="hidden" name="tipo" value="aluno">
                                 <input type="hidden" name="id_aluno"
@@ -716,7 +642,7 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                                 <label>Senha</label>
                                                 <input type="password" class="form-control" name="senha" 
                                                     placeholder="Defina uma senha" <?= empty($aluno_para_edicao) ? 'required' : '' ?>>
-                                                <small class="form-text text-muted">Obrigatória no cadastro. Em edição, preencha para alterar.</small>
+                                                <small class="form-text text-white">Obrigatória no cadastro. Em edição, preencha para alterar.</small>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -1035,8 +961,10 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                     <div class="col-sm-12 text-right">
                                         <button type="submit" class="btn btn-Salvar px-5"
                                             id="btnSalvarAluno">Salvar</button>
+                                        <?php if (!empty($aluno_para_edicao['ID_Usuario'])): ?>
                                         <button type="button" class="btn btn-info px-5" id="btnVincularAluno"
                                             onclick="verificarEEnviarParaVinculos('aluno')">Vincular</button>
+                                        <?php endif; ?>
                                         <a href="cadastro.php" class="btn btn-cancelar px-5">Cancelar</a>
                                     </div>
                                 </div>
@@ -1056,7 +984,7 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                 </thead>
                                 <tbody>
                                     <?php foreach ($alunos as $aluno): ?>
-                                        <tr>
+                                        <tr class="<?= (isset($aluno_para_edicao['ID_Usuario']) && $aluno_para_edicao['ID_Usuario']==$aluno['ID_Usuario']) ? 'table-success' : '' ?>">
                                             <td><?= htmlspecialchars($aluno['Nome_Completo']) ?></td>
                                             <td><?= htmlspecialchars($aluno['Email']) ?></td>
                                             <td><?= htmlspecialchars($aluno['Matricula'] ?? 'N/A') ?></td>
@@ -1095,7 +1023,7 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                         </div> <!-- Fim da aba Aluno -->
 
                         <!-- Aba Servidor -->
-                        <div class="tab-pane fade" id="servidor" role="tabpanel">
+                        <div class="tab-pane fade show <?= $abaAtiva==='servidor' ? 'active' : '' ?>" id="servidor" role="tabpanel">
                             <form id="formServidor" method="POST" novalidate>
                                 <input type="hidden" name="tipo" value="servidor">
                                 <input type="hidden" name="id_servidor"
@@ -1127,8 +1055,9 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label>Matrícula</label>
-                                                <input type="text" class="form-control" name="matriculaServidor"
+                                                <input type="text" class="form-control" name="matriculaServidor" required
                                                     value="<?= htmlspecialchars($servidor_para_edicao['Matricula'] ?? '') ?>">
+                                                <small class="form-text text-white">Obrigatória. Utilize o padrão interno da instituição.</small>
                                             </div>
                                         </div>
                                     </div>
@@ -1180,7 +1109,7 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                                 <label>Senha</label>
                                                 <input type="password" class="form-control" name="senha"
                                                     placeholder="Defina uma senha" <?= empty($servidor_para_edicao) ? 'required' : '' ?>>
-                                                <small class="form-text text-muted">Obrigatória no cadastro. Em edição, preencha para alterar.</small>
+                                                <small class="form-text text-white">Obrigatória no cadastro. Em edição, preencha para alterar.</small>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -1445,8 +1374,10 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                 <div class="form-group row mt-3">
                                     <div class="col-sm-12 text-right">
                                         <button type="submit" class="btn btn-Salvar px-5">Salvar</button>
+                                        <?php if (!empty($servidor_para_edicao['ID_Usuario'])): ?>
                                         <button type="button" class="btn btn-info px-5" id="btnVincularServidor"
                                             onclick="verificarEEnviarParaVinculos('servidor')">Vincular</button>
+                                        <?php endif; ?>
                                         <button type="button" class="btn btn-cancelar px-5"
                                             id="btnCancelarServidor">Cancelar</button>
                                     </div>
@@ -1468,11 +1399,11 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
                                 </thead>
                                 <tbody>
                                     <?php foreach ($servidores as $servidor): ?>
-                                        <tr>
+                                        <tr class="<?= (isset($servidor_para_edicao['ID_Usuario']) && $servidor_para_edicao['ID_Usuario']==$servidor['ID_Usuario']) ? 'table-success' : '' ?>">
                                             <td><?= htmlspecialchars($servidor['Nome_Completo']) ?></td>
                                             <td><?= htmlspecialchars($servidor['Email']) ?></td>
                                             <td><?= htmlspecialchars($servidor['Formacao_Academica'] ?? 'N/A') ?></td>
-                                            <td><?= htmlspecialchars($servidor['Matricula'] ?? 'N/A') ?></td>
+                                            <td><?= htmlspecialchars($servidor['Matricula'] ?? '—') ?></td>
                                             <td><?= htmlspecialchars($servidor['Telefone'] ?? 'N/A') ?></td>
                                             <td>
                                                 <a href="?editarServidor=<?= $servidor['ID_Usuario'] ?>"
@@ -1522,8 +1453,7 @@ $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pa
     <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
     <!-- sidebar-menu js -->
     <script src="../assets/js/sidebar-menu.js"></script>
-    <!-- loader scripts -->
-    <script src="../assets/js/jquery.loading-indicator.js"></script>
+    <!-- loader scripts removed: jquery.loading-indicator.js not present -->
     <!-- Custom scripts -->
     <script src="../assets/js/app-script.js"></script>
 

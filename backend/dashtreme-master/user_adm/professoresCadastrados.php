@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatório de Professores - SAS (Sistema Academico Santos)</title>
+    <title>Relatório de Professores - SAS</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
@@ -121,15 +121,24 @@
                     table.clear();
                     if (resp.success) {
                         resp.data.forEach(p => {
-                            const foto = '<img src="../user_adm/imagens/icon_sor.png" class="teacher-photo" alt="Professor" onerror="this.src=\'../assets/images/default-user.png\'">';
-                            // Exibir matrícula do professor quando disponível; fallback vazio
+                            // avatar com iniciais (primeira e última letra do nome)
+                            const nome = (p.Nome_Completo || '').trim();
+                            let iniciais = 'US';
+                            if (nome) {
+                                const parts = nome.split(/\s+/);
+                                const first = parts[0].charAt(0);
+                                const lastPart = parts.length > 1 ? parts[parts.length - 1] : parts[0];
+                                const last = lastPart.charAt(lastPart.length - 1);
+                                iniciais = (first + last).toUpperCase();
+                            }
+                            const foto = `<span class="user-profile"><span class="avatar-initials">${iniciais}</span></span>`;
                             const matricula = p.Matricula || '';
-                            const turmas = p.Turmas || '';
-                            const disciplinas = p.Disciplinas || '';
-                            const status = p.Status || '';
+                            const turmas = p.Turmas || '<span class="text-muted">—</span>';
+                            const disciplinas = p.Disciplinas || (p.Area_Atuacao ? p.Area_Atuacao : '<span class="text-muted">—</span>');
+                            const status = p.Status || '<span class="text-muted">Ativo</span>';
                             table.row.add([
                                 foto,
-                                p.Nome_Completo,
+                                nome,
                                 matricula,
                                 disciplinas,
                                 status,
@@ -153,7 +162,7 @@
                 images.forEach(img => { if (!img.complete || img.naturalWidth === 0) allLoaded = false; });
                 if (!allLoaded) { alert('Espere as imagens carregarem completamente antes de imprimir.'); return; }
                 const originalTitle = document.title;
-                document.title = 'Relatório de Professores - SAS (Sistema Academico Santos)';
+                document.title = 'Relatório de Professores - SAS';
                 $('.no-print').hide();
                 $('body').addClass('printing');
                 setTimeout(() => {

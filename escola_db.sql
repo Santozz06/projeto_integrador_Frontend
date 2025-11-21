@@ -6123,15 +6123,16 @@ CREATE TABLE `Professores` (
   `ID_Professor` int NOT NULL,
   `Formacao` varchar(100) DEFAULT NULL,
   `Data_Ingresso` date DEFAULT NULL,
-  `Area_Atuacao` varchar(255) DEFAULT NULL
+  `Area_Atuacao` varchar(255) DEFAULT NULL,
+  `Matricula` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Despejando dados para a tabela `Professores`
 --
 
-INSERT INTO `Professores` (`ID_Professor`, `Formacao`, `Data_Ingresso`, `Area_Atuacao`) VALUES
-(6, 'Graduação Completa', '2025-10-17', 'Geografia');
+INSERT INTO `Professores` (`ID_Professor`, `Formacao`, `Data_Ingresso`, `Area_Atuacao`, `Matricula`) VALUES
+(6, 'Graduação Completa', '2025-10-17', 'Geografia', NULL);
 
 -- --------------------------------------------------------
 
@@ -6341,7 +6342,8 @@ ALTER TABLE `Planos_Ensino`
 -- Índices de tabela `Professores`
 --
 ALTER TABLE `Professores`
-  ADD PRIMARY KEY (`ID_Professor`);
+  ADD PRIMARY KEY (`ID_Professor`),
+  ADD UNIQUE KEY `uk_professores_matricula` (`Matricula`);
 
 --
 -- Índices de tabela `Professores_Turmas`

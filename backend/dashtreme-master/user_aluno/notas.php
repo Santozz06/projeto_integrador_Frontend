@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <title>Minhas Notas - SAS (Sistema Academico Santos)</title>
+  <title>Minhas Notas - SAS</title>
   <link href="../assets/css/pace.min.css" rel="stylesheet" />
   <script src="../assets/js/pace.min.js"></script>
   <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
@@ -59,11 +59,11 @@
                 </div>
 
                 <!-- Resultado -->
-                <div id="header-disciplina" class="mb-2" style="display:none;">
+                <div id="header-disciplina" class="mb-2 d-none">
                   <h5 class="mb-0"></h5>
                 </div>
 
-                <div class="table-responsive" id="box-notas" style="display:none;">
+                <div class="table-responsive d-none" id="box-notas">
                   <table class="table-notas">
                     <thead>
                       <tr>
@@ -75,7 +75,7 @@
                   </table>
                 </div>
 
-                <div id="no-data" class="text-light" style="display:none;">
+                <div id="no-data" class="text-light d-none">
                   Selecione o ano e a disciplina para consultar suas notas.
                 </div>
 

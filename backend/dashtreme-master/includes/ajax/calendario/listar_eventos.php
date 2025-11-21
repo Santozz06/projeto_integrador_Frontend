@@ -6,8 +6,8 @@ header('Content-Type: application/json');
 
 try {
     // Params from FullCalendar
-    $start = isset($_GET['start']) ? $_GET['start'] : null; // ISO date
-    $end = isset($_GET['end']) ? $_GET['end'] : null;       // ISO date
+        $start = isset($_GET['start']) ? $_GET['start'] : null; // FullCalendar ISO
+        $end = isset($_GET['end']) ? $_GET['end'] : null;
     $tipo = isset($_GET['tipo']) && $_GET['tipo'] !== 'all' ? trim($_GET['tipo']) : null;
     $ano = isset($_GET['ano']) && $_GET['ano'] !== '' ? (int)$_GET['ano'] : null;
     $publico = isset($_GET['publico']) && $_GET['publico'] !== 'all' ? trim($_GET['publico']) : null; // 'todos','professores','alunos'
@@ -28,18 +28,16 @@ try {
     // Date window: include events that OVERLAP the [start, end] range
     // If both provided: (single-day between) OR (multi-day overlaps)
     if ($start && $end) {
-        $s = substr($start, 0, 10);
-        $e = substr($end, 0, 10);
+        $s = normalizarIsoParaMysql($start);
+        $e = normalizarIsoParaMysql($end);
         $sql .= " AND ((Data_Fim IS NULL AND Data_Inicio BETWEEN ? AND ?) OR (Data_Fim IS NOT NULL AND Data_Inicio <= ? AND Data_Fim >= ?))";
         $params[] = $s; $params[] = $e; $params[] = $e; $params[] = $s;
     } elseif ($start) {
-        // Only start: any event ending after start
-        $s = substr($start, 0, 10);
+        $s = normalizarIsoParaMysql($start);
         $sql .= " AND ((Data_Fim IS NULL AND Data_Inicio >= ?) OR (Data_Fim IS NOT NULL AND Data_Fim >= ?))";
         $params[] = $s; $params[] = $s;
     } elseif ($end) {
-        // Only end: any event starting before end
-        $e = substr($end, 0, 10);
+        $e = normalizarIsoParaMysql($end);
         $sql .= " AND ((Data_Fim IS NULL AND Data_Inicio <= ?) OR (Data_Fim IS NOT NULL AND Data_Inicio <= ?))";
         $params[] = $e; $params[] = $e;
     }
@@ -71,26 +69,54 @@ try {
     $st = $pdo->prepare($sql);
     $st->execute($params);
     $rows = $st->fetchAll(PDO::FETCH_ASSOC);
+    
+    // DEBUG: Log query and results
+    error_log("[DEBUG listar_eventos] SQL: " . $sql);
+    error_log("[DEBUG listar_eventos] Params: " . json_encode($params));
+    error_log("[DEBUG listar_eventos] Rows found: " . count($rows));
+    error_log("[DEBUG listar_eventos] User type: " . ($_SESSION['user_type'] ?? 'NOT SET'));
 
     // Map to FullCalendar shape
-    $events = array_map(function($r) {
-        return [
-            'id' => (int)$r['ID_Evento'],
-            'title' => $r['Nome_Evento'],
-            'start' => $r['Data_Inicio'],
-            'end' => $r['Data_Fim'],
-            'allDay' => true, // using DATE fields
-            'extendedProps' => [
-                'tipo' => $r['Tipo_Evento'],
-                'description' => $r['Descricao'],
-                'publico' => $r['Publico_Alvo'] ?: 'todos',
-                'ano_letivo' => $r['Ano_Letivo']
-            ]
-        ];
-    }, $rows);
+        $events = array_map(function($r) {
+            $startDt = date('c', strtotime($r['Data_Inicio']));
+            $endDt = $r['Data_Fim'] ? date('c', strtotime($r['Data_Fim'])) : null;
+            return [
+                'id' => (int)$r['ID_Evento'],
+                'title' => $r['Nome_Evento'],
+                'start' => $startDt,
+                'end' => $endDt,
+                'allDay' => false,
+                'extendedProps' => [
+                    'tipo' => $r['Tipo_Evento'],
+                    'description' => $r['Descricao'],
+                    'publico' => $r['Publico_Alvo'] ?: 'todos',
+                    'ano_letivo' => $r['Ano_Letivo']
+                ]
+            ];
+        }, $rows);
 
     echo json_encode(['success' => true, 'data' => $events]);
 } catch (Throwable $e) {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+}
+
+function normalizarIsoParaMysql($iso) {
+    // Aceita formatos 2025-11-18 ou 2025-11-18T00:00:00Z ou 2025-11-18T12:30:00
+    $iso = trim($iso);
+    // Remove timezone Z ou offset
+    $iso = preg_replace('/Z$/', '', $iso); // remove Z final
+    $iso = preg_replace('/[+-]\d{2}:?\d{2}$/', '', $iso); // remove offset +hh:mm
+    if (strpos($iso, 'T') !== false) {
+        $iso = str_replace('T', ' ', $iso);
+    }
+    // Se vier só data, adiciona 00:00:00
+    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $iso)) {
+        $iso .= ' 00:00:00';
+    }
+    // Se vier sem segundos, adiciona :00
+    if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $iso)) {
+        $iso .= ':00';
+    }
+    return $iso;
 }

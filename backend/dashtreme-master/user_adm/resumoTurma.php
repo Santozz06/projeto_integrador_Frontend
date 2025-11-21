@@ -5,103 +5,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resumo por Turma - SAS (Sistema Academico Santos)</title>
+    <title>Resumo por Turma - SAS</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .summary-card {
-            border-radius: 10px;
-            transition: all 0.3s;
-            margin-bottom: 20px;
-            border-left: 4px solid;
-            cursor: pointer;
-            background-color: transparent !important;
-        }
-
-        .summary-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .summary-card.students {
-            border-left-color: #3498db;
-        }
-
-        .summary-card.teachers {
-            border-left-color: #2ecc71;
-        }
-
-        .summary-card.disciplines {
-            border-left-color: #e74c3c;
-        }
-
-        .summary-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-        }
-
-        .summary-label {
-            font-size: 1rem;
-            color: #34495e !important;
-            font-weight: 500;
-        }
-
-        .filter-section {
-            background-color: transparent !important;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .btn-custom-print {
-            background-color: #3498db !important;
-            color: white !important;
-            border: none !important;
-        }
-
-        .btn-custom-print:hover {
-            background-color: #2980b9 !important;
-        }
-
-        .turma-header {
-            background-color: transparent !important;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #ecf0f1;
-        }
-
-        @media print {
-
-            .no-print,
-            #sidebar-wrapper,
-            .topbar-nav {
-                display: none !important;
-            }
-
-            body {
-                background: white !important;
-                padding: 1cm !important;
-            }
-
-            .summary-card {
-                page-break-inside: avoid;
-                border-left: none !important;
-                border: 1px solid #ddd !important;
-            }
-        }
-
-        .navbar {
-            background-color: rgba(0, 0, 0, 0.2) !important;
-            backdrop-filter: blur(10px);
-        }
-    </style>
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_adm_resumoTurma">
     <?php
     require("menu_padrão.php");
     ?>

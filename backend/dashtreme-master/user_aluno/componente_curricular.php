@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <title>Ensino Fundamental - SAS (Sistema Academico Santos)</title>
+  <title>Ensino Fundamental - SAS</title>
   <link href="../assets/css/pace.min.css" rel="stylesheet" />
   <script src="../assets/js/pace.min.js"></script>
   <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
@@ -38,7 +38,7 @@
                 <div class="row align-items-center mb-3">
                   <div class="col-md-6"><span class="text-light">Selecione o ano letivo:</span></div>
                   <div class="col-md-6 text-end">
-                    <select id="select-ano" class="form-select form-select-sm" style="max-width: 200px; display: inline-block;"></select>
+                    <select id="select-ano" class="form-select form-select-sm inline-max-200"></select>
                   </div>
                 </div>
 

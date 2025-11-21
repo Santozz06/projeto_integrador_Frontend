@@ -4,31 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Histórico Escolar</title>
-    <style>
-        body { font-family: "Times New Roman", serif; margin: 40px 60px; font-size: 14px; color: #000; line-height: 1.4; }
-        .no-print { margin-bottom: 16px; }
-        .btn { background:#3498db; color:#fff; border:none; padding:8px 14px; border-radius:4px; cursor:pointer; }
-        .btn:hover { background:#2980b9; }
-        .cabecalho { text-align: center; margin-bottom: 30px; }
-        .titulo { text-align: center; font-weight: bold; font-size: 18px; margin: 20px 0; text-decoration: underline; }
-        .dados-aluno, .tabela-disciplinas { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        .dados-aluno td { padding: 5px; border: 1px solid #ddd; }
-        .tabela-disciplinas th, .tabela-disciplinas td { border: 1px solid #000; padding: 8px; text-align: center; }
-        .tabela-disciplinas th { background-color: #f2f2f2; }
-        .assinaturas { width: 100%; margin-top: 50px; }
-        .assinaturas td { padding-top: 50px; text-align: center; width: 50%; }
-        @media print { .no-print { display:none } body { margin:0 } }
-    </style>
+    <link rel="stylesheet" href="../css/style.css" />
     <script>
         // Disponibiliza o id do aluno logado via sessão
         const ALUNO_ID = <?php echo isset($_SESSION['usuario_id']) ? (int)$_SESSION['usuario_id'] : 'null'; ?>;
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
-<body>
+<body class="user_aluno_historico">
     <div class="no-print">
-        <button class="btn" onclick="window.history.back()">Voltar</button>
-        <button class="btn" onclick="gerarPDF()" style="margin-left:8px">Baixar PDF</button>
+    <button class="btn" onclick="window.history.back()">Voltar</button>
+    <button class="btn ml-8" onclick="gerarPDF()">Baixar PDF</button>
     </div>
 
     <div id="conteudo-historico">

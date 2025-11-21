@@ -10,37 +10,10 @@
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-    <link rel="stylesheet" href="style.css">
-    <style>
-        body { background: linear-gradient(to right, #2c3e50, #3498db); color: #ecf0f1; }
-        .form-container { background: rgba(255,255,255,0.05); padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); max-width: 1000px; margin: 40px auto; }
-        .form-group label { color: #71affe; font-weight: 600; }
-        .form-control { background-color: rgba(255,255,255,0.15); border: 1px solid #71affe; color: #fff; border-radius: 6px; }
-        .form-control:focus { background-color: rgba(255,255,255,0.2); color: #fff; border-color: #1abc9c; box-shadow: 0 0 0 0.2rem rgba(26,188,156,0.25); }
-        .btn-salvar { background-color: #1abc9c; color: white; border: none; border-radius: 6px; padding: 10px 20px; }
-        .btn-salvar:hover { background-color: #16a085; }
-        .btn-cancelar { background-color: #e74c3c; color: white; border: none; border-radius: 6px; padding: 10px 20px; }
-        .btn-cancelar:hover { background-color: #c0392b; }
-        .section-title { color: #e7e8e9; border-bottom: 2px solid #ffffff; margin-bottom: 20px; padding-bottom: 10px; }
-        .filtros-container { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
-        .filtro-item { flex: 1; min-width: 200px; }
-        .table-container { margin-top: 30px; overflow-x: auto; }
-        .table { background-color: rgba(255,255,255,0.05); color: #ecf0f1; border-collapse: separate; border-spacing: 0; border-radius: 8px; overflow: hidden; }
-        .table th { background-color: rgba(113,175,254,0.3); color: #ffffff; border: none; }
-        .table td, .table th { padding: 12px 15px; vertical-align: middle; border: none; border-bottom: 1px solid rgba(113,175,254,0.1); }
-        .table tr:hover td { background-color: rgba(113,175,254,0.1); }
-        .input-nota { width: 70px; text-align: center; background-color: rgba(255,255,255,0.1); border: 1px solid #ffffff; color: #fff; border-radius: 4px; padding: 5px; }
-        .input-nota:focus { outline: none; border-color: #1abc9c; }
-        .aluno-info { display: flex; align-items: center; }
-        .aluno-avatar { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; background-color: #71affe; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .badge-turma { background-color: rgba(113,175,254,0.2); color: #eff0f1; padding: 3px 8px; border-radius: 10px; font-size: 0.8rem; }
-        .status-aprovado { color: #3efa9c; }
-        .status-reprovado { color: #eb1902; }
-        .status-recuperacao { color: #ffcb3d; }
-    </style>
+    <link rel="stylesheet" href="../css/style.css?v=<?php echo time(); ?>">
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_professor_notas">
     <?php require("menu_padrao.php"); ?>
 
     <div class="content-wrapper">

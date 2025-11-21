@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Disciplinas por Professor - SAS (Sistema Academico Santos)</title>
+    <title>Disciplinas por Professor - SAS</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
@@ -151,10 +151,17 @@
                     if (resp.success) {
                         let rowsWithDisc = 0;
                         resp.data.forEach(r => {
-                            const profCell = `
-                                <img src="../user_adm/imagens/icon_sor.png" class="teacher-photo mr-2" alt="Professor" onerror="this.src='../assets/images/default-user.png'">
-                                ${r.Nome_Completo}
-                            `;
+                            // avatar iniciais (primeira e última letra)
+                            const nome = (r.Nome_Completo || '').trim();
+                            let iniciais = 'US';
+                            if (nome) {
+                                const parts = nome.split(/\s+/);
+                                const first = parts[0].charAt(0);
+                                const lastPart = parts.length > 1 ? parts[parts.length - 1] : parts[0];
+                                const last = lastPart.charAt(lastPart.length - 1);
+                                iniciais = (first + last).toUpperCase();
+                            }
+                            const profCell = `<span class=\"user-profile mr-2\"><span class=\"avatar-initials\">${iniciais}</span></span>${nome}`;
                             const disciplinas = (r.Disciplinas || '').split(', ').filter(Boolean);
                             const discHtml = disciplinas.map(d => `<span class=\"badge discipline-badge\">${d}</span>`).join(' ');
                             if (disciplinas.length > 0) rowsWithDisc++;
@@ -175,10 +182,16 @@
                             $.getJSON('../includes/ajax/disciplinas/listar_disciplinas.php', fparams, function(r2){
                                 if (r2.success && Array.isArray(r2.data) && r2.data.length > 0 && resp.data.length > 0) {
                                     const profRow = resp.data[0];
-                                    const profCell = `
-                                        <img src="../user_adm/imagens/icon_sor.png" class="teacher-photo mr-2" alt="Professor" onerror="this.src='../assets/images/default-user.png'">
-                                        ${profRow.Nome_Completo}
-                                    `;
+                                    const nome2 = (profRow.Nome_Completo || '').trim();
+                                    let iniciais2 = 'US';
+                                    if (nome2) {
+                                        const parts2 = nome2.split(/\s+/);
+                                        const first2 = parts2[0].charAt(0);
+                                        const lastPart2 = parts2.length > 1 ? parts2[parts2.length - 1] : parts2[0];
+                                        const last2 = lastPart2.charAt(lastPart2.length - 1);
+                                        iniciais2 = (first2 + last2).toUpperCase();
+                                    }
+                                    const profCell = `<span class=\"user-profile mr-2\"><span class=\"avatar-initials\">${iniciais2}</span></span>${nome2}`;
                                     const nomes = r2.data.map(d => d.Nome_Disciplina).filter(Boolean).sort();
                                     const discHtml = nomes.map(d => `<span class=\"badge discipline-badge\">${d}</span>`).join(' ');
                                     const cargaTotal = r2.data.reduce((acc, d) => acc + (parseInt(d.Carga_Horaria || 0) || 0), 0);
@@ -221,7 +234,7 @@
 
             $('#print-btn').click(function () {
                 const originalTitle = document.title;
-                document.title = 'Disciplinas por Professor - SAS (Sistema Academico Santos)';
+                document.title = 'Disciplinas por Professor - SAS';
                 $('.no-print').hide();
                 $('body').addClass('printing');
                 setTimeout(() => {

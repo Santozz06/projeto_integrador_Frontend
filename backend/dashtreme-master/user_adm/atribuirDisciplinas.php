@@ -10,34 +10,10 @@
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-    <style>
-        .filter-section { background: transparent; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-        .card { background-color: transparent; }
-        .table th { background-color: #71affa; color: #fff; }
-
-        .btn-Salvar {
-            background-color: #1abc9c;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            padding: 8px 16px;
-        }
-        .btn-Salvar:hover { background-color: #16a085; }
-
-        .btn-excluir {
-            background-color: #e74c3c;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 5px 10px;
-            font-size: 12px;
-        }
-        .btn-excluir:hover { background-color: #c0392b; }
-
-    </style>
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_adm_atribuirDisciplinas sas-dashboard-bg">
 <?php require("menu_padrão.php"); ?>
 
 <div class="content-wrapper">
@@ -78,7 +54,7 @@
                                 </select>
                             </div>
                             <div class="col-md-3 d-flex align-items-end">
-                                <button type="submit" class="btn btn-Salvar w-100">Atribuir</button>
+                                <button type="submit" class="btn btn-salvar w-100">Atribuir</button>
                             </div>
                         </form>
                     </div>

@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Calendário Institucional - Admin</title>
+    <title>Calendário - SAS</title>
     <link href="../assets/css/pace.min.css" rel="stylesheet" />
     <script src="../assets/js/pace.min.js"></script>
     <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
@@ -269,16 +269,17 @@
 
                 for (var i = 0; i < tiposEventos.length; i++){
                     var tipo = tiposEventos[i];
-                    var disabled = tipo.is_default ? 'disabled title="Tipo padrão"' : '';
+                    var disabledDelete = '';
+                    var editTitle = '';
                     var row = '' +
                         '<tr>' +
                         '  <td>' + (tipo.label || tipo.nome) + '</td>' +
                         '  <td><span class="badge" style="background-color: ' + (tipo.cor || '#6c757d') + '">&nbsp;&nbsp;&nbsp;</span></td>' +
                         '  <td>' +
-                        '    <button class="btn btn-sm btn-outline-primary editar-tipo" data-nome="' + tipo.nome + '" ' + disabled + '>' +
+                        '    <button class="btn btn-sm btn-outline-primary editar-tipo" data-nome="' + tipo.nome + '" ' + editTitle + '>' +
                         '      <i class="zmdi zmdi-edit"></i>' +
                         '    </button> ' +
-                        '    <button class="btn btn-sm btn-outline-danger excluir-tipo" data-nome="' + tipo.nome + '" ' + disabled + '>' +
+                        '    <button class="btn btn-sm btn-outline-danger excluir-tipo" data-nome="' + tipo.nome + '" ' + disabledDelete + '>' +
                         '      <i class="zmdi zmdi-delete"></i>' +
                         '    </button>' +
                         '  </td>' +
@@ -546,15 +547,15 @@
 
             // Editar/Excluir tipo
             $(document).on('click', '.editar-tipo', function () {
-                var tipo = $(this).data('nome');
+                var nomeTipo = $(this).data('nome');
                 var tipoInfo = null;
                 for (var i = 0; i < tiposEventos.length; i++){
-                    if (tiposEventos[i].nome === tipo){ tipoInfo = tiposEventos[i]; break; }
+                    if (tiposEventos[i].nome === nomeTipo){ tipoInfo = tiposEventos[i]; break; }
                 }
-                if (tipoInfo && !tipoInfo.is_default) {
+                if (tipoInfo) {
                     $('#novo-tipo-nome').val(tipoInfo.label || tipoInfo.nome);
                     $('#novo-tipo-cor').val(tipoInfo.cor || '#6c757d');
-                    editandoTipo = tipo;
+                    editandoTipo = nomeTipo;
                     $('#btn-adicionar-tipo').text('Atualizar');
                 }
             });
@@ -565,7 +566,7 @@
                 for (var i = 0; i < tiposEventos.length; i++){
                     if (tiposEventos[i].nome === nome){ tipoInfo = tiposEventos[i]; break; }
                 }
-                if (tipoInfo && tipoInfo.is_default){ alert('Tipos padrão não podem ser removidos.'); return; }
+                // Permitir excluir inclusive tipos padrão
                 if (confirm('Deseja excluir o tipo "' + nome + '"?')) {
                     $.ajax({
                         url: '../includes/ajax/calendario/tipos/remover_tipo.php',

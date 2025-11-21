@@ -1,13 +1,26 @@
-<nav id="menu_padrao">
-
-    <body class="bg-theme bg-theme1">
-        <div id="wrapper">
+<?php
+// Assume bootstrap já foi incluído antes do menu via página principal.
+if (session_status() === PHP_SESSION_NONE) { @session_start(); }
+$nome_menu = isset($_SESSION['user_name']) ? trim((string)$_SESSION['user_name']) : 'Administrador';
+$email_menu = isset($_SESSION['user_email']) ? trim((string)$_SESSION['user_email']) : 'admin@escola.com';
+function gerarIniciais($nome) {
+    $nome = trim($nome);
+    if ($nome === '') return 'US';
+    $parts = preg_split('/\s+/u', $nome);
+    $first = mb_substr($parts[0], 0, 1, 'UTF-8');
+    $last = count($parts) > 1 ? mb_substr(end($parts), 0, 1, 'UTF-8') : (mb_strlen($parts[0], 'UTF-8') > 1 ? mb_substr($parts[0], 1, 1, 'UTF-8') : $first);
+    return mb_strtoupper($first . $last, 'UTF-8');
+}
+$iniciais_menu = gerarIniciais($nome_menu);
+?>
+<nav id="menu_padrao" class="bg-theme bg-theme1">
+    <div id="wrapper">
             <!-- Sidebar -->
             <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
                 <div class="brand-logo">
                     <a href="home.php">
                         <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
-                        <h5 class="logo-text">SAS (Sistema Academico Santos)</h5>
+                        <h5 class="logo-text">Sistema Acadêmico Santos</h5>
                     </a>
                 </div>
                 <ul class="sidebar-menu do-nicescrol">
@@ -101,25 +114,20 @@
                     <ul class="navbar-nav align-items-center right-nav-link">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
-                                <span class="user-profile"><img src="../assets/images/gallery/icon_usuarioBlack.png"
-                                        class="img-circle" alt="user avatar"></span>
+                                <span class="user-profile"><span class="avatar-initials"><?php echo htmlspecialchars($iniciais_menu); ?></span></span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-right">
                                 <li class="dropdown-item user-details">
                                     <a href="javaScript:void();">
                                         <div class="media">
-                                            <div class="avatar"><img class="align-self-start mr-3"
-                                                    src="https://via.placeholder.com/110x110" alt="user avatar"></div>
+                                            <div class="avatar-initials align-self-start mr-3"><?php echo htmlspecialchars($iniciais_menu); ?></div>
                                             <div class="media-body">
-                                                <h6 class="mt-2 user-title">Administrador</h6>
-                                                <p class="user-subtitle">admin@escola.com</p>
+                                                <h6 class="mt-2 user-title"><?php echo htmlspecialchars($nome_menu); ?></h6>
+                                                <p class="user-subtitle"><?php echo htmlspecialchars($email_menu); ?></p>
                                             </div>
                                         </div>
                                     </a>
                                 </li>
-                                <li class="dropdown-divider"></li>
-                                <li class="dropdown-item"><a href="configuracoes.php"><i class="icon-settings mr-2"></i>
-                                        Configurações</a></li>
                                 <li class="dropdown-divider"></li>
                                 <li class="dropdown-item">
                                     <a href="../logout.php" id="logout-btn" onclick="return confirm('Deseja sair?')">

@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard do Professor - SAS (Sistema Academico Santos)</title>
+    <title>Dashboard do Professor - SAS</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
@@ -26,7 +26,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="welcome-message">
-                            <h4 class="welcome-title">Bem-vindo, Professor!</h4>
+                            <h4 class="welcome-title">Bem-vindo(a), Professor(a)!</h4>
                             <p class="welcome-text">Aqui você pode gerenciar suas turmas, registrar presenças, lançar
                                 notas e acompanhar o desempenho dos alunos.</p>
 

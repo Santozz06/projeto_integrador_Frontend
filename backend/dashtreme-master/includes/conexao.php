@@ -1,13 +1,11 @@
 <?php
-// conexão com o banco (usa env quando tiver)
-
 $host = getenv('DB_HOST') ?: 'db';
 $dbname = getenv('DB_NAME') ?: 'escola_db';
 $username = getenv('DB_USER') ?: 'escola_user';
 $password = getenv('DB_PASS') ?: 'escola_password';
 
-// tenta várias vezes porque o mysql pode demorar pra subir
-$maxAttempts = (int) (getenv('DB_CONNECT_RETRIES') ?: 30); // ~1 min
+// tenta várias vezes 
+$maxAttempts = (int) (getenv('DB_CONNECT_RETRIES') ?: 30);
 $delaySeconds = (int) (getenv('DB_CONNECT_DELAY') ?: 2);
 
 $attempt = 0;

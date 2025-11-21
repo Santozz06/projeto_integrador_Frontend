@@ -174,6 +174,16 @@ class UsuarioCRUD extends BaseCRUD
 
             // Insere professor, se tiver coluna Matricula usa, senão faz básico
             $temMatricula = $this->hasColumn('Professores', 'Matricula');
+            // Auto-cria coluna Matricula se ausente e valor informado (migração silenciosa)
+            if (!$temMatricula && $matriculaProfessor) {
+                try {
+                    $this->pdo->exec("ALTER TABLE Professores ADD COLUMN Matricula VARCHAR(50) UNIQUE AFTER Area_Atuacao");
+                    $temMatricula = true; // agora disponível
+                } catch (Exception $e) {
+                    // Falhou criação: segue sem matricula
+                    error_log('Falha ao criar coluna Matricula em Professores: ' . $e->getMessage());
+                }
+            }
             if ($temMatricula) {
                 $sqlProfessor = "INSERT INTO Professores (ID_Professor, Formacao, Data_Ingresso, Area_Atuacao, Matricula) VALUES (?, ?, ?, ?, ?)";
                 $stmtProfessor = $this->pdo->prepare($sqlProfessor);
@@ -226,6 +236,14 @@ class UsuarioCRUD extends BaseCRUD
 
             // Atualiza dados do professor; checa se existe coluna Matricula
             $temMatricula = $this->hasColumn('Professores', 'Matricula');
+            if (!$temMatricula && $matriculaProfessor) {
+                try {
+                    $this->pdo->exec("ALTER TABLE Professores ADD COLUMN Matricula VARCHAR(50) UNIQUE AFTER Area_Atuacao");
+                    $temMatricula = true;
+                } catch (Exception $e) {
+                    error_log('Falha ao criar coluna Matricula em Professores (update): ' . $e->getMessage());
+                }
+            }
             if ($temMatricula) {
                 $sqlProfessor = "UPDATE Professores SET Formacao = ?, Data_Ingresso = ?, Area_Atuacao = ?, Matricula = ? WHERE ID_Professor = ?";
                 $stmtProfessor = $this->pdo->prepare($sqlProfessor);

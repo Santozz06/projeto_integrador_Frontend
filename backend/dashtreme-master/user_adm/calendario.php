@@ -226,6 +226,33 @@
 
         var tiposEventos = [];
 
+        // Funções auxiliares para modais (faz binding antes do calendário iniciar)
+        function abrirModalAdicionarEvento() {
+            currentEvent = null;
+            const $form = $('#form-evento');
+            if ($form.length) { $form[0].reset(); }
+            atualizarSelectsTipos();
+            // Valor padrão: agora arredondado para hora cheia
+            const agora = new Date();
+            const pad = n => (n<10?('0'+n):n);
+            const isoLocal = agora.getFullYear()+'-'+pad(agora.getMonth()+1)+'-'+pad(agora.getDate())+'T'+pad(agora.getHours())+':00';
+            $('#evento-inicio').val(isoLocal);
+            $('#evento-publico').val('todos');
+            $('#btn-excluir-evento').hide();
+            $('#eventoModal').modal('show');
+        }
+
+        function abrirModalGerenciarTipos(){
+            fetchTiposEventos(function(){
+                carregarTiposEventos();
+                $('#tiposModal').modal('show');
+            });
+        }
+
+        // Bind global (delegado) para garantir funcionamento mesmo se elementos forem recriados
+        $(document).on('click', '#btn-adicionar', abrirModalAdicionarEvento);
+        $(document).on('click', '#btn-gerenciar-tipos', abrirModalGerenciarTipos);
+
         function fetchTiposEventos(callback){
             $.getJSON('../includes/ajax/calendario/tipos/listar_tipos.php')
                 .done(function(res){
@@ -393,23 +420,18 @@
 
             calendar.render();
             function ajustarVisualizacaoCalendario() {
-                const calendarApi = calendar.getCalendar();
+                if (!calendar) return;
                 const width = window.innerWidth;
-
                 if (width < 768) {
-                    calendarApi.changeView('listMonth');
+                    calendar.changeView('listMonth');
                 } else {
-                    calendarApi.changeView('dayGridMonth');
+                    calendar.changeView('dayGridMonth');
                 }
-
-                calendarApi.updateSize();
+                calendar.updateSize();
             }
-
-            // Chamar na inicialização e no redimensionamento
-            $(document).ready(function () {
-                ajustarVisualizacaoCalendario();
-                $(window).on('resize', ajustarVisualizacaoCalendario);
-            });
+            // Inicializa responsividade imediatamente
+            ajustarVisualizacaoCalendario();
+            $(window).on('resize', ajustarVisualizacaoCalendario);
 
             // Responsividade e redimensionamento
             $('.toggle-menu').click(function(){ setTimeout(function(){ calendar.updateSize(); }, 300); });
@@ -439,21 +461,8 @@
                 });
             });
 
-            $('#btn-adicionar').click(function () {
-                currentEvent = null;
-                $('#form-evento')[0].reset();
-                atualizarSelectsTipos();
-                $('#evento-inicio').val(new Date().toISOString().slice(0, 16));
-                $('#btn-excluir-evento').hide();
-                $('#eventoModal').modal('show');
-            });
-
-            $('#btn-gerenciar-tipos').click(function () {
-                fetchTiposEventos(function(){
-                    carregarTiposEventos();
-                    $('#tiposModal').modal('show');
-                });
-            });
+            // Handlers já ligados globalmente; garantir selects atualizados caso UI queira usar antes
+            atualizarSelectsTipos();
 
             $('#btn-adicionar-tipo').click(function () {
                 var nomeDigitado = $('#novo-tipo-nome').val().trim();
@@ -545,17 +554,22 @@
                 }
             });
 
+            function formatDateTime(dt){
+                // FullCalendar gives ISO; keep as provided if exists
+                if (!dt) return null;
+                return dt.toISOString().slice(0,19); // YYYY-MM-DDTHH:MM:SS
+            }
             function atualizarDatasEvento(event){
                 const payload = {
                     id: event.id,
                     title: event.title,
                     tipo: event.extendedProps.tipo || 'evento',
                     descricao: event.extendedProps.description || '',
-                    inicio: event.startStr,
-                    fim: event.endStr,
+                    inicio: formatDateTime(event.start),
+                    fim: event.end ? formatDateTime(event.end) : null,
                     publico: event.extendedProps.publico || 'todos'
                 };
-                $.ajax({ url: '../includes/ajax/calendario/salvar_evento.php', method: 'POST', contentType:'application/json', data: JSON.stringify(payload) })
+                $.ajax({ url: '../includes/ajax/calendario/salvar_evento.php', method: 'POST', contentType:'application/json; charset=utf-8', data: JSON.stringify(payload) })
                     .done(function(res){ if (!(res && res.success)) alert('Falha ao atualizar evento.'); })
                     .fail(function(){ alert('Erro ao atualizar evento.'); });
             }

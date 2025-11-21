@@ -15,134 +15,10 @@
     <link href="../assets/css/icons.css" rel="stylesheet" />
     <link href="../assets/css/sidebar-menu.css" rel="stylesheet" />
     <link href="../assets/css/app-style.css" rel="stylesheet" />
-     <link href="style.css" rel="stylesheet" />
-    <style>
-        :root {
-            --azul-cabecalho: #2c5f9e;
-            --texto-preto: #333333;
-            --cinza-texto: #666666;
-        }
-
-        .badge-warning {
-            background-color: #f6c23e;
-            color: #fff;
-        }
-
-        .badge-success {
-            background-color: #1cc88a;
-            color: #fff;
-        }
-
-        .badge-info {
-            background-color: #36b9cc;
-            color: #fff;
-        }
-
-        .card-header {
-            border-radius: 0.35rem 0.35rem 0 0 !important;
-            background-color: var(--azul-cabecalho) !important;
-        }
-
-        .card-header h4 {
-            color: white !important;
-            font-weight: 600;
-        }
-
-        .card {
-            background-color: rgba(0, 0, 0, 0.3);
-            color: #ffffff;
-        }
-
-        .table-responsive {
-            margin-top: 20px;
-        }
-
-        .table th {
-            background-color: #f8f9fa;
-            color: var(--texto-preto);
-        }
-
-        .status-badge {
-            font-size: 0.85rem;
-            padding: 0.35em 0.65em;
-        }
-
-        .btn-voltar-custom:active,
-        .btn-voltar-custom:focus,
-        .btn-voltar-custom:focus-visible {
-            background-color: #2c5f9e !important;
-            color: #fff !important;
-            box-shadow: none !important;
-            outline: none !important;
-        }
-
-        .btn-voltar-custom {
-            background-color: #2c5f9e;
-            color: #fff;
-            border: none;
-            text-transform: uppercase;
-            font-weight: 600;
-            padding: 8px 18px;
-            border-radius: 6px;
-            transition: background-color 0.3s ease;
-            font-size: 0.85rem;
-        }
-
-        .btn-voltar-custom:hover {
-            background-color: #224a7d;
-            color: #fff;
-        }
-
-        .btn-voltar-custom i {
-            color: #fff;
-        }
-
-        .back-button {
-            margin-bottom: 35px;
-        }
-
-        .year-option {
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            background-color: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(4px);
-            display: block;
-            text-decoration: none !important;
-            color: inherit;
-        }
-
-        .year-option:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-color: var(--azul-cabecalho);
-            text-decoration: none;
-        }
-
-        .year-title {
-            font-weight: 600;
-            color: #ffffff;
-            display: inline-block;
-        }
-
-        .year-status {
-            float: right;
-        }
-
-        .card-body p.text-muted {
-            color: #e0e0e0 !important;
-        }
-
-        .navbar {
-            background-color: rgba(0, 0, 0, 0.2) !important;
-            backdrop-filter: blur(10px);
-        }
-    </style>
+    <link href="../css/style.css" rel="stylesheet" />
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_aluno_boletim">
     <?php
     require("menu_padrao.php");
     ?>
@@ -168,7 +44,7 @@
                                 <div id="lista-anos"></div>
 
                                 <div class="mt-4 pt-3 border-top">
-                                    <p style="color: #e0e0e0;">Selecione um ano escolar acima para visualizar ou
+                                    <p class="text-faint">Selecione um ano escolar acima para visualizar ou
                                         imprimir seu boletim acadêmico.</p>
                                 </div>
                             </div>

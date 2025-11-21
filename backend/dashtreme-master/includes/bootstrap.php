@@ -1,6 +1,6 @@
 <?php
-// inicia sessão se precisar
-if (session_status() === PHP_SESSION_NONE) {
+// Inicia sessão somente se ainda não iniciada e cabeçalhos não enviados
+if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
     session_start();
 }
 
@@ -20,16 +20,22 @@ $matriculaCRUD = new MatriculaCRUD($pdo);
 
 // checa auth
 function verificarAuth($tipoRequerido = null) {
+    // Se cabeçalhos já foram enviados, não tenta redirecionar para evitar warnings
+    $canRedirect = !headers_sent();
     if (!isset($_SESSION['usuario_id'])) {
-        header("Location: ../index.php");
-        exit();
+        if ($canRedirect) {
+            header("Location: ../index.php");
+            exit();
+        }
+        return false;
     }
-    
     if ($tipoRequerido && (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== $tipoRequerido)) {
-        header("Location: ../acesso_negado.php");
-        exit();
+        if ($canRedirect) {
+            header("Location: ../acesso_negado.php");
+            exit();
+        }
+        return false;
     }
-    
     return true;
 }
 

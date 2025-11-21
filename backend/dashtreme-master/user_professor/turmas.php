@@ -5,86 +5,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Turmas - SAS (Sistema Academico Santos)</title>
+    <title>Turmas - SAS</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-    <link rel="stylesheet" href="../css/style.css">
-    <style>
-        body {
-            background: linear-gradient(to right, #2c3e50, #3498db);
-            color: #ecf0f1;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .container-select {
-            max-width: 900px;
-            margin: 2px auto;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .form-select {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            border: 1px solid #71affe;
-            padding: 10px;
-            border-radius: 8px;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        .btn {
-            background-color: #1abc9c;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .btn:hover {
-            background-color: #16a085;
-        }
-
-        .turma-dados {
-            margin-top: 30px;
-            display: none;
-        }
-
-        .card-section {
-            background: rgba(255, 255, 255, 0.08);
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .card-section h4 {
-            border-bottom: 1px solid #71affe;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-            color: #71affe;
-        }
-
-        .aluno {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .status {
-            font-size: 0.9em;
-            color: #ffffff;
-        }
-    </style>
+    <link rel="stylesheet" href="../css/style.css?v=<?=time()?>">
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_professor_turmas">
     <?php
     require("menu_padrao.php");
     ?>

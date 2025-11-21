@@ -5,205 +5,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transferências - SAS (Sistema Academico Santos)</title>
+    <title>Transferências - SAS</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-   
-    <style>
-        body {
-            background: linear-gradient(to right, #2c3e50, #3498db);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #ecf0f1;
-        }
-
-        .form-container {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            max-width: 800px;
-            margin: 40px auto;
-        }
-
-        .form-group label {
-            color: #71affe;
-            font-weight: 600;
-        }
-
-        .form-control {
-            background-color: rgba(255, 255, 255, 0.15);
-            border: 1px solid #71affe;
-            color: #fff;
-            border-radius: 6px;
-        }
-
-        .form-control:focus {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: #fff;
-            border-color: #1abc9c;
-            box-shadow: 0 0 0 0.2rem rgba(26, 188, 156, 0.25);
-        }
-
-        .student-card {
-            background-color: rgba(255, 255, 255, 0.07);
-            border: 1px solid #71affe;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-        }
-
-        .student-card:hover {
-            background-color: rgba(113, 175, 250, 0.2);
-            transform: scale(1.02);
-        }
-
-        .student-info {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #71affe;
-        }
-
-        .student-details {
-            font-size: 0.95rem;
-            color: #bdc3c7;
-        }
-
-        #selected-student {
-            background-color: rgba(255, 255, 255, 0.05);
-            border-left: 4px solid #71affe;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            color: #fff;
-        }
-
-        .btn-confirmar {
-            background-color: #1abc9c;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 20px;
-        }
-
-        .btn-confirmar:hover {
-            background-color: #16a085;
-        }
-
-        .btn-cancelar {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 20px;
-        }
-
-        .btn-cancelar:hover {
-            background-color: #c0392b;
-        }
-
-        .btn-voltar {
-            background-color: #7f8c8d;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 20px;
-        }
-
-        .btn-voltar:hover {
-            background-color: #616a6b;
-        }
-
-        .section-title {
-            color: #71affe;
-            border-bottom: 2px solid #71affe;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-        }
-
-        input::placeholder,
-        select,
-        textarea {
-            color: #ecf0f1;
-        }
-
-        option {
-            color: #e4dfdf;
-        }
-
-        #search-aluno::placeholder {
-            color: #999;
-        }
-
-        #btn-pesquisar i {
-            margin-right: 5px;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .navbar {
-            background-color: rgba(0, 0, 0, 0.2) !important;
-            backdrop-filter: blur(10px);
-        }
-
-        #localModal .modal-content {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            color: #ecf0f1;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-        #localModal .modal-header { border-bottom: 1px solid rgba(255, 255, 255, 0.15); }
-        #localModal .modal-title { color: #71affe; font-weight: bold; }
-        #localModal label { color: #71affe; font-weight: 600; }
-        #localModal .form-control, #localModal select {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid #71affe;
-            color: #fff;
-        }
-        #localModal .form-control:focus, #localModal select:focus {
-            background-color: rgba(255, 255, 255, 0.2);
-            border-color: #1abc9c;
-            box-shadow: 0 0 0 0.2rem rgba(26, 188, 156, 0.25);
-            color: #fff;
-        }
-        #localModal .btn-primary { background-color: #1abc9c; border: none; }
-        #localModal .btn-primary:hover { background-color: #16a085; }
-        #localModal .btn-secondary { background-color: #7f8c8d; border: none; }
-        #localModal .btn-secondary:hover { background-color: #616a6b; }
-
-        .input-icon { position: relative; }
-        .input-icon input { padding-right: 48px; cursor: pointer; }
-        .input-icon .icon-button {
-            position: absolute;
-            right: 6px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 38px; height: 38px;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 6px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid #71affe;
-            color: #71affe;
-            cursor: pointer;
-        }
-        .input-icon .icon-button i { font-size: 20px; line-height: 1; }
-        .input-icon .icon-button:hover { background: rgba(113,175,250,0.2); }
-
-        .helper-text { color: #9cc6ff; opacity: 0.95; display: inline-block; margin-top: 6px; }
-    </style>
+    <link rel="stylesheet" href="../css/style.css">
 
 
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_adm_transferencias">
     <?php
     require("menu_padrão.php");
     ?>
@@ -251,7 +63,7 @@
                         </div>
 
                         <!-- Formulário de transferência -->
-                        <div class="transferencia-container">
+                        <div class="form-container">
                             <div class="form-section">
                                 <div class="bold-title">Turma atual</div>
                                 <input type="text" id="turma-aluno" class="form-control" readonly>

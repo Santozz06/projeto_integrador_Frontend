@@ -6,9 +6,9 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <meta name="description" content="SAS (Sistema Academico Santos)" />
+  <meta name="description" content="SAS" />
   <meta name="author" content="" />
-  <title>SAS (Sistema Academico Santos)</title>
+  <title>SAS</title>
   <!-- loader-->
   <link href="../assets/css/pace.min.css" rel="stylesheet" />
   <script src="../assets/js/pace.min.js"></script>
@@ -45,39 +45,26 @@
         <!-- Bloco de Frequência/Informações Acadêmicas -->
         <div class="row">
           <div class="col-12">
-            <div class="card">
-              <div class="card-header">
-                <h5>Frequência</h5>
-              </div>
-              <div class="card-body" id="freq-card">
-                <div class="alert alert-light" id="freq-empty">Carregando frequência...</div>
-                <div class="row mt-4" id="freq-infos" style="display:none;">
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label>Ano letivo</label>
-                      <input type="text" id="freq-ano" class="form-control" readonly>
-                    </div>
-                  </div>
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label>Turma</label>
-                      <input type="text" id="freq-turma" class="form-control" readonly>
-                    </div>
-                  </div>
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label>Matrícula</label>
-                      <input type="text" id="freq-mat" class="form-control" readonly>
-                    </div>
-                  </div>
+            <div class="welcome-message">
+              <h4 class="welcome-title">Bem-vindo, Aluno!</h4>
+              <p class="welcome-text">Aqui você pode acompanhar sua frequência, notas, eventos e muito mais.</p>
+
+              <div class="quick-stats">
+                <div class="stat-item">
+                  <div class="stat-label">Ano Letivo</div>
+                  <div class="stat-value" id="freq-ano">-</div>
                 </div>
-                <div class="row" id="freq-resumo" style="display:none;">
-                  <div class="col-md-12">
-                    <div class="alert alert-info mb-2" id="freq-perc" style="background:rgba(20,182,255,0.12);color:#14b6ff;font-weight:600;"></div>
-                    <div class="progress" id="freq-progress" style="display:none;">
-                      <div class="progress-bar" id="freq-bar-inner" role="progressbar" style="width:0%">0%</div>
-                    </div>
-                  </div>
+                <div class="stat-item">
+                  <div class="stat-label">Turma</div>
+                  <div class="stat-value" id="freq-turma">-</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">Matrícula</div>
+                  <div class="stat-value" id="freq-mat">-</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">Frequência</div>
+                  <div class="stat-value" id="freq-perc">-</div>
                 </div>
               </div>
             </div>
@@ -138,18 +125,19 @@
 
   <script>
     (function(){
-      // Eventos dos últimos 30 dias do ano atual
+      // Eventos próximos (hoje + 60 dias)
       function carregarEventos(){
         var hoje = new Date();
-        var start = new Date(); start.setDate(hoje.getDate() - 30);
-        var end = hoje;
+        var start = hoje;
+        var end = new Date(); end.setDate(hoje.getDate() + 60);
         var anoAtual = hoje.getFullYear();
         function toISO(d){ return d.toISOString().slice(0,10); }
         $.getJSON('../includes/ajax/calendario/listar_eventos.php', { start: toISO(start), end: toISO(end), ano: anoAtual })
           .done(function(res){
+            console.log('[DEBUG] Resposta eventos:', res); // DEBUG
             var data = (res && res.success && Array.isArray(res.data)) ? res.data : [];
             if (!data.length){
-              $('#eventos-empty').text('Nenhum evento nos últimos 30 dias').show();
+              $('#eventos-empty').text('Nenhum evento próximo').show();
               $('#eventos-list').empty();
               return;
             }
@@ -166,7 +154,8 @@
             }
             $('#eventos-list').html(html);
           })
-          .fail(function(){
+          .fail(function(xhr, status, error){
+            console.error('[DEBUG] Erro ao carregar eventos:', xhr.status, xhr.responseText); // DEBUG
             $('#eventos-empty').text('Não foi possível carregar os eventos').show();
             $('#eventos-list').empty();
           });
@@ -174,38 +163,36 @@
 
       // Frequência (resumo)
       function carregarFrequencia(){
-        var anoAtual = 2025; // manter alinhado ao restante do sistema
+        var anoAtual = 2025; 
         $.getJSON('../includes/ajax/aluno/frequencia_resumo.php', { ano: anoAtual })
           .done(function(res){
             if (!(res && res.success && res.data)){
-              $('#freq-empty').text('Não há frequências registradas').show();
-              $('#freq-infos, #freq-resumo').hide();
+              $('#freq-ano').text('-');
+              $('#freq-turma').text('-');
+              $('#freq-mat').text('-');
+              $('#freq-perc').text('-');
               return;
             }
             var d = res.data;
             if (!d.matricula){
-              $('#freq-empty').text('Matrícula não encontrada para o ano atual').show();
-              $('#freq-infos, #freq-resumo').hide();
+              $('#freq-ano').text('-');
+              $('#freq-turma').text('-');
+              $('#freq-mat').text('-');
+              $('#freq-perc').text('-');
               return;
             }
-            $('#freq-empty').hide();
-            $('#freq-ano').val(d.ano || '');
-            $('#freq-turma').val(d.turma || '');
-            $('#freq-mat').val(d.matricula || '');
+            $('#freq-ano').text(d.ano || '-');
+            $('#freq-turma').text(d.turma || '-');
+            $('#freq-mat').text(d.matricula || '-');
             var perc = d.percentual !== null ? parseFloat(d.percentual) : null;
             var percLabel = perc !== null ? perc.toFixed(1).replace('.',',') + '%' : '--';
-            $('#freq-perc').text('Presenças: ' + (d.presencas||0) + ' de ' + (d.total||0) + (perc !== null ? ' ('+ percLabel +')' : ''));
-            if (perc !== null && !isNaN(perc)) {
-              $("#freq-progress").show();
-              $("#freq-bar-inner").css("width", Math.max(0, Math.min(100, perc)) + "%").text(percLabel);
-            } else {
-              $("#freq-progress").hide();
-            }
-            $('#freq-infos, #freq-resumo').show();
+            $('#freq-perc').text(percLabel);
           })
           .fail(function(){
-            $('#freq-empty').text('Não foi possível carregar a frequência').show();
-            $('#freq-infos, #freq-resumo').hide();
+            $('#freq-ano').text('-');
+            $('#freq-turma').text('-');
+            $('#freq-mat').text('-');
+            $('#freq-perc').text('-');
           });
       }
 
@@ -249,6 +236,10 @@
       }
 
       $(function(){
+        // Atualiza nome do aluno no welcome
+        const nome = $('.user-title').text() || 'Aluno';
+        $('.welcome-title').text('Bem-vindo, ' + nome.split(' ')[0] + '!');
+        
         carregarFrequencia();
         carregarEventos();
         carregarAulas();

@@ -5,179 +5,14 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Caderno de Chamada - SAS (Sistema Academico Santos)</title>
+    <title>Caderno de Chamada - SAS</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-    <link rel="stylesheet" href="../css/style.css">
-    <style>
-        body {
-            background: linear-gradient(to right, #2c3e50, #3498db);
-            color: #ecf0f1;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
+    <link rel="stylesheet" href="../css/style.css?v=<?=time()?>">
 
-        .topbar-nav {
-            height: 60px;
-            z-index: 1000;
-        }
-
-        .content-wrapper {
-            padding: 40px 20px;
-            padding-top: 80px;
-            min-height: calc(100vh - 60px);
-        }
-
-        .container-presenca {
-            max-width: 950px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #ffffff;
-        }
-
-        .filtros {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            justify-content: space-between;
-        }
-
-        .filtros select,
-        .filtros input[type="date"] {
-            flex: 1;
-            min-width: 200px;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #71affe;
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-        }
-
-        .info-aula {
-            background: rgba(255, 255, 255, 0.08);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-        }
-
-        .info-aula p {
-            margin: 5px 0;
-        }
-
-        .table-presenca {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        .table-presenca th {
-            background-color: rgba(113, 175, 254, 0.2);
-            color: #ffffff;
-            padding: 12px;
-            text-align: left;
-        }
-
-        .table-presenca td {
-            padding: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .radio-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        .radio-option {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .radio-option input {
-            accent-color: #1abc9c;
-        }
-
-        .btn-group {
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .btn {
-            padding: 8px 18px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: none;
-            font-size: 0.9em;
-        }
-
-        .btn-cancelar {
-            background-color: #e74c3c;
-            color: white;
-        }
-
-        .btn-cancelar:hover {
-            background-color: #e74c3c;
-        }
-
-        .btn-salvar {
-            background-color: #1abc9c;
-            color: white;
-        }
-
-        .btn-salvar:hover {
-            background-color: #16a085;
-        }
-
-        @media (max-width: 768px) {
-            .content-wrapper {
-                padding: 20px;
-                padding-top: 70px;
-            }
-
-            .filtros {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .btn-group {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .btn {
-                width: 100%;
-            }
-
-            .table-presenca {
-                overflow-x: auto;
-                display: block;
-            }
-        }
-
-        .navbar {
-            background-color: rgba(0, 0, 0, 0.2) !important;
-            backdrop-filter: blur(10px);
-        }
-    </style>
-</head>
-
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_professor_caderno_chamada">
     <?php
     require("menu_padrao.php");
     ?>
@@ -274,17 +109,30 @@
         }
 
         function carregarTurmas(){
-            const ano = 2025;
             const $sel = $('#turmaSelect');
             $sel.prop('disabled', true).empty().append('<option value="" disabled selected>Carregando turmas...</option>');
-            $.getJSON('../includes/ajax/listar_turmas.php', { ano })
+
+            const anoAtual = new Date().getFullYear();
+
+            function popular(res){
+                $sel.empty().append('<option value="" disabled selected>-- Escolha uma turma --</option>');
+                if (res && res.success && Array.isArray(res.data) && res.data.length){
+                    res.data.forEach(t => $sel.append(`<option value="${t.ID_Turma}">${t.Nome_Turma} (${t.Turno||''})</option>`));
+                    $sel.prop('disabled', false);
+                } else {
+                    $sel.append('<option value="" disabled>Nenhuma turma encontrada</option>');
+                }
+            }
+
+            // 1) tenta com ano corrente; 2) se vazio, tenta sem filtrar por ano
+            $.getJSON('../includes/ajax/listar_turmas.php', { ano: anoAtual })
                 .done(function(res){
-                    $sel.empty().append('<option value="" disabled selected>-- Escolha uma turma --</option>');
                     if (res && res.success && Array.isArray(res.data) && res.data.length){
-                        res.data.forEach(t => $sel.append(`<option value="${t.ID_Turma}">${t.Nome_Turma} (${t.Turno||''})</option>`));
-                        $sel.prop('disabled', false);
+                        popular(res);
                     } else {
-                        $sel.append('<option value="" disabled>Nenhuma turma encontrada</option>');
+                        $.getJSON('../includes/ajax/listar_turmas.php')
+                          .done(popular)
+                          .fail(function(){ $sel.empty().append('<option value="" disabled>Falha ao carregar turmas</option>'); });
                     }
                 })
                 .fail(function(){ $sel.empty().append('<option value="" disabled>Falha ao carregar turmas</option>'); });
@@ -429,7 +277,7 @@
                 return;
             }
 
-            const margins = { top: 16, left: 10, right: 10 };
+            const margins = { top: 12, left: 10, right: 10 };
             const pageWidth = doc.internal.pageSize.getWidth();
             const usableWidth = pageWidth - margins.left - margins.right;
 
@@ -511,11 +359,12 @@
                 doc.autoTable({
                     head: head,
                     body: body,
-                    startY: 14 + 4,
+                    startY: 14,
                     margin: margins,
                     theme: 'grid',
-                    styles: { fontSize: 7, cellPadding: 1.2, lineWidth: 0.1, valign: 'middle' },
-                    headStyles: { fillColor: [52, 152, 219], halign: 'center', fontStyle: 'bold' },
+                    styles: { fontSize: 7, cellPadding: 0.6, lineWidth: 0.1, valign: 'middle', lineHeight: 1.0 },
+                    headStyles: { fillColor: [52, 152, 219], halign: 'center', fontStyle: 'bold', fontSize: 7, cellPadding: 0.5 },
+                    bodyStyles: { minCellHeight: 6 },
                     columnStyles: colStyles,
                     tableWidth: 'auto',
                 });

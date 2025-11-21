@@ -25,7 +25,7 @@ if (isset($_SESSION['usuario_id']) && isset($_SESSION['user_type'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <meta name="description" content="" />
   <meta name="author" content="" />
-  <title>SAS (Sistema Academico Santos) - Login</title>
+  <title>SAS - Login</title>
   <!-- loader-->
   <link href="assets/css/pace.min.css" rel="stylesheet" />
   <script src="assets/js/pace.min.js"></script>
@@ -44,6 +44,9 @@ if (isset($_SESSION['usuario_id']) && isset($_SESSION['user_type'])) {
   .texto-professores {
     color: #ffffffff !important;
   }
+  .texto-esquecisenha {
+    color: #ff8800ff !important;
+  }
 
   .texto-professores:hover {
     color: #ffffffff !important;
@@ -52,7 +55,6 @@ if (isset($_SESSION['usuario_id']) && isset($_SESSION['user_type'])) {
 
 <body class="bg-theme bg-theme1">
 
-  <!-- conteúdo do seu HTML atual -->
   <div class="card card-authentication1 mx-auto my-5">
     <div class="card-body">
       <div class="card-content p-2">
@@ -62,7 +64,6 @@ if (isset($_SESSION['usuario_id']) && isset($_SESSION['user_type'])) {
         <div class="card-title text-uppercase text-center py-3">Login</div>
 
         <!-- Mensagem de erro -->
-        <!-- Adicione estas mensagens de erro -->
         <?php if (isset($_GET['status']) && $_GET['status'] == 'erro_tipo'): ?>
           <div class="alert alert-warning alert-dismissible fade show" role="alert">
             Este usuário não tem acesso como <?php echo $_POST['userType'] ?? 'este tipo'; ?>!
@@ -125,14 +126,8 @@ if (isset($_SESSION['usuario_id']) && isset($_SESSION['user_type'])) {
             </div>
           </div>
           <div class="form-row">
-            <div class="form-group col-6">
-              <div class="icheck-material-white">
-                <input type="checkbox" id="user-checkbox" name="lembrar" />
-                <label for="user-checkbox">Lembrar-me</label>
-              </div>
-            </div>
-            <div class="form-group col-6 text-right">
-              <a href="reset-password.php">Esqueci minha senha</a>
+            <div class="form-group col-12 text-center">
+                <a href="reset-password.php" class="texto-esquecisenha font-weight-bold">Esqueci minha senha</a>
             </div>
           </div>
           <button type="submit" class="btn btn-light btn-block">Entrar</button>
@@ -140,8 +135,8 @@ if (isset($_SESSION['usuario_id']) && isset($_SESSION['user_type'])) {
       </div>
     </div>
     <div class="card-footer text-center py-3">
-  <p class="text-warning mb-0">É aluno? <a href="register.php"> Cadastre-se aqui</a></p>
-      <p class="texto-professores mb-0 mt-2"><small>Professores: entre em contato com a secretaria para cadastro</small></p>
+      <p class="mb-1"><small>Professores e alunos: entrem em contato com a secretaria para cadastro.</small></p>
+      <p class="mb-0"><small>Suporte de acesso: <a href="mailto:Secretariadaescola@gmail.com" class="font-weight-bold">Secretariadaescola@gmail.com</a></small></p>
     </div>
   </div>
 

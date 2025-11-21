@@ -23,12 +23,29 @@ try {
     $json = json_decode($raw, true);
     if (!is_array($json)) { $json = $_POST; }
 
+    // Garantir tabela base caso ainda não exista (instalação nova)
+    $pdo->exec("CREATE TABLE IF NOT EXISTS Calendario_Academico (
+        ID_Evento INT AUTO_INCREMENT PRIMARY KEY,
+        Nome_Evento VARCHAR(255) NOT NULL,
+        Descricao TEXT NULL,
+        Data_Inicio DATE NOT NULL,
+        Data_Fim DATE NULL,
+        Tipo_Evento VARCHAR(64) NOT NULL,
+        Ano_Letivo INT NULL,
+        Publico_Alvo VARCHAR(20) DEFAULT 'todos',
+        Criado_Por INT NULL,
+        INDEX idx_inicio (Data_Inicio),
+        INDEX idx_tipo (Tipo_Evento),
+        INDEX idx_publico (Publico_Alvo)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
     $id = isset($json['id']) ? (int)$json['id'] : 0;
     $titulo = isset($json['title']) ? trim($json['title']) : '';
     $tipo = isset($json['tipo']) ? trim($json['tipo']) : 'evento';
     $descricao = isset($json['descricao']) ? trim($json['descricao']) : null;
-    $inicio = isset($json['inicio']) ? substr($json['inicio'], 0, 10) : null; // YYYY-MM-DD
-    $fim = isset($json['fim']) && $json['fim'] !== '' ? substr($json['fim'], 0, 10) : null;
+    // Normaliza datetime-local (YYYY-MM-DDTHH:MM) para DATETIME (YYYY-MM-DD HH:MM:SS)
+    $inicio = isset($json['inicio']) ? normalizarDateTime($json['inicio']) : null;
+    $fim = (isset($json['fim']) && $json['fim'] !== '') ? normalizarDateTime($json['fim']) : null;
     $publico = isset($json['publico']) ? trim($json['publico']) : 'todos'; // 'todos','professores','alunos'
     $anoLetivo = isset($json['ano_letivo']) && $json['ano_letivo'] !== '' ? (int)$json['ano_letivo'] : null;
 
@@ -61,7 +78,6 @@ try {
 
     if ($id > 0) {
         if ($isProfessor) {
-            // Professores só podem editar eventos que eles criaram
             $chkEvt = $pdo->prepare("SELECT Criado_Por FROM Calendario_Academico WHERE ID_Evento = ?");
             $chkEvt->execute([$id]);
             $own = $chkEvt->fetch(PDO::FETCH_ASSOC);
@@ -96,5 +112,25 @@ try {
     echo json_encode(['success' => true, 'id' => $id]);
 } catch (Throwable $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Erro ao salvar evento: ' . $e->getMessage(),
+        'trace' => (defined('DEBUG') && DEBUG) ? $e->getTraceAsString() : null
+    ]);
+}
+
+function normalizarDateTime($valor) {
+    $valor = trim($valor);
+    // Aceita formatos: YYYY-MM-DDTHH:MM ou YYYY-MM-DD HH:MM[:SS]
+    if (preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/', $valor)) {
+        $valor = str_replace('T', ' ', $valor) . ':00';
+    } elseif (preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/', $valor)) {
+        $valor = str_replace('T', ' ', $valor);
+    } elseif (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $valor)) {
+        $valor .= ':00';
+    }
+    // Validação final
+    $dt = DateTime::createFromFormat('Y-m-d H:i:s', $valor);
+    if (!$dt) { return null; }
+    return $dt->format('Y-m-d H:i:s');
 }

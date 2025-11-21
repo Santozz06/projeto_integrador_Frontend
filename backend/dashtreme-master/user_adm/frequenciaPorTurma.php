@@ -5,193 +5,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frequência por Turma - SAS (Sistema Academico Santos)</title>
+    <title>Frequência por Turma - SAS</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .btn-custom-primary {
-            background-color: #1abc9c !important;
-            color: white !important;
-            border: none !important;
-        }
-
-        .btn-custom-primary:hover {
-            background-color: #16a085 !important;
-        }
-
-        .btn-custom-secondary {
-            background-color: #3498db !important;
-            color: white !important;
-            border: none !important;
-        }
-
-        .btn-custom-secondary:hover {
-            background-color: #2980b9 !important;
-        }
-
-        .filter-section {
-            background-color: transparent !important;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .attendance-card {
-            border-left: 4px solid #1abc9c;
-            transition: all 0.3s;
-            margin-bottom: 20px;
-        }
-
-        .attendance-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .student-photo {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #e0e0e0;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            background-color: transparent !important;
-            border-radius: 8px;
-        }
-
-        .empty-state i {
-            font-size: 60px;
-            color: #edf0f3;
-            margin-bottom: 20px;
-        }
-
-        .attendance-badge {
-            font-size: 0.8rem;
-            padding: 5px 10px;
-            border-radius: 20px;
-        }
-
-        .present {
-            background-color: #2ecc71;
-            color: white;
-        }
-
-        .absent {
-            background-color: #e74c3c;
-            color: white;
-        }
-
-        .justified {
-            background-color: #f39c12;
-            color: white;
-        }
-
-        .summary-text {
-            background-color: #3498db;
-            padding: 8px 12px;
-            border-radius: 5px;
-            font-size: 0.9rem;
-            word-break: break-word;
-            white-space: normal;
-            max-width: 100%;
-        }
-
-
-        @media print {
-
-            .no-print,
-            #sidebar-wrapper,
-            .topbar-nav,
-            .footer,
-            .dataTables_info,
-            .dataTables_paginate,
-            .dataTables_filter,
-            .dataTables_length {
-                display: none !important;
-            }
-
-            body {
-                background: white !important;
-                color: #000000 !important;
-                font-size: 13pt !important;
-                line-height: 1.6;
-            }
-
-            .content-wrapper {
-                margin-left: 0 !important;
-            }
-
-            .card {
-                border: none !important;
-                box-shadow: none !important;
-            }
-
-            .header-print {
-                display: block !important;
-                text-align: center;
-                margin-bottom: 20px;
-                border-bottom: 2px solid #000;
-                padding-bottom: 10px;
-            }
-
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 20px;
-            }
-
-            th,
-            td {
-                color: #000000 !important;
-                font-weight: 500;
-            }
-
-            th {
-                background-color: #f2f2f2 !important;
-            }
-
-            .progress {
-                display: none !important;
-            }
-        }
-
-
-
-        .header-print {
-            display: none;
-        }
-
-        .navbar {
-            background-color: rgba(0, 0, 0, 0.2) !important;
-            backdrop-filter: blur(10px);
-        }
-        .aluno-info {
-            display: flex;
-            align-items: center;
-        }
-
-        .aluno-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-            background-color: #71affe;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-    </style>
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_adm_frequenciaPorTurma">
     <?php
     require("menu_padrão.php");
     ?>
@@ -268,25 +91,11 @@
                                             <th>% Frequência</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="attendance-data">
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                        </div>
             </div>
         </div>
     </div>
     <div class="overlay toggle-menu"></div>
-
-    <footer class="footer no-print">
-        <div class="container">
-            <div class="text-center text-white">
-                Copyright © 2023 SAS (Sistema Academico Santos)
-            </div>
-        </div>
-    </footer>
     </div>
 
     <script src="../assets/js/jquery.min.js"></script>
@@ -441,8 +250,10 @@
                     document.title = 'Relatório de Frequência - ' + $('#grade-select option:selected').text();
 
                     // Esconde elementos não necessários
-                    $('.no-print').hide();
-                    $('.dataTables_info, .dataTables_paginate, .dataTables_length, .dataTables_filter').hide();
+                    const $hideOnPrint = $('.no-print, .dataTables_info, .dataTables_paginate, .dataTables_length, .dataTables_filter');
+                    const $menuElems = $('#sidebar-wrapper, .topbar-nav, .navbar');
+                    $hideOnPrint.hide();
+                    $menuElems.hide(); // garante ocultar menu/lateral/topo
 
                     // Força estilos de impressão
                     $('body').addClass('printing');
@@ -450,7 +261,8 @@
                     // impressão
                     setTimeout(() => {
                         window.print();
-                        $('.no-print').show();
+                        $hideOnPrint.show();
+                        $menuElems.show();
                         $('body').removeClass('printing');
                         document.title = originalTitle;
                     }, 300);

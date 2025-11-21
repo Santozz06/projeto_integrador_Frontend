@@ -8,7 +8,7 @@
         <div class="brand-logo">
           <a href="home.php">
             <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
-            <h5 class="logo-text">SAS (Sistema Academico Santos)</h5>
+            <h5 class="logo-text">Sistema Acadêmico Santos</h5>
           </a>
         </div>
         <ul class="sidebar-menu do-nicescrol">
@@ -166,9 +166,6 @@
                     </div>
                   </a>
                 </li>
-                <li class="dropdown-divider"></li>
-                <li class="dropdown-item"><a href="configuracoes.php"><i class="icon-settings mr-2"></i>
-                    Configurações</a></li>
                 <li class="dropdown-divider"></li>
                 <li class="dropdown-item">
                   <a href="../logout.php" id="logout-btn" onclick="return confirm('Deseja sair?')">

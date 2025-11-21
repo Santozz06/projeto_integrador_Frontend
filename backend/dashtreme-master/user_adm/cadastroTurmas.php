@@ -61,9 +61,9 @@ $turmas = $turmaCRUD->listarTurmasComProfessor();
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="Cadastro de Turmas - SAS (Sistema Academico Santos)" />
+    <meta name="description" content="Cadastro de Turmas - SAS" />
     <meta name="author" content="" />
-    <title>Cadastro de Turmas - SAS (Sistema Academico Santos)</title>
+    <title>Cadastro de Turmas - SAS</title>
     <!-- loader-->
     <link href="../assets/css/pace.min.css" rel="stylesheet" />
     <script src="../assets/js/pace.min.js"></script>
@@ -268,8 +268,7 @@ $turmas = $turmaCRUD->listarTurmasComProfessor();
             <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
             <!-- sidebar-menu js -->
             <script src="../assets/js/sidebar-menu.js"></script>
-            <!-- loader scripts -->
-            <script src="../assets/js/jquery.loading-indicator.js"></script>
+            <!-- loader scripts removed: jquery.loading-indicator.js not present -->
             <!-- Custom scripts -->
             <script src="../assets/js/app-script.js"></script>
 

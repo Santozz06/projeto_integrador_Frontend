@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trocar de Turma - SAS (Sistema Academico Santos)</title>
+  <title>Trocar de Turma - SAS</title>
   <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
   <link rel="stylesheet" href="../assets/css/app-style.css">
   <link rel="stylesheet" href="../assets/css/icons.css">

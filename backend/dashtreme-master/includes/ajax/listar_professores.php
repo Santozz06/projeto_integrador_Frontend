@@ -6,7 +6,14 @@ header('Content-Type: application/json');
 
 try {
     // Consulta simples e compatível com o schema atual
-    $sql = "SELECT p.ID_Professor, u.Nome_Completo
+    // Inclui Matricula (coluna agora permanente) e alguns campos úteis adicionais
+    $sql = "SELECT 
+                p.ID_Professor, 
+                u.Nome_Completo,
+                p.Matricula,
+                p.Formacao AS Formacao_Academica,
+                p.Area_Atuacao,
+                p.Data_Ingresso
             FROM Professores p
             INNER JOIN Usuarios u ON u.ID_Usuario = p.ID_Professor
             ORDER BY u.Nome_Completo";

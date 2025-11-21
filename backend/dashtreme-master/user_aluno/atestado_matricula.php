@@ -5,79 +5,10 @@
 <head>
   <meta charset="UTF-8">
   <title>Atestado de Matrícula</title>
-  <style>
-    body {
-      font-family: "Times New Roman", serif;
-      margin: 40px 60px;
-      font-size: 16px;
-      color: #000;
-      line-height: 1.5;
-      opacity: 0;
-      transition: opacity 0.1s;
-    }
-
-    .cabecalho {
-      text-align: center;
-      font-size: 14px;
-      margin-bottom: 30px;
-      line-height: 1.4;
-    }
-
-    .titulo {
-      text-align: center;
-      font-weight: bold;
-      font-size: 20px;
-      margin: 30px 0;
-      text-transform: uppercase;
-    }
-
-    .texto {
-      text-align: justify;
-      line-height: 1.8;
-      margin-bottom: 20px;
-    }
-
-    .dados {
-      margin: 20px 0;
-      line-height: 1.8;
-    }
-
-    .rodape {
-      margin-top: 40px;
-      text-align: right;
-    }
-
-    .autenticidade {
-      margin-top: 30px;
-      font-size: 14px;
-      text-align: center;
-    }
-
-    .codigo {
-      font-weight: bold;
-      margin-top: 10px;
-      text-align: center;
-    }
-
-    strong {
-      font-weight: bold;
-    }
-
-    @media print {
-      body {
-        margin: 0;
-        opacity: 1;
-      }
-    }
-
-    .navbar {
-      background-color: rgba(0, 0, 0, 0.2) !important;
-      backdrop-filter: blur(10px);
-    }
-  </style>
+  <link rel="stylesheet" href="../css/style.css" />
 </head>
 
-<body>
+<body class="user_aluno_atestado_matricula">
 
   <div id="doc">
 

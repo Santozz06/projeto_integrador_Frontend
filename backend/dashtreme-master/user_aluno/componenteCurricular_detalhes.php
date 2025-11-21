@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <title>Componente Curricular - SAS (Sistema Academico Santos)</title>
+  <title>Componente Curricular - SAS</title>
   <link href="../assets/css/pace.min.css" rel="stylesheet" />
   <script src="../assets/js/pace.min.js"></script>
   <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
@@ -15,78 +15,11 @@
   <link href="../assets/css/icons.css" rel="stylesheet" />
   <link href="../assets/css/sidebar-menu.css" rel="stylesheet" />
   <link href="../assets/css/app-style.css" rel="stylesheet" />
-  <link href="style.css" rel="stylesheet" />
-  <style>
-    :root {
-      --azul-principal: #2c5f9e;
-      --texto-escuro: #333333;
-      --cinza-texto: #666666;
-      --borda: #e0e0e0;
-    }
-
-    .card-componente {
-      border-radius: 10px;
-      border: 1px solid var(--borda);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-
-    .card-header-componente {
-      background-color: var(--azul-principal);
-      color: white;
-      border-radius: 10px 10px 0 0 !important;
-      padding: 15px 20px;
-    }
-
-    .trimestre-card {
-      border-left: 4px solid var(--azul-principal);
-      margin-bottom: 15px;
-      transition: all 0.3s;
-    }
-
-    .trimestre-card:hover {
-      transform: translateX(5px);
-    }
-
-    .btn-voltar {
-      background-color: var(--azul-principal);
-      color: white;
-      border: none;
-      padding: 10px 25px;
-      border-radius: 5px;
-      margin-top: 20px;
-    }
-
-    .btn-voltar:hover {
-      background-color: #1e4a7e;
-      color: white;
-    }
-
-    .badge-data {
-      background-color: #e9f0f8;
-      color: var(--azul-principal);
-      font-weight: 500;
-      padding: 5px 10px;
-      border-radius: 20px;
-    }
-
-    .texto-frequencia {
-      color: white;
-      background-color: var(--azul-principal);
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 15px;
-      font-size: 0.85rem;
-      margin-top: 5px;
-    }
-
-    .navbar {
-      background-color: rgba(0, 0, 0, 0.2) !important;
-      backdrop-filter: blur(10px);
-    }
-  </style>
+  <link href="../css/style.css" rel="stylesheet" />
+  
 </head>
 
-<body class="bg-theme bg-theme1">
+<body class="bg-theme bg-theme1 user_aluno_componenteCurricular_detalhes">
     <?php
     require("menu_padrao.php");
     ?>
@@ -109,11 +42,11 @@
                 <div class="mb-4" id="sec-frequencia">
                   <h5 class="text-dark mb-3">Aluno</h5>
                   <p class="mb-0">Frequência na matéria</p>
-                  <div class="progress mt-2" style="height: 10px;">
-                    <div id="barra-freq" class="progress-bar bg-success" style="width: 0%"></div>
+                  <div class="progress mt-2 progress-thin">
+                    <div id="barra-freq" class="progress-bar bg-success w-0"></div>
                   </div>
-                  <span id="texto-freq" class="texto-frequencia" style="display:none"></span>
-                  <div id="freq-vazia" class="text-muted" style="display:none">Sem registros de frequência para este ano.</div>
+                  <span id="texto-freq" class="texto-frequencia d-none"></span>
+                  <div id="freq-vazia" class="text-muted d-none">Sem registros de frequência para este ano.</div>
                 </div>
 
                 <hr>
