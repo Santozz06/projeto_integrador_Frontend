@@ -13,9 +13,10 @@ function gerarIniciaisAluno($nome){
 $iniciais = gerarIniciaisAluno($nome);
 // Ajusta caminhos relativos conforme a página atual (se está em /user_aluno/ ou fora)
 $script = $_SERVER['SCRIPT_NAME'] ?? '';
+$isPerfil = strpos($script, '/public/perfil.php') !== false;
 $inAlunoDir = strpos($script, '/user_aluno/') !== false;
-$base = $inAlunoDir ? '' : 'user_aluno/'; // prefixo para páginas da área do aluno
-$root = $inAlunoDir ? '../' : ''; // prefixo para arquivos na raiz de dashtreme-master
+$base = $inAlunoDir ? '' : ($isPerfil ? '../user_aluno/' : 'user_aluno/');
+$root = ($inAlunoDir || $isPerfil) ? '../' : '';
 ?>
 <nav id="menu_padrao">
         <div id="wrapper">
@@ -69,11 +70,11 @@ $root = $inAlunoDir ? '../' : ''; // prefixo para arquivos na raiz de dashtreme-
                                     </a>
                                 </li>
                                 <li class="dropdown-divider"></li>
-                                <li class="dropdown-item"><a href="<?= htmlspecialchars($root) ?>perfil.php"><i class="icon-user mr-2"></i>
+                                <li class="dropdown-item"><a href="<?= htmlspecialchars($root) ?>public/perfil.php"><i class="icon-user mr-2"></i>
                                         Perfil</a></li>
                                 <li class="dropdown-divider"></li>
                                 <li class="dropdown-item">
-                                    <a href="<?= htmlspecialchars($root) ?>logout.php" id="logout-btn" onclick="return confirm('Deseja sair?')">
+                                    <a href="<?= htmlspecialchars($root) ?>auth/logout.php" id="logout-btn" onclick="return confirm('Deseja sair?')">
                                         <i class="icon-power mr-2"></i> Sair
                                     </a>
                                 </li>

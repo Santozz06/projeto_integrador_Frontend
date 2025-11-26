@@ -13,9 +13,10 @@ function gerarIniciais($nome){
 $iniciais = gerarIniciais($nome);
 // Ajusta caminhos relativos conforme a página atual (se está em /user_professor/ ou fora)
 $script = $_SERVER['SCRIPT_NAME'] ?? '';
+$isPerfil = strpos($script, '/public/perfil.php') !== false;
 $inProfessorDir = strpos($script, '/user_professor/') !== false;
-$base = $inProfessorDir ? '' : 'user_professor/';
-$root = $inProfessorDir ? '../' : '';
+$base = $inProfessorDir ? '' : ($isPerfil ? '../user_professor/' : 'user_professor/');
+$root = ($inProfessorDir || $isPerfil) ? '../' : '';
 ?>
 <nav id="menu_padrao">
     <!-- Corrige caminho da folha de estilos central -->
@@ -117,7 +118,7 @@ $root = $inProfessorDir ? '../' : '';
                                 </li>
                                 <li class="dropdown-divider"></li>
                                 <li class="dropdown-item">
-                                    <a href="<?= htmlspecialchars($root) ?>logout.php" id="logout-btn" onclick="return confirm('Deseja sair?')" style="display: flex; align-items: center; width: 100%;">
+                                    <a href="<?= htmlspecialchars($root) ?>auth/logout.php" id="logout-btn" onclick="return confirm('Deseja sair?')" style="display: flex; align-items: center; width: 100%;">
                                         <i class="icon-power mr-2" style="min-width: 22px; text-align: center;"></i> Sair
                                     </a>
                                 </li>

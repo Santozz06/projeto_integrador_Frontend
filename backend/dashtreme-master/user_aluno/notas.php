@@ -29,27 +29,27 @@
       <div class="container-fluid">
         <div class="row justify-content-center mt-4">
           <div class="col-lg-10">
-            <div class="card card-componente">
-              <div class="card-header card-header-componente">
+            <div class="card card-ensino">
+              <div class="card-header card-header-ensino">
                 <h4 class="mb-0">Minhas Notas</h4>
               </div>
               <div class="card-body">
                 <!-- Filtros -->
-                <div class="row mb-3">
+                <div class="row mb-4">
                   <div class="col-md-4">
-                    <label><strong>Ano Letivo</strong></label>
+                    <label class="text-light mb-2"><strong>Ano Letivo</strong></label>
                     <select id="ano-letivo" class="form-control">
                       <option value="">Carregando...</option>
                     </select>
                   </div>
                   <div class="col-md-4">
-                    <label><strong>Componente Curricular</strong></label>
+                    <label class="text-light mb-2"><strong>Componente Curricular</strong></label>
                     <select id="disciplina" class="form-control">
                       <option value="">Selecione um ano</option>
                     </select>
                   </div>
                   <div class="col-md-4">
-                    <label><strong>Trimestre</strong></label>
+                    <label class="text-light mb-2"><strong>Trimestre</strong></label>
                     <select id="trimestre" class="form-control">
                       <option value="1">1º Trimestre</option>
                       <option value="2">2º Trimestre</option>
@@ -59,29 +59,23 @@
                 </div>
 
                 <!-- Resultado -->
-                <div id="header-disciplina" class="mb-2 d-none">
-                  <h5 class="mb-0"></h5>
+                <div id="header-disciplina" class="mb-3 d-none">
+                  <h5 class="mb-0 text-center"></h5>
                 </div>
 
-                <div class="table-responsive d-none" id="box-notas">
-                  <table class="table-notas">
-                    <thead>
-                      <tr>
-                        <th>Etapa</th>
-                        <th>Nota</th>
-                      </tr>
-                    </thead>
-                    <tbody id="tbody-notas"></tbody>
-                  </table>
+                <div class="d-none" id="box-notas">
+                  <div class="row" id="notas-container"></div>
                 </div>
 
-                <div id="no-data" class="text-light d-none">
+                <div id="no-data" class="text-center text-light py-4 d-none">
                   Selecione o ano e a disciplina para consultar suas notas.
                 </div>
 
-                <a href="index.php" class="btn btn-voltar mt-3">
-                  <i class="zmdi zmdi-arrow-left mr-2"></i> Voltar
-                </a>
+                <div class="text-center">
+                  <a href="index.php" class="btn btn-voltar mt-3">
+                    <i class="zmdi zmdi-arrow-left mr-2"></i> Voltar
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -104,7 +98,7 @@
       const $ano = $('#ano-letivo');
       const $disc = $('#disciplina');
       const $tri = $('#trimestre');
-      const $tbody = $('#tbody-notas');
+      const $container = $('#notas-container');
       const $box = $('#box-notas');
       const $no = $('#no-data');
       const $hdr = $('#header-disciplina h5');
@@ -132,7 +126,6 @@
         try {
           const res = await $.getJSON('../includes/ajax/aluno/componentes_curriculares.php', { ano: anoSel });
           $disc.empty();
-          // O endpoint retorna { componentes: [...] }. Mantemos compatibilidade com { data: [...] } também.
           const comps = (res && (res.componentes || res.data)) || [];
           if (res.success && Array.isArray(comps) && comps.length) {
             $disc.append('<option value="">Selecione...</option>');
@@ -153,8 +146,9 @@
       }
 
       function renderVazio(msg) {
-        $box.hide();
-        $no.show().text(msg || 'Selecione o ano e a disciplina para consultar suas notas.');
+        $box.addClass('d-none');
+        $no.removeClass('d-none').text(msg || 'Selecione o ano e a disciplina para consultar suas notas.');
+        $('#header-disciplina').addClass('d-none');
         $hdr.text('');
       }
 
@@ -164,17 +158,30 @@
         if (!anoSel || !discSel) { renderVazio(); return; }
         try {
           const res = await $.getJSON('../includes/ajax/aluno/notas_disciplina.php', { ano: anoSel, disciplina_id: discSel, trimestre: $tri.val() });
-          if (!res.success || !res.data) { renderVazio('Nenhum dado encontrado.'); return; }
+          if (!res.success || !res.data) { 
+            renderVazio('Nenhum dado encontrado.'); 
+            return; 
+          }
           const et = res.data.etapas || {};
           const nome = res.data.nome_disciplina || 'Componente';
           $hdr.text(`${nome} - ${anoSel} (Trimestre ${$tri.val()})`);
-          $tbody.empty();
+          $('#header-disciplina').removeClass('d-none');
+          $container.empty();
           ['1','2','3','4'].forEach(e => {
             const v = et[e];
-            $tbody.append(`<tr><td>${e}ª Etapa</td><td>${v !== null && v !== undefined ? v : '-'}</td></tr>`);
+            const notaDisplay = v !== null && v !== undefined ? parseFloat(v).toFixed(2).replace('.', ',') : '-';
+            const card = `
+              <div class="col-md-6 col-lg-3">
+                <div class="nota-card">
+                  <div class="nota-etapa">Nota ${e}</div>
+                  <div class="nota-valor">${notaDisplay}</div>
+                </div>
+              </div>
+            `;
+            $container.append(card);
           });
-          $no.hide();
-          $box.show();
+          $no.addClass('d-none');
+          $box.removeClass('d-none');
         } catch (e) {
           renderVazio('Erro ao carregar notas.');
         }

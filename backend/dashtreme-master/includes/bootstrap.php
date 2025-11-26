@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
 }
 
 // inclui conexão e CRUDs
-require_once 'conexao.php';
+require_once 'config/conexao.php';
 require_once 'crud/BaseCRUD.php';
 require_once 'crud/UsuarioCRUD.php';
 require_once 'crud/TurmaCRUD.php';
@@ -24,7 +24,7 @@ function verificarAuth($tipoRequerido = null) {
     $canRedirect = !headers_sent();
     if (!isset($_SESSION['usuario_id'])) {
         if ($canRedirect) {
-            header("Location: ../index.php");
+            header("Location: ../public/index.php");
             exit();
         }
         return false;

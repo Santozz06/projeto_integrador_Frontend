@@ -5,7 +5,7 @@ require_once '../includes/bootstrap.php';
 $tipo = $_GET['tipo'] ?? '';
 $id = $_GET['id'] ?? '';
 
-require_once '../includes/conexao.php';
+require_once '../includes/config/conexao.php';
 require_once '../includes/crud/UsuarioCRUD.php';
 require_once '../includes/crud/TurmaCRUD.php';
 require_once '../includes/crud/VinculoCRUD.php';
@@ -64,6 +64,7 @@ if (!$modoSelecao) {
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciar Vínculos - SAS</title>
@@ -353,7 +354,7 @@ if (!$modoSelecao) {
                 const idUsuario = $('#idUsuario').val();
 
                 $.ajax({
-                    url: '../includes/ajax/vincular_usuario_turma.php',
+                    url: '../includes/ajax/admin/usuarios/vincular_usuario_turma.php',
                     type: 'POST',
                     dataType: 'json',
                     data: {
@@ -412,7 +413,7 @@ if (!$modoSelecao) {
         function removerVinculo(idMatricula) {
             if (confirm('Deseja realmente remover este vínculo?')) {
                 $.ajax({
-                    url: '../includes/ajax/remover_vinculo.php',
+                    url: '../includes/ajax/admin/usuarios/remover_vinculo.php',
                     type: 'POST',
                     dataType: 'json',
                     data: {
@@ -438,7 +439,7 @@ if (!$modoSelecao) {
         function removerVinculoProfessor(idProfessor, idTurma) {
             if (confirm('Deseja realmente remover este vínculo?')) {
                 $.ajax({
-                    url: '../includes/ajax/remover_vinculo.php',
+                    url: '../includes/ajax/admin/usuarios/remover_vinculo.php',
                     type: 'POST',
                     dataType: 'json',
                     data: {

@@ -3,12 +3,32 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
   <meta charset="UTF-8">
   <title>Atestado de Frequência</title>
-  <link rel="stylesheet" href="../css/style.css" />
+  <link href="../assets/css/app-style.css?v=<?php echo time(); ?>" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css?v=<?php echo time(); ?>" />
+  <style>
+    body {
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+      background-image: none !important;
+    }
+    body::before,
+    body::after {
+      display: none !important;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+    document.body.style.cssText = 'background: #ffffff !important; background-color: #ffffff !important; background-image: none !important;';
+    if(document.body.classList) {
+      document.body.classList.remove('bg-theme', 'bg-theme1', 'bg-theme2', 'bg-theme3', 'bg-theme4', 'bg-theme5');
+    }
+  </script>
 </head>
 
-<body class="user_aluno_frequencia_detalhes" onload="gerarPDF()">
+<body class="user_aluno_frequencia_detalhes">
 
   <div id="doc">
     <div class="cabecalho">
@@ -25,11 +45,58 @@
     <div class="texto">
       Atestamos, para os fins a que se fizerem necessários, que <strong><span id="nome-aluno">Aluno(a)</span></strong>,
       CPF nº <strong><span id="cpf-aluno">—</span></strong>, possui vínculo regular de estudante nesta instituição sob o nº de
-      matrícula <strong><span id="matricula-aluno">—</span></strong>.
+      matrícula <strong><span id="matricula-aluno">—</span></strong>,
       modalidade <strong><span id="modalidade">Presencial</span></strong>, no turno <strong><span id="turno">—</span></strong>, ofertado pela <strong>NOME DA
-      <link rel="stylesheet" href="../css/style.css?v=<?php echo time(); ?>">
-        document.body.style.opacity = '0';
-    <body class="user_aluno_frequencia_detalhes">
+      ESCOLA</strong>.
+    </div>
+
+    <div class="texto">
+      Registra-se o percentual de frequência de <strong><span id="percentual">—</span>%</strong> no ano de <strong><span id="ano">—</span></strong>.
+    </div>
+
+    <div class="data-local">
+      Parobé, <span id="data-emissao">—</span>.
+    </div>
+
+    <div class="assinatura">
+      _________________________________________________<br>
+      Assinatura do(a) Diretor(a) ou Secretário(a) Escolar
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      document.body.style.opacity = '0';
+      const params = new URLSearchParams(window.location.search);
+      const ano = params.get('ano') || '2025';
+
+      function preencherDadosBasicos(aluno) {
+        document.getElementById('nome-aluno').textContent = aluno.Nome_Completo || aluno.nome || '—';
+        document.getElementById('cpf-aluno').textContent = aluno.CPF || aluno.cpf || '—';
+        document.getElementById('matricula-aluno').textContent = aluno.Matricula || aluno.matricula || '—';
+      }
+
+      function preencherFrequencia(data) {
+        document.getElementById('percentual').textContent = data.percentual !== null ? data.percentual : '—';
+        document.getElementById('ano').textContent = data.ano || ano;
+        const hoje = new Date();
+        const dataStr = hoje.toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric' });
+        document.getElementById('data-emissao').textContent = dataStr;
+        
+        if(data.turma) {
+          document.getElementById('turno').textContent = data.turno || 'Integral';
+          document.getElementById('modalidade').textContent = data.modalidade || 'Presencial';
+        }
+      }
+
+      function gerarPDF() {
+        if(typeof html2pdf === 'undefined') {
+          alert('Erro: biblioteca html2pdf não está disponível');
+          document.body.style.opacity = '1';
+          return;
+        }
+        
+        const element = document.getElementById('doc');
         html2pdf().set({
           margin: 10,
           filename: `atestado_frequencia_${ano}.pdf`,
@@ -39,15 +106,13 @@
         }).from(element).save().then(function(){
           setTimeout(function(){ window.history.back(); }, 800);
         }).catch(function(err){
-          console.error('Erro ao gerar PDF:', err);
+          alert('Erro ao gerar PDF. Verifique o console.');
           document.body.style.opacity = '1';
         });
       }
 
-      // Carregar dados em paralelo e gerar PDF após ambos
       Promise.all([
-        // Historico para obter Nome/CPF usando id em sessão (será resolvido no servidor)
-        fetch(`../includes/ajax/obter_historico_aluno.php?aluno_id=${encodeURIComponent(<?php echo isset($_SESSION['usuario_id']) ? (int)$_SESSION['usuario_id'] : 0; ?>)}`)
+        fetch(`../includes/ajax/shared/historico/obter_historico_aluno.php?aluno_id=${encodeURIComponent(<?php echo isset($_SESSION['usuario_id']) ? (int)$_SESSION['usuario_id'] : 0; ?>)}`)
           .then(r=>r.json()).catch(()=>({success:false})),
         fetch(`../includes/ajax/aluno/frequencia_resumo.php?ano=${encodeURIComponent(ano)}`)
           .then(r=>r.json()).catch(()=>({success:false}))
@@ -57,7 +122,10 @@
         if (hist && hist.aluno) preencherDadosBasicos(hist.aluno);
         if (freq && freq.data) preencherFrequencia(freq.data);
         gerarPDF();
-      }).catch(function(){ gerarPDF(); });
+      }).catch(function(){ 
+        alert('Erro ao carregar dados. Gerando PDF mesmo assim...');
+        gerarPDF(); 
+      });
     })();
   </script>
 </body>

@@ -41,12 +41,17 @@
                 <!-- Seção Aluno -->
                 <div class="mb-4" id="sec-frequencia">
                   <h5 class="text-dark mb-3">Aluno</h5>
-                  <p class="mb-0">Frequência na matéria</p>
-                  <div class="progress mt-2 progress-thin">
-                    <div id="barra-freq" class="progress-bar bg-success w-0"></div>
+                  <div class="frequencia-box">
+                    <div class="freq-header">
+                      <span class="freq-label">Frequência na matéria</span>
+                      <span id="percentual-freq" class="freq-percentual">0%</span>
+                    </div>
+                    <div class="progress freq-progress">
+                      <div id="barra-freq" class="progress-bar w-0"></div>
+                    </div>
+                    <span id="texto-freq" class="freq-detalhes d-none"></span>
+                    <div id="freq-vazia" class="text-muted d-none">Sem registros de frequência para este ano.</div>
                   </div>
-                  <span id="texto-freq" class="texto-frequencia d-none"></span>
-                  <div id="freq-vazia" class="text-muted d-none">Sem registros de frequência para este ano.</div>
                 </div>
 
                 <hr>
@@ -105,10 +110,15 @@
           $('#freq-vazia').show();
           $('#texto-freq').hide();
           $('#barra-freq').css('width','0%');
+          $('#percentual-freq').text('0%');
         } else {
           var p = Math.max(0, Math.min(100, parseInt(f.percentual,10) || 0));
           $('#barra-freq').css('width', p+'%');
-          $('#texto-freq').text(p + '% de presenças' + (f.total? (' (' + (f.presentes||0) + '/' + (f.total||0) + ')') : '')).show();
+          $('#percentual-freq').text(p + '%');
+          var detalhes = f.total ? (f.presentes||0) + ' presenças de ' + (f.total||0) + ' aulas' : '';
+          if (detalhes) {
+            $('#texto-freq').text(detalhes).removeClass('d-none').addClass('freq-detalhes');
+          }
           $('#freq-vazia').hide();
         }
       }

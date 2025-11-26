@@ -130,11 +130,10 @@
         var hoje = new Date();
         var start = hoje;
         var end = new Date(); end.setDate(hoje.getDate() + 60);
-        var anoAtual = hoje.getFullYear();
         function toISO(d){ return d.toISOString().slice(0,10); }
-        $.getJSON('../includes/ajax/calendario/listar_eventos.php', { start: toISO(start), end: toISO(end), ano: anoAtual })
+        var url = '../includes/ajax/calendario/listar_eventos.php?start=' + toISO(start) + '&end=' + toISO(end);
+        $.getJSON(url)
           .done(function(res){
-            console.log('[DEBUG] Resposta eventos:', res); // DEBUG
             var data = (res && res.success && Array.isArray(res.data)) ? res.data : [];
             if (!data.length){
               $('#eventos-empty').text('Nenhum evento próximo').show();
@@ -155,7 +154,6 @@
             $('#eventos-list').html(html);
           })
           .fail(function(xhr, status, error){
-            console.error('[DEBUG] Erro ao carregar eventos:', xhr.status, xhr.responseText); // DEBUG
             $('#eventos-empty').text('Não foi possível carregar os eventos').show();
             $('#eventos-list').empty();
           });
@@ -163,8 +161,9 @@
 
       // Frequência (resumo)
       function carregarFrequencia(){
-        var anoAtual = 2025; 
-        $.getJSON('../includes/ajax/aluno/frequencia_resumo.php', { ano: anoAtual })
+        var anoAtual = new Date().getFullYear(); 
+        var url = '../includes/ajax/aluno/frequencia_resumo.php?ano=' + anoAtual;
+        $.getJSON(url)
           .done(function(res){
             if (!(res && res.success && res.data)){
               $('#freq-ano').text('-');
@@ -174,7 +173,7 @@
               return;
             }
             var d = res.data;
-            if (!d.matricula){
+            if (!d.matricula && !d.turma){
               $('#freq-ano').text('-');
               $('#freq-turma').text('-');
               $('#freq-mat').text('-');
@@ -188,7 +187,7 @@
             var percLabel = perc !== null ? perc.toFixed(1).replace('.',',') + '%' : '--';
             $('#freq-perc').text(percLabel);
           })
-          .fail(function(){
+          .fail(function(xhr, status, error){
             $('#freq-ano').text('-');
             $('#freq-turma').text('-');
             $('#freq-mat').text('-');

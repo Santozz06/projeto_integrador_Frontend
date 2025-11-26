@@ -1,6 +1,5 @@
 <?php
 require_once '../../bootstrap.php';
-require_once '../../conexao.php';
 
 header('Content-Type: application/json');
 
@@ -71,8 +70,11 @@ try {
 
     $map = ['1' => null, '2' => null, '3' => null, '4' => null];
     foreach ($rows as $r) {
-        $e = (string)$r['Etapa'];
-        $map[$e] = $r['Nota'] !== null ? (float)$r['Nota'] : null;
+        $e = trim((string)$r['Etapa']);
+        $e = preg_replace('/[^0-9]/', '', $e);
+        if ($e !== '' && array_key_exists($e, $map)) {
+            $map[$e] = $r['Nota'] !== null ? (float)$r['Nota'] : null;
+        }
     }
 
     // Obter nome da disciplina para cabeçalho

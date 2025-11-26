@@ -5,8 +5,9 @@ $erro = '';
 $sucesso = '';
 $aluno_para_edicao = null;
 $servidor_para_edicao = null;
+$limite_por_pagina = 10;
 
-require_once '../includes/conexao.php';
+require_once '../includes/config/conexao.php';
 require_once '../includes/crud/UsuarioCRUD.php';
 require_once '../includes/crud/LocalidadeCRUD.php';
 
@@ -66,7 +67,7 @@ if (isset($_GET['editarAluno']) && !empty($_GET['editarAluno'])) {
         $municipios_aluno = $localidadeCRUD->listarMunicipiosPorEstado($aluno_para_edicao['UF_Endereco']);
     }
 
-    // derivar logradouro se faltar
+    // logradouro se faltar
     if ($aluno_para_edicao && (!isset($aluno_para_edicao['Logradouro']) || $aluno_para_edicao['Logradouro'] === '') && !empty($aluno_para_edicao['Endereco'])) {
         $partesEndereco = explode(',', (string)$aluno_para_edicao['Endereco']);
         $aluno_para_edicao['Logradouro'] = trim($partesEndereco[0]);
@@ -84,7 +85,7 @@ if (isset($_GET['editarServidor']) && !empty($_GET['editarServidor'])) {
         $municipios_servidor = $localidadeCRUD->listarMunicipiosPorEstado($servidor_para_edicao['UF_Endereco']);
     }
 
-    // derivar logradouro se faltar
+    // logradouro se faltar
     if ($servidor_para_edicao && (!isset($servidor_para_edicao['Logradouro']) || $servidor_para_edicao['Logradouro'] === '') && !empty($servidor_para_edicao['Endereco'])) {
         $partesEndereco = explode(',', (string)$servidor_para_edicao['Endereco']);
         $servidor_para_edicao['Logradouro'] = trim($partesEndereco[0]);
@@ -103,7 +104,7 @@ function renderLinhasAlunos(array $alunos, $editId = null): string {
             .'<td>'.htmlspecialchars($al['Matricula'] ?? 'N/A').'</td>'
             .'<td>'.htmlspecialchars($al['Telefone'] ?? 'N/A').'</td>'
             .'<td>'
-            .'<a href="?editarAluno='.$al['ID_Usuario'].'" class="btn btn-sm btn-primary">Editar</a> '
+            .'<a href="?editarAluno='.$al['ID_Usuario'].'" class="btn btn-sm btn-editar">Editar</a> '
             .'<a href="?excluirAluno='.$al['ID_Usuario'].'" class="btn btn-sm btn-danger" onclick="return confirm(\'Deseja realmente excluir este aluno?\');">Excluir</a>'
             .'</td>'
             .'</tr>';
@@ -121,7 +122,7 @@ function renderLinhasServidores(array $servidores, $editId = null): string {
             .'<td>'.htmlspecialchars($s['Matricula'] ?? 'N/A').'</td>'
             .'<td>'.htmlspecialchars($s['Telefone'] ?? 'N/A').'</td>'
             .'<td>'
-            .'<a href="?editarServidor='.$s['ID_Usuario'].'" class="btn btn-sm btn-primary">Editar</a> '
+            .'<a href="?editarServidor='.$s['ID_Usuario'].'" class="btn btn-sm btn-editar">Editar</a> '
             .'<a href="?excluirServidor='.$s['ID_Usuario'].'" class="btn btn-sm btn-danger" onclick="return confirm(\'Deseja realmente excluir este servidor?\');">Excluir</a>'
             .'</td>'
             .'</tr>';
@@ -243,13 +244,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
                 $sucesso = "Aluno atualizado com sucesso!";
                 if ($isAjax) {
-                    // Recarrega listagem
+                    while (ob_get_level()) ob_end_clean();
+                    header('Content-Type: application/json');
                     $listaAlunos = $usuarioCRUD->listarAlunos(1, $limite_por_pagina);
-                    // Ao salvar, não manter modo edição: não enviar id para destaque
                     echo json_encode([
                         'success' => true,
                         'tipo' => 'aluno',
-                        'id' => (int)$id_aluno, // ainda retornado se precisar em futuro, mas não usado para highlight
+                        'id' => (int)$id_aluno,
                         'mensagem' => $sucesso,
                         'tabela' => renderLinhasAlunos($listaAlunos, null)
                     ]);
@@ -273,8 +274,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
                 $sucesso = "Aluno cadastrado com sucesso! Matrícula: " . $matricula;
                 if ($isAjax) {
+                    while (ob_get_level()) ob_end_clean();
+                    header('Content-Type: application/json');
                     $listaAlunos = $usuarioCRUD->listarAlunos(1, $limite_por_pagina);
-                    // Após cadastro novo não destacar linha (sai do modo edição imediatamente)
                     echo json_encode([
                         'success' => true,
                         'tipo' => 'aluno',
@@ -293,7 +295,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email_servidor = $_POST['emailServidor'];
             $id_servidor = $_POST['id_servidor'] ?? null;
 
-            // email duplicado?
+            // email duplicado
             $email_existente = $usuarioCRUD->emailExiste($email_servidor, $id_servidor);
             if ($email_existente) {
                 throw new Exception("O email '$email_servidor' já está cadastrado para outro usuário.");
@@ -331,7 +333,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'Municipio_Endereco' => $_POST['municipioServidor'] ?? null
             ];
 
-            // Naturalidade (Servidor): converte selecionados em texto "Cidade/UF"
+            // Naturalidade (Servidor) converte selecionados em texto "Cidade/UF"
             if (!empty($_POST['naturalidadeServidor'])) {
                 $municipioId = $_POST['naturalidadeServidor'];
                 $municipio = $localidadeCRUD->buscarMunicipio($municipioId);
@@ -393,8 +395,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
                 $sucesso = "Servidor atualizado com sucesso!";
                 if ($isAjax) {
+                    while (ob_get_level()) ob_end_clean();
+                    header('Content-Type: application/json');
                     $listaServ = $usuarioCRUD->listarProfessores(1, $limite_por_pagina);
-                    // Não destacar linha após salvar atualização
                     echo json_encode([
                         'success' => true,
                         'tipo' => 'servidor',
@@ -417,8 +420,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
                 $sucesso = "Servidor cadastrado com sucesso!";
                 if ($isAjax) {
+                    while (ob_get_level()) ob_end_clean();
+                    header('Content-Type: application/json');
                     $listaServ = $usuarioCRUD->listarProfessores(1, $limite_por_pagina);
-                    // Não destacar linha após cadastro
                     echo json_encode([
                         'success' => true,
                         'tipo' => 'servidor',
@@ -449,6 +453,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erro = $friendly ?: ("Erro no cadastro: " . $msg);
         error_log("Erro cadastro: " . $msg);
         if ($isAjax) {
+            while (ob_get_level()) ob_end_clean();
+            header('Content-Type: application/json');
             echo json_encode([
                 'success' => false,
                 'mensagem' => $erro
@@ -481,7 +487,7 @@ $total_paginas_servidores = ceil($total_servidores / $limite_por_pagina);
 $servidores = $usuarioCRUD->listarProfessores($pagina_servidores, $limite_por_pagina);
 
 
-// Determinar aba ativa (padrao aluno, muda se edição/parametros de servidor presentes)
+// Determinar aba ativa
 $abaAtiva = 'aluno';
 if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isset($_POST['tipo']) && $_POST['tipo']==='servidor')) {
     $abaAtiva = 'servidor';
@@ -515,7 +521,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
     <link href="../assets/css/sidebar-menu.css" rel="stylesheet" />
     <!-- Custom Style-->
     <link href="../assets/css/app-style.css" rel="stylesheet" />
-    <link href="../css/style.css" rel="stylesheet" />
+    <link href="../css/style.css?v=<?php echo time(); ?>" rel="stylesheet" />
 
     <!-- Select2 CSS -->
     <link href="../assets/plugins/select2/css/select2.min.css" rel="stylesheet" />
@@ -580,7 +586,6 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                                 <input type="hidden" name="tipo" value="aluno">
                                 <input type="hidden" name="id_aluno"
                                     value="<?= $aluno_para_edicao['ID_Usuario'] ?? '' ?>">
-                                <!-- Senha agora é capturada pelos campos abaixo; não usamos padrão -->
 
                                 <!-- Dados Pessoais - Aluno -->
                                 <div class="form-section">
@@ -959,13 +964,13 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                                 <!-- Botões -->
                                 <div class="form-group row">
                                     <div class="col-sm-12 text-right">
-                                        <button type="submit" class="btn btn-Salvar px-5"
+                                        <button type="submit" class="btn btn-Salvar text-center" style="min-width: 120px;"
                                             id="btnSalvarAluno">Salvar</button>
                                         <?php if (!empty($aluno_para_edicao['ID_Usuario'])): ?>
-                                        <button type="button" class="btn btn-info px-5" id="btnVincularAluno"
+                                        <button type="button" class="btn btn-info text-center" style="min-width: 120px;" id="btnVincularAluno"
                                             onclick="verificarEEnviarParaVinculos('aluno')">Vincular</button>
                                         <?php endif; ?>
-                                        <a href="cadastro.php" class="btn btn-cancelar px-5">Cancelar</a>
+                                        <a href="cadastro.php" class="btn btn-cancelar text-center" style="min-width: 120px;">Cancelar</a>
                                     </div>
                                 </div>
                             </form>
@@ -991,7 +996,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                                             <td><?= htmlspecialchars($aluno['Telefone'] ?? 'N/A') ?></td>
                                             <td>
                                                 <a href="?editarAluno=<?= $aluno['ID_Usuario'] ?>"
-                                                    class="btn btn-sm btn-primary">Editar</a>
+                                                    class="btn btn-sm btn-editar">Editar</a>
                                                 <a href="?excluirAluno=<?= $aluno['ID_Usuario'] ?>"
                                                     class="btn btn-sm btn-danger"
                                                     onclick="return confirm('Deseja realmente excluir este aluno?');">Excluir</a>
@@ -1102,7 +1107,6 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                                         </div>
                                     </div>
 
-                                    <!-- Senha do Servidor (colocada aqui para manter consistência com a aba Aluno) -->
                                     <div class="row">
                                         <div class="col-md-3">
                                             <div class="form-group">
@@ -1373,12 +1377,12 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                                 <!-- Botões -->
                                 <div class="form-group row mt-3">
                                     <div class="col-sm-12 text-right">
-                                        <button type="submit" class="btn btn-Salvar px-5">Salvar</button>
+                                        <button type="submit" class="btn btn-Salvar text-center" style="min-width: 120px;">Salvar</button>
                                         <?php if (!empty($servidor_para_edicao['ID_Usuario'])): ?>
-                                        <button type="button" class="btn btn-info px-5" id="btnVincularServidor"
+                                        <button type="button" class="btn btn-info text-center" style="min-width: 120px;" id="btnVincularServidor"
                                             onclick="verificarEEnviarParaVinculos('servidor')">Vincular</button>
                                         <?php endif; ?>
-                                        <button type="button" class="btn btn-cancelar px-5"
+                                        <button type="button" class="btn btn-cancelar text-center" style="min-width: 120px;"
                                             id="btnCancelarServidor">Cancelar</button>
                                     </div>
                                 </div>
@@ -1407,7 +1411,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                                             <td><?= htmlspecialchars($servidor['Telefone'] ?? 'N/A') ?></td>
                                             <td>
                                                 <a href="?editarServidor=<?= $servidor['ID_Usuario'] ?>"
-                                                    class="btn btn-sm btn-primary">Editar</a>
+                                                    class="btn btn-sm btn-editar">Editar</a>
                                                 <a href="?excluirServidor=<?= $servidor['ID_Usuario'] ?>"
                                                     class="btn btn-sm btn-danger"
                                                     onclick="return confirm('Deseja realmente excluir este servidor?');">Excluir</a>
@@ -1453,16 +1457,15 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
     <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
     <!-- sidebar-menu js -->
     <script src="../assets/js/sidebar-menu.js"></script>
-    <!-- loader scripts removed: jquery.loading-indicator.js not present -->
     <!-- Custom scripts -->
     <script src="../assets/js/app-script.js"></script>
-
     <!-- Select2 JS -->
     <script src="../assets/plugins/select2/js/select2.min.js"></script>
     <script src="../assets/plugins/select2/js/i18n/pt-BR.js"></script>
+    
+    <script src="cadastro.js"></script>
 
     <script>
-        // Inicializar Select2 para todos os selects com busca
         $(document).ready(function () {
             $('.select2-busca').select2({
                 theme: 'bootstrap-5',
@@ -1481,7 +1484,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                 console.log('Estado naturalidade selecionado:', estadoId);
 
                 if (estadoId) {
-                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoId}`)
+                    fetch(`../includes/ajax/shared/localidades/carregar_municipios.php?estado_id=${estadoId}`)
                         .then(response => response.json())
                         .then(data => {
                             naturalidadeSelect.empty().append('<option value="">Selecione a cidade...</option>');
@@ -1507,7 +1510,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                 console.log('Estado naturalidade servidor selecionado:', estadoId);
 
                 if (estadoId) {
-                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoId}`)
+                    fetch(`../includes/ajax/shared/localidades/carregar_municipios.php?estado_id=${estadoId}`)
                         .then(response => response.json())
                         .then(data => {
                             naturalidadeSelect.empty().append('<option value="">Selecione a cidade...</option>');
@@ -1535,7 +1538,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                 if (estadoId) {
                     municipioSelect.empty().append('<option value="">Carregando...</option>');
 
-                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoId}`)
+                    fetch(`../includes/ajax/shared/localidades/carregar_municipios.php?estado_id=${estadoId}`)
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error('Erro na resposta do servidor');
@@ -1572,7 +1575,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                 if (estadoId) {
                     municipioSelect.empty().append('<option value="">Carregando...</option>');
 
-                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoId}`)
+                    fetch(`../includes/ajax/shared/localidades/carregar_municipios.php?estado_id=${estadoId}`)
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error('Erro na resposta do servidor');
@@ -1626,8 +1629,8 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                 aplicarMascaraCEP(this);
             });
 
-            // Carrega mapeamento de UFs (sigla -> codigo_uf) via endpoint existente
-            let ufMapPromise = fetch('../includes/ajax/listar_estados.php')
+            // Carrega mapeamento de UFs
+            let ufMapPromise = fetch('../includes/ajax/shared/localidades/listar_estados.php')
                 .then(r => r.json())
                 .then(j => {
                     if (!j || !j.success) throw new Error('Falha ao listar estados');
@@ -1643,7 +1646,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
             // Consulta ViaCEP e preenche campos
             async function preencherEnderecoPorCEP(cep, contexto) {
                 const somenteDigitos = (cep || '').replace(/\D/g, '');
-                if (somenteDigitos.length !== 8) return; // CEP inválido/incompleto
+                if (somenteDigitos.length !== 8) return; 
                 try {
                     const resp = await fetch(`https://viacep.com.br/ws/${somenteDigitos}/json/`);
                     if (!resp.ok) throw new Error('Resposta inválida do ViaCEP');
@@ -1655,13 +1658,13 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                     if (contexto.$bairro && data.bairro) contexto.$bairro.val(data.bairro);
                     if (contexto.$complemento && data.complemento) contexto.$complemento.val(data.complemento);
 
-                    // Seleciona UF no select (mapeando sigla -> codigo_uf)
+                    // Seleciona UF no select 
                     const ufMap = await ufMapPromise;
                     const codigoUF = ufMap[data.uf] || null;
                     if (codigoUF && contexto.$uf) {
                         contexto.$uf.val(String(codigoUF)).trigger('change');
 
-                        // Após carregar municípios (assíncrono), selecionar pelo IBGE
+                        // Após carregar municípios, selecionar pelo IBGE
                         const tentarSelecionarMunicipio = () => {
                             if (!contexto.$municipio) return;
                             // Aguarda options carregarem
@@ -1669,7 +1672,6 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                                 if (data.ibge) {
                                     contexto.$municipio.val(String(data.ibge)).trigger('change');
                                 } else if (data.localidade) {
-                                    // fallback por nome se ibge indisponível
                                     const nomeCidade = (data.localidade || '').toLowerCase();
                                     let escolhido = null;
                                     contexto.$municipio.find('option').each(function(){
@@ -1687,8 +1689,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                     console.warn('Não foi possível preencher endereço pelo CEP:', e.message || e);
                 }
             }
-
-            // Amarra CEP -> auto-preenchimento (Aluno)
+            //auto-preenchimento (Aluno)
             $('#cep').on('blur', function(){
                 preencherEnderecoPorCEP(this.value, {
                     $uf: $('#ufEndereco'),
@@ -1698,7 +1699,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                     $complemento: $('input[name="complemento"]')
                 });
             });
-            // Também quando completar 9 chars (com hífen) durante digitação
+            
             $('#cep').on('input', function(){
                 const raw = this.value.replace(/\D/g, '');
                 if (raw.length === 8) {
@@ -1712,7 +1713,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                 }
             });
 
-            // Amarra CEP -> auto-preenchimento (Servidor)
+            // auto-preenchimento (Servidor)
             $('#cepServidor').on('blur', function(){
                 preencherEnderecoPorCEP(this.value, {
                     $uf: $('#ufEnderecoServidor'),
@@ -1735,7 +1736,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                 }
             });
 
-            // === CPF: máscara e validação ===
+            // CPF: máscara e validação 
             function aplicarMascaraCPF(input) {
                 let v = (input.value || '').replace(/\D/g, '');
                 if (v.length > 11) v = v.substring(0,11);
@@ -1748,7 +1749,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
             function validarCPFValor(cpfStr) {
                 const cpf = (cpfStr || '').replace(/\D/g, '');
                 if (!cpf || cpf.length !== 11) return false;
-                if (/^(\d)\1{10}$/.test(cpf)) return false; // repetidos
+                if (/^(\d)\1{10}$/.test(cpf)) return false; 
                 let soma = 0;
                 for (let i = 0; i < 9; i++) soma += parseInt(cpf.charAt(i)) * (10 - i);
                 let resto = (soma * 10) % 11;
@@ -1768,7 +1769,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                 $(this).removeClass('is-invalid');
             });
 
-            // Valida CPF ao sair do campo (sem alert, só marca visualmente)
+            // Valida CPF ao sair do campo 
             $('#cpf').on('blur', function(){
                 const v = (this.value || '').trim();
                 if (!v) { $(this).removeClass('is-invalid'); return; }
@@ -1782,14 +1783,13 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                 $(this).toggleClass('is-invalid', !ok);
             });
 
-            // === Máscaras de Telefone/Celular (BR) ===
+            // Máscaras de Telefone/Celular
             function aplicarMascaraTelefone(input) {
                 // Mantém apenas dígitos
                 let val = (input.value || '').replace(/\D/g, '');
                 // Limita a 11 dígitos (DDD + número)
                 if (val.length > 11) val = val.substring(0, 11);
 
-                // Monta a máscara progressivamente
                 if (val.length > 0) {
                     // DDD
                     if (val.length <= 2) {
@@ -1801,7 +1801,6 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                     // Hífen conforme 10 (fixo) ou 11 (celular) dígitos
                     const digitos = input.value.replace(/\D/g, '');
                     const total = digitos.length;
-                    // Posição do hífen: 10 dígitos => 4-4 | 11 dígitos => 5-4
                     if (total >= 7) {
                         // Remove tudo que não é dígito para recálculo
                         const soDigitos = val.replace(/\D/g, '');
@@ -1813,7 +1812,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                             const parte2 = restante.substring(5);
                             val = `(${ddd}) ${parte1}` + (parte2 ? `-${parte2}` : '');
                         } else {
-                            // (00) 0000-0000 (ou montagem parcial)
+                            // (00) 0000-0000
                             const parte1 = restante.substring(0, 4);
                             const parte2 = restante.substring(4);
                             val = `(${ddd}) ${parte1}` + (parte2 ? `-${parte2}` : '');
@@ -1826,12 +1825,10 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
 
             function validarTelefoneCampo($input, obrigatorioCelular = false) {
                 const raw = ($input.val() || '').replace(/\D/g, '');
-                if (!raw) return true; // vazio permitido em campos não obrigatórios
+                if (!raw) return true; 
                 if (obrigatorioCelular) {
-                    // Celular deve ter 11 dígitos no Brasil
                     return raw.length === 11;
                 }
-                // Telefone pode ser fixo (10) ou celular (11)
                 return raw.length === 10 || raw.length === 11;
             }
 
@@ -1860,7 +1857,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                 }
                 const $tel = $('#telefone');
                 const $cel = $('#celular');
-                // valida somente se preenchidos; celular é required no HTML, mas reforçamos regra de 11 dígitos
+                // valida somente se preenchidos
                 if ($cel.length && !validarTelefoneCampo($cel, true)) {
                     e.preventDefault();
                     alert('Celular do aluno inválido. Use o formato (00) 00000-0000.');
@@ -1913,7 +1910,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                 (function(){
                     const estadoEnderecoIdAluno = <?= (int)$aluno_para_edicao['UF_Endereco'] ?>;
                     const municipioSelecionadoAluno = <?= isset($aluno_para_edicao['Municipio_Endereco']) ? (int)$aluno_para_edicao['Municipio_Endereco'] : 'null' ?>;
-                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoEnderecoIdAluno}`)
+                    fetch(`../includes/ajax/shared/localidades/carregar_municipios.php?estado_id=${estadoEnderecoIdAluno}`)
                         .then(r=>r.json())
                         .then(data=>{
                             const $sel = $('#municipio');
@@ -1932,7 +1929,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                 (function(){
                     const estadoEnderecoIdServ = <?= (int)$servidor_para_edicao['UF_Endereco'] ?>;
                     const municipioSelecionadoServ = <?= isset($servidor_para_edicao['Municipio_Endereco']) ? (int)$servidor_para_edicao['Municipio_Endereco'] : 'null' ?>;
-                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${estadoEnderecoIdServ}`)
+                    fetch(`../includes/ajax/shared/localidades/carregar_municipios.php?estado_id=${estadoEnderecoIdServ}`)
                         .then(r=>r.json())
                         .then(data=>{
                             const $sel = $('#municipioServidor');
@@ -1951,7 +1948,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                 (function(){
                     const ufNatServ = <?= (int)$servidor_para_edicao['uf_naturalidade'] ?>;
                     const natSelServ = <?= isset($servidor_para_edicao['naturalidade_id']) ? (int)$servidor_para_edicao['naturalidade_id'] : 'null' ?>;
-                    fetch(`../includes/ajax/carregar_municipios.php?estado_id=${ufNatServ}`)
+                    fetch(`../includes/ajax/shared/localidades/carregar_municipios.php?estado_id=${ufNatServ}`)
                         .then(r=>r.json())
                         .then(data=>{
                             const $sel = $('#naturalidadeServidor');
@@ -1976,7 +1973,7 @@ if (isset($_GET['editarServidor']) || isset($_GET['pagina_servidores']) || (isse
                     }
                 });
             });
-            // === FUNÇÃO PARA VERIFICAR CAMPOS E ENVIAR PARA VÍNCULOS ===
+            // FUNÇÃO PARA VERIFICAR CAMPOS E ENVIAR PARA VÍNCULOS
             function verificarEEnviarParaVinculos(tipo) {
                 let formId, idUsuario, camposObrigatorios;
 

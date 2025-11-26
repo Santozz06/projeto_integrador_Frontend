@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório de Professores - SAS</title>
@@ -62,7 +63,7 @@
                                     <th>Foto</th>
                                     <th>Nome</th>
                                     <th>Matrícula</th>
-                                    <th>Matérias</th>
+                                    <th>Disciplinas</th>
                                     <th>Status</th>
                                     <th>Turmas Vinculadas</th>
                                 </tr>
@@ -101,14 +102,14 @@
                     { data: 0, defaultContent: '' }, // Foto
                     { data: 1, defaultContent: '' }, // Nome
                     { data: 2, defaultContent: '' }, // Matrícula
-                    { data: 3, defaultContent: '' }, // Matérias
+                    { data: 3, defaultContent: '' }, // Disciplinas
                     { data: 4, defaultContent: '' }, // Status
                     { data: 5, defaultContent: '' }  // Turmas Vinculadas
                 ]
             });
 
             function carregarAnos() {
-                $.getJSON('../includes/ajax/listar_anos_letivos.php', function (resp) {
+                $.getJSON('../includes/ajax/shared/academico/listar_anos_letivos.php', function (resp) {
                     if (resp.success && Array.isArray(resp.data)) {
                         resp.data.forEach(ano => $year.append(`<option value="${ano}">${ano}</option>`));
                     }
@@ -117,7 +118,7 @@
 
             function carregarProfessores() {
                 const params = { status: $status.val(), ano: $year.val() };
-                $.getJSON('../includes/ajax/listar_professores.php', params, function (resp) {
+                $.getJSON('../includes/ajax/admin/professores/listar_professores.php', params, function (resp) {
                     table.clear();
                     if (resp.success) {
                         resp.data.forEach(p => {
@@ -134,7 +135,10 @@
                             const foto = `<span class="user-profile"><span class="avatar-initials">${iniciais}</span></span>`;
                             const matricula = p.Matricula || '';
                             const turmas = p.Turmas || '<span class="text-muted">—</span>';
-                            const disciplinas = p.Disciplinas || (p.Area_Atuacao ? p.Area_Atuacao : '<span class="text-muted">—</span>');
+                            const disciplinasList = (p.Disciplinas || (p.Area_Atuacao || '')).split(', ').filter(Boolean);
+                            const disciplinas = disciplinasList.length
+                                ? disciplinasList.map(d => `<span class=\"badge discipline-badge\">${d}</span>`).join(' ')
+                                : '<span class="text-muted">—</span>';
                             const status = p.Status || '<span class="text-muted">Ativo</span>';
                             table.row.add([
                                 foto,

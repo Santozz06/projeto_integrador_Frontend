@@ -1,8 +1,8 @@
 <?php
+require_once '../../bootstrap.php';
 header('Content-Type: application/json');
 
 try {
-    require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
     $idTurma = isset($_GET['turma_id']) ? (int)$_GET['turma_id'] : 0;
     $idDisc = isset($_GET['disciplina_id']) ? (int)$_GET['disciplina_id'] : 0;

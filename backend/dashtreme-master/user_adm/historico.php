@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Histórico Escolar - SAS</title>
@@ -117,7 +118,7 @@
             const $alunos = $('#alunos-container');
 
             // Carregar anos
-            $.getJSON('../includes/ajax/listar_anos_letivos.php', function (resp) {
+            $.getJSON('../includes/ajax/shared/academico/listar_anos_letivos.php', function (resp) {
                 if (resp.success) {
                     $ano.empty().append('<option value="">Selecione</option>');
                     resp.data.forEach(ano => $ano.append(`<option value="${ano}">${ano}</option>`));
@@ -147,7 +148,7 @@
 
             function carregarTurmas(ano, turno){
                 $turma.prop('disabled', true).empty().append('<option value="">Carregando...</option>');
-                $.getJSON('../includes/ajax/listar_turmas.php', { ano, turno }, function(resp){
+                $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano, turno }, function(resp){
                     $turma.empty();
                     if (resp.success && resp.data.length){
                         $turma.append('<option value="">Selecione</option>');
@@ -171,7 +172,7 @@
                     return;
                 }
                 $alunos.html('<p class="text-white">Carregando alunos...</p>');
-                $.getJSON('../includes/ajax/listar_alunos_por_turma.php', { turma_id: turmaId }, function(resp){
+                $.getJSON('../includes/ajax/admin/turmas/listar_alunos_por_turma.php', { turma_id: turmaId }, function(resp){
                     if (!resp.success){
                         $alunos.html('<p class="text-muted">Erro ao carregar alunos.</p>');
                         return;
@@ -212,11 +213,13 @@
 
             // Imprimir o histórico
             $('#imprimir-historico').click(function () {
+                if (!alunoSelecionado) return;
                 const element = document.getElementById('historico-container');
+                const matricula = alunoSelecionado.Matricula || 'aluno';
 
                 html2pdf().set({
                     margin: 10,
-                    filename: `historico_${alunoSelecionado.matricula}.pdf`,
+                    filename: `historico_${matricula}.pdf`,
                     image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: {
                         scale: 2,
@@ -230,9 +233,7 @@
                         orientation: 'portrait',
                         hotfixes: ["px_scaling"]
                     }
-                }).from(element).save().then(() => {
-                    document.body.style.fontFamily = window.getComputedStyle(document.body).fontFamily;
-                });
+                }).from(element).save();
             });
 
             // Função para gerar código de verificação aleatório

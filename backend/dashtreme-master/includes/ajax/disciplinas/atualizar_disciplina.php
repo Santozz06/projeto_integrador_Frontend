@@ -1,8 +1,11 @@
 <?php
+require_once '../../config/conexao.php';
+require_once '../../crud/DisciplinaCRUD.php';
+
 header('Content-Type: application/json');
 
 try {
-    require_once dirname(__DIR__, 2) . '/bootstrap.php';
+    $disciplinaCRUD = new DisciplinaCRUD($pdo);
 
     $id = isset($_POST['id_disciplina']) ? intval($_POST['id_disciplina']) : 0;
     $nome = isset($_POST['nome_disciplina']) ? trim($_POST['nome_disciplina']) : '';

@@ -1,8 +1,8 @@
 <?php
+require_once '../../config/conexao.php';
 header('Content-Type: application/json');
 
 try {
-    require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
     $matriculaId = isset($_GET['matricula_id']) ? (int)$_GET['matricula_id'] : 0;
     $dataIni = isset($_GET['data_ini']) && $_GET['data_ini'] !== '' ? $_GET['data_ini'] : null; // 'YYYY-MM-DD'

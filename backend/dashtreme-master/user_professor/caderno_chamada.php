@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Caderno de Chamada - SAS</title>
@@ -125,12 +126,12 @@
             }
 
             // 1) tenta com ano corrente; 2) se vazio, tenta sem filtrar por ano
-            $.getJSON('../includes/ajax/listar_turmas.php', { ano: anoAtual })
+            $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano: anoAtual })
                 .done(function(res){
                     if (res && res.success && Array.isArray(res.data) && res.data.length){
                         popular(res);
                     } else {
-                        $.getJSON('../includes/ajax/listar_turmas.php')
+                        $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php')
                           .done(popular)
                           .fail(function(){ $sel.empty().append('<option value="" disabled>Falha ao carregar turmas</option>'); });
                     }
@@ -141,7 +142,7 @@
         function carregarAlunosEPresencas(){
             if (!turmaAtual){ $('#tabelaAlunos').html(''); return; }
             // Carrega alunos
-            $.getJSON('../includes/ajax/listar_alunos_por_turma.php', { turma_id: turmaAtual })
+            $.getJSON('../includes/ajax/admin/turmas/listar_alunos_por_turma.php', { turma_id: turmaAtual })
                 .done(function(res){ alunosCache = (res && res.success && Array.isArray(res.data)) ? res.data : []; renderTabela(); carregarPresencas(); })
                 .fail(function(){ alunosCache = []; renderTabela(); });
         }

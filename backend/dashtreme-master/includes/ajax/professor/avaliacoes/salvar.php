@@ -1,6 +1,5 @@
 <?php
 require_once '../../../bootstrap.php';
-require_once '../../../conexao.php';
 
 header('Content-Type: application/json');
 
@@ -23,6 +22,14 @@ $idTurma = isset($_POST['turma_id']) ? (int)$_POST['turma_id'] : 0;
 $disciplina = isset($_POST['disciplina']) ? trim($_POST['disciplina']) : '';
 $tipo = isset($_POST['tipo']) ? trim($_POST['tipo']) : '';
 $data = isset($_POST['data']) ? trim($_POST['data']) : '';
+
+// Normalização e sanitização dos campos para evitar duplicidade e problemas de encoding
+if (class_exists('Normalizer')) {
+    $disciplina = Normalizer::normalize($disciplina, Normalizer::FORM_C);
+    $tipo = Normalizer::normalize($tipo, Normalizer::FORM_C);
+}
+$disciplina = trim(mb_convert_encoding($disciplina, 'UTF-8', mb_detect_encoding($disciplina)));
+$tipo = trim(mb_convert_encoding($tipo, 'UTF-8', mb_detect_encoding($tipo)));
 
 if ($idTurma <= 0 || $disciplina === '' || $tipo === '' || $data === '') {
     echo json_encode(['success' => false, 'message' => 'Campos obrigatórios ausentes']);

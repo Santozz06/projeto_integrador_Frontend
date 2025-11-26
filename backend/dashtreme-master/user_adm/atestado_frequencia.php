@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atestado de Frequência - SAS</title>
@@ -124,7 +125,7 @@
             const $alunosContainer = $('#alunos-container');
 
             // Carrega anos letivos
-            $.getJSON('../includes/ajax/listar_anos_letivos.php', function (resp) {
+            $.getJSON('../includes/ajax/shared/academico/listar_anos_letivos.php', function (resp) {
                 if (resp.success) {
                     $ano.empty().append('<option value="">Selecione</option>');
                     resp.data.forEach(ano => $ano.append(`<option value="${ano}">${ano}</option>`));
@@ -153,7 +154,7 @@
 
             function carregarTurmas(ano, turno){
                 $turma.prop('disabled', true).empty().append('<option value="">Carregando...</option>');
-                $.getJSON('../includes/ajax/listar_turmas.php', { ano, turno }, function (resp) {
+                $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano, turno }, function (resp) {
                     $turma.empty();
                     if (resp.success && resp.data.length) {
                         $turma.append('<option value="">Selecione</option>');
@@ -184,7 +185,7 @@
                 if ($inicio.val()) params.data_inicio = $inicio.val();
                 if ($fim.val()) params.data_fim = $fim.val();
 
-                $.getJSON('../includes/ajax/listar_frequencia_por_turma.php', params, function(resp){
+                $.getJSON('../includes/ajax/admin/turmas/listar_frequencia_por_turma.php', params, function(resp){
                     if (!resp.success) {
                         $alunosContainer.html('<p class="text-muted">Erro ao carregar frequências.</p>');
                         return;
@@ -241,6 +242,7 @@
                     <!DOCTYPE html>
                     <html lang="pt-br">
                     <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
                         <meta charset="UTF-8">
                         <title>Atestado de Frequência</title>
                         <style>

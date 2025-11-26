@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Caderno de Chamada - Admin</title>
@@ -18,14 +19,12 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-lg-12">
-          <div class="card" style="background: transparent; border: none; box-shadow: none;">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="page-title"><i class="zmdi zmdi-accounts-list mr-2"></i> Caderno de Chamada</h4>
+          <div class="card principal-caderno">
+            <div class="caderno-form-area mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="page-title m-0"><i class="zmdi zmdi-accounts-list mr-2"></i> Caderno de Chamada</h4>
               </div>
-
-              <div class="form-container">
-                <div class="filtros-container">
+              <div class="filtros-container">
                   <div class="filtro-item">
                     <div class="bold-title">Ano Letivo</div>
                     <select id="ano-letivo" class="form-control"></select>
@@ -50,28 +49,27 @@
                     <div class="bold-title">Data Fim</div>
                     <input id="data-fim" type="date" class="form-control" />
                   </div>
-                </div>
 
-                <div class="kpi">
+              <div class="kpi">
                   <div class="card"><div>Total lançamentos: <strong id="kpi-total">-</strong></div></div>
                   <div class="card"><div>Presenças: <strong id="kpi-pres">-</strong></div></div>
                   <div class="card"><div>Faltas: <strong id="kpi-falt">-</strong></div></div>
                   <div class="card"><div>Percentual médio: <strong id="kpi-perc">-</strong></div></div>
                 </div>
-
-                <div class="mb-3">
+              <div class="mb-3">
                   <button id="btn-exportar" class="btn btn-success btn-sm"><i class="zmdi zmdi-download"></i> Exportar CSV</button>
                   <button id="btn-exportar-pdf" class="btn btn-primary btn-sm ml-2"><i class="zmdi zmdi-file-text"></i> Exportar PDF</button>
                 </div>
-
-                <div class="kpi" id="resumo-trimestre" style="display:none;">
+              <div class="kpi" id="resumo-trimestre" style="display:none;">
                   <div class="card"><div>Trimestre 1 - % Presença: <strong id="tri1-perc">-</strong> | Tot: <span id="tri1-tot">-</span></div></div>
                   <div class="card"><div>Trimestre 2 - % Presença: <strong id="tri2-perc">-</strong> | Tot: <span id="tri2-tot">-</span></div></div>
                   <div class="card"><div>Trimestre 3 - % Presença: <strong id="tri3-perc">-</strong> | Tot: <span id="tri3-tot">-</span></div></div>
                 </div>
-
-                <div class="table-responsive">
-                  <table id="tabela-freq" class="table">
+            </div>
+            <div class="caderno-table-area">
+              <h5 class="section-title mb-3">REGISTROS DE FREQUÊNCIA</h5>
+              <div class="table-responsive tabela-caderno-wrapper">
+                <table id="tabela-freq" class="table tabela-caderno">
                     <thead>
                       <tr>
                         <th>Aluno</th>
@@ -85,10 +83,11 @@
                       </tr>
                     </thead>
                     <tbody></tbody>
-                  </table>
-                  <div id="no-results" class="no-results">Nenhum registro encontrado para o período.</div>
-                </div>
+                </table>
+                <div id="no-results" class="no-results">Nenhum registro encontrado para o período.</div>
               </div>
+            </div>
+          </div>
 
             </div>
           </div>
@@ -108,7 +107,7 @@
     $(function(){
       let turmas = [];
       function carregarAnos(){
-        return $.getJSON('../includes/ajax/listar_anos_letivos.php').then(res => {
+        return $.getJSON('../includes/ajax/shared/academico/listar_anos_letivos.php').then(res => {
           const $sel = $('#ano-letivo');
           $sel.empty();
           if (res.success && Array.isArray(res.data)) {
@@ -120,7 +119,7 @@
         });
       }
       function carregarProfessores(){
-        return $.getJSON('../includes/ajax/listar_professores.php').then(res => {
+        return $.getJSON('../includes/ajax/admin/professores/listar_professores.php').then(res => {
           const $sel = $('#professor');
           $sel.find('option:not([value=""])').remove();
           if (res.success && Array.isArray(res.data)) {
@@ -131,7 +130,7 @@
       function atualizarTurmas(){
         const ano = $('#ano-letivo').val();
         const professor = $('#professor').val();
-        return $.getJSON('../includes/ajax/listar_turmas.php', { ano, professor_id: professor }).then(res => {
+        return $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano, professor_id: professor }).then(res => {
           turmas = (res.success && Array.isArray(res.data)) ? res.data : [];
           const $sel = $('#turma');
           $sel.empty();
@@ -249,6 +248,7 @@
         const tri3p = $('#tri3-perc').text(); const tri3t = $('#tri3-tot').text();
         const w = window.open('', '_blank');
         w.document.write(`<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>${titulo}</title>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
           <style>
             body{ font-family: Arial, Helvetica, sans-serif; }
             h2{ margin: 0 0 8px; }

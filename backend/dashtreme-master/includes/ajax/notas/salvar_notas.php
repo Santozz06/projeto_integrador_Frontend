@@ -1,8 +1,8 @@
 <?php
+require_once '../../bootstrap.php';
 header('Content-Type: application/json');
 
 try {
-    require_once dirname(__DIR__, 2) . '/bootstrap.php';
     // Exigir autenticado e permitir admin ou professor
     if (function_exists('verificarAuth')) { verificarAuth(null); }
     if (!isset($_SESSION['user_type']) || !in_array($_SESSION['user_type'], ['admin', 'professor'])) {

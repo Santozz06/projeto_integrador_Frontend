@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notas - SAS</title>
@@ -23,7 +24,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-12">
-                    <div class="card" style="background-color: transparent; border: none; box-shadow: none;">
+                    <div class="card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <h4 class="page-title"><i class="zmdi zmdi-check-circle mr-2"></i> Notas</h4>
@@ -39,15 +40,15 @@
                                         </select>
                                     </div>
                                     <div class="filtro-item">
-                                        <div class="bold-title">Disciplina</div>
-                                        <select id="disciplina" class="form-control">
-                                            <option value="">Selecione uma turma</option>
-                                        </select>
-                                    </div>
-                                    <div class="filtro-item">
                                         <div class="bold-title">Turma</div>
                                         <select id="turma" class="form-control">
                                             <option value="">Selecione o ano letivo</option>
+                                        </select>
+                                    </div>
+                                    <div class="filtro-item">
+                                        <div class="bold-title">Disciplina</div>
+                                        <select id="disciplina" class="form-control">
+                                            <option value="">Selecione a turma</option>
                                         </select>
                                     </div>
                                     <div class="filtro-item">
@@ -62,7 +63,7 @@
 
                                 <!-- Tabela de notas -->
                                 <div class="table-container">
-                                    <table id="tabela-notas" class="table">
+                                    <table id="tabela-notas" class="table tabela-notas-unificada">
                                         <thead>
                                             <tr>
                                                 <th>Aluno</th>
@@ -283,7 +284,7 @@
             // Carregadores de filtros
             async function carregarAnos() {
                 try {
-                    const res = await $.getJSON('../includes/ajax/listar_anos_letivos.php');
+                    const res = await $.getJSON('../includes/ajax/shared/academico/listar_anos_letivos.php');
                     const $sel = $('#ano-letivo');
                     $sel.empty();
                     if (res.success && Array.isArray(res.data)) {
@@ -297,7 +298,7 @@
             async function atualizarTurmas() {
                 const ano = $('#ano-letivo').val();
                 try {
-                    const res = await $.getJSON('../includes/ajax/listar_turmas.php', { ano });
+                    const res = await $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano });
                     turmas = (res.success && Array.isArray(res.data)) ? res.data : [];
                 } catch { turmas = []; }
 
@@ -317,7 +318,7 @@
                 $sel.append('<option value="">Todas disciplinas</option>');
                 if (!turmaSelecionada) { disciplinas = []; renderTabela([]); return; }
                 try {
-                    const res = await $.getJSON('../includes/ajax/listar_disciplinas_por_turma.php', { turma_id: turmaSelecionada });
+                    const res = await $.getJSON('../includes/ajax/shared/academico/listar_disciplinas_por_turma.php', { turma_id: turmaSelecionada });
                     disciplinas = (res.success && Array.isArray(res.data)) ? res.data : [];
                 } catch { disciplinas = []; }
                 disciplinas.forEach(d => $sel.append(`<option value="${d.ID_Disciplina}">${d.Nome_Disciplina}</option>`));

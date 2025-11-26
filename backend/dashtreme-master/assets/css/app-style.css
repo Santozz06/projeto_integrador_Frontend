@@ -587,7 +587,31 @@ body.bg-theme15 {
   background-image: linear-gradient(45deg, #6a11cb, #2575fc);
 }
 
+/* Override theme for boletim_detalhes - white background */
+body.user_aluno_boletim_detalhes,
+body.bg-theme.user_aluno_boletim_detalhes,
+body.bg-theme1.user_aluno_boletim_detalhes,
+body.bg-theme2.user_aluno_boletim_detalhes,
+body.bg-theme3.user_aluno_boletim_detalhes,
+body.bg-theme4.user_aluno_boletim_detalhes,
+body.bg-theme5.user_aluno_boletim_detalhes,
+body.bg-theme6.user_aluno_boletim_detalhes,
+body.bg-theme7.user_aluno_boletim_detalhes,
+body.bg-theme8.user_aluno_boletim_detalhes,
+body.bg-theme9.user_aluno_boletim_detalhes,
+body.bg-theme10.user_aluno_boletim_detalhes,
+body.bg-theme11.user_aluno_boletim_detalhes,
+body.bg-theme12.user_aluno_boletim_detalhes,
+body.bg-theme13.user_aluno_boletim_detalhes,
+body.bg-theme14.user_aluno_boletim_detalhes,
+body.bg-theme15.user_aluno_boletim_detalhes {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+
 /* Topbar Header */
+
 .topbar-nav .navbar {
   padding: 0px 15px;
   z-index: 999;

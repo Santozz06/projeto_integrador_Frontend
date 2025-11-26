@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatórios - SAS</title>
@@ -109,18 +110,19 @@
                         </div>
                     </div>
                 </div>
-                <!--Overlay-->
-                <div class="overlay toggle-menu"></div>
             </div>
 
-
-
         </div>
+        <!-- End container-fluid -->
+    </div>
+    <!--End content-wrapper-->
+    <!--Overlay-->
+    <div class="overlay toggle-menu"></div>
 
-        <script src="../assets/js/jquery.min.js"></script>
-        <script src="../assets/js/bootstrap.min.js"></script>
-        <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
-        <script src="../assets/js/sidebar-menu.js"></script>
+    <script src="../assets/js/jquery.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
+    <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
 
 </body>

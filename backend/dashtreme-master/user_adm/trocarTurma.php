@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trocar de Turma - SAS</title>
@@ -81,7 +82,7 @@
       function carregarTurmasPorAno(ano) {
         const $sel = $('#novaTurma');
         $sel.empty().append('<option value="">Carregando turmas...</option>');
-        fetch(`../includes/ajax/listar_turmas.php?ano=${encodeURIComponent(ano)}`)
+        fetch(`../includes/ajax/admin/turmas/listar_turmas.php?ano=${encodeURIComponent(ano)}`)
           .then(r => r.json())
           .then(resp => {
             $sel.empty().append('<option value="">Selecione a nova turma...</option>');
@@ -106,7 +107,7 @@
           alert('Digite pelo menos 2 caracteres para pesquisar');
           return;
         }
-        fetch(`../includes/ajax/buscar_alunos.php?q=${encodeURIComponent(termo)}`)
+        fetch(`../includes/ajax/admin/usuarios/buscar_alunos.php?q=${encodeURIComponent(termo)}`)
           .then(r => r.json())
           .then(resp => {
             if (!resp.success || !resp.data || !resp.data.length) {
@@ -142,7 +143,7 @@
         const body = new URLSearchParams();
         body.append('aluno_id', String(aluno.ID_Aluno));
         body.append('nova_turma_id', String(novaTurmaId));
-        fetch('../includes/ajax/trocar_turma.php', {
+        fetch('../includes/ajax/admin/matriculas/trocar_turma.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: body.toString()

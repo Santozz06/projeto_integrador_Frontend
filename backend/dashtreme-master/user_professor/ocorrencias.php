@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ocorrências - SAS</title>
@@ -149,7 +150,7 @@
         function carregarTurmas(){
             const $sel = $('#turmaSelect');
             $sel.prop('disabled', true).html('<option>Carregando...</option>');
-            $.getJSON('../includes/ajax/listar_turmas.php')
+            $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php')
                 .done(function(resp){
                     if (!resp || !resp.success){ throw new Error('Falha ao listar turmas'); }
                     const turmas = resp.data || [];
@@ -178,7 +179,7 @@
                 $sel.html('<option value="" disabled selected>Selecione uma turma primeiro</option>');
                 return;
             }
-            $.getJSON('../includes/ajax/listar_alunos_por_turma.php', { turma_id: idTurma })
+            $.getJSON('../includes/ajax/admin/turmas/listar_alunos_por_turma.php', { turma_id: idTurma })
                 .done(function(resp){
                     if (!resp || !resp.success){ throw new Error('Falha ao listar alunos'); }
                     alunosTurma = resp.data || [];

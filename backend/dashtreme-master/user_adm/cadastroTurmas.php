@@ -4,7 +4,7 @@ require_once '../includes/bootstrap.php';
 $erro = '';
 $sucesso = '';
 
-require_once '../includes/conexao.php';
+require_once '../includes/config/conexao.php';
 require_once '../includes/crud/TurmaCRUD.php';
 
 $turmaCRUD = new TurmaCRUD($pdo);
@@ -275,7 +275,7 @@ $turmas = $turmaCRUD->listarTurmasComProfessor();
             <script>
                 // Função para carregar dados da turma para edição
                 function editarTurma(idTurma) {
-                    fetch(`../includes/ajax/buscar_turma.php?id=${idTurma}`)
+                    fetch(`../includes/ajax/admin/turmas/buscar_turma.php?id=${idTurma}`)
                         .then(response => response.json())
                         .then(turma => {
                             // Preencher formulário com dados da turma
@@ -298,7 +298,7 @@ $turmas = $turmaCRUD->listarTurmasComProfessor();
                 // Função para excluir turma
                 function excluirTurma(idTurma, nomeTurma) {
                     if (confirm(`Deseja realmente excluir a turma "${nomeTurma}"?`)) {
-                        fetch(`../includes/ajax/excluir_turma.php`, {
+                        fetch(`../includes/ajax/admin/turmas/excluir_turma.php`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/x-www-form-urlencoded',

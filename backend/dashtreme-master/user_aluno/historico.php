@@ -2,12 +2,31 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <title>Histórico Escolar</title>
-    <link rel="stylesheet" href="../css/style.css" />
+    <link href="../assets/css/app-style.css?v=<?php echo time(); ?>" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/style.css?v=<?php echo time(); ?>" />
+    <style>
+      body {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        background-image: none !important;
+      }
+      body::before,
+      body::after {
+        display: none !important;
+      }
+    </style>
     <script>
         // Disponibiliza o id do aluno logado via sessão
         const ALUNO_ID = <?php echo isset($_SESSION['usuario_id']) ? (int)$_SESSION['usuario_id'] : 'null'; ?>;
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        document.body.style.cssText = 'background: #ffffff !important; background-color: #ffffff !important; background-image: none !important;';
+        document.body.classList.remove('bg-theme', 'bg-theme1', 'bg-theme2', 'bg-theme3', 'bg-theme4', 'bg-theme5');
+      });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
@@ -136,7 +155,7 @@
 
         function carregar(){
             if (!ALUNO_ID){ alert('Sessão expirada. Faça login novamente.'); return; }
-            fetch(`../includes/ajax/obter_historico_aluno.php?aluno_id=${encodeURIComponent(ALUNO_ID)}`)
+            fetch(`../includes/ajax/shared/historico/obter_historico_aluno.php?aluno_id=${encodeURIComponent(ALUNO_ID)}`)
                 .then(r=>r.json())
                 .then(resp=>{
                     if(!resp.success){ alert('Erro ao carregar histórico.'); return; }

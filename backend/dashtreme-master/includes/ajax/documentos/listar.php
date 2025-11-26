@@ -1,11 +1,9 @@
 <?php
-require_once '../../bootstrap.php';
-require_once '../../conexao.php';
+require_once '../../config/conexao.php';
 
 header('Content-Type: application/json');
 
 try {
-    // Light migration: ensure table exists
     $pdo->exec("CREATE TABLE IF NOT EXISTS Documentos (
         ID_Documento INT AUTO_INCREMENT PRIMARY KEY,
         Tipo VARCHAR(30) NOT NULL,
@@ -13,7 +11,7 @@ try {
         Descricao TEXT NULL,
         Data_Vigencia DATE NULL,
         Arquivo_Nome VARCHAR(255) NOT NULL,
-        Arquivo_Caminho VARCHAR(255) NOT NULL,
+        Arquivo_Conteudo LONGBLOB NOT NULL,
         Mime_Type VARCHAR(100) NULL,
         Tamanho_Bytes BIGINT NULL,
         Ativo TINYINT(1) DEFAULT 1,
@@ -23,7 +21,7 @@ try {
 
     $tipo = isset($_GET['tipo']) && $_GET['tipo'] !== '' ? trim($_GET['tipo']) : null;
 
-    $sql = "SELECT ID_Documento, Tipo, Titulo, Descricao, Data_Vigencia, Arquivo_Nome, Arquivo_Caminho, Mime_Type, Tamanho_Bytes, Ativo, Criado_Em, Atualizado_Em
+    $sql = "SELECT ID_Documento, Tipo, Titulo, Descricao, Data_Vigencia, Arquivo_Nome, Mime_Type, Tamanho_Bytes, Ativo, Criado_Em, Atualizado_Em
             FROM Documentos WHERE Ativo = 1";
     $params = [];
     if ($tipo) { $sql .= " AND Tipo = ?"; $params[] = $tipo; }

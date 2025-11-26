@@ -3,23 +3,42 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Histórico Escolar</title>
-    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../assets/css/app-style.css">
-    <link rel="stylesheet" href="../assets/css/icons.css">
-    <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-    <link rel="stylesheet" href="../css/style.css">
+        <!-- Estilos mínimos para visualização tipo documento -->
+        <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../assets/css/icons.css">
+        <link rel="stylesheet" href="../css/style.css">
+        <style>
+            /* Força aparência limpa estilo PDF em tela */
+            html, body.user_adm_visualizarHistorico {background:#fff !important;}
+            body.user_adm_visualizarHistorico {box-shadow:none !important;}
+            body.user_adm_visualizarHistorico ::-webkit-scrollbar {width:8px;}
+            body.user_adm_visualizarHistorico ::-webkit-scrollbar-track {background:#eee;}
+            body.user_adm_visualizarHistorico ::-webkit-scrollbar-thumb {background:#bbb;}
+            /* Remove possíveis backgrounds herdados */
+            body.user_adm_visualizarHistorico .cabecalho,
+            body.user_adm_visualizarHistorico .titulo,
+            body.user_adm_visualizarHistorico #conteudo-historico,
+            body.user_adm_visualizarHistorico table {background:transparent !important;}
+            /* Em tela esconder quaisquer barras/menus que porventura carreguem */
+            body.user_adm_visualizarHistorico #sidebar-wrapper,
+            body.user_adm_visualizarHistorico .topbar-nav {display:none !important;}
+            @media print {
+                html, body.user_adm_visualizarHistorico {margin:0 !important; padding:0 !important;}
+            }
+        </style>
 </head>
 
 <body class="user_adm_visualizarHistorico">
     <!-- Botão de impressão  -->
     <div class="no-print">
-        <button class="btn-print" onclick="window.print()">
+        <button class="btn btn-custom-print" onclick="window.print()">
             <i class="zmdi zmdi-print"></i> Imprimir Histórico
         </button>
-        <button class="btn-print" onclick="gerarPDF()" style="margin-left: 10px;">
+        <button class="btn btn-custom-print" onclick="gerarPDF()" style="margin-left: 10px;">
             <i class="zmdi zmdi-download"></i> Baixar PDF
         </button>
     </div>
@@ -176,7 +195,7 @@
                 alert('Parâmetro aluno_id ausente.');
                 return;
             }
-            fetch(`../includes/ajax/obter_historico_aluno.php?aluno_id=${encodeURIComponent(alunoId)}`)
+            fetch(`../includes/ajax/shared/historico/obter_historico_aluno.php?aluno_id=${encodeURIComponent(alunoId)}`)
                 .then(r => r.json())
                 .then(resp => {
                     if (!resp.success){

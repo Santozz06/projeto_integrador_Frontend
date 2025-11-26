@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Turmas - SAS</title>
@@ -84,7 +85,7 @@
                 .append('<option value="" disabled selected>Carregando turmas...</option>');
 
                 // Busca diretamente todas as turmas de 2025 (sem restringir por professor)
-                $.getJSON('../includes/ajax/listar_turmas.php', { ano, all: 1 })
+                $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano, all: 1 })
                 .done(function (res) {
                     $sel.empty().append('<option value="" disabled selected>-- Escolha uma turma --</option>');
                     if (res && res.success && Array.isArray(res.data) && res.data.length) {
@@ -116,16 +117,18 @@
             $('#dadosTurma').show();
 
             // Carrega info da turma
-            $.getJSON('../includes/ajax/buscar_turma.php', { id: turmaId })
+            $.getJSON('../includes/ajax/admin/turmas/buscar_turma.php', { id: turmaId })
                 .done(function (turma) {
-                    if (turma && !turma.error) {
-                        $('#nomeTurma').text(turma.Nome_Turma || '');
-                        $('#turnoTurma').text(turma.Turno || '');
+                    console.log('Resposta buscar_turma.php:', turma);
+                    var t = (turma && turma.data && turma.data[0]) ? turma.data[0] : turma;
+                    if (t && !t.error) {
+                        $('#nomeTurma').text(t.Nome_Turma || '');
+                        $('#turnoTurma').text(t.Turno || '');
                     }
                 });
 
             // Carrega professores da turma
-            $.getJSON('../includes/ajax/listar_professores_por_turma.php', { turma_id: turmaId })
+            $.getJSON('../includes/ajax/admin/professores/listar_professores_por_turma.php', { turma_id: turmaId })
                 .done(function (res) {
                     if (res && res.success && Array.isArray(res.data) && res.data.length) {
                         const nomes = res.data.map(p => p.Nome_Completo).join(', ');
@@ -139,7 +142,7 @@
                 });
 
             // Carrega alunos por turma (ativos)
-            $.getJSON('../includes/ajax/listar_alunos_por_turma.php', { turma_id: turmaId })
+            $.getJSON('../includes/ajax/admin/turmas/listar_alunos_por_turma.php', { turma_id: turmaId })
                 .done(function (res) {
                     if (res && res.success && Array.isArray(res.data)) {
                         if (res.data.length === 0) {
@@ -159,7 +162,7 @@
                 });
 
             // Carrega disciplinas do ano/relacionadas à turma (mesmo ano da turma)
-            $.getJSON('../includes/ajax/listar_disciplinas_por_turma.php', { turma_id: turmaId })
+            $.getJSON('../includes/ajax/shared/academico/listar_disciplinas_por_turma.php', { turma_id: turmaId })
                 .done(function (res) {
                     if (res && res.success && Array.isArray(res.data)) {
                         if (res.data.length === 0) {

@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Frequência por Turma - SAS</title>
@@ -32,7 +33,7 @@
             <div class="d-flex justify-content-between align-items-center mb-3 no-print">
                 <h4 class="page-title"><i class="zmdi zmdi-time-countdown mr-2"></i> Frequência por Turma</h4>
                 <div>
-                    <button id="print-btn" class="btn btn-custom-secondary">
+                    <button id="print-btn" class="btn btn-custom-print">
                         <i class="zmdi zmdi-print mr-2"></i>Imprimir/PDF
                     </button>
                 </div>
@@ -91,12 +92,18 @@
                                             <th>% Frequência</th>
                                         </tr>
                                     </thead>
-                                        </div>
+                                    <tbody id="attendance-data">
+                                        <!-- Dados serão carregados aqui -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     <div class="overlay toggle-menu"></div>
-    </div>
 
     <script src="../assets/js/jquery.min.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
@@ -116,7 +123,7 @@
             const $turma = $('#grade-select');
 
             function carregarAnos() {
-                $.getJSON('../includes/ajax/listar_anos_letivos.php', function (resp) {
+                $.getJSON('../includes/ajax/shared/academico/listar_anos_letivos.php', function (resp) {
                     if (resp.success) {
                         $ano.empty().append('<option value="">Selecione</option>');
                         resp.data.forEach(ano => $ano.append(`<option value="${ano}">${ano}</option>`));
@@ -126,7 +133,7 @@
 
             function carregarTurmas(ano) {
                 $turma.prop('disabled', true).empty().append('<option value="">Carregando...</option>');
-                $.getJSON('../includes/ajax/listar_turmas.php', { ano }, function (resp) {
+                $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano }, function (resp) {
                     $turma.empty();
                     if (resp.success && resp.data.length) {
                         $turma.append('<option value="">Selecione</option>');
@@ -166,7 +173,7 @@
 
                 // Limpa a tabela
                 $('#attendance-table tbody').empty();
-                $.getJSON('../includes/ajax/listar_frequencia_por_turma.php', { turma_id: turmaId }, function(resp){
+                $.getJSON('../includes/ajax/admin/turmas/listar_frequencia_por_turma.php', { turma_id: turmaId }, function(resp){
                     if (!resp.success) {
                         $('#attendance-data').html('<tr><td colspan="6" class="text-center">Erro ao carregar frequência</td></tr>');
                         return;
@@ -186,6 +193,7 @@
                         const perc = a.Percentual;
                         totalPresent += parseInt(a.Presentes || 0, 10);
                         totalAbsent += parseInt(a.Faltas || 0, 10);
+                        totalJustified += parseInt(a.Justificadas || 0, 10);
                         const iniciais = (function(name){
                             if (!name) return '';
                             const parts = name.trim().split(/\s+/);
@@ -204,7 +212,7 @@
                                 <td>${a.Matricula || ''}</td>
                                 <td>${a.Presentes || 0}</td>
                                 <td>${a.Faltas || 0}</td>
-                                <td>0</td>
+                                <td>${a.Justificadas || 0}</td>
                                 <td>
                                     <span class="d-block d-print-none">
                                         <div class="progress" style="height: 20px;">

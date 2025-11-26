@@ -1,6 +1,5 @@
 <?php
 require_once '../../../bootstrap.php';
-require_once '../../../conexao.php';
 
 header('Content-Type: application/json');
 
@@ -24,21 +23,6 @@ if ($id <= 0) {
 }
 
 try {
-    // Garante tabela
-    $pdo->exec("CREATE TABLE IF NOT EXISTS Atividades (
-        ID_Atividade INT NOT NULL AUTO_INCREMENT,
-        ID_Turma INT NOT NULL,
-        ID_Professor INT NOT NULL,
-        Titulo VARCHAR(150) NOT NULL,
-        Disciplina VARCHAR(100) NOT NULL,
-        Data DATE NOT NULL,
-        Ano_Letivo INT NOT NULL,
-        PRIMARY KEY (ID_Atividade),
-        KEY idx_turma (ID_Turma),
-        KEY idx_prof (ID_Professor),
-        KEY idx_ano (Ano_Letivo)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-
     $stmt = $pdo->prepare('DELETE FROM Atividades WHERE ID_Atividade = ? AND ID_Professor = ?');
     $ok = $stmt->execute([$id, $profId]);
     echo json_encode(['success' => (bool)$ok]);

@@ -1,8 +1,8 @@
 <?php
+require_once '../../config/conexao.php';
 header('Content-Type: application/json');
 
 try {
-    require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
     $ano = isset($_GET['ano']) && $_GET['ano'] !== '' ? intval($_GET['ano']) : null;
     $professorId = isset($_GET['professor_id']) && $_GET['professor_id'] !== '' ? intval($_GET['professor_id']) : null;

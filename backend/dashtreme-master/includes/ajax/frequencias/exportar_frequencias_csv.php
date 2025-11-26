@@ -1,7 +1,7 @@
 <?php
+require_once '../../config/conexao.php';
 // Gera um CSV com a agregação de frequências por aluno para uma turma e período
 try {
-    require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
     $turmaId = isset($_GET['turma_id']) ? (int)$_GET['turma_id'] : 0;
     $dataIni = isset($_GET['data_ini']) && $_GET['data_ini'] !== '' ? $_GET['data_ini'] : null; // 'YYYY-MM-DD'

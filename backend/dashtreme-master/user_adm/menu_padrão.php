@@ -130,7 +130,7 @@ $iniciais_menu = gerarIniciais($nome_menu);
                                 </li>
                                 <li class="dropdown-divider"></li>
                                 <li class="dropdown-item">
-                                    <a href="../logout.php" id="logout-btn" onclick="return confirm('Deseja sair?')">
+                                    <a href="../auth/logout.php" id="logout-btn" onclick="return confirm('Deseja sair?')">
                                         <i class="icon-power mr-2"></i> Sair
                                     </a>
                                 </li>

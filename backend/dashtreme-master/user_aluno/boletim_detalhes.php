@@ -3,11 +3,31 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>IFRS - Boletim Escolar</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="../css/style.css" rel="stylesheet" />
+    <link href="../assets/css/app-style.css?v=<?php echo time(); ?>" rel="stylesheet" />
+    <link href="../css/style.css?v=<?php echo time(); ?>" rel="stylesheet" />
+    <style>
+        body {
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            background-image: none !important;
+        }
+        body::before,
+        body::after {
+            display: none !important;
+        }
+    </style>
+    <script>
+        // Força fundo branco antes de qualquer outro script
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.style.cssText = 'background: #ffffff !important; background-color: #ffffff !important; background-image: none !important;';
+            document.body.classList.remove('bg-theme', 'bg-theme1', 'bg-theme2', 'bg-theme3', 'bg-theme4', 'bg-theme5');
+        });
+    </script>
 </head>
 
 <body class="user_aluno_boletim_detalhes">
@@ -153,6 +173,12 @@
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
     <script src="boletim.js"></script>
+    <script>
+        document.body.classList.remove('bg-theme', 'bg-theme1', 'bg-theme2', 'bg-theme3', 'bg-theme4', 'bg-theme5');
+        document.body.style.background = '#ffffff';
+        document.body.style.backgroundColor = '#ffffff';
+        document.body.style.backgroundImage = 'none';
+    </script>
 </body>
 
 </html>

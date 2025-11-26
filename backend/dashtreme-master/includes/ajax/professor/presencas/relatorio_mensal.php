@@ -1,6 +1,5 @@
 <?php
 require_once '../../../bootstrap.php';
-require_once '../../../conexao.php';
 
 // formato: json (default) | csv
 $format = isset($_GET['formato']) ? strtolower(trim($_GET['formato'])) : 'json';

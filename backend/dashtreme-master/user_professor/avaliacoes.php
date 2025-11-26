@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Avaliações - SAS</title>
@@ -27,9 +28,8 @@
                     <option value="" disabled selected>-- Escolha uma turma --</option>
                 </select>
 
-                <button class="btn btn-primary" id="btnVisualizar">Visualizar</button>
 
-                <div id="avaliacoesContainer" class="avaliacoes-container">
+                <div id="avaliacoesContainer" class="avaliacoes-container" style="display:none;">
                     <div class="card-section">
                         <h4 id="formTitle">Nova Avaliação</h4>
                         <div class="form-group">
@@ -133,7 +133,7 @@
             const ano = 2025;
             const $sel = $('#selectTurma');
             $sel.prop('disabled', true).empty().append('<option value="" disabled selected>Carregando turmas...</option>');
-            $.getJSON('../includes/ajax/listar_turmas.php', { ano, all: 1 })
+            $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano, all: 1 })
                 .done(function(res){
                     $sel.empty().append('<option value="" disabled selected>-- Escolha uma turma --</option>');
                     if (res && res.success && Array.isArray(res.data) && res.data.length){
@@ -153,8 +153,11 @@
 
         function carregarAvaliacoes() {
             turmaAtual = document.getElementById('selectTurma').value;
-            if (!turmaAtual) { return; }
-            // Mostra o formulário/lista imediatamente
+            if (!turmaAtual) {
+                document.getElementById('avaliacoesContainer').style.display = 'none';
+                return;
+            }
+            // Mostra o formulário/lista somente após clicar em visualizar
             document.getElementById('avaliacoesContainer').style.display = 'block';
             // Carrega disciplinas vinculadas para a turma selecionada
             carregarDisciplinas(turmaAtual);
@@ -196,7 +199,7 @@
             const $help = $('#disciplinaHelp');
             $help.hide();
             $disc.prop('disabled', true).empty().append('<option value="" disabled selected>Carregando disciplinas...</option>');
-            $.getJSON('../includes/ajax/listar_disciplinas_por_turma.php', { turma_id: turmaId })
+            $.getJSON('../includes/ajax/shared/academico/listar_disciplinas_por_turma.php', { turma_id: turmaId })
                 .done(function(res){
                     $disc.empty();
                     if (res && res.success && Array.isArray(res.data) && res.data.length){

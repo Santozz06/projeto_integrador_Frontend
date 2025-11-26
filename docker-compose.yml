@@ -30,8 +30,12 @@ services:
       - mysql_data:/var/lib/mysql
       - ./escola_db.sql:/docker-entrypoint-initdb.d/escola_db.sql
     healthcheck:
-      # Aguarda MySQL responder e o schema principal estar disponível (ex: tabela Usuarios)
-      test: ["CMD-SHELL", "mysql -uroot -prootpassword -e 'SELECT 1' && mysql -uroot -prootpassword -D escola_db -e 'SELECT 1 FROM Usuarios LIMIT 1' || exit 1"]
+      # Aguarda MySQL responder e o schema principal estar disponível
+      test:
+        [
+          "CMD-SHELL",
+          "mysql -uroot -prootpassword -e 'SELECT 1' && mysql -uroot -prootpassword -D escola_db -e 'SELECT 1 FROM Usuarios LIMIT 1' || exit 1",
+        ]
       interval: 10s
       timeout: 10s
       retries: 60

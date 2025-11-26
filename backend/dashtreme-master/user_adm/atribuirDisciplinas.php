@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atribuir Disciplinas a Professores</title>
@@ -43,7 +44,7 @@
                     </div>
                 </div>
 
-                <div class="card">
+                <div class="card mt-3">
                     <div class="card-body">
                         <h5 class="mb-3">Atribuir Disciplina Cadastrada</h5>
                         <form id="formAtribuir" class="row g-3">
@@ -54,7 +55,7 @@
                                 </select>
                             </div>
                             <div class="col-md-3 d-flex align-items-end">
-                                <button type="submit" class="btn btn-salvar w-100">Atribuir</button>
+                                <button type="submit" class="btn btn-salvar btn-atribuir">Atribuir</button>
                             </div>
                         </form>
                     </div>
@@ -98,7 +99,7 @@
     }
 
     function carregarAnos() {
-        $.getJSON('../includes/ajax/listar_anos_letivos.php', function(resp){
+        $.getJSON('../includes/ajax/shared/academico/listar_anos_letivos.php', function(resp){
             if (resp.success) {
                 const $ano = $('#ano');
                 $ano.empty().append('<option value="">Selecione...</option>');
@@ -108,7 +109,7 @@
     }
 
     function carregarProfessores() {
-        $.getJSON('../includes/ajax/listar_professores.php', function(resp){
+        $.getJSON('../includes/ajax/admin/professores/listar_professores.php', function(resp){
             if (resp.success) {
                 const $prof = $('#prof');
                 $prof.empty().append('<option value="">Selecione...</option>');

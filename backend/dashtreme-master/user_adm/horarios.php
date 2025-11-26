@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
     exit;
 }
 
-require_once '../includes/conexao.php';
+require_once '../includes/config/conexao.php';
 
 // Carregar listas para selects
 $turmas = $pdo->query("SELECT ID_Turma, Nome_Turma, Ano_Letivo FROM Turmas ORDER BY Ano_Letivo DESC, Nome_Turma ASC")->fetchAll(PDO::FETCH_ASSOC);
@@ -18,6 +18,7 @@ $semana = [1=>'Segunda-feira',2=>'Terça-feira',3=>'Quarta-feira',4=>'Quinta-fei
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <title>Horários de Aulas - Admin</title>
@@ -39,7 +40,8 @@ $semana = [1=>'Segunda-feira',2=>'Terça-feira',3=>'Quarta-feira',4=>'Quinta-fei
 
     <div class="card">
       <div class="card-body">
-        <form id="formHorario">
+        <div class="form-container mb-3">
+          <form id="formHorario">
           <input type="hidden" id="id" name="id" />
           <div class="form-section">
             <div class="form-row">
@@ -103,15 +105,18 @@ $semana = [1=>'Segunda-feira',2=>'Terça-feira',3=>'Quarta-feira',4=>'Quinta-fei
               <input type="text" class="form-control" id="observacao" name="observacao" />
             </div>
             <div class="text-right">
-              <button type="submit" class="btn btn-success">Salvar</button>
-              <button type="button" id="btnLimpar" class="btn btn-secondary">Limpar</button>
+              <button type="submit" class="btn btn-salvar">Salvar</button>
+              <button type="button" id="btnLimpar" class="btn btn-cancelar">Limpar</button>
             </div>
           </div>
-        </form>
+          </form>
+        </div>
 
-        <h5 class="card-title">Horários Cadastrados</h5>
-        <div class="table-responsive">
-          <table class="table table-bordered table-striped" id="tabelaHorarios">
+        <div class="card mt-4 horarios-list-card">
+          <div class="card-body">
+            <h5 class="section-title mb-3">HORÁRIOS CADASTRADOS</h5>
+            <div class="table-responsive tabela-horarios-wrapper">
+              <table class="table table-bordered table-striped tabela-horarios" id="tabelaHorarios">
             <thead>
               <tr>
                 <th>Turma</th>
@@ -126,7 +131,9 @@ $semana = [1=>'Segunda-feira',2=>'Terça-feira',3=>'Quarta-feira',4=>'Quinta-fei
               </tr>
             </thead>
             <tbody></tbody>
-          </table>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -161,8 +168,8 @@ function carregarLista(){
           <td>${h.Sala||''}</td>
           <td>${h.Ano_Letivo||''}</td>
           <td>
-            <button class="btn btn-sm btn-primary" onclick='editar(${JSON.stringify(h)})'>Editar</button>
-            <button class="btn btn-sm btn-danger" onclick='remover(${h.ID_Horario})'>Excluir</button>
+            <button class="btn btn-sm btn-editar" onclick='editar(${JSON.stringify(h)})'>Editar</button>
+            <button class="btn btn-sm btn-excluir" onclick='remover(${h.ID_Horario})'>Excluir</button>
           </td>
         </tr>`;
         $tb.append(tr);

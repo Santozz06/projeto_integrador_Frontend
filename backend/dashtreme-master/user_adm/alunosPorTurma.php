@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alunos por Turma - SAS</title>
@@ -32,7 +33,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3 no-print">
                     <h4 class="page-title"><i class="zmdi zmdi-accounts mr-2"></i> Alunos por Turma</h4>
                     <div>
-                        <button id="print-btn" class="btn btn-custom-secondary">
+                        <button id="print-btn" class="btn btn-custom-print">
                             <i class="zmdi zmdi-print mr-2"></i>Imprimir/PDF
                         </button>
                     </div>
@@ -115,7 +116,7 @@
             $('#print-date').text('Emitido em: ' + now.toLocaleDateString() + ' às ' + now.toLocaleTimeString());
 
             // Carregar anos dinamicamente
-            $.getJSON('../includes/ajax/listar_anos_letivos.php', function (resp) {
+            $.getJSON('../includes/ajax/shared/academico/listar_anos_letivos.php', function (resp) {
                 if (resp.success) {
                     const $year = $('#year-select');
                     resp.data.forEach(ano => {
@@ -137,7 +138,7 @@
                 }
 
                 $turma.append('<option value="">Carregando...</option>');
-                $.getJSON('../includes/ajax/listar_turmas.php', { ano, turno }, function (resp) {
+                $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano, turno }, function (resp) {
                     $turma.empty();
                     if (resp.success && resp.data.length) {
                         $turma.append('<option value="">Selecione uma turma</option>');
@@ -177,7 +178,7 @@
             function carregarAlunos(turmaId) {
                 const $grid = $('#students-grid');
                 $grid.empty().append('<div class="col-12 text-center text-muted">Carregando alunos...</div>');
-                $.getJSON('../includes/ajax/listar_alunos_por_turma.php', { turma_id: turmaId }, function (resp) {
+                $.getJSON('../includes/ajax/admin/turmas/listar_alunos_por_turma.php', { turma_id: turmaId }, function (resp) {
                     $grid.empty();
                     if (resp.success) {
                         const students = resp.data;

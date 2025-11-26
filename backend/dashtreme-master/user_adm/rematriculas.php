@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rematrículas - SAS</title>
@@ -23,7 +24,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-12">
-                    <div class="card" style="background-color: transparent; border: none; box-shadow: none;">
+                    <div class="card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <h4 class="page-title"><i class="zmdi zmdi-refresh mr-2"></i> Rematrículas</h4>
@@ -95,10 +96,58 @@
                                         <input type="tel" id="telefone" class="form-control"
                                             placeholder="(00) 00000-0000">
                                     </div>
-                                    <div class="form-group">
-                                        <div class="bold-title">Endereço</div>
-                                        <input type="text" id="endereco" class="form-control"
-                                            placeholder="Rua, número, bairro">
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <div class="bold-title">CEP</div>
+                                                <input type="text" id="cep" class="form-control" placeholder="00000-000"
+                                                    maxlength="9">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div class="form-group">
+                                                <div class="bold-title">Logradouro</div>
+                                                <input type="text" id="logradouro" class="form-control"
+                                                    placeholder="Rua, Avenida, etc">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <div class="form-group">
+                                                <div class="bold-title">Nº</div>
+                                                <input type="text" id="numero" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <div class="bold-title">Complemento</div>
+                                                <input type="text" id="complemento" class="form-control"
+                                                    placeholder="Apto, Bloco, etc (opcional)">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <div class="bold-title">Bairro</div>
+                                                <input type="text" id="bairro" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <div class="bold-title">UF</div>
+                                                <select id="ufEndereco" class="form-control">
+                                                    <option value="">Selecione...</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <div class="bold-title">Município</div>
+                                                <select id="municipio" class="form-control">
+                                                    <option value="">Selecione o UF primeiro...</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -110,17 +159,6 @@
                                         <input type="email" id="email" class="form-control"
                                             placeholder="email@exemplo.com">
                                     </div>
-                                </div>
-
-                                <!-- Seção Turno -->
-                                <div class="form-section">
-                                    <h5 class="section-title">TURNO</h5>
-                                    <select id="novo-turno" class="form-control">
-                                        <option value="">Selecione o novo turno</option>
-                                        <option value="manha">Manhã</option>
-                                        <option value="tarde">Tarde</option>
-                                        <option value="noite">Noite</option>
-                                    </select>
                                 </div>
 
                                 <!-- Botões -->
@@ -150,11 +188,99 @@
         $(function () {
             let alunoSelecionado = null;
 
+            // Carrega estados para o select de UF
+            function carregarEstados() {
+                fetch('../includes/ajax/shared/localidades/listar_estados.php')
+                    .then(r => r.json())
+                    .then(resp => {
+                        const $uf = $('#ufEndereco');
+                        $uf.empty().append('<option value="">Selecione...</option>');
+                        if (resp.success && resp.data) {
+                            resp.data.forEach(estado => {
+                                $uf.append(`<option value="${estado.id}">${estado.nome}</option>`);
+                            });
+                        }
+                    })
+                    .catch(() => console.error('Erro ao carregar estados'));
+            }
+
+            // Quando mudar o UF, carrega municípios
+            $('#ufEndereco').on('change', function () {
+                const estadoId = $(this).val();
+                const $municipio = $('#municipio');
+                if (!estadoId) {
+                    $municipio.empty().append('<option value="">Selecione o UF primeiro...</option>');
+                    return;
+                }
+                $municipio.empty().append('<option value="">Carregando...</option>');
+                fetch(`../includes/ajax/shared/localidades/carregar_municipios.php?estado_id=${estadoId}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        $municipio.empty().append('<option value="">Selecione...</option>');
+                        data.forEach(m => {
+                            $municipio.append(`<option value="${m.id}">${m.nome}</option>`);
+                        });
+                    })
+                    .catch(() => {
+                        $municipio.empty().append('<option value="">Erro ao carregar</option>');
+                    });
+            });
+
+            // Busca CEP via ViaCEP
+            function aplicarMascaraCEP(input) {
+                let cep = input.value.replace(/\D/g, '');
+                if (cep.length > 8) cep = cep.substring(0, 8);
+                if (cep.length > 5) cep = cep.substring(0, 5) + '-' + cep.substring(5);
+                input.value = cep;
+            }
+
+            $('#cep').on('input', function () {
+                aplicarMascaraCEP(this);
+                const cep = this.value.replace(/\D/g, '');
+                if (cep.length === 8) {
+                    buscarCEP(cep);
+                }
+            });
+
+            async function buscarCEP(cep) {
+                try {
+                    const resp = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                    const data = await resp.json();
+                    if (data.erro) {
+                        console.warn('CEP não encontrado');
+                        return;
+                    }
+                    // Preenche campos
+                    if (data.logradouro) $('#logradouro').val(data.logradouro);
+                    if (data.bairro) $('#bairro').val(data.bairro);
+                    if (data.complemento) $('#complemento').val(data.complemento);
+
+                    // Busca o código do estado pela sigla
+                    const estados = await fetch('../includes/ajax/shared/localidades/listar_estados.php').then(r => r.json());
+                    if (estados.success && data.uf) {
+                        const estado = estados.data.find(e => e.uf === data.uf);
+                        if (estado) {
+                            $('#ufEndereco').val(estado.id).trigger('change');
+                            // Aguarda carregar municípios e seleciona pelo código IBGE
+                            setTimeout(() => {
+                                if (data.ibge) {
+                                    $('#municipio').val(data.ibge);
+                                }
+                            }, 500);
+                        }
+                    }
+                } catch (e) {
+                    console.error('Erro ao buscar CEP:', e);
+                }
+            }
+
+            carregarEstados();
+
             // Carrega anos letivos e define padrão (ano atual e/ou próximo)
             function carregarAnos() {
                 const $ano = $('#ano-letivo');
                 $ano.empty().append('<option value="">Carregando anos...</option>');
-                fetch('../includes/ajax/listar_anos_letivos.php')
+                fetch('../includes/ajax/shared/academico/listar_anos_letivos.php')
                     .then(r => r.json())
                     .then(resp => {
                         $ano.empty().append('<option value="">Selecione o ano letivo</option>');
@@ -186,7 +312,7 @@
                 const $turma = $('#nova-turma');
                 if (!ano) { $turma.empty().append('<option value="">Selecione o ano primeiro</option>'); return; }
                 $turma.empty().append('<option value="">Carregando turmas...</option>');
-                fetch(`../includes/ajax/listar_turmas.php?ano=${encodeURIComponent(ano)}`)
+                fetch(`../includes/ajax/admin/turmas/listar_turmas.php?ano=${encodeURIComponent(ano)}`)
                     .then(r => r.json())
                     .then(resp => {
                         $turma.empty().append('<option value="">Selecione a nova turma</option>');
@@ -214,7 +340,7 @@
                 }
                 const $res = $('#search-results');
                 $res.empty().append('<div class="text-white">Pesquisando...</div>').show();
-                fetch(`../includes/ajax/buscar_alunos.php?q=${encodeURIComponent(termo)}`)
+                fetch(`../includes/ajax/admin/usuarios/buscar_alunos.php?q=${encodeURIComponent(termo)}`)
                     .then(r => r.json())
                     .then(resp => {
                         $res.empty();
@@ -252,7 +378,13 @@
                     turma: $(this).data('turma'),
                     turno: $(this).data('turno'),
                     telefone: $(this).data('telefone'),
-                    endereco: $(this).data('endereco'),
+                    cep: $(this).data('cep') || '',
+                    logradouro: $(this).data('logradouro') || '',
+                    numero: $(this).data('numero') || '',
+                    complemento: $(this).data('complemento') || '',
+                    bairro: $(this).data('bairro') || '',
+                    uf_endereco: $(this).data('uf_endereco') || '',
+                    municipio: $(this).data('municipio') || '',
                     email: $(this).data('email')
                 };
                 $('#selected-student-name').text(alunoSelecionado.nome || 'Aluno');
@@ -263,8 +395,22 @@
                 $('#nome-aluno').val(alunoSelecionado.nome || '');
                 $('#matricula-aluno').val(alunoSelecionado.matricula || '');
                 $('#telefone').val(alunoSelecionado.telefone || '');
-                $('#endereco').val(alunoSelecionado.endereco || '');
+                $('#cep').val(alunoSelecionado.cep || '');
+                $('#logradouro').val(alunoSelecionado.logradouro || '');
+                $('#numero').val(alunoSelecionado.numero || '');
+                $('#complemento').val(alunoSelecionado.complemento || '');
+                $('#bairro').val(alunoSelecionado.bairro || '');
                 $('#email').val(alunoSelecionado.email || '');
+                
+                // Carrega UF e município se disponível
+                if (alunoSelecionado.uf_endereco) {
+                    $('#ufEndereco').val(alunoSelecionado.uf_endereco).trigger('change');
+                    if (alunoSelecionado.municipio) {
+                        setTimeout(() => {
+                            $('#municipio').val(alunoSelecionado.municipio);
+                        }, 500);
+                    }
+                }
                 $('#search-results').hide();
             });
 
@@ -277,9 +423,15 @@
                 body.append('ano_letivo', $('#ano-letivo').val());
                 body.append('nova_turma_id', $('#nova-turma').val());
                 body.append('telefone', $('#telefone').val());
-                body.append('endereco', $('#endereco').val());
+                body.append('cep', $('#cep').val());
+                body.append('logradouro', $('#logradouro').val());
+                body.append('numero', $('#numero').val());
+                body.append('complemento', $('#complemento').val());
+                body.append('bairro', $('#bairro').val());
+                body.append('uf_endereco', $('#ufEndereco').val());
+                body.append('municipio', $('#municipio').val());
                 body.append('email', $('#email').val());
-                fetch('../includes/ajax/rematricular_aluno.php', {
+                fetch('../includes/ajax/admin/matriculas/rematricular_aluno.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: body.toString()
@@ -304,7 +456,12 @@
                 if (!$('#ano-letivo').val()) { alert('Selecione o ano letivo'); return false; }
                 if (!$('#nova-turma').val()) { alert('Selecione a nova turma'); return false; }
                 if (!$('#telefone').val()) { alert('Informe o telefone'); return false; }
-                if (!$('#endereco').val()) { alert('Informe o endereço'); return false; }
+                if (!$('#cep').val()) { alert('Informe o CEP'); return false; }
+                if (!$('#logradouro').val()) { alert('Informe o logradouro'); return false; }
+                if (!$('#numero').val()) { alert('Informe o número'); return false; }
+                if (!$('#bairro').val()) { alert('Informe o bairro'); return false; }
+                if (!$('#ufEndereco').val()) { alert('Selecione o UF'); return false; }
+                if (!$('#municipio').val()) { alert('Selecione o município'); return false; }
                 if (!$('#email').val()) { alert('Informe o e-mail'); return false; }
                 return true;
             }
@@ -317,11 +474,16 @@
                 $('#nome-aluno').val('');
                 $('#matricula-aluno').val('');
                 $('#telefone').val('');
-                $('#endereco').val('');
+                $('#cep').val('');
+                $('#logradouro').val('');
+                $('#numero').val('');
+                $('#complemento').val('');
+                $('#bairro').val('');
+                $('#ufEndereco').val('');
+                $('#municipio').val('');
                 $('#email').val('');
                 carregarAnos();
                 $('#nova-turma').val('');
-                $('#novo-turno').val('');
             }
         });
     </script>

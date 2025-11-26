@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Atividades - SAS</title>
@@ -50,8 +51,8 @@
         <script src="../assets/js/bootstrap.min.js"></script>
         <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
         <script src="../assets/js/sidebar-menu.js"></script>
+
         <script src="../assets/js/app-script.js"></script>
-     
 
         <script>
             $(function(){
@@ -73,7 +74,7 @@
                 const ano = 2025;
                 const $sel = $('#selectTurma');
                 $sel.prop('disabled', true).empty().append('<option value="" disabled selected>Carregando turmas...</option>');
-                $.getJSON('../includes/ajax/listar_turmas.php', { ano, all: 1 })
+                $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano, all: 1 })
                     .done(function(res){
                         $sel.empty().append('<option value="" disabled selected>-- Escolha uma turma --</option>');
                         if (res && res.success && Array.isArray(res.data) && res.data.length){
@@ -95,7 +96,7 @@
                 $help.hide();
                 $formSel.prop('disabled', true).empty().append('<option value="" disabled selected>Carregando disciplinas...</option>');
                 if (!turmaId) return;
-                $.getJSON('../includes/ajax/listar_disciplinas_por_turma.php', { turma_id: turmaId })
+                $.getJSON('../includes/ajax/shared/academico/listar_disciplinas_por_turma.php', { turma_id: turmaId })
                     .done(function(res){
                         $formSel.empty();
                         if (res && res.success && Array.isArray(res.data) && res.data.length){

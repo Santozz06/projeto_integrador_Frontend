@@ -1,6 +1,5 @@
 <?php
 require_once '../../bootstrap.php';
-require_once '../../conexao.php';
 
 header('Content-Type: application/json');
 
@@ -14,10 +13,8 @@ try {
     $alunoId = (int)$_SESSION['usuario_id'];
     $ano = isset($_GET['ano']) ? (int)$_GET['ano'] : null; // opcional
 
-    // Coleta TODAS as matrículas relevantes do aluno
-    // Prioridade: ativas no ano -> ativas (qualquer ano) -> qualquer status no ano -> qualquer (mais recente)
     $mats = [];
-    $lastMat = null; // referência para preencher turma/matricula na resposta
+    $lastMat = null; 
 
     // 1) Ativas no ano
     $params = [$alunoId];
@@ -27,7 +24,7 @@ try {
     $st = $pdo->prepare($sql); $st->execute($params);
     $mats = $st->fetchAll(PDO::FETCH_ASSOC);
 
-    // 2) Se vazio, ativas (qualquer ano)
+    // 2) Se vazio, ativas
     if (!$mats) {
         $st = $pdo->prepare("SELECT ID_Matricula, ID_Turma, Ano_Letivo FROM Matriculas WHERE ID_Aluno = ? AND Status = 'Ativa' ORDER BY Ano_Letivo DESC");
         $st->execute([$alunoId]);
@@ -66,14 +63,34 @@ try {
     $lastMat = $mats[0];
     $anoLetivo = isset($lastMat['Ano_Letivo']) ? (int)$lastMat['Ano_Letivo'] : ($ano ?: null);
     $turmaNome = null;
+    $turnoTurma = null;
+    $modalidadeTurma = null;
     $matriculaIdRef = isset($lastMat['ID_Matricula']) ? (int)$lastMat['ID_Matricula'] : null;
     $matriculaCodigoRef = null;
+    
     try {
-        if (isset($lastMat['ID_Turma'])) {
-            $stT = $pdo->prepare("SELECT Nome_Turma FROM Turmas WHERE ID_Turma = ?");
+        if (isset($lastMat['ID_Turma']) && $lastMat['ID_Turma']) {
+            $checkCols = $pdo->query("SHOW COLUMNS FROM Turmas WHERE Field IN ('Turno', 'Modalidade')");
+            $existingCols = [];
+            while($col = $checkCols->fetch(PDO::FETCH_ASSOC)) {
+                $existingCols[] = $col['Field'];
+            }
+            
+            $selectFields = "ID_Turma, Nome_Turma, Etapa";
+            if (in_array('Turno', $existingCols)) $selectFields .= ", Turno";
+            if (in_array('Modalidade', $existingCols)) $selectFields .= ", Modalidade";
+            
+            $stT = $pdo->prepare("SELECT {$selectFields} FROM Turmas WHERE ID_Turma = ?");
             $stT->execute([(int)$lastMat['ID_Turma']]);
             $rT = $stT->fetch(PDO::FETCH_ASSOC);
-            $turmaNome = $rT ? $rT['Nome_Turma'] : null;
+            if($rT) {
+                $turmaNome = $rT['Nome_Turma'] ?: null;
+                if (!$turmaNome && !empty($rT['Etapa'])) {
+                    $turmaNome = $rT['Etapa'];
+                }
+                $turnoTurma = isset($rT['Turno']) ? $rT['Turno'] : null;
+                $modalidadeTurma = isset($rT['Modalidade']) ? $rT['Modalidade'] : null;
+            }
         }
         if ($matriculaIdRef) {
             $stM = $pdo->prepare("SELECT a.Matricula FROM Matriculas m INNER JOIN Alunos a ON a.ID_Aluno = m.ID_Aluno WHERE m.ID_Matricula = ? LIMIT 1");
@@ -110,6 +127,8 @@ try {
         'ano' => $anoLetivo,
         'matricula' => $matriculaCodigoRef ?: $matriculaIdRef,
         'turma' => $turmaNome,
+        'turno' => $turnoTurma,
+        'modalidade' => $modalidadeTurma,
         'presencas' => $pres,
         'total' => $total,
         'percentual' => $perc

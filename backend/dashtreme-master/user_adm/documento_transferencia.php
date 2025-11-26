@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documento de Transferência</title>
@@ -160,7 +161,7 @@
             // Turma/Turno atuais (opcional): podemos exibir via uma busca simplificada
             if (!alunoId){ return; }
             // Carrega matricula ativa para exibir turma/turno
-            fetch(`../includes/ajax/obter_matricula_ativa.php?aluno_id=${encodeURIComponent(alunoId)}`)
+            fetch(`../includes/ajax/admin/matriculas/obter_matricula_ativa.php?aluno_id=${encodeURIComponent(alunoId)}`)
                 .then(r=>r.json()).then(m=>{
                     if (m && m.success && m.data){
                         const labelTurma = m.data.Nome_Turma ? `${m.data.Nome_Turma}${m.data.Etapa ? ' ('+m.data.Etapa+')' : ''}` : '—';
@@ -169,7 +170,7 @@
                 }).catch(()=>{});
 
             // Carrega histórico
-            fetch(`../includes/ajax/obter_historico_aluno.php?aluno_id=${encodeURIComponent(alunoId)}`)
+            fetch(`../includes/ajax/shared/historico/obter_historico_aluno.php?aluno_id=${encodeURIComponent(alunoId)}`)
                 .then(r=>r.json())
                 .then(resp=>{
                     if (!resp.success) return;

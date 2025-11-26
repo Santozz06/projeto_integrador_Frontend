@@ -1,5 +1,5 @@
 <?php
-require_once '../../../bootstrap.php';
+require_once '../../bootstrap.php';
 
 // Para upload de arquivos
 if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'professor') {

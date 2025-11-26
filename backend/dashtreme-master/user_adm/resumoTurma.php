@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resumo por Turma - SAS</title>
@@ -122,7 +123,7 @@
             const $btn = $('#btn-carregar');
 
             function carregarAnos() {
-                $.getJSON('../includes/ajax/listar_anos_letivos.php', function (resp) {
+                $.getJSON('../includes/ajax/shared/academico/listar_anos_letivos.php', function (resp) {
                     if (resp.success) {
                         $ano.empty().append('<option value="">Selecione</option>');
                         resp.data.forEach(ano => $ano.append(`<option value="${ano}">${ano}</option>`));
@@ -132,7 +133,7 @@
 
             function carregarTurmas(ano) {
                 $turma.prop('disabled', true).empty().append('<option value="">Carregando...</option>');
-                $.getJSON('../includes/ajax/listar_turmas.php', { ano }, function (resp) {
+                $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano }, function (resp) {
                     $turma.empty();
                     if (resp.success && resp.data.length) {
                         $turma.append('<option value="">Selecione</option>');
@@ -159,7 +160,7 @@
 
             function carregarResumo(turmaId) {
                 // 1) Alunos
-                $.getJSON('../includes/ajax/listar_alunos_por_turma.php', { turma_id: turmaId }, function(resp){
+                $.getJSON('../includes/ajax/admin/turmas/listar_alunos_por_turma.php', { turma_id: turmaId }, function(resp){
                     if (resp.success) {
                         $('#total-alunos').text(resp.data.length);
                     } else {
@@ -168,7 +169,7 @@
                 });
 
                 // 2) Professores
-                $.getJSON('../includes/ajax/listar_professores_por_turma.php', { turma_id: turmaId }, function(resp){
+                $.getJSON('../includes/ajax/admin/professores/listar_professores_por_turma.php', { turma_id: turmaId }, function(resp){
                     if (resp.success) {
                         $('#total-professores').text(resp.data.length);
                     } else {
@@ -177,7 +178,7 @@
                 });
 
                 // 3) Disciplinas + detalhes
-                $.getJSON('../includes/ajax/listar_disciplinas_por_turma.php', { turma_id: turmaId }, function(resp){
+                $.getJSON('../includes/ajax/shared/academico/listar_disciplinas_por_turma.php', { turma_id: turmaId }, function(resp){
                     const $tbody = $('#detalhes-turma-body');
                     $tbody.empty();
                     if (resp.success && resp.data.length) {

@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastrar Disciplinas - SAS</title>
@@ -23,7 +24,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-12">
-                    <div class="card" style="background-color: transparent; border: none; box-shadow: none;">
+                    <div class="card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <h4 class="page-title"><i class="zmdi zmdi-plus-circle mr-2"></i> Cadastrar
@@ -70,15 +71,15 @@
                             </div>
 
                             <!-- Listagem de Disciplinas -->
-                            <div class="card mt-4" style="background: rgba(255,255,255,0.05); border-radius: 12px;">
+                            <div class="card mt-4">
                                 <div class="card-body">
                                     <h5 class="section-title">DISCIPLINAS CADASTRADAS</h5>
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <div></div>
-                                        <input type="text" id="filtro-disciplinas" class="form-control" placeholder="Filtrar por nome/etapa/ano" style="max-width: 320px; background-color: rgba(255,255,255,0.15); border: 1px solid #71affe; color:#fff;">
+                                        <input type="text" id="filtro-disciplinas" class="form-control filtro-disciplinas" placeholder="Filtrar por nome/etapa/ano">
                                     </div>
                                     <div class="table-responsive">
-                                        <table class="table table-bordered table-striped" style="color:#ecf0f1;">
+                                        <table class="table table-bordered table-striped tabela-disciplinas-cadastrar">
                                             <thead>
                                                 <tr>
                                                     <th>Nome</th>
@@ -203,7 +204,7 @@
 
             // Carregar anos letivos para o select
             function carregarAnosLetivos() {
-                $.get('../includes/ajax/listar_anos_letivos.php')
+                $.get('../includes/ajax/shared/academico/listar_anos_letivos.php')
                     .done(function (resp) {
                         if (resp && resp.success && Array.isArray(resp.data)) {
                             const $sel = $('#ano-letivo');
@@ -220,7 +221,7 @@
             // Carregar etapas ao iniciar e quando mudar o ano
             function carregarEtapas() {
                 const ano = $('#ano-letivo').val();
-                const url = '../includes/ajax/listar_etapas.php' + (ano ? ('?ano=' + encodeURIComponent(ano)) : '');
+                const url = '../includes/ajax/shared/academico/listar_etapas.php' + (ano ? ('?ano=' + encodeURIComponent(ano)) : '');
                 $.get(url)
                     .done(function (resp) {
                         const $sel = $('#etapa-serie');

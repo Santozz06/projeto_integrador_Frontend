@@ -170,9 +170,9 @@
             locale: 'pt-br',
             initialView: 'dayGridMonth',
             headerToolbar: {
-                left: 'title',
-                center: '',
-                right: 'prev,next today'
+                left: 'prev,next today',
+                center: 'title',
+                right: ''
             },
             dayMaxEvents: 3, // Limita a quantidade de eventos mostrados por dia
             dayPopoverFormat: { month: 'short', day: 'numeric' },

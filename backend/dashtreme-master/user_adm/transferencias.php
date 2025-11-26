@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transferências - SAS</title>
@@ -25,7 +26,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-12">
-                    <div class="card" style="background-color: transparent; border: none; box-shadow: none;">
+                    <div class="card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <h4 class="page-title"><i class="zmdi zmdi-account-add mr-2"></i> Transferências
@@ -175,7 +176,7 @@
                 }
                 const $results = $('#search-results');
                 $results.empty().append('<div class="text-white">Pesquisando...</div>').show();
-                fetch(`../includes/ajax/buscar_alunos.php?q=${encodeURIComponent(termo)}`)
+                fetch(`../includes/ajax/admin/usuarios/buscar_alunos.php?q=${encodeURIComponent(termo)}`)
                     .then(r => r.json())
                     .then(resp => {
                         $results.empty();
@@ -278,7 +279,7 @@
                 // Países
                 if (cachePaises){ preencherSelect('#sel-pais', cachePaises, 'Selecione o país'); }
                 else {
-                    fetch('../includes/ajax/listar_paises.php')
+                    fetch('../includes/ajax/shared/localidades/listar_paises.php')
                         .then(r=>r.json()).then(resp=>{
                             const data = resp && resp.success ? (resp.data||[]) : [];
                             cachePaises = data;
@@ -293,7 +294,7 @@
                 // Estados
                 if (cacheEstados){ preencherSelect('#sel-estado', cacheEstados, 'Selecione o estado', 'id', 'nome'); }
                 else {
-                    fetch('../includes/ajax/listar_estados.php')
+                    fetch('../includes/ajax/shared/localidades/listar_estados.php')
                         .then(r=>r.json()).then(resp=>{
                             const data = resp && resp.success ? (resp.data||[]) : [];
                             cacheEstados = data;
@@ -317,7 +318,7 @@
 
             function carregarMunicipios(estadoId, preselectId){
                 if (!estadoId){ preencherSelect('#sel-municipio', [], 'Selecione o município'); return; }
-                fetch(`../includes/ajax/carregar_municipios.php?estado_id=${encodeURIComponent(estadoId)}`)
+                fetch(`../includes/ajax/shared/localidades/carregar_municipios.php?estado_id=${encodeURIComponent(estadoId)}`)
                     .then(r=>r.json()).then(lista=>{
                         // lista é um array simples [{id, nome}]
                         const arr = Array.isArray(lista) ? lista : [];
@@ -353,7 +354,7 @@
                 formData.append('escola_destino', $('#escola-destino').val());
                 formData.append('municipio_uf', $('#municipio-uf').val());
 
-                fetch('../includes/ajax/registrar_transferencia.php', {
+                fetch('../includes/ajax/admin/matriculas/registrar_transferencia.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: formData.toString()

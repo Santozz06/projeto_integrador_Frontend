@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Disciplinas por Professor - SAS</title>
@@ -64,6 +65,7 @@
                         <table class="table table-bordered" id="disciplines-table">
                             <thead>
                                 <tr>
+                                    <th>Foto</th>
                                     <th>Professor</th>
                                     <th>Matrícula</th>
                                     <th>Disciplinas</th>
@@ -102,7 +104,7 @@
             });
 
             function carregarAnos() {
-                $.getJSON('../includes/ajax/listar_anos_letivos.php', function (resp) {
+                $.getJSON('../includes/ajax/shared/academico/listar_anos_letivos.php', function (resp) {
                     if (resp.success) {
                         resp.data.forEach(ano => $ano.append(`<option value="${ano}">${ano}</option>`));
                     }
@@ -111,7 +113,7 @@
 
             function carregarProfessores() {
                 // Reutiliza endpoint de professores (sem filtros) para popular select
-                $.getJSON('../includes/ajax/listar_professores.php', function (resp) {
+                $.getJSON('../includes/ajax/admin/professores/listar_professores.php', function (resp) {
                     if (resp.success) {
                         $prof.empty().append('<option value="">Todos Professores</option>');
                         resp.data.forEach(p => $prof.append(`<option value="${p.ID_Professor}">${p.Nome_Completo}</option>`));
@@ -121,7 +123,7 @@
 
             function carregarDisciplinas() {
                 const ano = $ano.val();
-                $.getJSON('../includes/ajax/listar_disciplinas_distintas.php', { ano }, function (resp) {
+                $.getJSON('../includes/ajax/shared/academico/listar_disciplinas_distintas.php', { ano }, function (resp) {
                     if (resp.success) {
                         $disc.empty().append('<option value="">Todas Disciplinas</option>');
                         resp.data.forEach(d => $disc.append(`<option value="${d}">${d}</option>`));
@@ -146,7 +148,7 @@
                     professor_id: $prof.val(),
                     disciplina: $disc.val()
                 };
-                $.getJSON('../includes/ajax/listar_disciplinas_por_professor.php', params, function (resp) {
+                $.getJSON('../includes/ajax/admin/professores/listar_disciplinas_por_professor.php', params, function (resp) {
                     table.clear();
                     if (resp.success) {
                         let rowsWithDisc = 0;
@@ -161,14 +163,15 @@
                                 const last = lastPart.charAt(lastPart.length - 1);
                                 iniciais = (first + last).toUpperCase();
                             }
-                            const profCell = `<span class=\"user-profile mr-2\"><span class=\"avatar-initials\">${iniciais}</span></span>${nome}`;
+                            const foto = `<span class="user-profile"><span class="avatar-initials">${iniciais}</span></span>`;
                             const disciplinas = (r.Disciplinas || '').split(', ').filter(Boolean);
                             const discHtml = disciplinas.map(d => `<span class=\"badge discipline-badge\">${d}</span>`).join(' ');
                             if (disciplinas.length > 0) rowsWithDisc++;
                             const turmas = r.Turmas || '';
                             const carga = r.Carga_Total ? (r.Carga_Total + 'h/semana') : '';
                             table.row.add([
-                                profCell,
+                                foto,
+                                nome,
                                 r.Matricula || '',
                                 discHtml,
                                 turmas,
@@ -191,13 +194,14 @@
                                         const last2 = lastPart2.charAt(lastPart2.length - 1);
                                         iniciais2 = (first2 + last2).toUpperCase();
                                     }
-                                    const profCell = `<span class=\"user-profile mr-2\"><span class=\"avatar-initials\">${iniciais2}</span></span>${nome2}`;
+                                    const foto = `<span class="user-profile"><span class="avatar-initials">${iniciais2}</span></span>`;
                                     const nomes = r2.data.map(d => d.Nome_Disciplina).filter(Boolean).sort();
                                     const discHtml = nomes.map(d => `<span class=\"badge discipline-badge\">${d}</span>`).join(' ');
                                     const cargaTotal = r2.data.reduce((acc, d) => acc + (parseInt(d.Carga_Horaria || 0) || 0), 0);
                                     table.clear();
                                     table.row.add([
-                                        profCell,
+                                        foto,
+                                        nome2,
                                         profRow.Matricula || '',
                                         discHtml,
                                         profRow.Turmas || '',

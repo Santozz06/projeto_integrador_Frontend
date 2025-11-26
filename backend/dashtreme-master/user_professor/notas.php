@@ -3,6 +3,7 @@
 <html lang="pt-br">
 
 <head>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notas - Professor</title>
@@ -221,7 +222,7 @@
 
             async function carregarAnos(){
                 try {
-                    const res = await $.getJSON('../includes/ajax/listar_anos_letivos.php');
+                    const res = await $.getJSON('../includes/ajax/shared/academico/listar_anos_letivos.php');
                     const $sel = $('#ano-letivo');
                     $sel.empty();
                     if (res.success && Array.isArray(res.data)) {
@@ -232,7 +233,7 @@
             async function atualizarTurmas(){
                 const ano = $('#ano-letivo').val();
                 try {
-                    const res = await $.getJSON('../includes/ajax/listar_turmas.php', { ano });
+                    const res = await $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano });
                     turmas = (res.success && Array.isArray(res.data)) ? res.data : [];
                 } catch { turmas = []; }
                 const $sel = $('#turma');
@@ -255,7 +256,7 @@
                 $sel.append('<option value="">Todas disciplinas</option>');
                 if (!turmaSelecionada){ disciplinas = []; renderTabela([]); return; }
                 try {
-                    const res = await $.getJSON('../includes/ajax/listar_disciplinas_por_turma.php', { turma_id: turmaSelecionada });
+                    const res = await $.getJSON('../includes/ajax/shared/academico/listar_disciplinas_por_turma.php', { turma_id: turmaSelecionada });
                     disciplinas = (res.success && Array.isArray(res.data)) ? res.data : [];
                 } catch { disciplinas = []; }
                 disciplinas.forEach(d => $sel.append(`<option value="${d.ID_Disciplina}">${d.Nome_Disciplina}</option>`));

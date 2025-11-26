@@ -1,6 +1,5 @@
 <?php
 require_once '../../../bootstrap.php';
-require_once '../../../conexao.php';
 
 header('Content-Type: application/json');
 
@@ -28,22 +27,11 @@ if ($idTurma <= 0 || $titulo === '' || $disciplina === '' || $data === '') {
     exit;
 }
 
-try {
-    // Garante tabela
-    $pdo->exec("CREATE TABLE IF NOT EXISTS Atividades (
-        ID_Atividade INT NOT NULL AUTO_INCREMENT,
-        ID_Turma INT NOT NULL,
-        ID_Professor INT NOT NULL,
-        Titulo VARCHAR(150) NOT NULL,
-        Disciplina VARCHAR(100) NOT NULL,
-        Data DATE NOT NULL,
-        Ano_Letivo INT NOT NULL,
-        PRIMARY KEY (ID_Atividade),
-        KEY idx_turma (ID_Turma),
-        KEY idx_prof (ID_Professor),
-        KEY idx_ano (Ano_Letivo)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+// Verifica e converte os dados para UTF-8
+$titulo = mb_convert_encoding($titulo, 'UTF-8', mb_detect_encoding($titulo));
+$disciplina = mb_convert_encoding($disciplina, 'UTF-8', mb_detect_encoding($disciplina));
 
+try {
     // Ano letivo da turma
     $stmt = $pdo->prepare('SELECT Ano_Letivo FROM Turmas WHERE ID_Turma = ?');
     $stmt->execute([$idTurma]);
