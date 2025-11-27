@@ -87,7 +87,7 @@ try {
 
         // Situação de vínculo (vinculado a alguma turma ou não)
         try {
-            require_once __DIR__ . '/includes/crud/VinculoCRUD.php';
+            require_once __DIR__ . '/../includes/crud/VinculoCRUD.php';
             $vinculoCRUD = new VinculoCRUD($pdo);
             $situacaoProfessor = $vinculoCRUD->verificarSituacao('professor', $idUsuario);
         } catch (Exception $e) {

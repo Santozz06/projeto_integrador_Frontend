@@ -1,8 +1,6 @@
 <?php
-// Handler para remoção de vínculos de aluno/professor com turma
-// Caminhos relativos ajustados ao diretório atual (includes/ajax)
-require_once '../../config/conexao.php';
-require_once '../crud/VinculoCRUD.php';
+require_once __DIR__ . '/../../../config/conexao.php';
+require_once __DIR__ . '/../../../crud/VinculoCRUD.php';
 
 header('Content-Type: application/json');
 

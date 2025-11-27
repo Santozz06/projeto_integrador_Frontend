@@ -3,122 +3,150 @@
 <html lang="pt-br">
 
 <head>
-    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
   <meta charset="UTF-8">
-  <title>Atestado de Matrícula</title>
-  <link href="../assets/css/app-style.css?v=<?php echo time(); ?>" rel="stylesheet" />
-  <link rel="stylesheet" href="../css/style.css?v=<?php echo time(); ?>" />
-  <style>
-    body {
-      background: #ffffff !important;
-      background-color: #ffffff !important;
-      background-image: none !important;
-    }
-    body::before,
-    body::after {
-      display: none !important;
-    }
-  </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script>
-    // Remove tema após carregar html2pdf
-    document.body.style.cssText = 'background: #ffffff !important; background-color: #ffffff !important; background-image: none !important;';
-    if(document.body.classList) {
-      document.body.classList.remove('bg-theme', 'bg-theme1', 'bg-theme2', 'bg-theme3', 'bg-theme4', 'bg-theme5');
-    }
-  </script>
-</head>
+  (function(){
+  function limparTemaParaPDF(){
+  if(document.getElementById('force-clean-style')) return;
+  const style = document.createElement('style');
+  style.id = 'force-clean-style';
+  style.appendChild(document.createTextNode('\n'
+  + 'html, body { background: #ffffff !important; background-image: none !important; }\n'
+  + '* { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; box-shadow: none !important;
+  text-shadow: none !important; filter: none !important; }\n'
+  + '#pageloader-overlay, .overlay, .overlay.toggle-menu, .modal-backdrop, .modal-backdrop.show, .menu-overlay,
+  .sidebar-wrapper, .sidebar-menu { display: none !important; }\n'
+  + 'body::before, body::after, html::before, html::after { display: none !important; content: none !important; }\n'
+  ));
+  document.head.appendChild(style);
+  }
+  function restaurarTema(){ const s=document.getElementById('force-clean-style'); if(s) s.remove(); }
 
-<body class="user_aluno_atestado_matricula">
+  function _createCleanWrapper(sourceEl){
+  try{
+  var clone = sourceEl.cloneNode(true);
+  var nodes = clone.querySelectorAll('*');
+  Array.prototype.forEach.call(nodes, function(n){ n.className=''; n.removeAttribute('style'); });
+  clone.className='';
+  var wrapper = document.createElement('div');
+  wrapper.id = 'pdf-clean-wrapper';
+  wrapper.style.position = 'fixed';
+  wrapper.style.top = '0';
+  wrapper.style.left = '0';
+  wrapper.style.zIndex = '2147483647';
+  wrapper.style.background = '#ffffff';
+  wrapper.style.color = '#000000';
+  wrapper.style.padding = '10mm';
+  wrapper.style.width = '210mm';
+  wrapper.style.minHeight = '297mm';
+  wrapper.style.boxSizing = 'border-box';
+  wrapper.style.fontFamily = '"Times New Roman", serif';
+  wrapper.style.fontSize = '16px';
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
+  return wrapper;
+  }catch(e){ console.error('Erro criar wrapper:', e); return sourceEl; }
+  }
 
-  <div id="doc">
+  function gerarAtestado(){
+  var source = document.getElementById('doc');
+  if(!source) { alert('Elemento do documento não encontrado'); return; }
+  var cleanEl = _createCleanWrapper(source);
+  limparTemaParaPDF();
+  html2pdf().set({
+  margin: 10,
+  filename: 'atestado_matricula.pdf',
+  image: { type: 'jpeg', quality: 0.98 },
+  html2canvas: { scale: 2, useCORS: true, logging: false },
+  jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  }).from(cleanEl).save().then(function(){
+  try{ if(cleanEl && cleanEl.parentNode) cleanEl.parentNode.removeChild(cleanEl); }catch(e){}
+  restaurarTema();
+  }).catch(function(err){
+  console.error(err);
+  try{ if(cleanEl && cleanEl.parentNode) cleanEl.parentNode.removeChild(cleanEl); }catch(e){}
+  restaurarTema();
+  });
+  }
 
-    <div class="cabecalho">
-      República Federativa do Brasil<br>
-      Ministério da Educação<br>
-      Secretaria de Educação Profissional e Tecnológica<br>
-      [Nome da Instituição de Ensino]<br>
-      [Nome do Campus ou Unidade]
-    </div>
+  // Se existir botão com id gerar-atestado, ligar o evento. Caso contrário, gerar automaticamente após carregar.
+  document.addEventListener('DOMContentLoaded', function(){
+  var btn = document.getElementById('gerar-atestado');
+  if(btn) btn.addEventListener('click', gerarAtestado);
+  else setTimeout(gerarAtestado, 500);
+  });
+  })();
+  Turma/Série: <strong><span id="turma">—</span></strong>
+  </div>
 
-    <div class="titulo">ATESTADO DE MATRÍCULA</div>
+  <div class="rodape">
+    <strong>Parobé - RS, 08 de julho de 2025</strong>
+  </div>
 
-    <div class="texto">
-      Atestamos, para os fins que se fizerem necessários, que o(a) estudante abaixo identificado(a) possui vínculo
-      regular de matrícula nesta Instituição de Ensino no curso de <strong><span id="curso">—</span></strong>, de nível <strong><span id="nivel">—</span></strong>,
-      modalidade <strong><span id="modalidade">—</span></strong>, no turno <strong><span id="turno">—</span></strong>, conforme registro acadêmico atualizado.
-    </div>
+  <div class="autenticidade">
+    Para verificar a autenticidade deste documento, acesse:<br>
+    <a href="http://meusite.com/autenticacao" target="_blank">http://meusite.com/autenticacao</a>
+  </div>
 
-    <div class="dados">
-      Matrícula nº: <strong><span id="matricula">—</span></strong><br>
-      Período Letivo: <strong><span id="periodo">—</span></strong><br>
-      Turma/Série: <strong><span id="turma">—</span></strong>
-    </div>
-
-    <div class="rodape">
-      <strong>Parobé - RS, 08 de julho de 2025</strong>
-    </div>
-
-    <div class="autenticidade">
-      Para verificar a autenticidade deste documento, acesse:<br>
-      <a href="http://meusite.com/autenticacao" target="_blank">http://meusite.com/autenticacao</a>
-    </div>
-
-    <div class="codigo">
-      Código de verificação: <span>[XXXX-YYYY-ZZZZ]</span>
-    </div>
+  <div class="codigo">
+    Código de verificação: <span>[XXXX-YYYY-ZZZZ]</span>
+  </div>
 
   </div>
 
   <script>
-    (function(){
-      document.body.style.opacity = '0';
-      
-      function popularEDepoisGerar(){
-        fetch('../includes/ajax/aluno/atestado_matricula.php')
-          .then(r=>r.json())
-          .then(resp=>{
-            if(!resp.success){ 
-              alert('Erro ao carregar dados: ' + (resp.message || 'Desconhecido'));
-              throw new Error('Falha ao carregar dados'); 
-            }
-            var d = resp.data || {};
-            document.getElementById('curso').textContent = d.curso || '—';
-            document.getElementById('nivel').textContent = d.nivel || '—';
-            document.getElementById('modalidade').textContent = d.modalidade || '—';
-            document.getElementById('turno').textContent = d.turno || '—';
-            document.getElementById('matricula').textContent = d.matricula || '—';
-            document.getElementById('periodo').textContent = d.ano || '—';
-            document.getElementById('turma').textContent = d.serie || d.turma || '—';
+    function limparTemaParaPDF() {
+      const style = document.createElement("style");
+      style.id = "force-clean-style";
+      style.innerHTML = `
+        * {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+            filter: none !important;
+        }
+        body, html {
+            background: #ffffff !important;
+            background-image: none !important;
+        }
+        .navbar,
+        .content-wrapper,
+        .overlay,
+        .toggle-menu,
+        #pageloader-overlay,
+        .modal-backdrop,
+        .sidebar-wrapper,
+        .sidebar-menu {
+            display: none !important;
+        }
+    `;
+      document.head.appendChild(style);
+    }
+    function restaurarTema() {
+      const style = document.getElementById("force-clean-style");
+      if (style) style.remove();
+    }
+    $('#gerar-atestado').click(function () {
 
-            if(typeof html2pdf === 'undefined') {
-              alert('Erro: biblioteca html2pdf não está disponível');
-              document.body.style.opacity = '1';
-              return;
-            }
+      limparTemaParaPDF();
+      html2pdf().set({
+        margin: 10,
+        filename: 'atestado_matricula.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: false
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      }).from(cleanEl).save().then(() => {
+        restaurarTema();
+      });
+    });
 
-            const element = document.getElementById('doc');
-            html2pdf().set({
-              margin: 10,
-              filename: 'atestado_matricula.pdf',
-              image: { type: 'jpeg', quality: 0.98 },
-              html2canvas: { scale: 2 },
-              jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            }).from(element).save().then(function(){
-              setTimeout(function(){ window.close(); }, 800);
-            }).catch(function(err){
-              alert('Erro ao gerar PDF. Verifique o console.');
-              document.body.style.opacity = '1';
-            });
-          })
-          .catch(function(err){ 
-            alert('Erro ao buscar dados. Verifique o console.');
-            document.body.style.opacity = '1'; 
-          });
-      }
-      
-      window.addEventListener('load', popularEDepoisGerar);
-    })();
-  </script></body>
+
+  </script>
+  </body>
 
 </html>

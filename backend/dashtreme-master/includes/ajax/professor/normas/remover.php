@@ -1,6 +1,6 @@
 <?php
-require_once '../../bootstrap.php';
 
+require_once '../../../bootstrap.php';
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'professor') {
@@ -29,16 +29,11 @@ try {
         throw new Exception('Apenas PDFs podem ser removidos');
     }
 
-    $root = realpath(__DIR__ . '/../../../..'); // .../backend/dashtreme-master
-    $uploadAbs = $root . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'normas';
-    $target = $uploadAbs . DIRECTORY_SEPARATOR . $name;
-
-    if (!is_file($target)) {
-        throw new Exception('Arquivo não encontrado');
-    }
-
-    if (!@unlink($target)) {
-        throw new Exception('Falha ao excluir arquivo');
+    // Exclui do banco de dados (Documentos)
+    $stmt = $pdo->prepare('DELETE FROM Documentos WHERE Arquivo_Nome = ?');
+    $stmt->execute([$name]);
+    if ($stmt->rowCount() === 0) {
+        throw new Exception('Arquivo não encontrado no banco de dados');
     }
 
     echo json_encode(['success' => true]);

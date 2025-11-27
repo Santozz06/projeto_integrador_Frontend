@@ -112,7 +112,7 @@ $root = ($inProfessorDir || $isPerfil) ? '../' : '';
                                 <li class="dropdown-divider"></li>
                                 <li class="dropdown-divider"></li>
                                 <li class="dropdown-item">
-                                    <a href="<?= htmlspecialchars($root) ?>perfil.php" style="display: flex; align-items: center; width: 100%;">
+                                    <a href="../public/perfil.php" style="display: flex; align-items: center; width: 100%;">
                                         <i class="zmdi zmdi-account mr-2" style="min-width: 22px; text-align: center;"></i> Perfil Acadêmico
                                     </a>
                                 </li>

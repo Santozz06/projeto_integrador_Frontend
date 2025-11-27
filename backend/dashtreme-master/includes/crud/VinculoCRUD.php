@@ -56,12 +56,27 @@ class VinculoCRUD extends BaseCRUD
             $this->pdo->prepare($sqlClose)->execute([$idAluno]);
 
             // Fazer o vínculo (usar CURDATE() pois a coluna é do tipo DATE)
+            // Para evitar violação de UNIQUE (ID_Aluno, ID_Turma, Ano_Letivo),
+            // primeiro verificar se já existe uma linha (ativa ou inativa) com esses valores.
             if ($anoLetivo !== null) {
-                $sql = "INSERT INTO Matriculas (ID_Aluno, ID_Turma, Data_Matricula, Status, Ano_Letivo, Tipo_Matricula)
-                        VALUES (?, ?, CURDATE(), 'Ativa', ?, 'Vinculo')";
-                $stmt = $this->pdo->prepare($sql);
-                $ok = $stmt->execute([$idAluno, $idTurma, $anoLetivo]);
+                $sqlExists = "SELECT ID_Matricula FROM Matriculas WHERE ID_Aluno = ? AND ID_Turma = ? AND Ano_Letivo = ? LIMIT 1";
+                $stmtExists = $this->pdo->prepare($sqlExists);
+                $stmtExists->execute([$idAluno, $idTurma, $anoLetivo]);
+                $existing = $stmtExists->fetch(PDO::FETCH_ASSOC);
+
+                if ($existing) {
+                    // Reativar matrícula existente em vez de inserir uma nova
+                    $sqlUpdate = "UPDATE Matriculas SET Status = 'Ativa', Data_Matricula = CURDATE(), Data_Saida = NULL, Tipo_Matricula = 'Vinculo', Ano_Letivo = ? WHERE ID_Matricula = ?";
+                    $stmtUpdate = $this->pdo->prepare($sqlUpdate);
+                    $ok = $stmtUpdate->execute([$anoLetivo, $existing['ID_Matricula']]);
+                } else {
+                    $sql = "INSERT INTO Matriculas (ID_Aluno, ID_Turma, Data_Matricula, Status, Ano_Letivo, Tipo_Matricula)
+                            VALUES (?, ?, CURDATE(), 'Ativa', ?, 'Vinculo')";
+                    $stmt = $this->pdo->prepare($sql);
+                    $ok = $stmt->execute([$idAluno, $idTurma, $anoLetivo]);
+                }
             } else {
+                // Caso sem Ano_Letivo, usar comportamento anterior (inserir)
                 $sql = "INSERT INTO Matriculas (ID_Aluno, ID_Turma, Data_Matricula, Status, Tipo_Matricula)
                         VALUES (?, ?, CURDATE(), 'Ativa', 'Vinculo')";
                 $stmt = $this->pdo->prepare($sql);

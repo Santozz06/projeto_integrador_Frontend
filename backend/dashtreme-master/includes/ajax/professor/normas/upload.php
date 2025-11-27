@@ -1,5 +1,5 @@
 <?php
-require_once '../../bootstrap.php';
+require_once '../../../bootstrap.php';
 
 // Para upload de arquivos
 if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'professor') {
@@ -45,29 +45,56 @@ try {
         throw new Exception('Apenas PDFs são permitidos');
     }
 
-    // Define o nome de destino
+
+    // Define o nome de destino, evitando duplicidade
     $destName = null;
     if ($categoria && isset($stdNames[$categoria])) {
-        $destName = $stdNames[$categoria]; // sobrescreve o padrão
+        $baseName = pathinfo($stdNames[$categoria], PATHINFO_FILENAME);
+        $ext = '.pdf';
     } else {
-        // nome aleatório preservando extensão
-        $base = pathinfo($file['name'], PATHINFO_FILENAME);
-        $base = preg_replace('/[^a-zA-Z0-9_-]+/', '_', $base);
-        if ($base === '' || $base === null) { $base = 'norma'; }
-        $destName = $base . '_' . date('Ymd_His') . '.pdf';
+        $baseName = pathinfo($file['name'], PATHINFO_FILENAME);
+        $baseName = preg_replace('/[^a-zA-Z0-9_-]+/', '_', $baseName);
+        if ($baseName === '' || $baseName === null) { $baseName = 'norma'; }
+        $ext = '.pdf';
     }
 
-    $destAbs = $uploadAbs . DIRECTORY_SEPARATOR . $destName;
-
-    if (!move_uploaded_file($file['tmp_name'], $destAbs)) {
-        throw new Exception('Não foi possível salvar o arquivo');
+    $destName = $baseName . $ext;
+    $i = 1;
+    $stmtCheck = $pdo->prepare('SELECT COUNT(*) FROM Documentos WHERE Arquivo_Nome = ?');
+    while (true) {
+        $stmtCheck->execute([$destName]);
+        $count = $stmtCheck->fetchColumn();
+        if ($count == 0) break;
+        $i++;
+        $destName = $baseName . '-' . $i . $ext;
     }
 
-    // URL relativa a partir da página user_professor
-    $webUrl = '..' . '/uploads/normas/' . $destName;
+    // Lê o conteúdo do arquivo
+    $conteudo = file_get_contents($file['tmp_name']);
+    if ($conteudo === false) {
+        throw new Exception('Não foi possível ler o arquivo enviado');
+    }
+
+    // Salva no banco de dados (tabela Documentos)
+    $stmt = $pdo->prepare('INSERT INTO Documentos (Tipo, Titulo, Descricao, Data_Vigencia, Arquivo_Nome, Arquivo_Conteudo, Mime_Type, Tamanho_Bytes, Ativo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)');
+    $tipo = 'norma';
+    $titulo = $destName;
+    $descricao = $categoria;
+    $dataVigencia = date('Y-m-d');
+    $mimeType = $mime;
+    $tamanho = strlen($conteudo);
+    $stmt->bindParam(1, $tipo);
+    $stmt->bindParam(2, $titulo);
+    $stmt->bindParam(3, $descricao);
+    $stmt->bindParam(4, $dataVigencia);
+    $stmt->bindParam(5, $destName);
+    $stmt->bindParam(6, $conteudo, PDO::PARAM_LOB);
+    $stmt->bindParam(7, $mimeType);
+    $stmt->bindParam(8, $tamanho, PDO::PARAM_INT);
+    $stmt->execute();
 
     header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'file' => [ 'name' => $destName, 'url' => $webUrl ]]);
+    echo json_encode(['success' => true, 'file' => [ 'name' => $destName ]]);
 } catch (Exception $e) {
     http_response_code(400);
     header('Content-Type: application/json');

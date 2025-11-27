@@ -584,14 +584,15 @@ body.user_professor_home {
   padding-top: 80px;
 }
 .user_professor_home .dashboard-card {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 25px;
+  background: var(--sas-card-bg);
+  border: none;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   margin-bottom: 30px;
   height: 100%;
   position: relative;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  padding: 25px;
 }
 .user_professor_home .dashboard-card:hover {
   transform: translateY(-2px);
@@ -642,11 +643,12 @@ body.user_professor_home {
   color: #ecf0f1;
 }
 .user_professor_home .welcome-message {
-  background: rgba(26, 188, 156, 0.2);
-  padding: 20px;
-  border-radius: 10px;
+  background: var(--sas-card-bg);
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   margin-bottom: 30px;
-  border-left: 5px solid #1abc9c;
+  padding: 20px;
 }
 .user_professor_home .welcome-title {
   color: #1abc9c;
@@ -660,14 +662,17 @@ body.user_professor_home {
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
+  gap: 10px;
 }
 .user_professor_home .stat-item {
   text-align: center;
   padding: 15px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: var(--sas-card-bg);
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   flex: 1;
-  margin: 0 5px;
+  margin: 0;
 }
 .user_professor_home .stat-value {
   font-size: 24px;
@@ -6749,3 +6754,34 @@ body[class*="user_professor_"] .bold-title {
   color: #ffffff !important;
 }
 /*Fim do css user_professor/configuracoes.php*/
+
+/* Classe utilitária para limpar estilos antes de gerar PDF via html2canvas/html2pdf */
+.pdf-print,
+.pdf-print * {
+  background: transparent !important;
+  background-image: none !important;
+  background-color: transparent !important;
+  color: #000 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  opacity: 1 !important;
+  border-color: #000 !important;
+}
+body.pdf-print {
+  background: #ffffff !important;
+}
+
+/* Remover possíveis sobreposições/modais/gradientes no modo pdf */
+.pdf-print .card,
+.pdf-print .navbar,
+.pdf-print .badge,
+.pdf-print .btn,
+.pdf-print .card-body {
+  background: transparent !important;
+  color: #000 !important;
+  box-shadow: none !important;
+}

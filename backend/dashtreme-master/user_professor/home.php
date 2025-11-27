@@ -78,7 +78,6 @@
             </div>
         </div>
         <div class="overlay toggle-menu"></div>
-    </div>
 
     <!-- Scripts -->
     <script src="../assets/js/jquery.min.js"></script>

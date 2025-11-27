@@ -115,7 +115,7 @@
     <script>
         $(document).ready(function () {
             let alunoSelecionado = null;
-            let mapaFrequencia = []; // cache dos dados da turma
+            let mapaFrequencia = [];
 
             const $ano = $('#ano-letivo');
             const $turno = $('#turno');
@@ -133,7 +133,7 @@
             });
 
             // Ao mudar Ano
-            $ano.on('change', function(){
+            $ano.on('change', function () {
                 const anoVal = $(this).val();
                 $turma.prop('disabled', true).empty().append('<option value="">Carregando...</option>');
                 alunoSelecionado = null;
@@ -147,18 +147,18 @@
             });
 
             // Ao mudar Turno
-            $turno.on('change', function(){
+            $turno.on('change', function () {
                 const anoVal = $ano.val();
                 if (anoVal) carregarTurmas(anoVal, $(this).val());
             });
 
-            function carregarTurmas(ano, turno){
+            function carregarTurmas(ano, turno) {
                 $turma.prop('disabled', true).empty().append('<option value="">Carregando...</option>');
                 $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano, turno }, function (resp) {
                     $turma.empty();
                     if (resp.success && resp.data.length) {
                         $turma.append('<option value="">Selecione</option>');
-                        resp.data.forEach(t => $turma.append(`<option value="${t.ID_Turma}">${t.Nome_Turma} ${t.Etapa ? '('+t.Etapa+')' : ''}</option>`));
+                        resp.data.forEach(t => $turma.append(`<option value="${t.ID_Turma}">${t.Nome_Turma} ${t.Etapa ? '(' + t.Etapa + ')' : ''}</option>`));
                         $turma.prop('disabled', false);
                     } else {
                         $turma.append('<option value="">Nenhuma turma encontrada</option>');
@@ -171,7 +171,7 @@
             $inicio.on('change', carregarAlunos);
             $fim.on('change', carregarAlunos);
 
-            function carregarAlunos(){
+            function carregarAlunos() {
                 const turmaId = $turma.val();
                 alunoSelecionado = null;
                 $('#gerar-atestado').prop('disabled', true);
@@ -185,7 +185,7 @@
                 if ($inicio.val()) params.data_inicio = $inicio.val();
                 if ($fim.val()) params.data_fim = $fim.val();
 
-                $.getJSON('../includes/ajax/admin/turmas/listar_frequencia_por_turma.php', params, function(resp){
+                $.getJSON('../includes/ajax/admin/turmas/listar_frequencia_por_turma.php', params, function (resp) {
                     if (!resp.success) {
                         $alunosContainer.html('<p class="text-muted">Erro ao carregar frequências.</p>');
                         return;
@@ -204,7 +204,7 @@
                     `).join('');
                     $alunosContainer.html(html);
 
-                    $('.student-card').click(function(){
+                    $('.student-card').click(function () {
                         $('.student-card').removeClass('selected');
                         $(this).addClass('selected');
                         const id = $(this).data('id');
@@ -218,7 +218,7 @@
             }
 
             // Gera o atestado em PDF com dados reais
-            $('#gerar-atestado').click(function(){
+            $('#gerar-atestado').click(function () {
                 if (!alunoSelecionado) return;
 
                 const dataAtual = new Date();
@@ -236,98 +236,166 @@
                 const total = parseInt(alunoSelecionado.Total_Registros || 0, 10);
                 const presencas = parseInt(alunoSelecionado.Presentes || 0, 10);
                 const faltas = parseInt(alunoSelecionado.Faltas || 0, 10);
-                const perc = alunoSelecionado.Percentual != null ? alunoSelecionado.Percentual : (total > 0 ? Math.round((presencas/total)*100) : 0);
+                const perc = alunoSelecionado.Percentual != null ? alunoSelecionado.Percentual : (total > 0 ? Math.round((presencas / total) * 100) : 0);
 
-                const pdfContent = `
-                    <!DOCTYPE html>
-                    <html lang="pt-br">
-                    <head>
-    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
-                        <meta charset="UTF-8">
-                        <title>Atestado de Frequência</title>
-                        <style>
-                            body { font-family: Arial, sans-serif; margin: 40px 60px; font-size: 16px; color: #000; line-height: 1.5; }
-                            .cabecalho { text-align: center; font-size: 14px; margin-bottom: 30px; line-height: 1.4; }
-                            .titulo { text-align: center; font-weight: bold; font-size: 20px; margin: 30px 0; text-transform: uppercase; }
-                            .texto { text-align: justify; line-height: 1.8; margin-bottom: 20px; }
-                            .dados { margin: 20px 0; line-height: 1.8; }
-                            .tabela-frequencia { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                            .tabela-frequencia th, .tabela-frequencia td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                            .tabela-frequencia th { background-color: #f2f2f2; }
-                            .rodape { margin-top: 40px; text-align: right; }
-                            .autenticidade { margin-top: 30px; font-size: 14px; text-align: center; }
-                            .codigo { font-weight: bold; margin-top: 10px; text-align: center; }
-                            strong { font-weight: bold; }
-                        </style>
-                    </head>
-                    <body>
-                        <div id="doc">
-                            <div class="cabecalho">
-                                República Federativa do Brasil<br>
-                                Ministério da Educação<br>
-                                Secretaria de Educação Profissional e Tecnológica<br>
-                                Instituto Federal de Educação, Ciência e Tecnologia<br>
-                                Campus Parobé
-                            </div>
-
-                            <div class="titulo">ATESTADO DE FREQUÊNCIA</div>
-
-                            <div class="texto">
-                                Atestamos, para os fins que se fizerem necessários, que o(a) estudante <strong>${alunoSelecionado.Nome_Completo}</strong>,
-                                matrícula nº <strong>${alunoSelecionado.Matricula || '—'}</strong>, matriculado(a) na turma <strong>${turmaTexto}</strong>, apresentou a seguinte frequência ${periodoTexto}:
-                            </div>
-
-                            <table class="tabela-frequencia">
-                                <thead>
-                                    <tr>
-                                        <th>Total de Aulas</th>
-                                        <th>Presenças</th>
-                                        <th>Faltas</th>
-                                        <th>Frequência</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>${total}</td>
-                                        <td>${presencas}</td>
-                                        <td>${faltas}</td>
-                                        <td>${perc}%</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            <div class="texto">
-                                Este documento atesta a assiduidade do(a) estudante no período informado, conforme registros acadêmicos.
-                            </div>
-
-                            <div class="rodape">
-                                <strong>Parobé - RS, ${dataFormatada}</strong>
-                            </div>
-
-                            <div class="autenticidade">
-                                Para verificar a autenticidade deste documento, acesse:<br>
-                                <a href="#" target="_blank">http://meusite.com/autenticacao</a>
-                            </div>
-
-                            <div class="codigo">
-                                Código de verificação: <span>${gerarCodigoVerificacao()}</span>
-                            </div>
-                        </div>
-                    </body>
-                    </html>
-                `;
-
+                // Usar o container que já existe
                 const pdfContainer = $('#pdf-container');
-                pdfContainer.html(pdfContent);
-                const element = pdfContainer.find('#doc')[0];
 
-                html2pdf().set({
-                    margin: 10,
-                    filename: `atestado_frequencia_${alunoSelecionado.Matricula || 'aluno'}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, logging: false, useCORS: true, backgroundColor: null },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', hotfixes: ["px_scaling"] }
-                }).from(element).save();
+                // Conteúdo do PDF com CSS inline para garantir renderização
+                const pdfContent = `
+        <div id="doc" style="
+            width: 210mm; 
+            min-height: 297mm; 
+            padding: 25mm; 
+            font-family: 'Times New Roman', serif; 
+            font-size: 16px; 
+            line-height: 1.6; 
+            color: #000000;
+            margin: 0 auto;
+            box-sizing: border-box;
+        ">
+            <!-- Cabeçalho -->
+            <div style="
+                text-align: center; 
+                margin-bottom: 40px; 
+                line-height: 1.4;
+                font-size: 15px;
+            ">
+                <div>República Federativa do Brasil</div>
+                <div>Ministério da Educação</div>
+                <div style="font-weight: bold; margin-top: 5px;">Escola</div>
+            </div>
+
+            <!-- Título -->
+            <div style="
+                text-align: center; 
+                font-weight: bold; 
+                font-size: 22px; 
+                margin: 60px 0; 
+                text-transform: uppercase;
+                letter-spacing: 1.5px;
+            ">
+                ATESTADO DE FREQUÊNCIA
+            </div>
+
+            <!-- Texto principal -->
+            <div style="
+                text-align: justify; 
+                margin-bottom: 40px; 
+                line-height: 1.8;
+                font-size: 16px;
+            ">
+                Atestamos, para os fins que se fizerem necessários, que o(a) estudante 
+                <strong style="font-weight: bold;">${alunoSelecionado.Nome_Completo}</strong>,
+                matrícula nº <strong style="font-weight: bold;">${alunoSelecionado.Matricula || '—'}</strong>, 
+                matriculado(a) na turma <strong style="font-weight: bold;">${turmaTexto}</strong>, 
+                apresentou a seguinte frequência ${periodoTexto}:
+            </div>
+
+            <!-- Tabela de frequência -->
+            <div style="margin: 40px 0;">
+                <table style="
+                    width: 100%; 
+                    border-collapse: collapse; 
+                    margin: 20px 0;
+                    font-size: 15px;
+                ">
+                    <thead>
+                        <tr>
+                            <th style="border: 1px solid #000; padding: 12px; text-align: center; background-color: #f8f9fa; font-weight: bold;">Total de Aulas</th>
+                            <th style="border: 1px solid #000; padding: 12px; text-align: center; background-color: #f8f9fa; font-weight: bold;">Presenças</th>
+                            <th style="border: 1px solid #000; padding: 12px; text-align: center; background-color: #f8f9fa; font-weight: bold;">Faltas</th>
+                            <th style="border: 1px solid #000; padding: 12px; text-align: center; background-color: #f8f9fa; font-weight: bold;">Frequência</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 12px; text-align: center;">${total}</td>
+                            <td style="border: 1px solid #000; padding: 12px; text-align: center;">${presencas}</td>
+                            <td style="border: 1px solid #000; padding: 12px; text-align: center;">${faltas}</td>
+                            <td style="border: 1px solid #000; padding: 12px; text-align: center; font-weight: bold;">${perc}%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Texto final -->
+            <div style="
+                text-align: justify; 
+                margin-bottom: 40px; 
+                line-height: 1.8;
+                font-size: 16px;
+            ">
+                Este documento atesta a assiduidade do(a) estudante no período informado, conforme registros acadêmicos.
+            </div>
+
+            <!-- Espaço para assinatura -->
+            <div style="margin-top: 80px; text-align: center;">
+                <div style="margin-bottom: 60px; border-bottom: 1px solid #000; width: 300px; margin-left: auto; margin-right: auto; padding-bottom: 5px;">
+                    <!-- Linha para assinatura -->
+                </div>
+                <div style="font-size: 14px;">
+                    Coordenador(a) de Registros Acadêmicos
+                </div>
+            </div>
+
+            <!-- Data e local -->
+            <div style="
+                margin-top: 40px; 
+                text-align: right;
+                font-size: 15px;
+            ">
+                <strong style="font-weight: bold;">Parobé - RS, ${dataFormatada}</strong>
+            </div>
+
+            <!-- Rodapé com autenticação -->
+            <div style="
+                margin-top: 100px; 
+                font-size: 12px; 
+                text-align: center; 
+                color: #555555;
+                line-height: 1.4;
+            ">
+                <div>Para verificar a autenticidade deste documento, acesse:</div>
+                <div style="margin: 5px 0;">http://meusite.com/autenticacao</div>
+                <div style="margin-top: 10px; font-weight: bold;">
+                    Código de verificação: ${gerarCodigoVerificacao()}
+                </div>
+            </div>
+        </div>
+    `;
+
+                pdfContainer.show().html(pdfContent);
+
+                setTimeout(() => {
+                    const element = document.getElementById('doc');
+
+                    if (element) {
+                        const options = {
+                            margin: 0,
+                            filename: `atestado_frequencia_${alunoSelecionado.Matricula || 'aluno'}.pdf`,
+                            image: {
+                                type: 'jpeg',
+                                quality: 1
+                            },
+                            html2canvas: {
+                                scale: 2,
+                                useCORS: true,
+                                logging: false,
+                                letterRendering: true
+                            },
+                            jsPDF: {
+                                unit: 'mm',
+                                format: 'a4',
+                                orientation: 'portrait'
+                            }
+                        };
+
+                        html2pdf().set(options).from(element).save().then(() => {
+                            pdfContainer.hide();
+                        });
+                    }
+                }, 100);
             });
 
             function gerarCodigoVerificacao() {
@@ -340,10 +408,10 @@
                 return result;
             }
 
-            function formatarDataBR(iso){
+            function formatarDataBR(iso) {
                 const d = new Date(iso);
-                const dd = String(d.getDate()).padStart(2,'0');
-                const mm = String(d.getMonth()+1).padStart(2,'0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
                 const yy = d.getFullYear();
                 return `${dd}/${mm}/${yy}`;
             }

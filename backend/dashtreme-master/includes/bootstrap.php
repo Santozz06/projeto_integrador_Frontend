@@ -1,5 +1,4 @@
 <?php
-// Inicia sessão somente se ainda não iniciada e cabeçalhos não enviados
 if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
     session_start();
 }
@@ -11,6 +10,8 @@ require_once 'crud/UsuarioCRUD.php';
 require_once 'crud/TurmaCRUD.php';
 require_once 'crud/DisciplinaCRUD.php';
 require_once 'crud/MatriculaCRUD.php';
+require_once 'crud/VinculoCRUD.php';
+require_once 'crud/LocalidadeCRUD.php';
 
 
 $usuarioCRUD = new UsuarioCRUD($pdo);

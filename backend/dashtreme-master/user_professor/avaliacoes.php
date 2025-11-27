@@ -223,8 +223,11 @@
         }
 
         function formatarData(dataString) {
-            const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-            return new Date(dataString).toLocaleDateString('pt-BR', options);
+            // Evita bug de timezone ao criar Date com yyyy-mm-dd
+            if (!dataString) return '';
+            const parts = dataString.split('-');
+            if (parts.length !== 3) return dataString;
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
         }
 
         function adicionarAvaliacao() {

@@ -18,7 +18,7 @@
     <?php
     require("menu_padrão.php");
     ?>
-    
+
     <!-- Conteúdo principal -->
     <div class="content-wrapper">
         <div class="container-fluid">
@@ -104,7 +104,7 @@
         $(document).ready(function () {
             // Estado
             let alunoSelecionado = null;
-            let periodoLetivo = null; // { Data_Inicio, Data_Fim }
+            let periodoLetivo = null;
 
             const $ano = $('#ano-letivo');
             const $turno = $('#turno');
@@ -116,11 +116,13 @@
                 if (resp.success) {
                     $ano.empty().append('<option value="">Selecione</option>');
                     resp.data.forEach(ano => $ano.append(`<option value="${ano}">${ano}</option>`));
+                } else {
+                    console.error('Erro ao carregar anos letivos:', resp);
                 }
             });
 
             // Quando mudar o ano, carrega turmas e período
-            $ano.on('change', function(){
+            $ano.on('change', function () {
                 const anoVal = $(this).val();
                 $turma.prop('disabled', true).empty().append('<option value="">Carregando...</option>');
                 alunoSelecionado = null;
@@ -133,8 +135,13 @@
                 }
 
                 // período letivo
-                $.getJSON('../includes/ajax/shared/academico/listar_periodo_letivo.php', { ano: anoVal }, function(r){
-                    periodoLetivo = r && r.success ? r.data : null;
+                $.getJSON('../includes/ajax/shared/academico/listar_periodo_letivo.php', { ano: anoVal }, function (r) {
+                    if (r && r.success) {
+                        periodoLetivo = r.data;
+                    } else {
+                        periodoLetivo = null;
+                        console.error('Erro ao carregar período letivo:', r);
+                    }
                 });
 
                 // carrega turmas
@@ -142,27 +149,30 @@
             });
 
             // Quando mudar o turno, refiltra turmas (se ano selecionado)
-            $turno.on('change', function(){
+            $turno.on('change', function () {
                 const anoVal = $ano.val();
                 if (anoVal) carregarTurmas(anoVal, $(this).val());
             });
 
-            function carregarTurmas(ano, turno){
+            function carregarTurmas(ano, turno) {
                 $turma.prop('disabled', true).empty().append('<option value="">Carregando...</option>');
                 $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano, turno }, function (resp) {
-                    $turma.empty();
                     if (resp.success && resp.data.length) {
-                        $turma.append('<option value="">Selecione</option>');
-                        resp.data.forEach(t => $turma.append(`<option value="${t.ID_Turma}">${t.Nome_Turma} ${t.Etapa ? '('+t.Etapa+')' : ''}</option>`));
+                        $turma.empty().append('<option value="">Selecione</option>');
+                        resp.data.forEach(t => $turma.append(`<option value="${t.ID_Turma}">${t.Nome_Turma} ${t.Etapa ? '(' + t.Etapa + ')' : ''}</option>`));
                         $turma.prop('disabled', false);
                     } else {
-                        $turma.append('<option value="">Nenhuma turma encontrada</option>');
+                        $turma.empty().append('<option value="">Nenhuma turma encontrada</option>');
+                        console.error('Erro ao carregar turmas:', resp);
                     }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.error('Erro na requisição de turmas:', textStatus, errorThrown);
+                    $turma.empty().append('<option value="">Erro ao carregar turmas</option>');
                 });
             }
 
             // Carrega alunos ao selecionar turma
-            $turma.on('change', function(){
+            $turma.on('change', function () {
                 const turmaId = $(this).val();
                 alunoSelecionado = null;
                 $('#gerar-atestado').prop('disabled', true);
@@ -172,9 +182,10 @@
                 }
 
                 $alunosContainer.html('<p class="text-white">Carregando alunos...</p>');
-                $.getJSON('../includes/ajax/admin/turmas/listar_alunos_por_turma.php', { turma_id: turmaId }, function(resp){
+                $.getJSON('../includes/ajax/admin/turmas/listar_alunos_por_turma.php', { turma_id: turmaId }, function (resp) {
                     if (!resp.success) {
                         $alunosContainer.html('<p class="text-muted">Erro ao carregar alunos.</p>');
+                        console.error('Erro ao carregar alunos:', resp);
                         return;
                     }
                     const alunos = resp.data || [];
@@ -184,15 +195,15 @@
                     }
 
                     const html = alunos.map(a => `
-                        <div class="student-card p-3 mb-2 border rounded" data-id="${a.ID_Aluno}" data-matricula="${a.Matricula || ''}" data-nome="${a.Nome_Completo}">
-                            <h6>${a.Nome_Completo}</h6>
-                            <small class="text-white">Matrícula: ${a.Matricula || '—'}</small>
-                        </div>
-                    `).join('');
+                <div class="student-card p-3 mb-2 border rounded" data-id="${a.ID_Aluno}" data-matricula="${a.Matricula || ''}" data-nome="${a.Nome_Completo}">
+                    <h6>${a.Nome_Completo}</h6>
+                    <small class="text-white">Matrícula: ${a.Matricula || '—'}</small>
+                </div>
+            `).join('');
                     $alunosContainer.html(html);
 
                     // bind click
-                    $('.student-card').click(function(){
+                    $('.student-card').click(function () {
                         $('.student-card').removeClass('selected');
                         $(this).addClass('selected');
                         alunoSelecionado = {
@@ -202,12 +213,16 @@
                         };
                         $('#gerar-atestado').prop('disabled', false);
                     });
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.error('Erro na requisição de alunos:', textStatus, errorThrown);
+                    $alunosContainer.html('<p class="text-muted">Erro ao carregar alunos.</p>');
                 });
             });
 
             // Geração do PDF com dados reais
-            $('#gerar-atestado').click(function(){
+            $('#gerar-atestado').click(function () {
                 if (!alunoSelecionado) return;
+
                 const dataAtual = new Date();
                 const dia = String(dataAtual.getDate()).padStart(2, '0');
                 const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
@@ -219,86 +234,147 @@
                 if (periodoLetivo && periodoLetivo.Data_Inicio && periodoLetivo.Data_Fim) {
                     const di = new Date(periodoLetivo.Data_Inicio);
                     const df = new Date(periodoLetivo.Data_Fim);
-                    const fmt = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+                    const fmt = d => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
                     periodo = `${fmt(di)} a ${fmt(df)}`;
                 } else {
-                    // fallback genérico por ano
                     periodo = `01/02/${anoLetivo} a 15/12/${anoLetivo}`;
                 }
 
                 const turmaTexto = $('#turma option:selected').text();
                 const turnoTexto = $turno.val() || '—';
-                // Se houver Etapa/Curso no nome da turma, já está em turmaTexto
-
-                const pdfContent = `
-                    <!DOCTYPE html>
-                    <html lang="pt-br">
-                    <head>
-    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
-                        <meta charset="UTF-8">
-                        <title>Atestado de Matrícula</title>
-                        <style>
-                            body { font-family: sans-serif; margin: 40px 60px; font-size: 16px; color: #000; line-height: 1.5; }
-                            .cabecalho { text-align: center; font-size: 14px; margin-bottom: 30px; line-height: 1.4; }
-                            .titulo { text-align: center; font-weight: bold; font-size: 20px; margin: 30px 0; text-transform: uppercase; }
-                            .texto { text-align: justify; line-height: 1.8; margin-bottom: 20px; }
-                            .dados { margin: 20px 0; line-height: 1.8; }
-                            .rodape { margin-top: 40px; text-align: right; }
-                            .autenticidade { margin-top: 30px; font-size: 14px; text-align: center; }
-                            .codigo { font-weight: bold; margin-top: 10px; text-align: center; }
-                            strong { font-weight: bold; }
-                        </style>
-                    </head>
-                    <body>
-                        <div id="doc">
-                            <div class="cabecalho">
-                                República Federativa do Brasil<br>
-                                Ministério da Educação<br>
-                                Secretaria de Educação Profissional e Tecnológica<br>
-                                Instituto Federal de Educação, Ciência e Tecnologia<br>
-                                Campus Parobé
-                            </div>
-
-                            <div class="titulo">ATESTADO DE MATRÍCULA</div>
-
-                            <div class="texto">
-                                Atestamos, para os fins que se fizerem necessários, que o(a) estudante <strong>${alunoSelecionado.nome}</strong> possui vínculo regular de matrícula nesta Instituição de Ensino na turma <strong>${turmaTexto}</strong>, turno <strong>${turnoTexto}</strong>, conforme registro acadêmico atualizado.
-                            </div>
-
-                            <div class="dados">
-                                Matrícula nº: <strong>${alunoSelecionado.matricula || '—'}</strong><br>
-                                Período Letivo: <strong>${anoLetivo}</strong><br>
-                                Duração: <strong>${periodo}</strong>
-                            </div>
-
-                            <div class="rodape">
-                                <strong>Parobé - RS, ${dataFormatada}</strong>
-                            </div>
-
-                            <div class="autenticidade">
-                                Para verificar a autenticidade deste documento, acesse:<br>
-                                <a href="#" target="_blank">http://meusite.com/autenticacao</a>
-                            </div>
-
-                            <div class="codigo">
-                                Código de verificação: <span>${gerarCodigoVerificacao()}</span>
-                            </div>
-                        </div>
-                    </body>
-                    </html>
-                `;
-
                 const pdfContainer = $('#pdf-container');
-                pdfContainer.html(pdfContent);
-                const element = pdfContainer.find('#doc')[0];
 
-                html2pdf().set({
-                    margin: 10,
-                    filename: `atestado_matricula_${alunoSelecionado.matricula || 'aluno'}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2 },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                }).from(element).save();
+                // Conteúdo do PDF com CSS inline para garantir renderização
+                const pdfContent = `
+            <div id="doc" style="
+                width: 210mm; 
+                min-height: 297mm; 
+                padding: 25mm; 
+                font-family: 'Times New Roman', serif; 
+                font-size: 16px; 
+                line-height: 1.6; 
+                color: #000000;
+                margin: 0 auto;
+                box-sizing: border-box;
+            ">
+                <!-- Cabeçalho -->
+                <div style="
+                    text-align: center; 
+                    margin-bottom: 40px; 
+                    line-height: 1.4;
+                    font-size: 15px;
+                ">
+                    <div>República Federativa do Brasil</div>
+                    <div>Ministério da Educação</div>
+                    <div style="font-weight: bold; margin-top: 5px;">Escola</div>
+                </div>
+
+                <!-- Título -->
+                <div style="
+                    text-align: center; 
+                    font-weight: bold; 
+                    font-size: 22px; 
+                    margin: 60px 0; 
+                    text-transform: uppercase;
+                    letter-spacing: 1.5px;
+                ">
+                    ATESTADO DE MATRÍCULA
+                </div>
+
+                <!-- Texto principal -->
+                <div style="
+                    text-align: justify; 
+                    margin-bottom: 40px; 
+                    line-height: 1.8;
+                    font-size: 16px;
+                ">
+                    Atestamos, para os fins que se fizerem necessários, que o(a) estudante 
+                    <strong style="font-weight: bold;">${alunoSelecionado.nome}</strong> 
+                    possui vínculo regular de matrícula nesta Instituição de Ensino na turma 
+                    <strong style="font-weight: bold;">${turmaTexto}</strong>, 
+                    turno <strong style="font-weight: bold;">${turnoTexto}</strong>, 
+                    conforme registro acadêmico atualizado.
+                </div>
+
+                <!-- Dados do aluno -->
+                <div style="
+                    margin: 40px 0; 
+                    line-height: 2.0;
+                    font-size: 16px;
+                    padding-left: 20px;
+                ">
+                    <div><strong style="font-weight: bold;">Matrícula nº:</strong> ${alunoSelecionado.matricula || '—'}</div>
+                    <div><strong style="font-weight: bold;">Período Letivo:</strong> ${anoLetivo}</div>
+                    <div><strong style="font-weight: bold;">Duração:</strong> ${periodo}</div>
+                </div>
+
+                <!-- Espaço para assinatura -->
+                <div style="margin-top: 80px; text-align: center;">
+                    <div style="margin-bottom: 60px; border-bottom: 1px solid #000; width: 300px; margin-left: auto; margin-right: auto; padding-bottom: 5px;">
+                        <!-- Linha para assinatura -->
+                    </div>
+                    <div style="font-size: 14px;">
+                        Coordenador(a) de Registros Acadêmicos
+                    </div>
+                </div>
+
+                <!-- Data e local -->
+                <div style="
+                    margin-top: 40px; 
+                    text-align: right;
+                    font-size: 15px;
+                ">
+                    <strong style="font-weight: bold;">Parobé - RS, ${dataFormatada}</strong>
+                </div>
+
+                <!-- Rodapé com autenticação -->
+                <div style="
+                    margin-top: 100px; 
+                    font-size: 12px; 
+                    text-align: center; 
+                    color: #555555;
+                    line-height: 1.4;
+                ">
+                    <div>Para verificar a autenticidade deste documento, acesse:</div>
+                    <div style="margin: 5px 0;">http://meusite.com/autenticacao</div>
+                    <div style="margin-top: 10px; font-weight: bold;">
+                        Código de verificação: ${gerarCodigoVerificacao()}
+                    </div>
+                </div>
+            </div>
+        `;
+
+                pdfContainer.show().html(pdfContent);
+
+                setTimeout(() => {
+                    const element = document.getElementById('doc');
+
+                    if (element) {
+                        const options = {
+                            margin: 0,
+                            filename: `atestado_matricula_${alunoSelecionado.matricula || 'aluno'}.pdf`,
+                            image: {
+                                type: 'jpeg',
+                                quality: 1
+                            },
+                            html2canvas: {
+                                scale: 2,
+                                useCORS: true,
+                                logging: false,
+                                letterRendering: true
+                            },
+                            jsPDF: {
+                                unit: 'mm',
+                                format: 'a4',
+                                orientation: 'portrait'
+                            }
+                        };
+
+                        html2pdf().set(options).from(element).save().then(() => {
+                            pdfContainer.hide();
+                        });
+                    }
+                }, 100);
             });
 
             function gerarCodigoVerificacao() {
