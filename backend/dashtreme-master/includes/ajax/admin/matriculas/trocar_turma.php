@@ -9,8 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$alunoId = isset($_POST['aluno_id']) ? (int)$_POST['aluno_id'] : 0;
-$novaTurmaId = isset($_POST['nova_turma_id']) ? (int)$_POST['nova_turma_id'] : 0;
+$alunoId = isset($_POST['aluno_id']) ? (int) $_POST['aluno_id'] : 0;
+$novaTurmaId = isset($_POST['nova_turma_id']) ? (int) $_POST['nova_turma_id'] : 0;
 
 if ($alunoId <= 0 || $novaTurmaId <= 0) {
     echo json_encode(['success' => false, 'message' => 'Parâmetros inválidos']);
@@ -31,8 +31,8 @@ try {
         exit;
     }
 
-    $idMatricula = (int)$mat['ID_Matricula'];
-    $anoAtual = (int)$mat['Ano_Letivo'];
+    $idMatricula = (int) $mat['ID_Matricula'];
+    $anoAtual = (int) $mat['Ano_Letivo'];
 
     // Valida que a nova turma é do mesmo ano letivo
     $stT = $pdo->prepare('SELECT ID_Turma, Ano_Letivo, Turno, Nome_Turma, Etapa FROM Turmas WHERE ID_Turma = ?');
@@ -42,12 +42,12 @@ try {
         echo json_encode(['success' => false, 'message' => 'Turma destino não encontrada.']);
         exit;
     }
-    if ((int)$turmaNova['Ano_Letivo'] !== $anoAtual) {
+    if ((int) $turmaNova['Ano_Letivo'] !== $anoAtual) {
         echo json_encode(['success' => false, 'message' => 'A nova turma deve ser do mesmo ano letivo.']);
         exit;
     }
 
-    // Evita duplicidade: já está na turma de destino?
+    // Evita duplicidade
     $stDup = $pdo->prepare('SELECT 1 FROM Matriculas WHERE ID_Aluno = ? AND ID_Turma = ? AND Status = "Ativa" LIMIT 1');
     $stDup->execute([$alunoId, $novaTurmaId]);
     if ($stDup->fetch()) {
@@ -55,7 +55,7 @@ try {
         exit;
     }
 
-    // Usa o método de transferência: marca a antiga como Transferida e cria nova matrícula
+    // Usa o método de transferência e marca a antiga como Transferida e cria nova matrícula
     require_once '../../includes/crud/MatriculaCRUD.php';
     $crud = new MatriculaCRUD($pdo);
     $novaId = $crud->transferirAluno($idMatricula, $novaTurmaId);

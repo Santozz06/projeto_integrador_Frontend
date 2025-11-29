@@ -9,9 +9,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$alunoId = isset($_POST['aluno_id']) ? (int)$_POST['aluno_id'] : 0;
-$anoLetivo = isset($_POST['ano_letivo']) ? (int)$_POST['ano_letivo'] : 0;
-$novaTurmaId = isset($_POST['nova_turma_id']) ? (int)$_POST['nova_turma_id'] : 0;
+$alunoId = isset($_POST['aluno_id']) ? (int) $_POST['aluno_id'] : 0;
+$anoLetivo = isset($_POST['ano_letivo']) ? (int) $_POST['ano_letivo'] : 0;
+$novaTurmaId = isset($_POST['nova_turma_id']) ? (int) $_POST['nova_turma_id'] : 0;
 $telefone = isset($_POST['telefone']) ? trim($_POST['telefone']) : null;
 $cep = isset($_POST['cep']) ? trim($_POST['cep']) : null;
 $logradouro = isset($_POST['logradouro']) ? trim($_POST['logradouro']) : null;
@@ -28,7 +28,6 @@ if ($alunoId <= 0 || $anoLetivo <= 0 || $novaTurmaId <= 0) {
 }
 
 try {
-    // Inicia transação para garantir consistência
     $pdo->beginTransaction();
     // Checa se já existe matrícula ativa para o ano informado
     $stAtiva = $pdo->prepare('SELECT 1 FROM Matriculas WHERE ID_Aluno = ? AND Ano_Letivo = ? AND Status = "Ativa" LIMIT 1');
@@ -48,35 +47,61 @@ try {
         echo json_encode(['success' => false, 'message' => 'Turma de destino não encontrada.']);
         exit;
     }
-    if ((int)$turma['Ano_Letivo'] !== $anoLetivo) {
+    if ((int) $turma['Ano_Letivo'] !== $anoLetivo) {
         $pdo->rollBack();
         echo json_encode(['success' => false, 'message' => 'A turma selecionada não corresponde ao ano letivo informado.']);
         exit;
     }
 
-    // Atualiza dados de contato do aluno (opcional)
-    if ($telefone !== null || $cep !== null || $logradouro !== null || $numero !== null || 
-        $complemento !== null || $bairro !== null || $ufEndereco !== null || $municipio !== null || $email !== null) {
+    // Atualiza dados de contato do aluno 
+    if (
+        $telefone !== null || $cep !== null || $logradouro !== null || $numero !== null ||
+        $complemento !== null || $bairro !== null || $ufEndereco !== null || $municipio !== null || $email !== null
+    ) {
         $campos = [];
         $params = [];
-        if ($telefone !== null) { $campos[] = 'Telefone = ?'; $params[] = $telefone; }
-        if ($cep !== null) { $campos[] = 'CEP = ?'; $params[] = $cep; }
-        if ($logradouro !== null) { $campos[] = 'Logradouro = ?'; $params[] = $logradouro; }
-        if ($numero !== null) { $campos[] = 'Numero = ?'; $params[] = $numero; }
-        if ($complemento !== null) { $campos[] = 'Complemento = ?'; $params[] = $complemento; }
-        if ($bairro !== null) { $campos[] = 'Bairro = ?'; $params[] = $bairro; }
-        if ($ufEndereco !== null) { $campos[] = 'UF_Endereco = ?'; $params[] = $ufEndereco; }
-        if ($municipio !== null) { $campos[] = 'Municipio_Endereco = ?'; $params[] = $municipio; }
-        
+        if ($telefone !== null) {
+            $campos[] = 'Telefone = ?';
+            $params[] = $telefone;
+        }
+        if ($cep !== null) {
+            $campos[] = 'CEP = ?';
+            $params[] = $cep;
+        }
+        if ($logradouro !== null) {
+            $campos[] = 'Logradouro = ?';
+            $params[] = $logradouro;
+        }
+        if ($numero !== null) {
+            $campos[] = 'Numero = ?';
+            $params[] = $numero;
+        }
+        if ($complemento !== null) {
+            $campos[] = 'Complemento = ?';
+            $params[] = $complemento;
+        }
+        if ($bairro !== null) {
+            $campos[] = 'Bairro = ?';
+            $params[] = $bairro;
+        }
+        if ($ufEndereco !== null) {
+            $campos[] = 'UF_Endereco = ?';
+            $params[] = $ufEndereco;
+        }
+        if ($municipio !== null) {
+            $campos[] = 'Municipio_Endereco = ?';
+            $params[] = $municipio;
+        }
+
         // Monta o campo Endereco concatenado para compatibilidade
         if ($logradouro !== null && $numero !== null && $bairro !== null) {
             $enderecoCompleto = $logradouro . ', ' . $numero . ' - ' . $bairro;
             $campos[] = 'Endereco = ?';
             $params[] = $enderecoCompleto;
         }
-        
-        if ($email !== null) { 
-            $campos[] = 'Email = ?'; 
+
+        if ($email !== null) {
+            $campos[] = 'Email = ?';
             $params[] = $email;
         }
         if (!empty($campos)) {
@@ -88,7 +113,6 @@ try {
     }
 
     // Desvincula matrículas ativas anteriores do aluno para evitar duplicidade
-    // Tenta detectar a coluna Data_Saida
     $hasDataSaida = false;
     try {
         $col = $pdo->query("SHOW COLUMNS FROM Matriculas LIKE 'Data_Saida'");
@@ -104,7 +128,7 @@ try {
     $stClose = $pdo->prepare($sqlClose);
     $stClose->execute([$alunoId]);
 
-    // Cria a nova matrícula para o ano informado (status Ativa)
+    // Cria a nova matrícula para o ano informado
     require_once '../../includes/crud/MatriculaCRUD.php';
     $crud = new MatriculaCRUD($pdo);
     $novaId = $crud->matricularAluno($alunoId, $novaTurmaId, 'Rematricula', $anoLetivo);
@@ -112,7 +136,9 @@ try {
     $pdo->commit();
     echo json_encode(['success' => true, 'message' => 'Rematrícula realizada com sucesso. Matrícula anterior encerrada.', 'id_matricula' => $novaId]);
 } catch (Exception $e) {
-    if ($pdo->inTransaction()) { $pdo->rollBack(); }
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }

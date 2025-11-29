@@ -23,38 +23,39 @@
     require("menu_padrao.php");
     ?>
 
-        <div class="clearfix"></div>
+    <div class="clearfix"></div>
 
-        <!-- Conteúdo da Página -->
-        <div class="content-wrapper">
-            <div class="container-fluid">
-                <div class="row justify-content-center mt-4">
-                    <div class="col-lg-10">
-                        <div class="card shadow-lg rounded-lg">
-                            <div class="card-header">
-                                <h4 class="mb-0"><i class="zmdi zmdi-assignment mr-2"></i> Atestado de frequência</h4>
+    <!-- Conteúdo da Página -->
+    <div class="content-wrapper">
+        <div class="container-fluid">
+            <div class="row justify-content-center mt-4">
+                <div class="col-lg-10">
+                    <div class="card shadow-lg rounded-lg">
+                        <div class="card-header">
+                            <h4 class="mb-0"><i class="zmdi zmdi-assignment mr-2"></i> Atestado de frequência</h4>
+                        </div>
+                        <div class="card-body">
+                            <a href="ensino.php" class="btn btn-primary btn-voltar-custom">
+                                <i class="zmdi zmdi-arrow-left mr-1"></i> VOLTAR
+                            </a>
+
+                            <h5 class="mb-4">Selecione um ano para emitir o atestado de frequência</h5>
+
+                            <div id="lista-anos">
+                                <div class="text-muted">Carregando anos disponíveis…</div>
                             </div>
-                            <div class="card-body">
-                                <a href="ensino.php" class="btn btn-primary btn-voltar-custom">
-                                    <i class="zmdi zmdi-arrow-left mr-1"></i> VOLTAR
-                                </a>
 
-                                <h5 class="mb-4">Selecione um ano para emitir o atestado de frequência</h5>
-
-                                <div id="lista-anos">
-                                    <div class="text-muted">Carregando anos disponíveis…</div>
-                                </div>
-
-                                <div class="mt-4 pt-3 border-top">
-                                    <p class="text-faint">Selecione um ano escolar acima para imprimir seu atestado
-                                        de frequência.</p>
-                                </div>
+                            <div class="mt-4 pt-3 border-top">
+                                <p class="text-faint">Selecione um ano escolar acima para imprimir seu atestado
+                                    de frequência.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="overlay toggle-menu"></div>
         </div>
+    </div>
 
     </div>
 
@@ -66,7 +67,7 @@
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
     <script>
-        (function() {
+        (function () {
             function badgeClass(status) {
                 if (!status) return 'badge-warning';
                 var s = ('' + status).toLowerCase();
@@ -82,7 +83,7 @@
                     $container.append('<div class="text-muted">Nenhum ano letivo encontrado para seu usuário.</div>');
                     return;
                 }
-                anos.forEach(function(item){
+                anos.forEach(function (item) {
                     var ano = item.ano || '';
                     var serie = item.serie ? (' - ' + item.serie) : '';
                     var status = item.status || '';
@@ -97,19 +98,19 @@
                 });
             }
 
-            $(function(){
+            $(function () {
                 $.ajax({
                     url: '../includes/ajax/aluno/anos_matriculas.php',
                     method: 'GET',
                     dataType: 'json',
                     cache: false
-                }).done(function(resp){
+                }).done(function (resp) {
                     if (resp && resp.success && Array.isArray(resp.anos)) {
                         renderAnos(resp.anos);
                     } else {
                         $('#lista-anos').html('<div class="text-warning">Nao foi possivel carregar os anos (resposta invalida).</div>');
                     }
-                }).fail(function(xhr){
+                }).fail(function (xhr) {
                     var msg = 'Falha ao carregar anos';
                     if (xhr && xhr.responseJSON && xhr.responseJSON.message) msg += ': ' + xhr.responseJSON.message;
                     $('#lista-anos').html('<div class="text-danger">' + msg + '</div>');
@@ -117,7 +118,7 @@
             });
         })();
     </script>
-    
+
 </body>
 
 </html>

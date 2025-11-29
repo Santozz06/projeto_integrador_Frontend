@@ -23,7 +23,8 @@ try {
   $stmt = $pdo->prepare("SELECT COUNT(*) FROM Matriculas WHERE Status = 'Ativa' AND Ano_Letivo = ?");
   $stmt->execute([$anoLetivoAtual]);
   $totalMatriculas = $stmt->fetchColumn();
-} catch (Exception $e) {}
+} catch (Exception $e) {
+}
 
 // Últimas movimentações (matrículas, transferências, rematrículas)
 $ultimasMovimentacoes = [];
@@ -37,7 +38,8 @@ try {
   $stmt = $pdo->prepare($sql);
   $stmt->execute([$anoLetivoAtual]);
   $ultimasMovimentacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (Exception $e) {}
+} catch (Exception $e) {
+}
 
 // Avisos importantes (eventos futuros do calendário acadêmico)
 $avisos = [];
@@ -47,7 +49,8 @@ try {
   $stmt = $pdo->prepare($sql);
   $stmt->execute([$hoje, $anoLetivoAtual]);
   $avisos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (Exception $e) {}
+} catch (Exception $e) {
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -206,18 +209,23 @@ try {
                           <td><?php echo htmlspecialchars($mov['aluno']); ?></td>
                           <td>
                             <?php
-                              $tipo = strtolower($mov['tipo']);
-                              $badge = 'badge-secondary';
-                              if ($tipo === 'Matrícula') $badge = 'badge-success';
-                              elseif ($tipo === 'Transferência') $badge = 'badge-info';
-                              elseif ($tipo === 'Rematrícula') $badge = 'badge-primary';
+                            $tipo = strtolower($mov['tipo']);
+                            $badge = 'badge-secondary';
+                            if ($tipo === 'Matrícula')
+                              $badge = 'badge-success';
+                            elseif ($tipo === 'Transferência')
+                              $badge = 'badge-info';
+                            elseif ($tipo === 'Rematrícula')
+                              $badge = 'badge-primary';
                             ?>
                             <span class="badge <?php echo $badge; ?>"><?php echo htmlspecialchars($mov['tipo']); ?></span>
                           </td>
                         </tr>
                       <?php endforeach; ?>
                     <?php else: ?>
-                      <tr><td colspan="3">Nenhuma movimentação recente.</td></tr>
+                      <tr>
+                        <td colspan="3">Nenhuma movimentação recente.</td>
+                      </tr>
                     <?php endif; ?>
                   </tbody>
                 </table>
@@ -299,9 +307,9 @@ try {
         $(this).text('Todas marcadas como lidas');
       });
 
-      
+
       $(document).on('click', '.dropdown-item', function () {
-        const index = $(this).index() - 1; 
+        const index = $(this).index() - 1;
         if (index >= 0 && index < notificacoes.length) {
           notificacoes[index].lida = true;
           atualizarContador();

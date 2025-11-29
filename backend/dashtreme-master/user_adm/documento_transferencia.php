@@ -41,7 +41,8 @@
         </div>
 
         <div class="bloco">
-            Declaramos, para os devidos fins, que o(a) aluno(a) acima foi transferido(a) desta instituição na data indicada.
+            Declaramos, para os devidos fins, que o(a) aluno(a) acima foi transferido(a) desta instituição na data
+            indicada.
         </div>
 
         <table class="assinaturas">
@@ -80,9 +81,12 @@
                     <th colspan="2" id="ano-col-3">Ano 3</th>
                 </tr>
                 <tr>
-                    <th>Nota</th><th>CH</th>
-                    <th>Nota</th><th>CH</th>
-                    <th>Nota</th><th>CH</th>
+                    <th>Nota</th>
+                    <th>CH</th>
+                    <th>Nota</th>
+                    <th>CH</th>
+                    <th>Nota</th>
+                    <th>CH</th>
                 </tr>
             </thead>
             <tbody id="tbody-disciplinas"></tbody>
@@ -93,9 +97,9 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
-        function qp(name){ const p=new URLSearchParams(window.location.search); return p.get(name)||''; }
+        function qp(name) { const p = new URLSearchParams(window.location.search); return p.get(name) || ''; }
 
-        function preencherCabecalho(aluno){
+        function preencherCabecalho(aluno) {
             document.getElementById('aluno-nome').textContent = aluno.Nome_Completo || '—';
             document.getElementById('aluno-matricula').textContent = aluno.Matricula || '—';
             const nasc = aluno.Data_Nascimento ? new Date(aluno.Data_Nascimento).toLocaleDateString('pt-BR') : '—';
@@ -106,7 +110,7 @@
             document.getElementById('aluno-nis').textContent = aluno.NIS || '—';
         }
 
-        function preencherAnos(anos){
+        function preencherAnos(anos) {
             const a1 = anos[0] ? String(anos[0]) : 'Ano 1';
             const a2 = anos[1] ? String(anos[1]) : 'Ano 2';
             const a3 = anos[2] ? String(anos[2]) : 'Ano 3';
@@ -115,40 +119,40 @@
             document.getElementById('ano-col-3').textContent = a3;
         }
 
-        function preencherDisciplinas(anos, disciplinas){
+        function preencherDisciplinas(anos, disciplinas) {
             const tb = document.getElementById('tbody-disciplinas');
             tb.innerHTML = '';
-            if (!disciplinas || !disciplinas.length){
+            if (!disciplinas || !disciplinas.length) {
                 const tr = document.createElement('tr');
                 const td = document.createElement('td');
                 td.colSpan = 7; td.textContent = 'Sem registros.'; tr.appendChild(td); tb.appendChild(tr); return;
             }
-            disciplinas.forEach(d=>{
+            disciplinas.forEach(d => {
                 const tr = document.createElement('tr');
                 const tdNome = document.createElement('td');
                 tdNome.textContent = d.nome; tr.appendChild(tdNome);
-                [0,1,2].forEach(i=>{
+                [0, 1, 2].forEach(i => {
                     const ano = anos[i]; const info = ano ? d.porAno[String(ano)] : null;
-                    const tdN = document.createElement('td'); tdN.textContent = info && info.nota!=null ? String(info.nota).replace('.',',') : '—'; tr.appendChild(tdN);
-                    const tdC = document.createElement('td'); tdC.textContent = info && info.ch!=null ? info.ch : '—'; tr.appendChild(tdC);
+                    const tdN = document.createElement('td'); tdN.textContent = info && info.nota != null ? String(info.nota).replace('.', ',') : '—'; tr.appendChild(tdN);
+                    const tdC = document.createElement('td'); tdC.textContent = info && info.ch != null ? info.ch : '—'; tr.appendChild(tdC);
                 });
                 tb.appendChild(tr);
             });
         }
 
-        function gerarPDF(){
+        function gerarPDF() {
             const el = document.getElementById('doc-transferencia');
             const mat = document.getElementById('aluno-matricula').textContent || 'aluno';
-            const data = (qp('data')||'').replaceAll('-','');
-            const filename = `transferencia_${mat}_${data||'hoje'}.pdf`;
-            html2pdf().set({margin:10, filename, image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2}, jsPDF:{unit:'mm', format:'a4', orientation:'portrait'}})
+            const data = (qp('data') || '').replaceAll('-', '');
+            const filename = `transferencia_${mat}_${data || 'hoje'}.pdf`;
+            html2pdf().set({ margin: 10, filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } })
                 .from(el).save();
         }
 
         document.getElementById('btn-pdf').addEventListener('click', gerarPDF);
 
         // Boot
-        (function(){
+        (function () {
             const alunoId = qp('aluno_id');
             const escola = qp('escola');
             const munuf = qp('mun');
@@ -159,30 +163,31 @@
             document.getElementById('data-transferencia').textContent = data ? new Date(data).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR');
 
             // Turma/Turno atuais (opcional): podemos exibir via uma busca simplificada
-            if (!alunoId){ return; }
+            if (!alunoId) { return; }
             // Carrega matricula ativa para exibir turma/turno
             fetch(`../includes/ajax/admin/matriculas/obter_matricula_ativa.php?aluno_id=${encodeURIComponent(alunoId)}`)
-                .then(r=>r.json()).then(m=>{
-                    if (m && m.success && m.data){
-                        const labelTurma = m.data.Nome_Turma ? `${m.data.Nome_Turma}${m.data.Etapa ? ' ('+m.data.Etapa+')' : ''}` : '—';
+                .then(r => r.json()).then(m => {
+                    if (m && m.success && m.data) {
+                        const labelTurma = m.data.Nome_Turma ? `${m.data.Nome_Turma}${m.data.Etapa ? ' (' + m.data.Etapa + ')' : ''}` : '—';
                         document.getElementById('aluno-turma-turno').textContent = `${labelTurma} / ${m.data.Turno || '—'}`;
                     }
-                }).catch(()=>{});
+                }).catch(() => { });
 
             // Carrega histórico
             fetch(`../includes/ajax/shared/historico/obter_historico_aluno.php?aluno_id=${encodeURIComponent(alunoId)}`)
-                .then(r=>r.json())
-                .then(resp=>{
+                .then(r => r.json())
+                .then(resp => {
                     if (!resp.success) return;
-                    preencherCabecalho(resp.aluno||{});
+                    preencherCabecalho(resp.aluno || {});
                     document.getElementById('obs').textContent = resp.observacoes || '';
-                    const anos = (resp.anos||[]).slice(0,3);
+                    const anos = (resp.anos || []).slice(0, 3);
                     preencherAnos(anos);
-                    preencherDisciplinas(anos, resp.disciplinas||[]);
+                    preencherDisciplinas(anos, resp.disciplinas || []);
                     if (auto === '1') { setTimeout(gerarPDF, 200); }
                 });
         })();
     </script>
+    <div class="overlay toggle-menu"></div>
 </body>
 
 </html>

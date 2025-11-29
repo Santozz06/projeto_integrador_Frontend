@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$alunoId = isset($_POST['aluno_id']) ? (int)$_POST['aluno_id'] : 0;
+$alunoId = isset($_POST['aluno_id']) ? (int) $_POST['aluno_id'] : 0;
 $dataTransferencia = isset($_POST['data_transferencia']) && $_POST['data_transferencia'] !== ''
     ? $_POST['data_transferencia']
     : date('Y-m-d');
@@ -36,9 +36,9 @@ try {
         exit;
     }
 
-    $idMatricula = (int)$mat['ID_Matricula'];
+    $idMatricula = (int) $mat['ID_Matricula'];
 
-    // Tentar registrar saída com data; fallback se coluna Data_Saida não existir
+    // Tentar registrar saída com data
     try {
         $sqlUp = "UPDATE Matriculas SET Status = 'Inativa', Data_Saida = ? WHERE ID_Matricula = ?";
         $stUp = $pdo->prepare($sqlUp);
@@ -53,8 +53,6 @@ try {
         }
     }
 
-    // Opcional: armazenar informações da escola de destino em uma tabela própria no futuro
-    // Por ora, retornamos os dados confirmados
     echo json_encode([
         'success' => true,
         'message' => 'Transferência registrada com sucesso.',

@@ -20,7 +20,7 @@
     <!-- FullCalendar CSS -->
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
 
-    
+
 </head>
 
 <body class="bg-theme bg-theme1 user_adm_calendario">
@@ -87,12 +87,13 @@
                 </div>
 
                 <!-- Calendário -->
-                <div class="col-lg-9 col-md-12">
-                    <div class="card p-3">
-                        <div id="calendar-container">
-                            <div id="calendar"></div>
+                <div class="col-lg-9 col-md-12" id="calendar-container">
+                    <div class="card">
+                        <div class="card-body p-2">
+                            <div class="table-responsive">
+                                <div id="calendar"></div>
+                            </div>
                         </div>
-                        
                     </div>
                 </div>
 
@@ -198,459 +199,448 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+
+
             </div>
-
-            
-
+            <div class="overlay toggle-menu"></div>
         </div>
-        <div class="overlay toggle-menu"></div>
-    </div>
 
-    <!-- Scripts -->
-    <script src="../assets/js/jquery.min.js"></script>
-    <script src="../assets/js/popper.min.js"></script>
-    <script src="../assets/js/bootstrap.min.js"></script>
-    <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
-    <script src="../assets/js/sidebar-menu.js"></script>
-    <script src="../assets/js/app-script.js"></script>
-    <script src='https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js'></script>
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/pt-br.js'></script>
-    
+        <!-- Scripts -->
+        <script src="../assets/js/jquery.min.js"></script>
+        <script src="../assets/js/popper.min.js"></script>
+        <script src="../assets/js/bootstrap.min.js"></script>
+        <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
+        <script src="../assets/js/sidebar-menu.js"></script>
+        <script src="../assets/js/app-script.js"></script>
+        <script src='https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js'></script>
+        <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+        <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/pt-br.js'></script>
 
-    <!-- JS Customizado -->
-    <script>
-        // Escopo global
-        let currentEvent = null;
-        let editandoTipo = null;
 
-        var tiposEventos = [];
+        <!-- JS Customizado -->
+        <script>
+            // Escopo global
+            let currentEvent = null;
+            let editandoTipo = null;
 
-        // Funções auxiliares para modais (faz binding antes do calendário iniciar)
-        function abrirModalAdicionarEvento() {
-            currentEvent = null;
-            const $form = $('#form-evento');
-            if ($form.length) { $form[0].reset(); }
-            atualizarSelectsTipos();
-            // Valor padrão: agora arredondado para hora cheia
-            const agora = new Date();
-            const pad = n => (n<10?('0'+n):n);
-            const isoLocal = agora.getFullYear()+'-'+pad(agora.getMonth()+1)+'-'+pad(agora.getDate())+'T'+pad(agora.getHours())+':00';
-            $('#evento-inicio').val(isoLocal);
-            $('#evento-publico').val('todos');
-            $('#btn-excluir-evento').hide();
-            $('#eventoModal').modal('show');
-        }
+            var tiposEventos = [];
 
-        function abrirModalGerenciarTipos(){
-            fetchTiposEventos(function(){
-                carregarTiposEventos();
-                $('#tiposModal').modal('show');
-            });
-        }
+            // Funções auxiliares para modais (faz binding antes do calendário iniciar)
+            function abrirModalAdicionarEvento() {
+                currentEvent = null;
+                const $form = $('#form-evento');
+                if ($form.length) { $form[0].reset(); }
+                atualizarSelectsTipos();
+                // Valor padrão: agora arredondado para hora cheia
+                const agora = new Date();
+                const pad = n => (n < 10 ? ('0' + n) : n);
+                const isoLocal = agora.getFullYear() + '-' + pad(agora.getMonth() + 1) + '-' + pad(agora.getDate()) + 'T' + pad(agora.getHours()) + ':00';
+                $('#evento-inicio').val(isoLocal);
+                $('#evento-publico').val('todos');
+                $('#btn-excluir-evento').hide();
+                $('#eventoModal').modal('show');
+            }
 
-        // Bind global (delegado) para garantir funcionamento mesmo se elementos forem recriados
-        $(document).on('click', '#btn-adicionar', abrirModalAdicionarEvento);
-        $(document).on('click', '#btn-gerenciar-tipos', abrirModalGerenciarTipos);
-
-        function fetchTiposEventos(callback){
-            $.getJSON('../includes/ajax/calendario/tipos/listar_tipos.php')
-                .done(function(res){
-                    if (res && res.success && res.data){ tiposEventos = res.data; }
-                    atualizarSelectsTipos();
-                    if (typeof callback === 'function') callback();
-                })
-                .fail(function(){
-                    tiposEventos = [
-                        { nome: 'feriado', cor: '#ffc107', label: 'Feriado', is_default: true },
-                        { nome: 'reuniao', cor: '#28a745', label: 'Reunião', is_default: true },
-                        { nome: 'evento', cor: '#6f42c1', label: 'Evento Institucional', is_default: true },
-                        { nome: 'conselho', cor: '#17a2b8', label: 'Conselho de Classe', is_default: true },
-                        { nome: 'formacao', cor: '#6610f2', label: 'Formação Pedagógica', is_default: true }
-                    ];
-                    atualizarSelectsTipos();
-                    if (typeof callback === 'function') callback();
+            function abrirModalGerenciarTipos() {
+                fetchTiposEventos(function () {
+                    carregarTiposEventos();
+                    $('#tiposModal').modal('show');
                 });
-        }
+            }
 
-        function atualizarSelectsTipos(selecionadoEvento, selecionadoFiltro){
-            var $selEvento = $('#evento-tipo');
-            var $selFiltro = $('#tipo-evento');
+            // Bind global (delegado) para garantir funcionamento mesmo se elementos forem recriados
+            $(document).on('click', '#btn-adicionar', abrirModalAdicionarEvento);
+            $(document).on('click', '#btn-gerenciar-tipos', abrirModalGerenciarTipos);
 
-            if ($selEvento.length){
-                var valEvento = selecionadoEvento || $selEvento.val();
-                $selEvento.empty();
-                for (var i = 0; i < tiposEventos.length; i++){
-                    var t = tiposEventos[i];
-                    $selEvento.append($('<option></option>').val(t.nome).text(t.label));
+            function fetchTiposEventos(callback) {
+                $.getJSON('../includes/ajax/calendario/tipos/listar_tipos.php')
+                    .done(function (res) {
+                        if (res && res.success && res.data) { tiposEventos = res.data; }
+                        atualizarSelectsTipos();
+                        if (typeof callback === 'function') callback();
+                    })
+                    .fail(function () {
+                        tiposEventos = [
+                            { nome: 'feriado', cor: '#ffc107', label: 'Feriado', is_default: true },
+                            { nome: 'reuniao', cor: '#28a745', label: 'Reunião', is_default: true },
+                            { nome: 'evento', cor: '#6f42c1', label: 'Evento Institucional', is_default: true },
+                            { nome: 'conselho', cor: '#17a2b8', label: 'Conselho de Classe', is_default: true },
+                            { nome: 'formacao', cor: '#6610f2', label: 'Formação Pedagógica', is_default: true }
+                        ];
+                        atualizarSelectsTipos();
+                        if (typeof callback === 'function') callback();
+                    });
+            }
+
+            function atualizarSelectsTipos(selecionadoEvento, selecionadoFiltro) {
+                var $selEvento = $('#evento-tipo');
+                var $selFiltro = $('#tipo-evento');
+
+                if ($selEvento.length) {
+                    var valEvento = selecionadoEvento || $selEvento.val();
+                    $selEvento.empty();
+                    for (var i = 0; i < tiposEventos.length; i++) {
+                        var t = tiposEventos[i];
+                        $selEvento.append($('<option></option>').val(t.nome).text(t.label));
+                    }
+                    if (valEvento) { $selEvento.val(valEvento); }
                 }
-                if (valEvento){ $selEvento.val(valEvento); }
-            }
 
-            if ($selFiltro.length){
-                var valFiltro = (typeof selecionadoFiltro !== 'undefined' && selecionadoFiltro !== null) ? selecionadoFiltro : ($selFiltro.val() || 'all');
-                $selFiltro.empty();
-                $selFiltro.append('<option value="all">Todos</option>');
-                for (var j = 0; j < tiposEventos.length; j++){
-                    var tt = tiposEventos[j];
-                    $selFiltro.append($('<option></option>').val(tt.nome).text(tt.label + 's'));
+                if ($selFiltro.length) {
+                    var valFiltro = (typeof selecionadoFiltro !== 'undefined' && selecionadoFiltro !== null) ? selecionadoFiltro : ($selFiltro.val() || 'all');
+                    $selFiltro.empty();
+                    $selFiltro.append('<option value="all">Todos</option>');
+                    for (var j = 0; j < tiposEventos.length; j++) {
+                        var tt = tiposEventos[j];
+                        $selFiltro.append($('<option></option>').val(tt.nome).text(tt.label + 's'));
+                    }
+                    $selFiltro.val(valFiltro);
                 }
-                $selFiltro.val(valFiltro);
-            }
-        }
-
-        function carregarTiposEventos() {
-            const tbody = $('#tipos-eventos-body');
-            tbody.empty();
-
-            for (var i = 0; i < tiposEventos.length; i++){
-                var tipo = tiposEventos[i];
-                var disabled = tipo.is_default ? 'disabled title="Tipo padrão"' : '';
-                var row = '' +
-                    '<tr>' +
-                    '  <td>' + (tipo.label || tipo.nome) + '</td>' +
-                    '  <td><span class="badge" style="background-color: ' + (tipo.cor || '#6c757d') + '">&nbsp;&nbsp;&nbsp;</span></td>' +
-                    '  <td>' +
-                    '    <button class="btn btn-sm btn-outline-primary editar-tipo" data-nome="' + tipo.nome + '" ' + disabled + '>' +
-                    '      <i class="zmdi zmdi-edit"></i>' +
-                    '    </button> ' +
-                    '    <button class="btn btn-sm btn-outline-danger excluir-tipo" data-nome="' + tipo.nome + '" ' + disabled + '>' +
-                    '      <i class="zmdi zmdi-delete"></i>' +
-                    '    </button>' +
-                    '  </td>' +
-                    '</tr>';
-                tbody.append(row);
             }
 
-            // Limpa campos após carregar
-            $('#novo-tipo-nome').val('');
-            $('#novo-tipo-cor').val('#6c757d');
-            editandoTipo = null;
-            $('#btn-adicionar-tipo').text('Adicionar');
-            atualizarSelectsTipos();
-        }
+            function carregarTiposEventos() {
+                const tbody = $('#tipos-eventos-body');
+                tbody.empty();
 
-        $(document).ready(function () {
-            // Carregar tipos antes de inicializar o calendário
-            fetchTiposEventos(initCalendar);
-            $('.toggle-menu').click(function () {
-                $('#wrapper').toggleClass('menu-toggled');
-            });
-
-            function initCalendar(){
-            // Inicializa calendário
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                locale: 'pt-br',
-                initialView: 'dayGridMonth',
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
-                },
-                dayMaxEvents: 3,
-                eventDisplay: 'list-item',
-                navLinks: true,
-                editable: true,
-                selectable: true,
-                businessHours: {
-                    daysOfWeek: [1, 2, 3, 4, 5],
-                    startTime: '07:00',
-                    endTime: '18:00'
-                },
-                eventDidMount: function (info) {
-                    var tipo = info.event.extendedProps.tipo;
-                    var tipoConfig = null;
-                    for (var k = 0; k < tiposEventos.length; k++){
-                        if (tiposEventos[k].nome === tipo){ tipoConfig = tiposEventos[k]; break; }
-                    }
-                    if (tipoConfig) {
-                        info.el.style.backgroundColor = tipoConfig.cor;
-                        info.el.style.borderColor = tipoConfig.cor;
-                    }
-                    if (info.event.extendedProps.description) {
-                        $(info.el).tooltip({
-                            title: info.event.extendedProps.description,
-                            placement: 'top',
-                            trigger: 'hover',
-                            container: 'body'
-                        });
-                    }
-                },
-                events: function(fetchInfo, successCallback, failureCallback) {
-                    const params = {
-                        start: fetchInfo.startStr,
-                        end: fetchInfo.endStr,
-                        tipo: $('#tipo-evento').val(),
-                        publico: $('#publico-alvo').val()
-                    };
-                    $.getJSON('../includes/ajax/calendario/listar_eventos.php', params)
-                        .done(function(res){
-                            if (res.success) successCallback(res.data || []);
-                            else failureCallback(res.message || 'Falha ao carregar eventos');
-                        })
-                        .fail(function(xhr){
-                            failureCallback(xhr.statusText || 'Erro ao carregar eventos');
-                        });
-                },
-                dateClick: function (info) {
-                    currentEvent = null;
-                    $('#form-evento')[0].reset();
-                    $('#evento-inicio').val(info.dateStr + 'T08:00');
-                    $('#evento-publico').val('todos');
-                    $('#btn-excluir-evento').hide();
-                    $('#eventoModal').modal('show');
-                },
-                eventClick: function (info) {
-                    currentEvent = info.event;
-                    $('#evento-titulo').val(info.event.title);
-                    atualizarSelectsTipos(info.event.extendedProps.tipo || 'evento');
-                    $('#evento-descricao').val(info.event.extendedProps.description || '');
-                    $('#evento-publico').val(info.event.extendedProps.publico || 'todos');
-
-                    $('#evento-inicio').val(info.event.start.toISOString().slice(0, 16));
-                    $('#evento-fim').val(info.event.end ? info.event.end.toISOString().slice(0, 16) : '');
-                    $('#btn-excluir-evento').show();
-                    $('#eventoModal').modal('show');
-                    info.jsEvent.preventDefault();
-                },
-                eventDrop: function(info){ atualizarDatasEvento(info.event); },
-                eventResize: function(info){ atualizarDatasEvento(info.event); }
-            });
-
-            calendar.render();
-            function ajustarVisualizacaoCalendario() {
-                if (!calendar) return;
-                const width = window.innerWidth;
-                if (width < 768) {
-                    calendar.changeView('listMonth');
-                } else {
-                    calendar.changeView('dayGridMonth');
+                for (var i = 0; i < tiposEventos.length; i++) {
+                    var tipo = tiposEventos[i];
+                    var disabled = tipo.is_default ? 'disabled title="Tipo padrão"' : '';
+                    var row = '' +
+                        '<tr>' +
+                        '  <td>' + (tipo.label || tipo.nome) + '</td>' +
+                        '  <td><span class="badge" style="background-color: ' + (tipo.cor || '#6c757d') + '">&nbsp;&nbsp;&nbsp;</span></td>' +
+                        '  <td>' +
+                        '    <button class="btn btn-sm btn-outline-primary editar-tipo" data-nome="' + tipo.nome + '" ' + disabled + '>' +
+                        '      <i class="zmdi zmdi-edit"></i>' +
+                        '    </button> ' +
+                        '    <button class="btn btn-sm btn-outline-danger excluir-tipo" data-nome="' + tipo.nome + '" ' + disabled + '>' +
+                        '      <i class="zmdi zmdi-delete"></i>' +
+                        '    </button>' +
+                        '  </td>' +
+                        '</tr>';
+                    tbody.append(row);
                 }
-                calendar.updateSize();
+
+                // Limpa campos após carregar
+                $('#novo-tipo-nome').val('');
+                $('#novo-tipo-cor').val('#6c757d');
+                editandoTipo = null;
+                $('#btn-adicionar-tipo').text('Adicionar');
+                atualizarSelectsTipos();
             }
-            // Inicializa responsividade imediatamente
-            ajustarVisualizacaoCalendario();
-            $(window).on('resize', ajustarVisualizacaoCalendario);
 
-            // Responsividade e redimensionamento
-            $('.toggle-menu').click(function(){ setTimeout(function(){ calendar.updateSize(); }, 300); });
-            $(window).resize(function(){ calendar.updateSize(); });
-
-            // Filtros: recarregar do backend
-            $('#tipo-evento, #publico-alvo').change(function () {
-                calendar.refetchEvents();
-            });
-
-            // Legendas
-            $('.form-check-input').change(function () {
-                const tipo = $(this).attr('id').replace('legenda-', '');
-                const ativo = $(this).is(':checked');
-                const map = {
-                    'feriados': 'feriado',
-                    'reunioes': 'reuniao',
-                    'eventos': 'evento',
-                    'conselhos': 'conselho',
-                    'formacoes': 'formacao'
-                };
-                const tipoFiltrado = map[tipo] || tipo;
-                calendar.getEvents().forEach(event => {
-                    if (event.extendedProps.tipo === tipoFiltrado) {
-                        event.setProp('display', ativo ? 'auto' : 'none');
-                    }
+            $(document).ready(function () {
+                // Carregar tipos antes de inicializar o calendário
+                fetchTiposEventos(initCalendar);
+                $('.toggle-menu').click(function () {
+                    $('#wrapper').toggleClass('menu-toggled');
                 });
-            });
 
-            // Handlers já ligados globalmente; garantir selects atualizados caso UI queira usar antes
-            atualizarSelectsTipos();
+                function initCalendar() {
+                    // Inicializa calendário
+                    var calendarEl = document.getElementById('calendar');
+                    var calendar = new FullCalendar.Calendar(calendarEl, {
+                        locale: 'pt-br',
+                        initialView: 'dayGridMonth',
+                        headerToolbar: {
+                            left: 'prev,next today',
+                            center: 'title',
+                            right: ''
+                        },
+                        dayMaxEvents: 3,
+                        eventDisplay: 'list-item',
+                        navLinks: true,
+                        editable: false,
+                        selectable: false,
+                        businessHours: {
+                            daysOfWeek: [1, 2, 3, 4, 5],
+                            startTime: '07:00',
+                            endTime: '18:00'
+                        },
+                        views: {
+                            dayGridMonth: {
+                                dayHeaderFormat: { weekday: 'short' },
+                                dayMaxEventRows: 4
+                            }
+                        },
+                        eventDidMount: function (info) {
+                            var tipo = info.event.extendedProps.tipo;
+                            var tipoConfig = null;
+                            for (var k = 0; k < tiposEventos.length; k++) {
+                                if (tiposEventos[k].nome === tipo) { tipoConfig = tiposEventos[k]; break; }
+                            }
+                            if (tipoConfig) {
+                                info.el.style.backgroundColor = tipoConfig.cor;
+                                info.el.style.borderColor = tipoConfig.cor;
+                            }
+                            if (info.event.extendedProps.description) {
+                                $(info.el).tooltip({
+                                    title: info.event.extendedProps.description,
+                                    placement: 'top',
+                                    trigger: 'hover',
+                                    container: 'body'
+                                });
+                            }
+                        },
+                        events: function (fetchInfo, successCallback, failureCallback) {
+                            const params = {
+                                start: fetchInfo.startStr,
+                                end: fetchInfo.endStr,
+                                tipo: $('#tipo-evento').val(),
+                                publico: $('#publico-alvo').val()
+                            };
+                            $.getJSON('../includes/ajax/calendario/listar_eventos.php', params)
+                                .done(function (res) {
+                                    if (res.success) successCallback(res.data || []);
+                                    else failureCallback(res.message || 'Falha ao carregar eventos');
+                                })
+                                .fail(function (xhr) {
+                                    failureCallback(xhr.statusText || 'Erro ao carregar eventos');
+                                });
+                        },
+                        dateClick: function (info) {
+                            currentEvent = null;
+                            $('#form-evento')[0].reset();
+                            $('#evento-inicio').val(info.dateStr + 'T08:00');
+                            $('#evento-publico').val('todos');
+                            $('#btn-excluir-evento').hide();
+                            $('#eventoModal').modal('show');
+                        },
+                        eventClick: function (info) {
+                            currentEvent = info.event;
+                            $('#evento-titulo').val(info.event.title);
+                            atualizarSelectsTipos(info.event.extendedProps.tipo || 'evento');
+                            $('#evento-descricao').val(info.event.extendedProps.description || '');
+                            $('#evento-publico').val(info.event.extendedProps.publico || 'todos');
 
-            $('#btn-adicionar-tipo').click(function () {
-                var nomeDigitado = $('#novo-tipo-nome').val().trim();
-                var cor = $('#novo-tipo-cor').val();
+                            $('#evento-inicio').val(info.event.start.toISOString().slice(0, 16));
+                            $('#evento-fim').val(info.event.end ? info.event.end.toISOString().slice(0, 16) : '');
+                            $('#btn-excluir-evento').show();
+                            $('#eventoModal').modal('show');
+                            info.jsEvent.preventDefault();
+                        },
+                        eventDrop: function (info) { atualizarDatasEvento(info.event); },
+                        eventResize: function (info) { atualizarDatasEvento(info.event); }
+                    });
 
-                if (!nomeDigitado) { alert('Informe o nome do tipo.'); return; }
+                    calendar.render();
 
-                var nome = nomeDigitado.toLowerCase().replace(/\s+/g, '-');
-                var payload = { label: nomeDigitado, cor: cor, nome: nome };
-                if (editandoTipo) { payload.old = editandoTipo; }
+                    // Responsividade e redimensionamento
+                    $('.toggle-menu').click(function () { setTimeout(function () { calendar.updateSize(); }, 300); });
+                    $(window).resize(function () { calendar.updateSize(); });
 
-                $.ajax({
-                    url: '../includes/ajax/calendario/tipos/salvar_tipo.php',
-                    method: 'POST',
-                    contentType: 'application/json; charset=utf-8',
-                    data: JSON.stringify(payload),
-                    dataType: 'json'
-                }).done(function(res){
-                    if (res && res.success){
-                        var selEvento = $('#evento-tipo').val();
-                        var selFiltro = $('#tipo-evento').val();
-                        editandoTipo = null;
-                        $('#btn-adicionar-tipo').text('Adicionar');
-                        fetchTiposEventos(function(){
-                            carregarTiposEventos();
-                            atualizarSelectsTipos(selEvento, selFiltro);
-                            alert('Tipo salvo com sucesso!');
-                        });
-                    } else {
-                        alert((res && res.message) || 'Falha ao salvar tipo');
-                    }
-                }).fail(function(xhr){
-                    alert('Erro ao salvar tipo: ' + (xhr.responseText || xhr.statusText));
-                });
-            });
-
-            $('#btn-salvar-evento').click(function () {
-                const title = $('#evento-titulo').val();
-                const tipo = $('#evento-tipo').val();
-                const start = $('#evento-inicio').val();
-                const end = $('#evento-fim').val();
-                const description = $('#evento-descricao').val();
-                const publico = $('#evento-publico').val();
-
-                if (!title) return alert('Título é obrigatório.');
-
-                const payload = {
-                    id: currentEvent ? currentEvent.id : undefined,
-                    title: title,
-                    tipo: tipo,
-                    descricao: description,
-                    inicio: start,
-                    fim: end || null,
-                    publico: publico
-                };
-
-                $.ajax({
-                    url: '../includes/ajax/calendario/salvar_evento.php',
-                    method: 'POST',
-                    contentType: 'application/json; charset=utf-8',
-                    data: JSON.stringify(payload),
-                    dataType: 'json'
-                }).done(function(res){
-                    if (res.success){
-                        $('#eventoModal').modal('hide');
+                    // Filtros: recarregar do backend
+                    $('#tipo-evento, #publico-alvo').change(function () {
                         calendar.refetchEvents();
-                    } else {
-                        alert(res.message || 'Falha ao salvar evento');
-                    }
-                }).fail(function(xhr){
-                    alert('Erro ao salvar: ' + (xhr.responseText || xhr.statusText));
-                });
-            });
+                    });
 
-            $('#btn-excluir-evento').click(function () {
-                if (currentEvent && confirm('Deseja excluir este evento?')) {
-                    $.post('../includes/ajax/calendario/excluir_evento.php', { id: currentEvent.id })
-                        .done(function(res){
-                            try { res = typeof res === 'string' ? JSON.parse(res) : res; } catch(e) {}
+                    // Legendas
+                    $('.form-check-input').change(function () {
+                        const tipo = $(this).attr('id').replace('legenda-', '');
+                        const ativo = $(this).is(':checked');
+                        const map = {
+                            'feriados': 'feriado',
+                            'reunioes': 'reuniao',
+                            'eventos': 'evento',
+                            'conselhos': 'conselho',
+                            'formacoes': 'formacao'
+                        };
+                        const tipoFiltrado = map[tipo] || tipo;
+                        calendar.getEvents().forEach(event => {
+                            if (event.extendedProps.tipo === tipoFiltrado) {
+                                event.setProp('display', ativo ? 'auto' : 'none');
+                            }
+                        });
+                    });
+
+                    atualizarSelectsTipos();
+
+                    $('#btn-adicionar-tipo').click(function () {
+                        var nomeDigitado = $('#novo-tipo-nome').val().trim();
+                        var cor = $('#novo-tipo-cor').val();
+
+                        if (!nomeDigitado) { alert('Informe o nome do tipo.'); return; }
+
+                        var nome = nomeDigitado.toLowerCase().replace(/\s+/g, '-');
+                        var payload = { label: nomeDigitado, cor: cor, nome: nome };
+                        if (editandoTipo) { payload.old = editandoTipo; }
+
+                        $.ajax({
+                            url: '../includes/ajax/calendario/tipos/salvar_tipo.php',
+                            method: 'POST',
+                            contentType: 'application/json; charset=utf-8',
+                            data: JSON.stringify(payload),
+                            dataType: 'json'
+                        }).done(function (res) {
                             if (res && res.success) {
+                                var selEvento = $('#evento-tipo').val();
+                                var selFiltro = $('#tipo-evento').val();
+                                editandoTipo = null;
+                                $('#btn-adicionar-tipo').text('Adicionar');
+                                fetchTiposEventos(function () {
+                                    carregarTiposEventos();
+                                    atualizarSelectsTipos(selEvento, selFiltro);
+                                    alert('Tipo salvo com sucesso!');
+                                });
+                            } else {
+                                alert((res && res.message) || 'Falha ao salvar tipo');
+                            }
+                        }).fail(function (xhr) {
+                            alert('Erro ao salvar tipo: ' + (xhr.responseText || xhr.statusText));
+                        });
+                    });
+
+                    $('#btn-salvar-evento').click(function () {
+                        const title = $('#evento-titulo').val();
+                        const tipo = $('#evento-tipo').val();
+                        const start = $('#evento-inicio').val();
+                        const end = $('#evento-fim').val();
+                        const description = $('#evento-descricao').val();
+                        const publico = $('#evento-publico').val();
+
+                        if (!title) return alert('Título é obrigatório.');
+
+                        const payload = {
+                            id: currentEvent ? currentEvent.id : undefined,
+                            title: title,
+                            tipo: tipo,
+                            descricao: description,
+                            inicio: start,
+                            fim: end || null,
+                            publico: publico
+                        };
+
+                        $.ajax({
+                            url: '../includes/ajax/calendario/salvar_evento.php',
+                            method: 'POST',
+                            contentType: 'application/json; charset=utf-8',
+                            data: JSON.stringify(payload),
+                            dataType: 'json'
+                        }).done(function (res) {
+                            if (res.success) {
                                 $('#eventoModal').modal('hide');
                                 calendar.refetchEvents();
                             } else {
-                                alert((res && res.message) || 'Falha ao excluir');
+                                alert(res.message || 'Falha ao salvar evento');
                             }
-                        }).fail(function(xhr){
-                            alert('Erro ao excluir: ' + (xhr.responseText || xhr.statusText));
+                        }).fail(function (xhr) {
+                            alert('Erro ao salvar: ' + (xhr.responseText || xhr.statusText));
                         });
-                }
-            });
-
-            function formatDateTime(dt){
-                // FullCalendar gives ISO; keep as provided if exists
-                if (!dt) return null;
-                return dt.toISOString().slice(0,19); // YYYY-MM-DDTHH:MM:SS
-            }
-            function atualizarDatasEvento(event){
-                const payload = {
-                    id: event.id,
-                    title: event.title,
-                    tipo: event.extendedProps.tipo || 'evento',
-                    descricao: event.extendedProps.description || '',
-                    inicio: formatDateTime(event.start),
-                    fim: event.end ? formatDateTime(event.end) : null,
-                    publico: event.extendedProps.publico || 'todos'
-                };
-                $.ajax({ url: '../includes/ajax/calendario/salvar_evento.php', method: 'POST', contentType:'application/json; charset=utf-8', data: JSON.stringify(payload) })
-                    .done(function(res){ if (!(res && res.success)) alert('Falha ao atualizar evento.'); })
-                    .fail(function(){ alert('Erro ao atualizar evento.'); });
-            }
-
-            // Importar/Exportar removidos a pedido — sem handlers
-
-            $('#btn-publicar-calendario').click(function () {
-                const publico = $('#publico-alvo').val();
-                const tipo = $('#tipo-evento').val();
-                const view = calendar.view;
-                const start = view.activeStart.toISOString().slice(0,10);
-                const end = view.activeEnd.toISOString().slice(0,10);
-
-                if (!publico || !['todos','professores','alunos'].includes(publico)) {
-                    alert('Selecione um público-alvo válido (Todos, Professores ou Alunos).');
-                    return;
-                }
-
-                if (!confirm(`Publicar eventos de ${start} a ${end} para: ${publico}?`)) return;
-
-                $.post('../includes/ajax/calendario/publicar.php', { publico, start, end, tipo })
-                    .done(function(res){
-                        try { res = typeof res === 'string' ? JSON.parse(res) : res; } catch(e) {}
-                        if (res && res.success) {
-                            alert('Calendário publicado com sucesso!');
-                            calendar.refetchEvents();
-                        } else {
-                            alert((res && res.message) || 'Falha ao publicar.');
-                        }
-                    })
-                    .fail(function(xhr){
-                        alert('Erro ao publicar: ' + (xhr.responseText || xhr.statusText));
                     });
-            });
-            }
-        });
 
-        // Editar/Excluir tipo
-        $(document).on('click', '.editar-tipo', function () {
-            var tipo = $(this).data('nome');
-            var tipoInfo = null;
-            for (var i = 0; i < tiposEventos.length; i++){
-                if (tiposEventos[i].nome === tipo){ tipoInfo = tiposEventos[i]; break; }
-            }
-            if (tipoInfo && !tipoInfo.is_default) {
-                $('#novo-tipo-nome').val(tipoInfo.label || tipoInfo.nome);
-                $('#novo-tipo-cor').val(tipoInfo.cor || '#6c757d');
-                editandoTipo = tipo;
-                $('#btn-adicionar-tipo').text('Atualizar');
-            }
-        });
+                    $('#btn-excluir-evento').click(function () {
+                        if (currentEvent && confirm('Deseja excluir este evento?')) {
+                            $.post('../includes/ajax/calendario/excluir_evento.php', { id: currentEvent.id })
+                                .done(function (res) {
+                                    try { res = typeof res === 'string' ? JSON.parse(res) : res; } catch (e) { }
+                                    if (res && res.success) {
+                                        $('#eventoModal').modal('hide');
+                                        calendar.refetchEvents();
+                                    } else {
+                                        alert((res && res.message) || 'Falha ao excluir');
+                                    }
+                                }).fail(function (xhr) {
+                                    alert('Erro ao excluir: ' + (xhr.responseText || xhr.statusText));
+                                });
+                        }
+                    });
 
-        $(document).on('click', '.excluir-tipo', function () {
-            var nome = $(this).data('nome');
-            var tipoInfo = null;
-            for (var i = 0; i < tiposEventos.length; i++){
-                if (tiposEventos[i].nome === nome){ tipoInfo = tiposEventos[i]; break; }
-            }
-            if (tipoInfo && tipoInfo.is_default){ alert('Tipos padrão não podem ser removidos.'); return; }
-            if (confirm('Deseja excluir o tipo "' + nome + '"?')) {
-                $.ajax({
-                    url: '../includes/ajax/calendario/tipos/remover_tipo.php',
-                    method: 'POST',
-                    contentType: 'application/json; charset=utf-8',
-                    data: JSON.stringify({ nome: nome }),
-                    dataType: 'json'
-                }).done(function(res){
-                    if (res && res.success){
-                        fetchTiposEventos(function(){
-                            carregarTiposEventos();
-                            atualizarSelectsTipos();
-                        });
-                    } else {
-                        alert((res && res.message) || 'Falha ao remover tipo');
+                    function formatDateTime(dt) {
+                        if (!dt) return null;
+                        return dt.toISOString().slice(0, 19);
                     }
-                }).fail(function(xhr){
-                    alert('Erro ao remover tipo: ' + (xhr.responseText || xhr.statusText));
-                });
-            }
-        });
-    </script>
+                    function atualizarDatasEvento(event) {
+                        const payload = {
+                            id: event.id,
+                            title: event.title,
+                            tipo: event.extendedProps.tipo || 'evento',
+                            descricao: event.extendedProps.description || '',
+                            inicio: formatDateTime(event.start),
+                            fim: event.end ? formatDateTime(event.end) : null,
+                            publico: event.extendedProps.publico || 'todos'
+                        };
+                        $.ajax({ url: '../includes/ajax/calendario/salvar_evento.php', method: 'POST', contentType: 'application/json; charset=utf-8', data: JSON.stringify(payload) })
+                            .done(function (res) { if (!(res && res.success)) alert('Falha ao atualizar evento.'); })
+                            .fail(function () { alert('Erro ao atualizar evento.'); });
+                    }
+
+                    $('#btn-publicar-calendario').click(function () {
+                        const publico = $('#publico-alvo').val();
+                        const tipo = $('#tipo-evento').val();
+                        const view = calendar.view;
+                        const start = view.activeStart.toISOString().slice(0, 10);
+                        const end = view.activeEnd.toISOString().slice(0, 10);
+
+                        if (!publico || !['todos', 'professores', 'alunos'].includes(publico)) {
+                            alert('Selecione um público-alvo válido (Todos, Professores ou Alunos).');
+                            return;
+                        }
+
+                        if (!confirm(`Publicar eventos de ${start} a ${end} para: ${publico}?`)) return;
+
+                        $.post('../includes/ajax/calendario/publicar.php', { publico, start, end, tipo })
+                            .done(function (res) {
+                                try { res = typeof res === 'string' ? JSON.parse(res) : res; } catch (e) { }
+                                if (res && res.success) {
+                                    alert('Calendário publicado com sucesso!');
+                                    calendar.refetchEvents();
+                                } else {
+                                    alert((res && res.message) || 'Falha ao publicar.');
+                                }
+                            })
+                            .fail(function (xhr) {
+                                alert('Erro ao publicar: ' + (xhr.responseText || xhr.statusText));
+                            });
+                    });
+                }
+            });
+
+            // Editar/Excluir tipo
+            $(document).on('click', '.editar-tipo', function () {
+                var tipo = $(this).data('nome');
+                var tipoInfo = null;
+                for (var i = 0; i < tiposEventos.length; i++) {
+                    if (tiposEventos[i].nome === tipo) { tipoInfo = tiposEventos[i]; break; }
+                }
+                if (tipoInfo && !tipoInfo.is_default) {
+                    $('#novo-tipo-nome').val(tipoInfo.label || tipoInfo.nome);
+                    $('#novo-tipo-cor').val(tipoInfo.cor || '#6c757d');
+                    editandoTipo = tipo;
+                    $('#btn-adicionar-tipo').text('Atualizar');
+                }
+            });
+
+            $(document).on('click', '.excluir-tipo', function () {
+                var nome = $(this).data('nome');
+                var tipoInfo = null;
+                for (var i = 0; i < tiposEventos.length; i++) {
+                    if (tiposEventos[i].nome === nome) { tipoInfo = tiposEventos[i]; break; }
+                }
+                if (tipoInfo && tipoInfo.is_default) { alert('Tipos padrão não podem ser removidos.'); return; }
+                if (confirm('Deseja excluir o tipo "' + nome + '"?')) {
+                    $.ajax({
+                        url: '../includes/ajax/calendario/tipos/remover_tipo.php',
+                        method: 'POST',
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify({ nome: nome }),
+                        dataType: 'json'
+                    }).done(function (res) {
+                        if (res && res.success) {
+                            fetchTiposEventos(function () {
+                                carregarTiposEventos();
+                                atualizarSelectsTipos();
+                            });
+                        } else {
+                            alert((res && res.message) || 'Falha ao remover tipo');
+                        }
+                    }).fail(function (xhr) {
+                        alert('Erro ao remover tipo: ' + (xhr.responseText || xhr.statusText));
+                    });
+                }
+            });
+        </script>
 
 </body>
 

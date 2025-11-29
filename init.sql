@@ -153,5 +153,5 @@ CREATE TABLE Professores_Turmas (
 );
 
 -- iserindo um admin padrão
-INSERT INTO Usuarios (Login, Senha, Nome_Completo, Data_Nascimento, Sexo, CPF, Email, IsAdmin) VALUES
-('admin', '1234', 'Administrador do Sistema', '1980-01-01', 'M', '12345678901', 'admin@escola.com', TRUE);
+INSERT INTO `Usuarios` (`ID_Usuario`, `Login`, `Senha`, `Nome_Completo`, `Data_Nascimento`, `Sexo`, `CPF`, `RG`, `Data_Expedicao`, `Orgao_Exp`, `UF_Exp`, `Raca_Etnia`, `Endereco`, `Numero`, `Complemento`, `Bairro`, `UF_Endereco`, `Municipio_Endereco`, `Telefone`, `Celular`, `Email`, `CEP`, `Possui_Necessidades_Especiais`, `IsAdmin`, `Ativo`, `Estado_Civil`, `Nacionalidade`, `Naturalidade`, `Filiacao`) VALUES
+(1, 'admin', '$2y$10$WiD.7lwd7whyNKeX8XgSnuI8YYK5po3yE76tocXjLiSdn2v6auYqe', 'Administrador do Sistema', '1980-01-01', 'M', '12345678901', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'admin@escola.com', NULL, 0, 1, 1, NULL, NULL, NULL, NULL);

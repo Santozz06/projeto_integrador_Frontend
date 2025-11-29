@@ -16,6 +16,7 @@
             background-color: #ffffff !important;
             background-image: none !important;
         }
+
         body::before,
         body::after {
             display: none !important;
@@ -23,7 +24,7 @@
     </style>
     <script>
         // Força fundo branco antes de qualquer outro script
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             document.body.style.cssText = 'background: #ffffff !important; background-color: #ffffff !important; background-image: none !important;';
             document.body.classList.remove('bg-theme', 'bg-theme1', 'bg-theme2', 'bg-theme3', 'bg-theme4', 'bg-theme5');
         });
@@ -153,7 +154,7 @@
                     </tbody>
                 </table>
             </div>
-        </div> 
+        </div>
 
         <!-- Rodapé com botões (FORA da área de impressão) -->
         <div class="footer-boletim no-print">
@@ -161,7 +162,7 @@
                 <button id="btn-voltar" class="btn btn-outline-secondary">Voltar</button>
                 <button id="btn-imprimir" class="btn btn-primary">Imprimir</button>
             </div>
-            
+
         </div>
     </div>
 
@@ -179,6 +180,7 @@
         document.body.style.backgroundColor = '#ffffff';
         document.body.style.backgroundImage = 'none';
     </script>
+    <div class="overlay toggle-menu"></div>
 </body>
 
 </html>

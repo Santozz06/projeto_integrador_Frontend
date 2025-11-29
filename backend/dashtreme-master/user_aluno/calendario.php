@@ -145,7 +145,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 </body>
 
@@ -215,7 +214,7 @@
                     });
                 }
             },
-            events: function(fetchInfo, successCallback, failureCallback){
+            events: function (fetchInfo, successCallback, failureCallback) {
                 const params = {
                     start: fetchInfo.startStr,
                     end: fetchInfo.endStr,
@@ -223,11 +222,11 @@
                     // sem 'publico' para incluir 'todos' + 'alunos' via sessão
                 };
                 $.getJSON('../includes/ajax/calendario/listar_eventos.php', params)
-                    .done(function(res){
+                    .done(function (res) {
                         if (res.success) successCallback(res.data || []);
                         else failureCallback(res.message || 'Falha ao carregar eventos');
                     })
-                    .fail(function(xhr){ failureCallback(xhr.statusText || 'Erro ao carregar eventos'); });
+                    .fail(function (xhr) { failureCallback(xhr.statusText || 'Erro ao carregar eventos'); });
             }
         });
 
@@ -288,7 +287,7 @@
         });
 
         // Carregar anos do aluno
-        (async function carregarAnos(){
+        (async function carregarAnos() {
             try {
                 const res = await $.getJSON('../includes/ajax/aluno/anos_matriculas.php');
                 const $sel = $('#ano-select');
@@ -307,6 +306,7 @@
         })();
     });
 </script>
+<div class="overlay toggle-menu"></div>
 </body>
 
 </html>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db
--- Tempo de geração: 26/11/2025 às 17:56
+-- Tempo de geração: 28/11/2025 às 02:03
 -- Versão do servidor: 8.0.44
 -- Versão do PHP: 8.3.26
 
@@ -51,7 +51,8 @@ CREATE TABLE `Alunos` (
 --
 
 INSERT INTO `Alunos` (`ID_Aluno`, `Matricula`) VALUES
-(3, '12345');
+(3, '12345'),
+(8, 'aluno2');
 
 -- --------------------------------------------------------
 
@@ -91,6 +92,13 @@ CREATE TABLE `Avaliacoes` (
   `Data` date NOT NULL,
   `Ano_Letivo` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Despejando dados para a tabela `Avaliacoes`
+--
+
+INSERT INTO `Avaliacoes` (`ID_Avaliacao`, `ID_Turma`, `ID_Professor`, `Disciplina`, `Tipo`, `Data`, `Ano_Letivo`) VALUES
+(9, 1, 6, 'Português', 'Redação', '2025-11-26', 2025);
 
 -- --------------------------------------------------------
 
@@ -280,7 +288,8 @@ CREATE TABLE `Matriculas` (
 --
 
 INSERT INTO `Matriculas` (`ID_Matricula`, `ID_Aluno`, `ID_Turma`, `Data_Matricula`, `Status`, `Data_Saida`, `Tipo_Matricula`, `Ano_Letivo`) VALUES
-(1, 3, 1, '2025-11-14', 'Ativa', NULL, 'Vinculo', 2025);
+(1, 3, 1, '2025-11-14', 'Ativa', NULL, 'Vinculo', 2025),
+(2, 8, 2, '2025-11-26', 'Ativa', NULL, 'Vinculo', 2025);
 
 -- --------------------------------------------------------
 
@@ -5933,7 +5942,10 @@ CREATE TABLE `Ocorrencias` (
 --
 
 INSERT INTO `Ocorrencias` (`ID_Ocorrencia`, `ID_Turma`, `ID_Matricula`, `Data`, `Tipo`, `Descricao`, `ID_Professor`, `DataHoraRegistro`) VALUES
-(1, 1, 1, '2025-11-19', 'Indisciplina', 'exemplo.', 6, '2025-11-19 18:27:55');
+(1, 1, 1, '2025-11-19', 'Indisciplina', 'exemplo.', 6, '2025-11-19 18:27:55'),
+(3, 1, 1, '2025-11-26', 'teste', 'exemplo', 6, '2025-11-26 18:41:20'),
+(4, 1, 1, '2025-11-21', 'atrasado', 'chegou atrasado', 6, '2025-11-26 18:42:58'),
+(5, 1, 1, '2025-11-21', 'atrasado', 'chegou atrasado', 6, '2025-11-26 18:43:17');
 
 -- --------------------------------------------------------
 
@@ -6267,7 +6279,8 @@ CREATE TABLE `Presencas` (
 --
 
 INSERT INTO `Presencas` (`ID_Presenca`, `ID_Turma`, `ID_Matricula`, `ID_Disciplina`, `Data`, `Status`, `ID_Professor`, `DataHoraRegistro`) VALUES
-(1, 1, 1, NULL, '2025-11-19', 'P', 6, '2025-11-19 18:25:44');
+(1, 1, 1, NULL, '2025-11-19', 'P', 6, '2025-11-19 18:25:44'),
+(4, 1, 1, NULL, '2025-11-26', 'A', 6, '2025-11-26 18:38:28');
 
 -- --------------------------------------------------------
 
@@ -6365,7 +6378,8 @@ CREATE TABLE `Turmas` (
 --
 
 INSERT INTO `Turmas` (`ID_Turma`, `Nome_Turma`, `Etapa`, `Ano_Letivo`, `Turno`, `Capacidade_Alunos`, `Sala`) VALUES
-(1, 'Informática', '9º Ano', 2025, 'Matutino', 32, 'S20');
+(1, 'Informática', '9º Ano', 2025, 'Matutino', 32, 'S20'),
+(2, 'Turma A', '4º Ano', 2025, 'Vespertino', 30, '102');
 
 -- --------------------------------------------------------
 
@@ -6410,9 +6424,10 @@ CREATE TABLE `Usuarios` (
 --
 
 INSERT INTO `Usuarios` (`ID_Usuario`, `Login`, `Senha`, `Nome_Completo`, `Data_Nascimento`, `Sexo`, `CPF`, `RG`, `Data_Expedicao`, `Orgao_Exp`, `UF_Exp`, `Raca_Etnia`, `Endereco`, `Numero`, `Complemento`, `Bairro`, `UF_Endereco`, `Municipio_Endereco`, `Telefone`, `Celular`, `Email`, `CEP`, `Possui_Necessidades_Especiais`, `IsAdmin`, `Ativo`, `Estado_Civil`, `Nacionalidade`, `Naturalidade`, `Filiacao`) VALUES
-(1, 'admin', '1234', 'Administrador do Sistema', '1980-01-01', 'M', '12345678901', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'admin@escola.com', NULL, 0, 1, 1, NULL, NULL, NULL, NULL),
+(1, 'admin', '$2y$10$WiD.7lwd7whyNKeX8XgSnuI8YYK5po3yE76tocXjLiSdn2v6auYqe', 'Administrador do Sistema', '1980-01-01', 'M', '12345678901', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'admin@escola.com', NULL, 0, 1, 1, NULL, NULL, NULL, NULL),
 (3, 'alunoteste1@gmail.com', '$2y$10$rmHW.Z7MmFz652i7R6J/aOq5jvq.Md1ccwyfSpoPI8lhxGDB9X0dC', 'Aluno teste 1', '2025-10-08', 'Masculino', '33416344014', NULL, '2025-11-06', 'SSP', '43', 'Parda', 'rua sei la, 21 - nao sei', '21', 'casa', 'nao sei', 43, 4314050, '51994477553', '51999996666', 'alunoteste1@gmail.com', '95630000', 0, 0, 1, NULL, 'Brasil', 'Taquara/RS', 'Pedro e Ana'),
-(6, 'servidorteste1@gmail.com', '$2y$10$H6YE3rlhq6HXK3jy.oLGweevQrYVx6aKc5/H50zG4KeH5iDEuAwJ6', 'servidor teste 1', '1985-11-08', 'Masculino', '64984751029', '0000222233', NULL, 'SSP', '33', 'Branca', 'Travessa Tocantins, 23 - Centro', '23', 'casa', 'Centro', 33, 3304557, '4798555555', '', 'servidorteste1@gmail.com', '20010040', 0, 0, 1, 'Solteiro(a)', 'Brasil', 'Rio de Janeiro/RJ', 'Pedro e Roberta');
+(6, 'servidorteste1@gmail.com', '$2y$10$H6YE3rlhq6HXK3jy.oLGweevQrYVx6aKc5/H50zG4KeH5iDEuAwJ6', 'servidor teste 1', '1985-11-08', 'Masculino', '64984751029', '0000222233', NULL, 'SSP', '33', 'Branca', 'Travessa Tocantins, 23 - Centro', '23', 'casa', 'Centro', 33, 3304557, '4798555555', '', 'servidorteste1@gmail.com', '20010040', 0, 0, 1, 'Solteiro(a)', 'Brasil', 'Rio de Janeiro/RJ', 'Pedro e Roberta'),
+(8, 'felipe@gmail.com', '$2y$10$x6uC2tKNJMHw.knootmapOtfBMoAt.rILU8CCRNvqigXxcXI7oqpC', 'Felipe Kauan dos Santos', '2006-05-21', 'Masculino', '94483552031', NULL, '2025-11-06', 'SSP', '43', 'Branca', 'rua teste, 1 - centro', '1', 'casa', 'centro', 43, 4314050, '51977745220', '51977745222', 'felipe@gmail.com', '95630000', 0, 0, 1, NULL, 'Brasil', 'Parobé/RS', 'Solange e Carlos');
 
 --
 -- Índices para tabelas despejadas
@@ -6556,7 +6571,8 @@ ALTER TABLE `Presencas`
   ADD KEY `idx_turma` (`ID_Turma`),
   ADD KEY `idx_data` (`Data`),
   ADD KEY `idx_prof` (`ID_Professor`),
-  ADD KEY `Presencas_ibfk_2` (`ID_Matricula`);
+  ADD KEY `fk_presencas_matricula` (`ID_Matricula`),
+  ADD KEY `fk_presencas_disciplina` (`ID_Disciplina`);
 
 --
 -- Índices de tabela `Professores`
@@ -6570,7 +6586,9 @@ ALTER TABLE `Professores`
 --
 ALTER TABLE `Professores_Disciplinas`
   ADD PRIMARY KEY (`ID_ProfDisc`),
-  ADD UNIQUE KEY `uq_prof_disc_ano_turma` (`ID_Professor`,`ID_Disciplina`,`Ano_Letivo`,`ID_Turma`);
+  ADD UNIQUE KEY `uq_prof_disc_ano_turma` (`ID_Professor`,`ID_Disciplina`,`Ano_Letivo`,`ID_Turma`),
+  ADD KEY `fk_profdisc_disciplina` (`ID_Disciplina`),
+  ADD KEY `fk_profdisc_turma` (`ID_Turma`);
 
 --
 -- Índices de tabela `Professores_Turmas`
@@ -6621,7 +6639,7 @@ ALTER TABLE `Atividades`
 -- AUTO_INCREMENT de tabela `Avaliacoes`
 --
 ALTER TABLE `Avaliacoes`
-  MODIFY `ID_Avaliacao` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `ID_Avaliacao` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de tabela `Calendario_Academico`
@@ -6639,7 +6657,7 @@ ALTER TABLE `Disciplinas`
 -- AUTO_INCREMENT de tabela `Documentos`
 --
 ALTER TABLE `Documentos`
-  MODIFY `ID_Documento` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `ID_Documento` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `Frequencias`
@@ -6657,7 +6675,7 @@ ALTER TABLE `Horarios`
 -- AUTO_INCREMENT de tabela `Matriculas`
 --
 ALTER TABLE `Matriculas`
-  MODIFY `ID_Matricula` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `ID_Matricula` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `Notas`
@@ -6669,7 +6687,7 @@ ALTER TABLE `Notas`
 -- AUTO_INCREMENT de tabela `Ocorrencias`
 --
 ALTER TABLE `Ocorrencias`
-  MODIFY `ID_Ocorrencia` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `ID_Ocorrencia` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de tabela `orgaos_expedidores`
@@ -6687,7 +6705,7 @@ ALTER TABLE `Planos_Ensino`
 -- AUTO_INCREMENT de tabela `Presencas`
 --
 ALTER TABLE `Presencas`
-  MODIFY `ID_Presenca` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `ID_Presenca` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de tabela `Professores_Disciplinas`
@@ -6705,13 +6723,13 @@ ALTER TABLE `Tipos_Eventos`
 -- AUTO_INCREMENT de tabela `Turmas`
 --
 ALTER TABLE `Turmas`
-  MODIFY `ID_Turma` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `ID_Turma` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `Usuarios`
 --
 ALTER TABLE `Usuarios`
-  MODIFY `ID_Usuario` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `ID_Usuario` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Restrições para tabelas despejadas
@@ -6721,13 +6739,29 @@ ALTER TABLE `Usuarios`
 -- Restrições para tabelas `Acompanhamento_NEE`
 --
 ALTER TABLE `Acompanhamento_NEE`
-  ADD CONSTRAINT `Acompanhamento_NEE_ibfk_1` FOREIGN KEY (`ID_Aluno`) REFERENCES `Alunos` (`ID_Aluno`);
+  ADD CONSTRAINT `Acompanhamento_NEE_ibfk_1` FOREIGN KEY (`ID_Aluno`) REFERENCES `Alunos` (`ID_Aluno`),
+  ADD CONSTRAINT `fk_acomp_nee_aluno` FOREIGN KEY (`ID_Aluno`) REFERENCES `Alunos` (`ID_Aluno`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_acompnee_aluno` FOREIGN KEY (`ID_Aluno`) REFERENCES `Alunos` (`ID_Aluno`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 --
 -- Restrições para tabelas `Alunos`
 --
 ALTER TABLE `Alunos`
   ADD CONSTRAINT `Alunos_ibfk_1` FOREIGN KEY (`ID_Aluno`) REFERENCES `Usuarios` (`ID_Usuario`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `Atividades`
+--
+ALTER TABLE `Atividades`
+  ADD CONSTRAINT `fk_atividades_professor` FOREIGN KEY (`ID_Professor`) REFERENCES `Professores` (`ID_Professor`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_atividades_turma` FOREIGN KEY (`ID_Turma`) REFERENCES `Turmas` (`ID_Turma`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `Avaliacoes`
+--
+ALTER TABLE `Avaliacoes`
+  ADD CONSTRAINT `fk_avaliacoes_professor` FOREIGN KEY (`ID_Professor`) REFERENCES `Professores` (`ID_Professor`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_avaliacoes_turma` FOREIGN KEY (`ID_Turma`) REFERENCES `Turmas` (`ID_Turma`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 --
 -- Restrições para tabelas `Disciplinas`
@@ -6739,12 +6773,16 @@ ALTER TABLE `Disciplinas`
 -- Restrições para tabelas `Frequencias`
 --
 ALTER TABLE `Frequencias`
+  ADD CONSTRAINT `fk_frequencias_matricula` FOREIGN KEY (`ID_Matricula`) REFERENCES `Matriculas` (`ID_Matricula`) ON DELETE RESTRICT ON UPDATE CASCADE,
   ADD CONSTRAINT `Frequencias_ibfk_1` FOREIGN KEY (`ID_Matricula`) REFERENCES `Matriculas` (`ID_Matricula`);
 
 --
 -- Restrições para tabelas `Horarios`
 --
 ALTER TABLE `Horarios`
+  ADD CONSTRAINT `fk_horarios_disciplina` FOREIGN KEY (`ID_Disciplina`) REFERENCES `Disciplinas` (`ID_Disciplina`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_horarios_professor` FOREIGN KEY (`ID_Professor`) REFERENCES `Professores` (`ID_Professor`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_horarios_turma` FOREIGN KEY (`ID_Turma`) REFERENCES `Turmas` (`ID_Turma`) ON DELETE RESTRICT ON UPDATE CASCADE,
   ADD CONSTRAINT `Horarios_ibfk_1` FOREIGN KEY (`ID_Turma`) REFERENCES `Turmas` (`ID_Turma`),
   ADD CONSTRAINT `Horarios_ibfk_2` FOREIGN KEY (`ID_Disciplina`) REFERENCES `Disciplinas` (`ID_Disciplina`),
   ADD CONSTRAINT `Horarios_ibfk_3` FOREIGN KEY (`ID_Professor`) REFERENCES `Professores` (`ID_Professor`);
@@ -6753,6 +6791,8 @@ ALTER TABLE `Horarios`
 -- Restrições para tabelas `Matriculas`
 --
 ALTER TABLE `Matriculas`
+  ADD CONSTRAINT `fk_matriculas_aluno` FOREIGN KEY (`ID_Aluno`) REFERENCES `Alunos` (`ID_Aluno`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_matriculas_turma` FOREIGN KEY (`ID_Turma`) REFERENCES `Turmas` (`ID_Turma`) ON DELETE RESTRICT ON UPDATE CASCADE,
   ADD CONSTRAINT `Matriculas_ibfk_1` FOREIGN KEY (`ID_Aluno`) REFERENCES `Alunos` (`ID_Aluno`),
   ADD CONSTRAINT `Matriculas_ibfk_2` FOREIGN KEY (`ID_Turma`) REFERENCES `Turmas` (`ID_Turma`);
 
@@ -6766,19 +6806,34 @@ ALTER TABLE `municipios`
 -- Restrições para tabelas `Notas`
 --
 ALTER TABLE `Notas`
+  ADD CONSTRAINT `fk_notas_disciplina` FOREIGN KEY (`ID_Disciplina`) REFERENCES `Disciplinas` (`ID_Disciplina`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_notas_matricula` FOREIGN KEY (`ID_Matricula`) REFERENCES `Matriculas` (`ID_Matricula`) ON DELETE RESTRICT ON UPDATE CASCADE,
   ADD CONSTRAINT `Notas_ibfk_1` FOREIGN KEY (`ID_Matricula`) REFERENCES `Matriculas` (`ID_Matricula`),
   ADD CONSTRAINT `Notas_ibfk_2` FOREIGN KEY (`ID_Disciplina`) REFERENCES `Disciplinas` (`ID_Disciplina`);
+
+--
+-- Restrições para tabelas `Ocorrencias`
+--
+ALTER TABLE `Ocorrencias`
+  ADD CONSTRAINT `fk_ocorrencias_matricula` FOREIGN KEY (`ID_Matricula`) REFERENCES `Matriculas` (`ID_Matricula`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_ocorrencias_professor` FOREIGN KEY (`ID_Professor`) REFERENCES `Professores` (`ID_Professor`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_ocorrencias_turma` FOREIGN KEY (`ID_Turma`) REFERENCES `Turmas` (`ID_Turma`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 --
 -- Restrições para tabelas `Planos_Ensino`
 --
 ALTER TABLE `Planos_Ensino`
+  ADD CONSTRAINT `fk_planos_disciplina` FOREIGN KEY (`ID_Disciplina`) REFERENCES `Disciplinas` (`ID_Disciplina`) ON DELETE RESTRICT ON UPDATE CASCADE,
   ADD CONSTRAINT `Planos_Ensino_ibfk_1` FOREIGN KEY (`ID_Disciplina`) REFERENCES `Disciplinas` (`ID_Disciplina`);
 
 --
 -- Restrições para tabelas `Presencas`
 --
 ALTER TABLE `Presencas`
+  ADD CONSTRAINT `fk_presencas_disciplina` FOREIGN KEY (`ID_Disciplina`) REFERENCES `Disciplinas` (`ID_Disciplina`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_presencas_matricula` FOREIGN KEY (`ID_Matricula`) REFERENCES `Matriculas` (`ID_Matricula`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_presencas_professor` FOREIGN KEY (`ID_Professor`) REFERENCES `Professores` (`ID_Professor`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_presencas_turma` FOREIGN KEY (`ID_Turma`) REFERENCES `Turmas` (`ID_Turma`) ON DELETE RESTRICT ON UPDATE CASCADE,
   ADD CONSTRAINT `Presencas_ibfk_1` FOREIGN KEY (`ID_Turma`) REFERENCES `Turmas` (`ID_Turma`),
   ADD CONSTRAINT `Presencas_ibfk_2` FOREIGN KEY (`ID_Matricula`) REFERENCES `Matriculas` (`ID_Matricula`),
   ADD CONSTRAINT `Presencas_ibfk_3` FOREIGN KEY (`ID_Professor`) REFERENCES `Professores` (`ID_Professor`);
@@ -6790,11 +6845,27 @@ ALTER TABLE `Professores`
   ADD CONSTRAINT `Professores_ibfk_1` FOREIGN KEY (`ID_Professor`) REFERENCES `Usuarios` (`ID_Usuario`) ON DELETE CASCADE;
 
 --
+-- Restrições para tabelas `Professores_Disciplinas`
+--
+ALTER TABLE `Professores_Disciplinas`
+  ADD CONSTRAINT `fk_profdisc_disciplina` FOREIGN KEY (`ID_Disciplina`) REFERENCES `Disciplinas` (`ID_Disciplina`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_profdisc_professor` FOREIGN KEY (`ID_Professor`) REFERENCES `Professores` (`ID_Professor`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_profdisc_turma` FOREIGN KEY (`ID_Turma`) REFERENCES `Turmas` (`ID_Turma`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Restrições para tabelas `Professores_Turmas`
 --
 ALTER TABLE `Professores_Turmas`
+  ADD CONSTRAINT `fk_profturmas_professor` FOREIGN KEY (`ID_Professor`) REFERENCES `Professores` (`ID_Professor`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_profturmas_turma` FOREIGN KEY (`ID_Turma`) REFERENCES `Turmas` (`ID_Turma`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `Professores_Turmas_ibfk_1` FOREIGN KEY (`ID_Professor`) REFERENCES `Professores` (`ID_Professor`),
   ADD CONSTRAINT `Professores_Turmas_ibfk_2` FOREIGN KEY (`ID_Turma`) REFERENCES `Turmas` (`ID_Turma`);
+
+--
+-- Restrições para tabelas `Tipos_Eventos`
+--
+ALTER TABLE `Tipos_Eventos`
+  ADD CONSTRAINT `fk_tipoeventos_usuario` FOREIGN KEY (`ID_Usuario`) REFERENCES `Usuarios` (`ID_Usuario`) ON DELETE RESTRICT ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
