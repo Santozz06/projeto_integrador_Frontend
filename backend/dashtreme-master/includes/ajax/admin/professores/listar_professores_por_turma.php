@@ -3,7 +3,7 @@ require_once '../../../config/conexao.php';
 
 header('Content-Type: application/json');
 
-$idTurma = isset($_GET['turma_id']) ? (int)$_GET['turma_id'] : 0;
+$idTurma = isset($_GET['turma_id']) ? (int) $_GET['turma_id'] : 0;
 if ($idTurma <= 0) {
     echo json_encode(['success' => false, 'message' => 'turma_id inválido']);
     exit;
@@ -26,4 +26,3 @@ try {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
-        
