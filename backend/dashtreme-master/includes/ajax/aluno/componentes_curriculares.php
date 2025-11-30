@@ -13,7 +13,7 @@ try {
     $alunoId = (int)$_SESSION['usuario_id'];
     $anoParam = isset($_GET['ano']) ? (int)$_GET['ano'] : null;
 
-    // Obter anos de matrícula do aluno (coalescendo com Turmas)
+    // Obter anos de matrícula do aluno 
     $sqlAnos = "SELECT DISTINCT COALESCE(m.Ano_Letivo, t.Ano_Letivo) AS Ano
                 FROM Matriculas m
                 LEFT JOIN Turmas t ON t.ID_Turma = m.ID_Turma
@@ -24,7 +24,7 @@ try {
     $anos = array_map(function($r){ return (int)$r['Ano']; }, $stAnos->fetchAll(PDO::FETCH_ASSOC));
 
     if (!$anoParam && !empty($anos)) {
-        $anoParam = (int)$anos[0]; // ano mais recente
+        $anoParam = (int)$anos[0]; 
     }
 
     if (!$anoParam) {
@@ -66,7 +66,7 @@ try {
     $stC->execute($execParams);
     $rows = $stC->fetchAll(PDO::FETCH_ASSOC);
 
-    // Consolidar por disciplina (caso a mesma apareça em múltiplos horários/turmas)
+    // Consolidar por disciplina
     $map = [];
     foreach ($rows as $r) {
         $id = (int)$r['ID_Disciplina'];

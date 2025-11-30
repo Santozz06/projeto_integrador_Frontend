@@ -92,8 +92,6 @@ class DisciplinaCRUD extends BaseCRUD {
     // VINCULAR DISCIPLINA À TURMA
     public function vincularATurma($idDisciplina, $idTurma) {
         try {
-            // Esta função seria usada se você tivesse uma tabela de relação Disciplinas_Turmas
-            // Por enquanto, as disciplinas são vinculadas via Matrículas
             throw new Exception("Funcionalidade não implementada. Use MatriculaCRUD para vincular disciplinas.");
         } catch (PDOException $e) {
             throw new Exception("Erro ao vincular disciplina: " . $e->getMessage());

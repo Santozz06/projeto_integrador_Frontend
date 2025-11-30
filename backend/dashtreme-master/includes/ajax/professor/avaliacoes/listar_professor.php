@@ -11,26 +11,12 @@ if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'professor' || 
 }
 
 try {
-    // Garante tabela de Avaliações
-    $pdo->exec("CREATE TABLE IF NOT EXISTS Avaliacoes (
-        ID_Avaliacao INT NOT NULL AUTO_INCREMENT,
-        ID_Turma INT NOT NULL,
-        ID_Professor INT NOT NULL,
-        Disciplina VARCHAR(100) NOT NULL,
-        Tipo VARCHAR(50) NOT NULL,
-        Data DATE NOT NULL,
-        Ano_Letivo INT NOT NULL,
-        PRIMARY KEY (ID_Avaliacao),
-        KEY idx_turma (ID_Turma),
-        KEY idx_prof (ID_Professor),
-        KEY idx_ano (Ano_Letivo)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-
+   
     $profId = (int)$_SESSION['usuario_id'];
 
     // Parâmetros opcionais
     $limite = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 10;
-    $apenasFuturas = isset($_GET['futuras']) ? (int)$_GET['futuras'] : 1; // 1=futuras, 0=todas
+    $apenasFuturas = isset($_GET['futuras']) ? (int)$_GET['futuras'] : 1;
 
     $params = [$profId];
     $sql = "SELECT a.ID_Avaliacao, a.ID_Turma, a.Disciplina, a.Tipo, a.Data, a.Ano_Letivo,

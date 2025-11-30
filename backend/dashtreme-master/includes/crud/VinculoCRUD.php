@@ -42,7 +42,7 @@ class VinculoCRUD extends BaseCRUD
             $rowAno = $stmtAno->fetch(PDO::FETCH_ASSOC);
             $anoLetivo = $rowAno && isset($rowAno['Ano_Letivo']) ? (int)$rowAno['Ano_Letivo'] : null;
 
-            // Encerra quaisquer matrículas ativas prévias do aluno (evita duplicidades)
+            // Encerra quaisquer matrículas ativas prévias do aluno 
             $hasDataSaida = false;
             try {
                 $col = $this->pdo->query("SHOW COLUMNS FROM Matriculas LIKE 'Data_Saida'");
@@ -55,9 +55,6 @@ class VinculoCRUD extends BaseCRUD
             }
             $this->pdo->prepare($sqlClose)->execute([$idAluno]);
 
-            // Fazer o vínculo (usar CURDATE() pois a coluna é do tipo DATE)
-            // Para evitar violação de UNIQUE (ID_Aluno, ID_Turma, Ano_Letivo),
-            // primeiro verificar se já existe uma linha (ativa ou inativa) com esses valores.
             if ($anoLetivo !== null) {
                 $sqlExists = "SELECT ID_Matricula FROM Matriculas WHERE ID_Aluno = ? AND ID_Turma = ? AND Ano_Letivo = ? LIMIT 1";
                 $stmtExists = $this->pdo->prepare($sqlExists);
@@ -76,7 +73,6 @@ class VinculoCRUD extends BaseCRUD
                     $ok = $stmt->execute([$idAluno, $idTurma, $anoLetivo]);
                 }
             } else {
-                // Caso sem Ano_Letivo, usar comportamento anterior (inserir)
                 $sql = "INSERT INTO Matriculas (ID_Aluno, ID_Turma, Data_Matricula, Status, Tipo_Matricula)
                         VALUES (?, ?, CURDATE(), 'Ativa', 'Vinculo')";
                 $stmt = $this->pdo->prepare($sql);
@@ -173,12 +169,11 @@ class VinculoCRUD extends BaseCRUD
     public function removerVinculoAluno($idMatricula)
     {
         try {
-            // Tenta registrar a Data_Saida (se a coluna existir) usando CURDATE() (coluna DATE)
+            // Tenta registrar a Data_Saida (se a coluna existir) usando CURDATE()
             $sql = "UPDATE Matriculas SET Status = 'Inativa', Data_Saida = CURDATE() WHERE ID_Matricula = ?";
             $stmt = $this->pdo->prepare($sql);
             return $stmt->execute([$idMatricula]);
         } catch (PDOException $e) {
-            // Fallback para schemas antigos sem a coluna Data_Saida
             if (strpos($e->getMessage(), 'Unknown column') !== false) {
                 try {
                     $sql = "UPDATE Matriculas SET Status = 'Inativa' WHERE ID_Matricula = ?";

@@ -4,21 +4,6 @@ require_once '../../config/conexao.php';
 header('Content-Type: application/json');
 
 try {
-    $pdo->exec("CREATE TABLE IF NOT EXISTS Documentos (
-        ID_Documento INT AUTO_INCREMENT PRIMARY KEY,
-        Tipo VARCHAR(30) NOT NULL,
-        Titulo VARCHAR(200) NOT NULL,
-        Descricao TEXT NULL,
-        Data_Vigencia DATE NULL,
-        Arquivo_Nome VARCHAR(255) NOT NULL,
-        Arquivo_Conteudo LONGBLOB NOT NULL,
-        Mime_Type VARCHAR(100) NULL,
-        Tamanho_Bytes BIGINT NULL,
-        Ativo TINYINT(1) DEFAULT 1,
-        Criado_Em DATETIME DEFAULT CURRENT_TIMESTAMP,
-        Atualizado_Em DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-
     $tipo = isset($_GET['tipo']) && $_GET['tipo'] !== '' ? trim($_GET['tipo']) : null;
 
     $sql = "SELECT ID_Documento, Tipo, Titulo, Descricao, Data_Vigencia, Arquivo_Nome, Mime_Type, Tamanho_Bytes, Ativo, Criado_Em, Atualizado_Em

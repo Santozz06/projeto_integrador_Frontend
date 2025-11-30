@@ -28,17 +28,7 @@ try {
     if (in_array($nome, $reservados, true)) {
         throw new Exception('Tipos padrão não podem ser removidos');
     }
-
-    // Garantir tabela
-    $pdo->exec("CREATE TABLE IF NOT EXISTS Tipos_Eventos (
-        ID INT AUTO_INCREMENT PRIMARY KEY,
-        ID_Usuario INT NOT NULL,
-        Nome VARCHAR(64) NOT NULL,
-        Label VARCHAR(128) NOT NULL,
-        Cor VARCHAR(16) NOT NULL,
-        UNIQUE KEY uq_user_nome (ID_Usuario, Nome)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-
+    
     $stmt = $pdo->prepare('DELETE FROM Tipos_Eventos WHERE ID_Usuario = ? AND Nome = ?');
     $stmt->execute([$idUsuario, $nome]);
 

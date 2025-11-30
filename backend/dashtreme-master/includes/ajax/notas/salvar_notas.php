@@ -20,7 +20,6 @@ try {
     $raw = file_get_contents('php://input');
     $json = json_decode($raw, true);
 
-    // Permitir também application/x-www-form-urlencoded como fallback simples
     if (!$json && isset($_POST['disciplina_id']) && isset($_POST['updates'])) {
         $json = [
             'disciplina_id' => (int)$_POST['disciplina_id'],
@@ -61,20 +60,17 @@ try {
         }
     }
 
-    // Sanitizar trimestre (1..4 aceito, mas por padrão 1..3)
     if ($trimestre < 1 || $trimestre > 4) { $trimestre = 1; }
 
-    // Garantir coluna Trimestre na tabela Notas (migração leve)
+    // Garantir coluna Trimestre na tabela Notas
     try {
         $check = $pdo->query("SHOW COLUMNS FROM Notas LIKE 'Trimestre'");
         if ($check->rowCount() === 0) {
             $pdo->exec("ALTER TABLE Notas ADD COLUMN Trimestre TINYINT NULL AFTER ID_Disciplina");
         }
     } catch (Throwable $e) {
-        // Se falhar a adição da coluna, seguimos sem ela (compatibilidade antiga)
     }
 
-    // Iniciar transação para melhor desempenho e atomicidade
     $pdo->beginTransaction();
 
     // Consultar se coluna Trimestre existe agora
@@ -89,7 +85,6 @@ try {
         $stmtUpd = $pdo->prepare('UPDATE Notas SET Nota = ?, Observacoes = COALESCE(Observacoes, NULL) WHERE ID_Nota = ?');
         $stmtIns = $pdo->prepare('INSERT INTO Notas (ID_Matricula, ID_Disciplina, Trimestre, Etapa, Nota) VALUES (?, ?, ?, ?, ?)');
     } else {
-        // compatibilidade: sem Trimestre, mantém chave por Etapa apenas
         $stmtSel = $pdo->prepare('SELECT ID_Nota FROM Notas WHERE ID_Matricula = ? AND ID_Disciplina = ? AND Etapa = ?');
         $stmtUpd = $pdo->prepare('UPDATE Notas SET Nota = ?, Observacoes = COALESCE(Observacoes, NULL) WHERE ID_Nota = ?');
         $stmtIns = $pdo->prepare('INSERT INTO Notas (ID_Matricula, ID_Disciplina, Etapa, Nota) VALUES (?, ?, ?, ?)');
@@ -124,20 +119,18 @@ try {
         $nota = array_key_exists('nota', $u) && $u['nota'] !== '' ? $u['nota'] : null; // permitir null
 
         if ($idMatricula <= 0 || $etapa === '') {
-            continue; // ignora item inválido
+            continue; 
         }
 
-        // Validar etapa (somente 1..4)
         if (!in_array($etapa, ['1', '2', '3', '4'], true)) {
-            continue; // etapa inválida
+            continue; 
         }
 
         // Normalizar nota
         if ($nota !== null) {
             if (!is_numeric($nota)) {
-                continue; // ignora valores não numéricos
+                continue; 
             }
-            // Limitar intervalo 0.00 .. 10.00 e padronizar casas decimais
             $nota = max(0.0, min(10.0, (float)$nota));
             $nota = number_format($nota, 2, '.', '');
         }

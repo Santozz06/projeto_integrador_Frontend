@@ -8,7 +8,7 @@ try {
         http_response_code(403);
         echo json_encode(['success' => false, 'message' => 'Acesso negado']);
         exit;
-    }
+        }
 
     $alunoId = (int)$_SESSION['usuario_id'];
 
@@ -22,7 +22,7 @@ try {
     $st->execute([$alunoId]);
     $rows = $st->fetchAll(PDO::FETCH_ASSOC);
 
-    // Consolidar por ano letivo (evita anos repetidos quando há múltiplas matrículas no mesmo ano)
+    //evita anos repetidos quando há múltiplas matrículas no mesmo ano)
     $map = [];
     foreach ($rows as $r) {
         $ano = (int)$r['Ano_Letivo'];

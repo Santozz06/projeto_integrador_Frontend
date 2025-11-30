@@ -38,7 +38,6 @@ try {
         while ($row = $st->fetch(PDO::FETCH_ASSOC)) {
             $data = $row['Data'];
             $mes = (int)date('n', strtotime($data));
-            // Trimestre: 1 = Jan-Mar, 2 = Abr-Jun, 3 = Jul-Dez
             $tri = ($mes <= 3) ? '1' : (($mes <= 6) ? '2' : '3');
             $resumo[$tri]['total'] += 1;
             $resumo[$tri]['presentes'] += ((int)$row['Presenca'] ? 1 : 0);

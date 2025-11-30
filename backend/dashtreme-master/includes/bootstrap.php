@@ -21,7 +21,7 @@ $matriculaCRUD = new MatriculaCRUD($pdo);
 
 // checa auth
 function verificarAuth($tipoRequerido = null) {
-    // Se cabeçalhos já foram enviados, não tenta redirecionar para evitar warnings
+    // Se cabeçalhos já foram enviados, não tenta redirecionar
     $canRedirect = !headers_sent();
     if (!isset($_SESSION['usuario_id'])) {
         if ($canRedirect) {

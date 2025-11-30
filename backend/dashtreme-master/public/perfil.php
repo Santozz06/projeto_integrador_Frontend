@@ -19,7 +19,7 @@ if (!$__bootstrapLoaded) {
 
 if (session_status() === PHP_SESSION_NONE) { @session_start(); }
 $idUsuario = $_SESSION['usuario_id'] ?? null;
-$tipoUsuario = $_SESSION['user_type'] ?? null; // 'professor' | 'aluno'
+$tipoUsuario = $_SESSION['user_type'] ?? null; 
 
 function gerarIniciaisPerfil($nome) {
     $nome = trim((string)$nome);
@@ -40,10 +40,7 @@ try {
         $usuario = $usuarioCRUD->buscarProfessorCompleto($idUsuario);
         if (!$usuario) { throw new Exception('Professor não encontrado'); }
 
-        // Debug temporário - remover após verificar
-        error_log("Dados do professor: " . print_r($usuario, true));
-
-        // Query para buscar disciplinas, turmas e horários do professor (ajustada ao schema: usa tabela Horarios)
+        // Query para buscar disciplinas, turmas e horários do professor 
         $sqlDisciplinas = "SELECT 
                             d.Nome_Disciplina,
                             t.Nome_Turma,
@@ -60,9 +57,6 @@ try {
         $stmtDisc = $pdo->prepare($sqlDisciplinas);
         $stmtDisc->execute([$idUsuario]);
         $atuacoes = $stmtDisc->fetchAll(PDO::FETCH_ASSOC) ?: [];
-
-        // Debug temporário - remover após verificar
-        error_log("Atuações encontradas: " . print_r($atuacoes, true));
 
         // Calcular carga horária total semanal a partir dos horários (Hora_Inicio/Hora_Fim)
         $totalMinutos = 0;

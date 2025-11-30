@@ -8,13 +8,11 @@ $ano = isset($_GET['ano']) ? (int)$_GET['ano'] : null;
 $turno = isset($_GET['turno']) && $_GET['turno'] !== '' ? $_GET['turno'] : null;
 $professorId = isset($_GET['professor_id']) && $_GET['professor_id'] !== '' ? (int)$_GET['professor_id'] : null;
 $listAll = isset($_GET['all']) && $_GET['all'] == '1';
-// debug removido
 
 try {
     $params = [];
     $isProfessor = isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'professor' && isset($_SESSION['usuario_id']);
 
-    // Sempre use alias 't' para consistência nas condições
     $sql = "SELECT t.ID_Turma, t.Nome_Turma, t.Ano_Letivo, t.Turno, t.Etapa FROM Turmas t WHERE 1=1";
 
     if ($isProfessor && !$listAll) {

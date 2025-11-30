@@ -23,7 +23,7 @@ try {
     }
     if ($trimestre < 1 || $trimestre > 4) { $trimestre = 1; }
 
-    // Selecionar a matrícula do aluno para o ano informado (ou mais recente)
+    // Selecionar a matrícula do aluno para o ano informado
     if ($ano) {
         $sqlMat = "SELECT m.ID_Matricula, COALESCE(m.Ano_Letivo, t.Ano_Letivo) AS Ano
                    FROM Matriculas m

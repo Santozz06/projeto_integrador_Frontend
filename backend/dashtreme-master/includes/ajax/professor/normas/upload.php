@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'professor') {
     exit;
 }
 
-$root = realpath(__DIR__ . '/../../../..'); // .../backend/dashtreme-master
+$root = realpath(__DIR__ . '/../../../..');
 $uploadAbs = $root . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'normas';
 if (!is_dir($uploadAbs)) {
     @mkdir($uploadAbs, 0775, true);
@@ -75,7 +75,7 @@ try {
         throw new Exception('Não foi possível ler o arquivo enviado');
     }
 
-    // Salva no banco de dados (tabela Documentos)
+    // Salva no banco de dados 
     $stmt = $pdo->prepare('INSERT INTO Documentos (Tipo, Titulo, Descricao, Data_Vigencia, Arquivo_Nome, Arquivo_Conteudo, Mime_Type, Tamanho_Bytes, Ativo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)');
     $tipo = 'norma';
     $titulo = $destName;

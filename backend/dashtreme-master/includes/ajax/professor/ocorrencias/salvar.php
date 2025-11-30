@@ -10,23 +10,6 @@ if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'professor' || 
 }
 
 try {
-    // Cria tabela Ocorrencias se não existir
-    $pdo->exec("CREATE TABLE IF NOT EXISTS Ocorrencias (
-        ID_Ocorrencia INT NOT NULL AUTO_INCREMENT,
-        ID_Turma INT NOT NULL,
-        ID_Matricula INT NOT NULL,
-        Data DATE NOT NULL,
-        Tipo VARCHAR(100) NOT NULL,
-        Descricao TEXT NOT NULL,
-        ID_Professor INT NOT NULL,
-        DataHoraRegistro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (ID_Ocorrencia),
-        KEY idx_turma (ID_Turma),
-        KEY idx_matricula (ID_Matricula),
-        KEY idx_data (Data),
-        KEY idx_prof (ID_Professor)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-
     $raw = file_get_contents('php://input');
     $payload = json_decode($raw, true);
     if (!is_array($payload)) { throw new Exception('JSON inválido'); }

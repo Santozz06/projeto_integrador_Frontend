@@ -17,22 +17,6 @@ if ($turmaId <= 0 || $data === '') {
 }
 
 try {
-    // Garante tabela
-    $pdo->exec("CREATE TABLE IF NOT EXISTS Presencas (
-        ID_Presenca INT NOT NULL AUTO_INCREMENT,
-        ID_Turma INT NOT NULL,
-        ID_Matricula INT NOT NULL,
-        Data DATE NOT NULL,
-        Status CHAR(1) NOT NULL,
-        ID_Professor INT NOT NULL,
-        DataHoraRegistro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (ID_Presenca),
-        UNIQUE KEY uq_turma_matricula_data (ID_Turma, ID_Matricula, Data),
-        KEY idx_turma (ID_Turma),
-        KEY idx_data (Data),
-        KEY idx_prof (ID_Professor)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-
     $sql = 'SELECT ID_Matricula, Status FROM Presencas WHERE ID_Turma = ? AND Data = ?';
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$turmaId, $data]);

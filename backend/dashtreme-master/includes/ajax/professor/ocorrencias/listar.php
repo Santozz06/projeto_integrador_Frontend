@@ -20,23 +20,6 @@ if ($turmaId <= 0) {
 }
 
 try {
-    // Garante tabela
-    $pdo->exec("CREATE TABLE IF NOT EXISTS Ocorrencias (
-        ID_Ocorrencia INT NOT NULL AUTO_INCREMENT,
-        ID_Turma INT NOT NULL,
-        ID_Matricula INT NOT NULL,
-        Data DATE NOT NULL,
-        Tipo VARCHAR(100) NOT NULL,
-        Descricao TEXT NOT NULL,
-        ID_Professor INT NOT NULL,
-        DataHoraRegistro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (ID_Ocorrencia),
-        KEY idx_turma (ID_Turma),
-        KEY idx_matricula (ID_Matricula),
-        KEY idx_data (Data),
-        KEY idx_prof (ID_Professor)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-
     $profId = (int)$_SESSION['usuario_id'];
     // Verifica acesso do professor à turma
     $stmtChk = $pdo->prepare('SELECT 1 FROM Professores_Turmas WHERE ID_Professor = ? AND ID_Turma = ?');

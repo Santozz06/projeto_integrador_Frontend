@@ -11,9 +11,9 @@ try {
     }
 
     $alunoId = (int)$_SESSION['usuario_id'];
-    $ano = isset($_GET['ano']) ? (int)$_GET['ano'] : null; // opcional, se vazio pega ativa
+    $ano = isset($_GET['ano']) ? (int)$_GET['ano'] : null; 
 
-    // Matriculas ativas do aluno (filtrar por ano quando informado)
+    // Matriculas ativas do aluno 
     $params = [$alunoId];
     $sqlMat = "SELECT m.ID_Matricula, m.ID_Turma, m.Ano_Letivo, t.Nome_Turma
                FROM Matriculas m
@@ -27,7 +27,7 @@ try {
     $mats = $stm->fetchAll(PDO::FETCH_ASSOC);
 
     if (!$mats) {
-        // Fallback: se não há ativa, usa a mais recente do ano (ou geral)
+        // se não há ativa, usa a mais recente do ano (ou geral)
         $params2 = [$alunoId];
         $sqlMat2 = "SELECT m.ID_Matricula, m.ID_Turma, m.Ano_Letivo, t.Nome_Turma
                     FROM Matriculas m
@@ -45,20 +45,6 @@ try {
     // Coletar IDs de turma
     $turmas = array_map(function($m){ return (int)$m['ID_Turma']; }, $mats);
     $place = implode(',', array_fill(0, count($turmas), '?'));
-
-    // Garante tabela Horarios
-    $pdo->exec("CREATE TABLE IF NOT EXISTS Horarios (
-        ID_Horario INT AUTO_INCREMENT PRIMARY KEY,
-        ID_Turma INT NOT NULL,
-        ID_Disciplina INT NOT NULL,
-        ID_Professor INT NOT NULL,
-        Dia_Semana TINYINT NOT NULL,
-        Hora_Inicio TIME NOT NULL,
-        Hora_Fim TIME NOT NULL,
-        Sala VARCHAR(20) NULL,
-        Ano_Letivo INT NULL,
-        Observacao VARCHAR(255) NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
     $sql = "SELECT h.*, t.Nome_Turma, d.Nome_Disciplina
             FROM Horarios h

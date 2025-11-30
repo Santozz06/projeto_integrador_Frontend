@@ -59,7 +59,6 @@ try {
         $stP->execute($params);
         $rows = $stP->fetchAll(PDO::FETCH_ASSOC);
     } catch (Throwable $e) {
-        // Compatibilidade: se Presencas não existir, retorna vazio (evita quebrar UI)
         $rows = [];
     }
 
@@ -73,7 +72,6 @@ try {
         if ($st === 'P') {
             $aggr[$mid]['presentes'] += 1;
         } else {
-            // Trata 'A' e 'J' como ausências para o campo 'Faltas' (mantém compatibilidade da UI)
             $aggr[$mid]['faltas'] += 1;
         }
     }

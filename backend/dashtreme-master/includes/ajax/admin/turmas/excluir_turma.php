@@ -17,8 +17,8 @@ try {
         echo json_encode(['success' => true]);
     } else {
         echo json_encode(['success' => false, 'message' => 'Erro ao excluir turma']);
-    }
+        }
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
-?>
+    ?>

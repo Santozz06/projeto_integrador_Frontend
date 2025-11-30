@@ -8,16 +8,6 @@ try {
     $ano = isset($_GET['ano']) && $_GET['ano'] !== '' ? intval($_GET['ano']) : null;
     if ($professorId <= 0) { echo json_encode(['success' => true, 'data' => []]); exit; }
 
-    // Garante a existência da tabela de relação
-    $pdo->exec("CREATE TABLE IF NOT EXISTS Professores_Disciplinas (
-        ID_ProfDisc INT AUTO_INCREMENT PRIMARY KEY,
-        ID_Professor INT NOT NULL,
-        ID_Disciplina INT NOT NULL,
-        Ano_Letivo INT NULL,
-        ID_Turma INT NULL,
-        UNIQUE KEY uq_prof_disc_ano_turma (ID_Professor, ID_Disciplina, Ano_Letivo, ID_Turma)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-
     $sql = "SELECT d.ID_Disciplina, d.Nome_Disciplina, d.Carga_Horaria, d.Etapa, d.Ano_Letivo
             FROM Professores_Disciplinas pd
             INNER JOIN Disciplinas d ON d.ID_Disciplina = pd.ID_Disciplina

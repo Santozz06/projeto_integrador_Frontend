@@ -2,7 +2,7 @@
 require_once '../../../config/conexao.php';
 
 header('Content-Type: application/json');
-
+        
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['success' => false, 'message' => 'Método não permitido']);
@@ -18,12 +18,12 @@ $municipioUF = isset($_POST['municipio_uf']) ? trim($_POST['municipio_uf']) : ''
 
 if ($alunoId <= 0) {
     echo json_encode(['success' => false, 'message' => 'aluno_id inválido']);
-    exit;
+        exit;
 }
 
 try {
     // Encontra a matrícula ativa mais recente do aluno
-    $sqlMat = "SELECT ID_Matricula FROM Matriculas 
+        $sqlMat = "SELECT ID_Matricula FROM Matriculas 
                WHERE ID_Aluno = ? AND Status = 'Ativa'
                ORDER BY Ano_Letivo DESC, Data_Matricula DESC
                LIMIT 1";
@@ -38,7 +38,7 @@ try {
 
     $idMatricula = (int) $mat['ID_Matricula'];
 
-    // Tentar registrar saída com data
+    // Tenta registrar saída com data
     try {
         $sqlUp = "UPDATE Matriculas SET Status = 'Inativa', Data_Saida = ? WHERE ID_Matricula = ?";
         $stUp = $pdo->prepare($sqlUp);

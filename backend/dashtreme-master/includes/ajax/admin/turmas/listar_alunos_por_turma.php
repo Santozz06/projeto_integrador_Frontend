@@ -19,7 +19,7 @@ try {
                 a.Matricula,
                 m.ID_Matricula,
                 m.Status,
-                m.Data_Matricula
+                    m.Data_Matricula
             FROM Matriculas m
             INNER JOIN Alunos a ON m.ID_Aluno = a.ID_Aluno
             INNER JOIN Usuarios u ON a.ID_Aluno = u.ID_Usuario

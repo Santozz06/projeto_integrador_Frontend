@@ -13,7 +13,7 @@ try {
     $idProfessor = (int)$_SESSION['usuario_id'];
     $ano = isset($_GET['ano']) ? (int)$_GET['ano'] : null;
 
-    // === TURMAS ===
+    // TURMAS 
     $sqlTurmas = "SELECT COUNT(*) AS total FROM (
         SELECT DISTINCT pt.ID_Turma
         FROM Professores_Turmas pt
@@ -50,7 +50,7 @@ try {
     $turmas = (int)($st->fetchColumn() ?: 0);
 
 
-    // === ALUNOS ===
+    // ALUNOS
     $sqlAlunos = "SELECT COUNT(DISTINCT m.ID_Aluno) AS total
         FROM Matriculas m
         WHERE m.Status = 'Ativa'";
@@ -100,7 +100,7 @@ try {
     $alunos = (int)($st->fetchColumn() ?: 0);
 
 
-    // === DISCIPLINAS ===
+    // DISCIPLINAS
     $hasAtivo = false;
     try {
         $c = $pdo->query("SHOW COLUMNS FROM Disciplinas LIKE 'Ativo'");

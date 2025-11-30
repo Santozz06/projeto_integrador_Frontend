@@ -19,17 +19,7 @@ try {
         ['nome' => 'evento',   'label' => 'Evento Institucional',   'cor' => '#6f42c1', 'is_default' => true],
         ['nome' => 'conselho', 'label' => 'Conselho de Classe',     'cor' => '#17a2b8', 'is_default' => true],
         ['nome' => 'formacao', 'label' => 'Formação Pedagógica',    'cor' => '#6610f2', 'is_default' => true],
-    ];
-
-    // Garantir tabela
-    $pdo->exec("CREATE TABLE IF NOT EXISTS Tipos_Eventos (
-        ID INT AUTO_INCREMENT PRIMARY KEY,
-        ID_Usuario INT NOT NULL,
-        Nome VARCHAR(64) NOT NULL,
-        Label VARCHAR(128) NOT NULL,
-        Cor VARCHAR(16) NOT NULL,
-        UNIQUE KEY uq_user_nome (ID_Usuario, Nome)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        ];
 
     // Buscar tipos do usuário
     $stmt = $pdo->prepare('SELECT Nome, Label, Cor FROM Tipos_Eventos WHERE ID_Usuario = ? ORDER BY Label');

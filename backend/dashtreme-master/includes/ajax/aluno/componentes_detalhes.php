@@ -54,7 +54,7 @@ try {
         exit;
     }
 
-    // Frequência por disciplina (preferencial). Fallback para geral se coluna/registro não existir.
+    // Frequência por disciplina (preferencial)
     $temColDisc = false;
     try {
         $stCol = $pdo->prepare("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'Presencas' AND COLUMN_NAME = 'ID_Disciplina'");
@@ -84,7 +84,7 @@ try {
         }
     }
     if ($perc === null) {
-        // Fallback para frequência geral do ano (compatibilidade com bases antigas)
+        // Fallback para frequência geral do ano
         $sqlFreqG = "SELECT 
                         COUNT(*) AS total,
                         SUM(CASE WHEN Status = 'P' THEN 1 ELSE 0 END) AS presentes,

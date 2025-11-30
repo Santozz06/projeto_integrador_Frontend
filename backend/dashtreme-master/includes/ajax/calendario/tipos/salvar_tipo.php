@@ -39,16 +39,6 @@ try {
         throw new Exception('Tipos padrão não podem ser editados');
     }
 
-    // Garantir tabela
-    $pdo->exec("CREATE TABLE IF NOT EXISTS Tipos_Eventos (
-        ID INT AUTO_INCREMENT PRIMARY KEY,
-        ID_Usuario INT NOT NULL,
-        Nome VARCHAR(64) NOT NULL,
-        Label VARCHAR(128) NOT NULL,
-        Cor VARCHAR(16) NOT NULL,
-        UNIQUE KEY uq_user_nome (ID_Usuario, Nome)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-
     if ($old !== '' && $old !== $nome) {
         // Renomear: excluir/atualizar chave
         $stmt = $pdo->prepare('SELECT 1 FROM Tipos_Eventos WHERE ID_Usuario = ? AND Nome = ?');

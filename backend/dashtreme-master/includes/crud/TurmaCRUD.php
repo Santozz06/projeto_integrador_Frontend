@@ -52,7 +52,7 @@ class TurmaCRUD extends BaseCRUD
         }
     }
 
-    // LISTAR TODAS AS TURMAS (SIMPLES)
+    // LISTAR TODAS AS TURMAS 
     public function listarTodas()
     {
         try {
@@ -189,4 +189,4 @@ class TurmaCRUD extends BaseCRUD
         }
     }
 }
-?>
+    ?>

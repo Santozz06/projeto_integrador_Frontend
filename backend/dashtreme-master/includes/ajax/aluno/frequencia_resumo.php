@@ -11,7 +11,7 @@ try {
     }
 
     $alunoId = (int)$_SESSION['usuario_id'];
-    $ano = isset($_GET['ano']) ? (int)$_GET['ano'] : null; // opcional
+    $ano = isset($_GET['ano']) ? (int)$_GET['ano'] : null;
 
     $mats = [];
     $lastMat = null; 
@@ -100,7 +100,7 @@ try {
         }
     } catch (Throwable $e) { }
 
-    // Resumo com base na tabela Presencas (usada no caderno de chamada)
+
     // Contabiliza P/A/J por matrícula e calcula % conforme relatório mensal (P / (P+A+J))
     $totais = ['P' => 0, 'A' => 0, 'J' => 0];
     try {
@@ -116,7 +116,6 @@ try {
             if (isset($totais[$s])) { $totais[$s] = $q; }
         }
     } catch (Throwable $e) {
-        // Se tabela não existir ainda, mantém zeros
     }
     $reg = $totais['P'] + $totais['A'] + $totais['J'];
     $pres = $totais['P'];

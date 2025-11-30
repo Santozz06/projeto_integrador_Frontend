@@ -55,7 +55,6 @@ try {
     $in = implode(',', array_fill(0, count($idsMat), '?'));
 
     // Buscar notas por matrícula e etapa para a disciplina
-    // Garantir coluna Trimestre se possível (migração leve)
     $hasTri = false;
     try {
         $check = $pdo->query("SHOW COLUMNS FROM Notas LIKE 'Trimestre'");

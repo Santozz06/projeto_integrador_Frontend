@@ -14,16 +14,6 @@ try {
         exit;
     }
 
-    // Garante a existência da tabela de relação
-    $pdo->exec("CREATE TABLE IF NOT EXISTS Professores_Disciplinas (
-        ID_ProfDisc INT AUTO_INCREMENT PRIMARY KEY,
-        ID_Professor INT NOT NULL,
-        ID_Disciplina INT NOT NULL,
-        Ano_Letivo INT NULL,
-        ID_Turma INT NULL,
-        UNIQUE KEY uq_prof_disc_ano_turma (ID_Professor, ID_Disciplina, Ano_Letivo, ID_Turma)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-
     // Evitar duplicidade
     $stmt = $pdo->prepare("SELECT 1 FROM Professores_Disciplinas WHERE ID_Professor = ? AND ID_Disciplina = ? AND ((? IS NULL AND Ano_Letivo IS NULL) OR Ano_Letivo = ? ) LIMIT 1");
     $stmt->execute([$idProf, $idDisc, $ano, $ano]);

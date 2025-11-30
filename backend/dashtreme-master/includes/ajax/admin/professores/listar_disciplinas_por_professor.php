@@ -23,7 +23,7 @@ try {
     if ($disciplina) {
         $sqlH .= " AND d.Nome_Disciplina = ?";
         $paramsH[] = $disciplina;
-    }
+        }
     if ($professorId) {
         $sqlH .= " AND h.ID_Professor = ?";
         $paramsH[] = $professorId;

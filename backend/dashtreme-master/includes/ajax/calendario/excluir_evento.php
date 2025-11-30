@@ -1,7 +1,5 @@
 <?php
 require_once '../../bootstrap.php';
-// Integração com Google desativada: mantendo apenas calendário local/ICS
-
 header('Content-Type: application/json');
 
 try {
@@ -11,7 +9,7 @@ try {
         exit;
     }
 
-    // Permitir admin e professor (professor só apaga o que é dele)
+    // Permitir admin e professor 
     if (!isset($_SESSION['user_type']) || !in_array($_SESSION['user_type'], ['admin','professor'])) {
         http_response_code(403);
         echo json_encode(['success' => false, 'message' => 'Acesso negado']);
@@ -36,7 +34,6 @@ try {
     $usuarioId = isset($_SESSION['usuario_id']) ? (int)$_SESSION['usuario_id'] : null;
 
     if ($isProfessor) {
-        // Garante coluna Criado_Por
         try {
             $chk = $pdo->query("SHOW COLUMNS FROM Calendario_Academico LIKE 'Criado_Por'");
             if ($chk->rowCount() === 0) {
@@ -55,7 +52,7 @@ try {
         }
     }
 
-    // Apagar no banco (admin: qualquer; professor: passou pela verificação)
+    // Apagar no banco 
     $st = $pdo->prepare('DELETE FROM Calendario_Academico WHERE ID_Evento = ?');
     $st->execute([$id]);
 

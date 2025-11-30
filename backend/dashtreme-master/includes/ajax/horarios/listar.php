@@ -9,24 +9,6 @@ try {
         echo json_encode(['success' => false, 'message' => 'Acesso negado']);
         exit;
     }
-
-    // Light migration: cria tabela caso não exista
-    $pdo->exec("CREATE TABLE IF NOT EXISTS Horarios (
-        ID_Horario INT AUTO_INCREMENT PRIMARY KEY,
-        ID_Turma INT NOT NULL,
-        ID_Disciplina INT NOT NULL,
-        ID_Professor INT NOT NULL,
-        Dia_Semana TINYINT NOT NULL,
-        Hora_Inicio TIME NOT NULL,
-        Hora_Fim TIME NOT NULL,
-        Sala VARCHAR(20) NULL,
-        Ano_Letivo INT NULL,
-        Observacao VARCHAR(255) NULL,
-        CONSTRAINT fk_horarios_turma FOREIGN KEY (ID_Turma) REFERENCES Turmas(ID_Turma) ON DELETE CASCADE,
-        CONSTRAINT fk_horarios_disc FOREIGN KEY (ID_Disciplina) REFERENCES Disciplinas(ID_Disciplina),
-        CONSTRAINT fk_horarios_prof FOREIGN KEY (ID_Professor) REFERENCES Professores(ID_Professor)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-
     $turmaId = isset($_GET['turma_id']) ? (int)$_GET['turma_id'] : null;
     $profId = isset($_GET['professor_id']) ? (int)$_GET['professor_id'] : null;
     $ano = isset($_GET['ano']) ? (int)$_GET['ano'] : null;

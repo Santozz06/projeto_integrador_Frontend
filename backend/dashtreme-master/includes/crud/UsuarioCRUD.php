@@ -14,13 +14,12 @@ class UsuarioCRUD extends BaseCRUD
         foreach ($numericOnly as $k) {
             if (isset($dados[$k]) && $dados[$k] !== null) {
                 $val = preg_replace('/\D+/', '', (string)$dados[$k]);
-                // limites razoáveis por campo
                 if ($k === 'CPF') {
                     $val = substr($val, 0, 11);
                 } elseif ($k === 'CEP') {
                     $val = substr($val, 0, 8);
-                } else { // telefones
-                    $val = substr($val, 0, 11); // DDD + número
+                } else { 
+                    $val = substr($val, 0, 11); 
                 }
                 $dados[$k] = $val;
             }
@@ -52,7 +51,6 @@ class UsuarioCRUD extends BaseCRUD
             $validas = array_map(fn($r) => $r['COLUMN_NAME'], $stmt->fetchAll(PDO::FETCH_ASSOC));
             return array_intersect_key($dados, array_flip($validas));
         } catch (Exception $e) {
-            // Fallback para whitelist básica
             $whitelist = [
                 'Login','Senha','Nome_Completo','Data_Nascimento','Sexo','CPF','Orgao_Exp','UF_Exp','Raca_Etnia','Endereco','Telefone','Email','Possui_Necessidades_Especiais','IsAdmin','Ativo','Estado_Civil','Nacionalidade','Naturalidade','Filiacao',
                 'RG','Data_Expedicao','CEP','Numero','Complemento','Bairro','UF_Endereco','Municipio_Endereco','Celular','Logradouro','Telefone_Fixo'
@@ -166,21 +164,16 @@ class UsuarioCRUD extends BaseCRUD
     {
         try {
             $this->pdo->beginTransaction();
-            // Inserir na tabela Usuarios (dinâmico)
             if (empty($dadosUsuario['Login']) && !empty($dadosUsuario['Email'])) {
                 $dadosUsuario['Login'] = $dadosUsuario['Email'];
             }
             $idUsuario = $this->inserirUsuario($dadosUsuario);
-
-            // Insere professor, se tiver coluna Matricula usa, senão faz básico
             $temMatricula = $this->hasColumn('Professores', 'Matricula');
-            // Auto-cria coluna Matricula se ausente e valor informado (migração silenciosa)
             if (!$temMatricula && $matriculaProfessor) {
                 try {
                     $this->pdo->exec("ALTER TABLE Professores ADD COLUMN Matricula VARCHAR(50) UNIQUE AFTER Area_Atuacao");
-                    $temMatricula = true; // agora disponível
+                    $temMatricula = true; 
                 } catch (Exception $e) {
-                    // Falhou criação: segue sem matricula
                     error_log('Falha ao criar coluna Matricula em Professores: ' . $e->getMessage());
                 }
             }
@@ -195,7 +188,6 @@ class UsuarioCRUD extends BaseCRUD
                     $matriculaProfessor
                 ]);
             } else {
-                // Caso a tabela não tenha Matricula
                 $sqlProfessor = "INSERT INTO Professores (ID_Professor, Formacao, Data_Ingresso, Area_Atuacao) VALUES (?, ?, ?, ?)";
                 $stmtProfessor = $this->pdo->prepare($sqlProfessor);
                 $stmtProfessor->execute([
@@ -345,7 +337,6 @@ class UsuarioCRUD extends BaseCRUD
                         $aluno['Outras_Necessidades'] = isset($row['Descricao']) ? (string)$row['Descricao'] : '';
                     }
                 } catch (Exception $e) {
-                    // silencioso, segue sem NEE
                 }
             }
 
@@ -511,4 +502,4 @@ class UsuarioCRUD extends BaseCRUD
         }
     }
 }
-?>
+    ?>

@@ -44,7 +44,6 @@ try {
                     ), ''
                 )
             ) AS Disciplinas,
-            -- turmas: tenta por Horarios, se não rolar usa Professores_Turmas
             COALESCE(
                 NULLIF(
                     (
@@ -81,13 +80,12 @@ try {
         $stmt->bindValue(':ano2', $ano, PDO::PARAM_INT);
         $stmt->bindValue(':ano3', $ano, PDO::PARAM_INT);
         $stmt->bindValue(':ano4', $ano, PDO::PARAM_INT);
-    }
+        }
     $stmt->execute();
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // ajuste pro front
     foreach ($rows as &$r) {
-        // status em texto
         $r['Status'] = isset($r['Ativo']) && (int)$r['Ativo'] === 1 ? 'Ativo' : 'Inativo';
         unset($r['Ativo']);
     }

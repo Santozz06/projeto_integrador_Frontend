@@ -62,13 +62,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function inicializar(){
     if (ano) { carregarPorAno(ano); return; }
-    // Se não veio ?ano, pegar o ano mais recente da API de anos
     const cacheBust = Date.now();
     fetch(`../includes/ajax/aluno/anos_matriculas.php?_=${cacheBust}`)
       .then(r=>r.json())
       .then(function(resp){
         if (resp && resp.success && resp.anos && resp.anos.length){
-          ano = resp.anos[0].ano; // já vem desc
+          ano = resp.anos[0].ano; 
           carregarPorAno(ano);
         }
         else {

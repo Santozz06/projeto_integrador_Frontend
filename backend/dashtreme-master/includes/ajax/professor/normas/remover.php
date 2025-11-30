@@ -21,7 +21,6 @@ try {
     $name = isset($data['name']) ? trim($data['name']) : '';
     if ($name === '') { throw new Exception('Nome do arquivo é obrigatório'); }
 
-    // Segurança básica: não permitir path traversal e exigir extensão pdf
     if (strpos($name, '..') !== false || strpos($name, '/') !== false || strpos($name, '\\') !== false) {
         throw new Exception('Nome de arquivo inválido');
     }
@@ -29,7 +28,7 @@ try {
         throw new Exception('Apenas PDFs podem ser removidos');
     }
 
-    // Exclui do banco de dados (Documentos)
+    // Exclui do banco de dados 
     $stmt = $pdo->prepare('DELETE FROM Documentos WHERE Arquivo_Nome = ?');
     $stmt->execute([$name]);
     if ($stmt->rowCount() === 0) {

@@ -10,13 +10,13 @@ if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'professor') {
 }
 
 try {
-    // Diretórios relativos ao arquivo normas.php (que fica em user_professor)
-    $baseFromPage = '..'; // de user_professor para backend/dashtreme-master
+    // Diretórios relativos ao arquivo normas.php 
+    $baseFromPage = '..'; 
     $uploadRel = $baseFromPage . '/uploads/normas';
     $samplesRel = '../user_professor/ArquivosParaExemplos';
 
-    // Caminhos absolutos no filesystem
-    $root = realpath(__DIR__ . '/../../../..'); // .../backend/dashtreme-master
+    // Caminhos absolutos
+    $root = realpath(__DIR__ . '/../../../..'); 
     $uploadAbs = $root . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'normas';
     if (!is_dir($uploadAbs)) {
         @mkdir($uploadAbs, 0775, true);
@@ -38,7 +38,7 @@ try {
         }
     }
 
-    // Lista extras enviados (do banco de dados)
+    // Lista extras enviados
     $extras = [];
     $stmt = $pdo->prepare("SELECT Arquivo_Nome, Tamanho_Bytes, Atualizado_Em, Criado_Em FROM Documentos WHERE Tipo = 'norma' AND Ativo = 1 ORDER BY Criado_Em DESC");
     $stmt->execute();

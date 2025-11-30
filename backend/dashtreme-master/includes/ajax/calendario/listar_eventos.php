@@ -4,14 +4,12 @@ require_once '../../bootstrap.php';
 header('Content-Type: application/json');
 
 try {
-    // Params from FullCalendar
         $start = isset($_GET['start']) ? $_GET['start'] : null; // FullCalendar ISO
         $end = isset($_GET['end']) ? $_GET['end'] : null;
     $tipo = isset($_GET['tipo']) && $_GET['tipo'] !== 'all' ? trim($_GET['tipo']) : null;
     $ano = isset($_GET['ano']) && $_GET['ano'] !== '' ? (int)$_GET['ano'] : null;
-    $publico = isset($_GET['publico']) && $_GET['publico'] !== 'all' ? trim($_GET['publico']) : null; // 'todos','professores','alunos'
+    $publico = isset($_GET['publico']) && $_GET['publico'] !== 'all' ? trim($_GET['publico']) : null; 
 
-    // Light migration: ensure Publico_Alvo column exists
     try {
         $chk = $pdo->query("SHOW COLUMNS FROM Calendario_Academico LIKE 'Publico_Alvo'");
         if ($chk->rowCount() === 0) {
@@ -24,8 +22,6 @@ try {
                    COALESCE(Publico_Alvo, 'todos') AS Publico_Alvo
             FROM Calendario_Academico WHERE 1=1";
 
-    // Date window: include events that OVERLAP the [start, end] range
-    // If both provided: (single-day between) OR (multi-day overlaps)
     if ($start && $end) {
         $s = normalizarIsoParaMysql($start);
         $e = normalizarIsoParaMysql($end);
@@ -43,17 +39,14 @@ try {
     if ($tipo)  { $sql .= " AND Tipo_Evento = ?"; $params[] = $tipo; }
     if ($ano)   { $sql .= " AND (Ano_Letivo = ? OR Ano_Letivo IS NULL)"; $params[] = $ano; }
 
-    // Role-based default filter when not admin (future proof)
     $isAdmin = isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'admin';
     if ($publico) {
-        // explicit filter from UI
         if ($publico === 'todos') {
             $sql .= " AND (Publico_Alvo = 'todos' OR Publico_Alvo IS NULL)";
         } else {
             $sql .= " AND Publico_Alvo = ?"; $params[] = $publico;
         }
     } else if (!$isAdmin) {
-        // professors or students see only their audience + 'todos'
         $aud = isset($_SESSION['user_type']) ? $_SESSION['user_type'] : 'alunos';
         if ($aud === 'professor' || $aud === 'professores') {
             // Professores visualizam tudo por padrão no dashboard: 'todos', 'professores' e 'alunos'
@@ -69,13 +62,11 @@ try {
     $st->execute($params);
     $rows = $st->fetchAll(PDO::FETCH_ASSOC);
     
-    // DEBUG: Log query and results
     error_log("[DEBUG listar_eventos] SQL: " . $sql);
     error_log("[DEBUG listar_eventos] Params: " . json_encode($params));
     error_log("[DEBUG listar_eventos] Rows found: " . count($rows));
     error_log("[DEBUG listar_eventos] User type: " . ($_SESSION['user_type'] ?? 'NOT SET'));
 
-    // Map to FullCalendar shape
         $events = array_map(function($r) {
             $startDt = date('c', strtotime($r['Data_Inicio']));
             $endDt = $r['Data_Fim'] ? date('c', strtotime($r['Data_Fim'])) : null;
@@ -101,11 +92,9 @@ try {
 }
 
 function normalizarIsoParaMysql($iso) {
-    // Aceita formatos 2025-11-18 ou 2025-11-18T00:00:00Z ou 2025-11-18T12:30:00
     $iso = trim($iso);
-    // Remove timezone Z ou offset
-    $iso = preg_replace('/Z$/', '', $iso); // remove Z final
-    $iso = preg_replace('/[+-]\d{2}:?\d{2}$/', '', $iso); // remove offset +hh:mm
+    $iso = preg_replace('/Z$/', '', $iso); 
+    $iso = preg_replace('/[+-]\d{2}:?\d{2}$/', '', $iso); 
     if (strpos($iso, 'T') !== false) {
         $iso = str_replace('T', ' ', $iso);
     }

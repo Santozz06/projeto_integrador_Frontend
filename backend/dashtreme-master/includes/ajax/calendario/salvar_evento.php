@@ -1,7 +1,5 @@
 <?php
 require_once '../../bootstrap.php';
-// Integração com Google desativada: mantendo apenas calendário local/ICS
-
 header('Content-Type: application/json');
 
 try {
@@ -22,30 +20,13 @@ try {
     $json = json_decode($raw, true);
     if (!is_array($json)) { $json = $_POST; }
 
-    // Garantir tabela base caso ainda não exista (instalação nova)
-    $pdo->exec("CREATE TABLE IF NOT EXISTS Calendario_Academico (
-        ID_Evento INT AUTO_INCREMENT PRIMARY KEY,
-        Nome_Evento VARCHAR(255) NOT NULL,
-        Descricao TEXT NULL,
-        Data_Inicio DATE NOT NULL,
-        Data_Fim DATE NULL,
-        Tipo_Evento VARCHAR(64) NOT NULL,
-        Ano_Letivo INT NULL,
-        Publico_Alvo VARCHAR(20) DEFAULT 'todos',
-        Criado_Por INT NULL,
-        INDEX idx_inicio (Data_Inicio),
-        INDEX idx_tipo (Tipo_Evento),
-        INDEX idx_publico (Publico_Alvo)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-
     $id = isset($json['id']) ? (int)$json['id'] : 0;
     $titulo = isset($json['title']) ? trim($json['title']) : '';
     $tipo = isset($json['tipo']) ? trim($json['tipo']) : 'evento';
     $descricao = isset($json['descricao']) ? trim($json['descricao']) : null;
-    // Normaliza datetime-local (YYYY-MM-DDTHH:MM) para DATETIME (YYYY-MM-DD HH:MM:SS)
     $inicio = isset($json['inicio']) ? normalizarDateTime($json['inicio']) : null;
     $fim = (isset($json['fim']) && $json['fim'] !== '') ? normalizarDateTime($json['fim']) : null;
-    $publico = isset($json['publico']) ? trim($json['publico']) : 'todos'; // 'todos','professores','alunos'
+    $publico = isset($json['publico']) ? trim($json['publico']) : 'todos';
     $anoLetivo = isset($json['ano_letivo']) && $json['ano_letivo'] !== '' ? (int)$json['ano_letivo'] : null;
 
     if ($titulo === '' || !$inicio) {
@@ -53,8 +34,6 @@ try {
         echo json_encode(['success' => false, 'message' => 'Campos obrigatórios ausentes (título/início)']);
         exit;
     }
-
-    // Light migration: garantir colunas necessárias
     try {
         $chk = $pdo->query("SHOW COLUMNS FROM Calendario_Academico LIKE 'Publico_Alvo'");
         if ($chk->rowCount() === 0) {
@@ -71,7 +50,6 @@ try {
     $usuarioId = isset($_SESSION['usuario_id']) ? (int)$_SESSION['usuario_id'] : null;
 
     if ($isProfessor) {
-        // Força público padrão para eventos de professor
         $publico = 'professores';
     }
 
@@ -106,7 +84,6 @@ try {
         $id = (int)$pdo->lastInsertId();
     }
 
-    // Sem push para Google: ICS continuará refletindo os eventos locais
 
     echo json_encode(['success' => true, 'id' => $id]);
 } catch (Throwable $e) {

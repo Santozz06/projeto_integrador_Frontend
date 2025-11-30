@@ -23,20 +23,6 @@ if ($id <= 0) {
 }
 
 try {
-    // Garante tabela
-    $pdo->exec("CREATE TABLE IF NOT EXISTS Avaliacoes (
-        ID_Avaliacao INT NOT NULL AUTO_INCREMENT,
-        ID_Turma INT NOT NULL,
-        ID_Professor INT NOT NULL,
-        Disciplina VARCHAR(100) NOT NULL,
-        Tipo VARCHAR(50) NOT NULL,
-        Data DATE NOT NULL,
-        Ano_Letivo INT NOT NULL,
-        PRIMARY KEY (ID_Avaliacao),
-        KEY idx_turma (ID_Turma),
-        KEY idx_prof (ID_Professor),
-        KEY idx_ano (Ano_Letivo)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
     // Exclui somente se o registro for do próprio professor
     $stmt = $pdo->prepare("DELETE FROM Avaliacoes WHERE ID_Avaliacao = ? AND ID_Professor = ?");

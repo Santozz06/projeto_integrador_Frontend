@@ -17,7 +17,7 @@ try {
         exit;
     }
 
-    // Encontrar matrícula do aluno para o ano solicitado (preferir ativa)
+    // Encontrar matrícula do aluno para o ano solicitado 
     $st = $pdo->prepare("SELECT m.ID_Matricula, m.ID_Turma, COALESCE(m.Ano_Letivo, t.Ano_Letivo) AS Ano_Letivo, m.Status, t.Nome_Turma, t.Etapa
                          FROM Matriculas m
                          LEFT JOIN Turmas t ON t.ID_Turma = m.ID_Turma
@@ -154,7 +154,7 @@ try {
                 'final' => isset($row['Media_Final']) ? (float)$row['Media_Final'] : null
             ];
         }
-        // Fallback: se não houver Disciplinas do ano/etapa, usar apenas as com nota
+        // se não houver Disciplinas do ano/etapa, usar apenas as com nota
         if (empty($disciplinas)) {
             $sql = "SELECT d.Nome_Disciplina, d.Carga_Horaria, ROUND(AVG(n.Nota),2) AS Media_Final
                     FROM Notas n INNER JOIN Disciplinas d ON d.ID_Disciplina = n.ID_Disciplina
