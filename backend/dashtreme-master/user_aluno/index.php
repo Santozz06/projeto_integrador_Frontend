@@ -124,48 +124,48 @@
   <script src="../assets/js/app-script.js"></script>
 
   <script>
-    (function(){
+    (function () {
       // Eventos próximos (hoje + 60 dias)
-      function carregarEventos(){
+      function carregarEventos() {
         var hoje = new Date();
         var start = hoje;
         var end = new Date(); end.setDate(hoje.getDate() + 60);
-        function toISO(d){ return d.toISOString().slice(0,10); }
+        function toISO(d) { return d.toISOString().slice(0, 10); }
         var url = '../includes/ajax/calendario/listar_eventos.php?start=' + toISO(start) + '&end=' + toISO(end);
         $.getJSON(url)
-          .done(function(res){
+          .done(function (res) {
             var data = (res && res.success && Array.isArray(res.data)) ? res.data : [];
-            if (!data.length){
+            if (!data.length) {
               $('#eventos-empty').text('Nenhum evento próximo').show();
               $('#eventos-list').empty();
               return;
             }
             $('#eventos-empty').hide();
             var html = '';
-            for (var i=0;i<data.length;i++){
+            for (var i = 0; i < data.length; i++) {
               var ev = data[i];
               var dt = (ev.start || ev.Data_Inicio || '').split('T')[0] || ev.start;
-              var p = (dt||'').split('-');
-              var dataBR = (p.length===3) ? (p[2]+'/'+p[1]+'/'+p[0]) : dt;
+              var p = (dt || '').split('-');
+              var dataBR = (p.length === 3) ? (p[2] + '/' + p[1] + '/' + p[0]) : dt;
               var titulo = ev.title || ev.Nome_Evento || '';
               var tipo = (ev.extendedProps && ev.extendedProps.tipo) || ev.Tipo_Evento || '';
-              html += '<div class="mb-2"><strong>'+ dataBR +'</strong> - '+ titulo + (tipo ? ' <span class="badge badge-info">'+tipo+'</span>' : '') + '</div>';
+              html += '<div class="mb-2"><strong>' + dataBR + '</strong> - ' + titulo + (tipo ? ' <span class="badge badge-info">' + tipo + '</span>' : '') + '</div>';
             }
             $('#eventos-list').html(html);
           })
-          .fail(function(xhr, status, error){
+          .fail(function (xhr, status, error) {
             $('#eventos-empty').text('Não foi possível carregar os eventos').show();
             $('#eventos-list').empty();
           });
       }
 
       // Frequência (resumo)
-      function carregarFrequencia(){
-        var anoAtual = new Date().getFullYear(); 
+      function carregarFrequencia() {
+        var anoAtual = new Date().getFullYear();
         var url = '../includes/ajax/aluno/frequencia_resumo.php?ano=' + anoAtual;
         $.getJSON(url)
-          .done(function(res){
-            if (!(res && res.success && res.data)){
+          .done(function (res) {
+            if (!(res && res.success && res.data)) {
               $('#freq-ano').text('-');
               $('#freq-turma').text('-');
               $('#freq-mat').text('-');
@@ -173,7 +173,7 @@
               return;
             }
             var d = res.data;
-            if (!d.matricula && !d.turma){
+            if (!d.matricula && !d.turma) {
               $('#freq-ano').text('-');
               $('#freq-turma').text('-');
               $('#freq-mat').text('-');
@@ -184,10 +184,10 @@
             $('#freq-turma').text(d.turma || '-');
             $('#freq-mat').text(d.matricula || '-');
             var perc = d.percentual !== null ? parseFloat(d.percentual) : null;
-            var percLabel = perc !== null ? perc.toFixed(1).replace('.',',') + '%' : '--';
+            var percLabel = perc !== null ? perc.toFixed(1).replace('.', ',') + '%' : '--';
             $('#freq-perc').text(percLabel);
           })
-          .fail(function(xhr, status, error){
+          .fail(function (xhr, status, error) {
             $('#freq-ano').text('-');
             $('#freq-turma').text('-');
             $('#freq-mat').text('-');
@@ -196,49 +196,48 @@
       }
 
       // Aulas (horários)
-      function carregarAulas(){
-        // Não filtra por ano aqui para garantir que horários da turma atual apareçam
+      function carregarAulas() {
         $.getJSON('../includes/ajax/aluno/horarios.php')
-          .done(function(res){
+          .done(function (res) {
             var dados = (res && res.success && Array.isArray(res.data)) ? res.data : [];
-            if (!dados.length){
+            if (!dados.length) {
               $('#aulas-container').html('<div class="alert alert-light">Nenhuma aula cadastrada</div>');
               return;
             }
             // Monta tabela por dia da semana
-            var dias = {1:'Segunda',2:'Terça',3:'Quarta',4:'Quinta',5:'Sexta',6:'Sábado'};
+            var dias = { 1: 'Segunda', 2: 'Terça', 3: 'Quarta', 4: 'Quinta', 5: 'Sexta', 6: 'Sábado' };
             var map = {};
-            for (var i=1;i<=6;i++){ map[i]=[]; }
-            for (var j=0;j<dados.length;j++){
+            for (var i = 1; i <= 6; i++) { map[i] = []; }
+            for (var j = 0; j < dados.length; j++) {
               var a = dados[j];
-              var hi = (a.Hora_Inicio||'').substring(0,5);
-              var hf = (a.Hora_Fim||'').substring(0,5);
+              var hi = (a.Hora_Inicio || '').substring(0, 5);
+              var hf = (a.Hora_Fim || '').substring(0, 5);
               map[a.Dia_Semana] = map[a.Dia_Semana] || [];
               var turmaLabel = a.Nome_Turma ? (' (' + a.Nome_Turma + ')') : '';
-              map[a.Dia_Semana].push((a.Nome_Disciplina||'') + ' — ' + hi + ' - ' + hf + turmaLabel);
+              map[a.Dia_Semana].push((a.Nome_Disciplina || '') + ' — ' + hi + ' - ' + hf + turmaLabel);
             }
             var thead = '<thead><tr>';
             var tbody = '<tbody><tr>';
-            for (var d=1; d<=5; d++){
-              thead += '<th>'+ dias[d] +'</th>';
-              var itens = map[d]||[];
-              tbody += '<td>'+ (itens.length? itens.join('<br>') : '') +'</td>';
+            for (var d = 1; d <= 5; d++) {
+              thead += '<th>' + dias[d] + '</th>';
+              var itens = map[d] || [];
+              tbody += '<td>' + (itens.length ? itens.join('<br>') : '') + '</td>';
             }
             thead += '</tr></thead>';
             tbody += '</tr></tbody>';
-            var table = '<table class="table">'+ thead + tbody +'</table>';
+            var table = '<table class="table">' + thead + tbody + '</table>';
             $('#aulas-container').html(table);
           })
-          .fail(function(){
+          .fail(function () {
             $('#aulas-container').html('<div class="alert alert-light">Não foi possível carregar as aulas</div>');
           });
       }
 
-      $(function(){
+      $(function () {
         // Atualiza nome do aluno no welcome
         const nome = $('.user-title').text() || 'Aluno';
         $('.welcome-title').text('Bem-vindo, ' + nome.split(' ')[0] + '!');
-        
+
         carregarFrequencia();
         carregarEventos();
         carregarAulas();

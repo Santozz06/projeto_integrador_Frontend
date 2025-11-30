@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'Turno' => $_POST['turno'],
             'Etapa' => $_POST['etapaSerie'],
             'Capacidade_Alunos' => $_POST['capacidadeAlunos'],
-            'Sala' => $_POST['salaLocal'] 
+            'Sala' => $_POST['salaLocal']
         ];
 
         // Verificar se é edição ou novo cadastro
@@ -222,9 +222,9 @@ $turmas = $turmaCRUD->listarTurmasComProfessor();
                                     <th>Nome da Turma</th>
                                     <th>Ano Letivo</th>
                                     <th>Turno</th>
-                                    <th>Etapa</th> <!-- Mudei de Etapa/Série para Etapa -->
+                                    <th>Etapa</th>
                                     <th>Capacidade</th>
-                                    <th>Sala</th> <!-- Mudei de Sala para Sala -->
+                                    <th>Sala</th>
                                     <th>Professor</th>
                                     <th>Ações</th>
                                 </tr>
@@ -235,9 +235,9 @@ $turmas = $turmaCRUD->listarTurmasComProfessor();
                                         <td><?= htmlspecialchars($turma['Nome_Turma']) ?></td>
                                         <td><?= htmlspecialchars($turma['Ano_Letivo']) ?></td>
                                         <td><?= htmlspecialchars($turma['Turno']) ?></td>
-                                        <td><?= htmlspecialchars($turma['Etapa']) ?></td> <!-- Mudei aqui -->
+                                        <td><?= htmlspecialchars($turma['Etapa']) ?></td>
                                         <td><?= htmlspecialchars($turma['Capacidade_Alunos']) ?></td>
-                                        <td><?= htmlspecialchars($turma['Sala']) ?></td> <!-- Mudei aqui -->
+                                        <td><?= htmlspecialchars($turma['Sala']) ?></td>
                                         <td><?= htmlspecialchars($turma['Professor_Nome'] ?? 'Não definido') ?></td>
                                         <td>
                                             <button type="button" class="btn btn-editar btn-sm"
@@ -268,7 +268,6 @@ $turmas = $turmaCRUD->listarTurmasComProfessor();
             <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
             <!-- sidebar-menu js -->
             <script src="../assets/js/sidebar-menu.js"></script>
-            <!-- loader scripts removed: jquery.loading-indicator.js not present -->
             <!-- Custom scripts -->
             <script src="../assets/js/app-script.js"></script>
 
@@ -283,9 +282,9 @@ $turmas = $turmaCRUD->listarTurmasComProfessor();
                             document.getElementById('nomeTurma').value = turma.Nome_Turma;
                             document.getElementById('anoLetivo').value = turma.Ano_Letivo;
                             document.getElementById('turno').value = turma.Turno;
-                            document.getElementById('etapaSerie').value = turma.Etapa; // Mudei aqui
+                            document.getElementById('etapaSerie').value = turma.Etapa;
                             document.getElementById('capacidadeAlunos').value = turma.Capacidade_Alunos;
-                            document.getElementById('salaLocal').value = turma.Sala; // Mudei aqui
+                            document.getElementById('salaLocal').value = turma.Sala;
 
                             // Rolando para o topo do formulário
                             window.scrollTo(0, 0);

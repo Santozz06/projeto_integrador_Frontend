@@ -18,7 +18,7 @@
     <?php
     require("menu_padrão.php");
     ?>
-    
+
     <!-- Conteúdo principal -->
     <div class="content-wrapper">
         <div class="container-fluid">
@@ -182,7 +182,7 @@
     <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
-  
+
 
     <script>
         $(function () {
@@ -276,7 +276,7 @@
 
             carregarEstados();
 
-            // Carrega anos letivos e define padrão (ano atual e/ou próximo)
+            // Carrega anos letivos e define padrão 
             function carregarAnos() {
                 const $ano = $('#ano-letivo');
                 $ano.empty().append('<option value="">Carregando anos...</option>');
@@ -285,13 +285,10 @@
                     .then(resp => {
                         $ano.empty().append('<option value="">Selecione o ano letivo</option>');
                         if (resp.success && resp.data && resp.data.length) {
-                            // popula anos existentes (já ordenados desc no backend)
                             resp.data.forEach(a => $ano.append(`<option value="${a}">${a}</option>`));
-                            // opcional: oferecer próximo ano, mas NÃO selecionar por padrão
                             const maxAno = Math.max.apply(null, resp.data.map(Number));
                             if (Number.isFinite(maxAno)) {
                                 $ano.prepend(`<option value="${maxAno + 1}">${maxAno + 1}</option>`);
-                                // Seleciona o maior ano existente por padrão (garante turmas)
                                 $ano.val(String(maxAno));
                             }
                         } else {
@@ -318,7 +315,7 @@
                         $turma.empty().append('<option value="">Selecione a nova turma</option>');
                         if (resp.success && resp.data) {
                             resp.data.forEach(t => {
-                                const label = `${t.Nome_Turma}${t.Etapa ? ' ('+t.Etapa+')' : ''}`;
+                                const label = `${t.Nome_Turma}${t.Etapa ? ' (' + t.Etapa + ')' : ''}`;
                                 $turma.append(`<option value="${t.ID_Turma}">${label}</option>`);
                             });
                         } else {
@@ -349,7 +346,7 @@
                             return;
                         }
                         resp.data.forEach(a => {
-                            const turma = a.Nome_Turma ? `${a.Nome_Turma}${a.Etapa ? ' ('+a.Etapa+')' : ''}` : '—';
+                            const turma = a.Nome_Turma ? `${a.Nome_Turma}${a.Etapa ? ' (' + a.Etapa + ')' : ''}` : '—';
                             const card = `
                                 <div class="student-card"
                                     data-id="${a.ID_Aluno}"
@@ -401,7 +398,7 @@
                 $('#complemento').val(alunoSelecionado.complemento || '');
                 $('#bairro').val(alunoSelecionado.bairro || '');
                 $('#email').val(alunoSelecionado.email || '');
-                
+
                 // Carrega UF e município se disponível
                 if (alunoSelecionado.uf_endereco) {
                     $('#ufEndereco').val(alunoSelecionado.uf_endereco).trigger('change');

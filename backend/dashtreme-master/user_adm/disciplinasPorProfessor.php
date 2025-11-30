@@ -90,7 +90,7 @@
     <script src="../assets/js/app-script.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
-    
+
     <script>
         $(document).ready(function () {
             const $ano = $('#ano-filter');
@@ -139,7 +139,7 @@
                     </button>
                 </div>`;
                 $('#alert-placeholder').html(html);
-                setTimeout(()=> $('.alert').alert('close'), 5000);
+                setTimeout(() => $('.alert').alert('close'), 5000);
             }
 
             function carregarTabela() {
@@ -180,9 +180,9 @@
                         });
                         // Se um professor específico foi selecionado e não há disciplinas, mostrar orientação
                         if ($prof.val() && rowsWithDisc === 0) {
-                            // Fallback client-side: buscar disciplinas diretamente atribuídas
+                            //buscar disciplinas diretamente atribuídas
                             const fparams = { ano: $ano.val(), professor_id: $prof.val() };
-                            $.getJSON('../includes/ajax/disciplinas/listar_disciplinas.php', fparams, function(r2){
+                            $.getJSON('../includes/ajax/disciplinas/listar_disciplinas.php', fparams, function (r2) {
                                 if (r2.success && Array.isArray(r2.data) && r2.data.length > 0 && resp.data.length > 0) {
                                     const profRow = resp.data[0];
                                     const nome2 = (profRow.Nome_Completo || '').trim();
@@ -212,7 +212,7 @@
                                     const anoTxt = $ano.val() ? ` no ano ${$ano.val()}` : '';
                                     showAlert('warning', `Nenhuma disciplina atribuída para o professor selecionado${anoTxt}. Você pode atribuir disciplinas em Disciplinas → <a href=\"atribuirDisciplinas.php\">Atribuir a Professores</a>.`);
                                 }
-                            }).fail(function(){
+                            }).fail(function () {
                                 const anoTxt = $ano.val() ? ` no ano ${$ano.val()}` : '';
                                 showAlert('warning', `Nenhuma disciplina atribuída para o professor selecionado${anoTxt}. Você pode atribuir disciplinas em Disciplinas → <a href=\"atribuirDisciplinas.php\">Atribuir a Professores</a>.`);
                             });
@@ -221,13 +221,13 @@
                         }
                     }
                     table.draw();
-                }).fail(function(xhr){
+                }).fail(function (xhr) {
                     const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Erro ao carregar disciplinas por professor.';
                     showAlert('danger', msg);
                 });
             }
 
-            $ano.on('change', function(){ carregarDisciplinas(); carregarTabela(); });
+            $ano.on('change', function () { carregarDisciplinas(); carregarTabela(); });
             $prof.on('change', carregarTabela);
             $disc.on('change', carregarTabela);
 

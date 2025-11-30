@@ -99,7 +99,9 @@
                                 </tr>
                             </thead>
                             <tbody id="detalhes-turma-body">
-                                <tr><td colspan="4" class="text-center">Selecione uma turma e clique em Carregar</td></tr>
+                                <tr>
+                                    <td colspan="4" class="text-center">Selecione uma turma e clique em Carregar</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -115,7 +117,7 @@
     <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
-   
+
     <script>
         $(document).ready(function () {
             const $ano = $('#ano-filter');
@@ -145,13 +147,13 @@
                 });
             }
 
-            $ano.on('change', function(){
+            $ano.on('change', function () {
                 const val = $(this).val();
                 $btn.prop('disabled', !val);
                 if (val) carregarTurmas(val);
             });
 
-            $btn.on('click', function(e){
+            $btn.on('click', function (e) {
                 e.preventDefault();
                 const turmaId = $turma.val();
                 if (!turmaId) { alert('Selecione uma turma'); return; }
@@ -160,7 +162,7 @@
 
             function carregarResumo(turmaId) {
                 // 1) Alunos
-                $.getJSON('../includes/ajax/admin/turmas/listar_alunos_por_turma.php', { turma_id: turmaId }, function(resp){
+                $.getJSON('../includes/ajax/admin/turmas/listar_alunos_por_turma.php', { turma_id: turmaId }, function (resp) {
                     if (resp.success) {
                         $('#total-alunos').text(resp.data.length);
                     } else {
@@ -169,7 +171,7 @@
                 });
 
                 // 2) Professores
-                $.getJSON('../includes/ajax/admin/professores/listar_professores_por_turma.php', { turma_id: turmaId }, function(resp){
+                $.getJSON('../includes/ajax/admin/professores/listar_professores_por_turma.php', { turma_id: turmaId }, function (resp) {
                     if (resp.success) {
                         $('#total-professores').text(resp.data.length);
                     } else {
@@ -178,13 +180,11 @@
                 });
 
                 // 3) Disciplinas + detalhes
-                $.getJSON('../includes/ajax/shared/academico/listar_disciplinas_por_turma.php', { turma_id: turmaId }, function(resp){
+                $.getJSON('../includes/ajax/shared/academico/listar_disciplinas_por_turma.php', { turma_id: turmaId }, function (resp) {
                     const $tbody = $('#detalhes-turma-body');
                     $tbody.empty();
                     if (resp.success && resp.data.length) {
                         $('#total-disciplinas').text(resp.data.length);
-                        // Para cada disciplina, alunos = total alunos da turma (já carregado acima). Aqui exibimos apenas a quantidade no momento do carregamento.
-                        // Como chamadas são assíncronas, buscamos o texto atual do card.
                         const alunosTxt = $('#total-alunos').text();
                         resp.data.forEach(d => {
                             $tbody.append(`<tr><td>${d.Nome_Disciplina}</td><td>${d.Professor || ''}</td><td>${alunosTxt}</td><td>${d.Carga_Horaria || ''}</td></tr>`);

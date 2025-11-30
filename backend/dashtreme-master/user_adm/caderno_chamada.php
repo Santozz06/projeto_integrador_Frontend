@@ -231,7 +231,7 @@
       $('#turma').on('change', carregarFrequencias);
       $('#data-ini, #data-fim').on('change', carregarFrequencias);
 
-      // Exportar PDF (print-friendly)
+      // Exportar PDF 
       $('#btn-exportar-pdf').on('click', function () {
         const turma = $('#turma').val();
         if (!turma) { alert('Selecione uma turma para exportar.'); return; }

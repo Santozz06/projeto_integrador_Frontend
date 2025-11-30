@@ -83,8 +83,11 @@
                             <div class="form-section">
                                 <div class="bold-title">NOME DA ESCOLA DE DESTINO</div>
                                 <div class="input-icon">
-                                    <input type="text" id="escola-destino" class="form-control" placeholder="Clique para selecionar" readonly>
-                                    <button type="button" class="icon-button" id="btn-open-local" title="Selecionar escola e localidade" aria-label="Selecionar escola e localidade">
+                                    <input type="text" id="escola-destino" class="form-control"
+                                        placeholder="Clique para selecionar" readonly>
+                                    <button type="button" class="icon-button" id="btn-open-local"
+                                        title="Selecionar escola e localidade"
+                                        aria-label="Selecionar escola e localidade">
                                         <i class="zmdi zmdi-city"></i>
                                     </button>
                                 </div>
@@ -114,7 +117,8 @@
     </div>
 
     <!-- Modal Seletor de Localidade -->
-    <div class="modal fade" id="localModal" tabindex="-1" role="dialog" aria-labelledby="localModalLabel" aria-hidden="true">
+    <div class="modal fade" id="localModal" tabindex="-1" role="dialog" aria-labelledby="localModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -126,7 +130,8 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="sel-escola">Escola de Destino</label>
-                        <input type="text" id="sel-escola" class="form-control" placeholder="Ex.: E.M.E.F. José de Anchieta" />
+                        <input type="text" id="sel-escola" class="form-control"
+                            placeholder="Ex.: E.M.E.F. José de Anchieta" />
                     </div>
                     <div class="form-group">
                         <label for="sel-pais">País</label>
@@ -155,7 +160,7 @@
     <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
-    
+
     <script>
         $(function () {
             let alunoSelecionado = null;
@@ -189,7 +194,7 @@
                             return;
                         }
                         resp.data.forEach(a => {
-                            const turma = a.Nome_Turma ? `${a.Nome_Turma}${a.Etapa ? ' ('+a.Etapa+')' : ''}` : '—';
+                            const turma = a.Nome_Turma ? `${a.Nome_Turma}${a.Etapa ? ' (' + a.Etapa + ')' : ''}` : '—';
                             const turno = a.Turno || '—';
                             const card = `
                                 <div class="student-card" 
@@ -238,74 +243,73 @@
             });
 
             // Abrir modal de escola/localidade (ícone ou campo)
-            function abrirModalLocal(){
+            function abrirModalLocal() {
                 $('#localModal').modal('show');
                 carregarPaisesEstados();
             }
             $('#btn-open-local').on('click', abrirModalLocal);
             $('#escola-destino').on('click', abrirModalLocal);
 
-            $('#sel-estado').on('change', function(){
+            $('#sel-estado').on('change', function () {
                 const estadoId = $(this).val();
                 carregarMunicipios(estadoId);
             });
 
-            $('#btn-usar-local').on('click', function(){
+            $('#btn-usar-local').on('click', function () {
                 const estadoId = $('#sel-estado').val();
                 const municipioId = $('#sel-municipio').val();
                 const paisId = $('#sel-pais').val();
                 const escolaNome = $('#sel-escola').val().trim();
-                const estado = cacheEstados && cacheEstados.find(e=> String(e.id)===String(estadoId));
+                const estado = cacheEstados && cacheEstados.find(e => String(e.id) === String(estadoId));
                 const municipioSel = $('#sel-municipio option:selected').text();
                 const uf = estado ? (estado.uf || '') : '';
-                if (!escolaNome){
+                if (!escolaNome) {
                     alert('Informe o nome da escola de destino.');
                     return;
                 }
-                if (!municipioId || !estadoId){
+                if (!municipioId || !estadoId) {
                     alert('Selecione um estado e um município.');
                     return;
                 }
                 $('#escola-destino').val(escolaNome);
-                $('#municipio-uf').val(`${municipioSel}${uf?'/'+uf:''}`);
-                $('#pais-id').val(paisId||'');
-                $('#estado-id').val(estadoId||'');
-                $('#municipio-id').val(municipioId||'');
+                $('#municipio-uf').val(`${municipioSel}${uf ? '/' + uf : ''}`);
+                $('#pais-id').val(paisId || '');
+                $('#estado-id').val(estadoId || '');
+                $('#municipio-id').val(municipioId || '');
                 $('#container-mun').show();
                 $('#localModal').modal('hide');
             });
 
-            function carregarPaisesEstados(){
+            function carregarPaisesEstados() {
                 // Países
-                if (cachePaises){ preencherSelect('#sel-pais', cachePaises, 'Selecione o país'); }
+                if (cachePaises) { preencherSelect('#sel-pais', cachePaises, 'Selecione o país'); }
                 else {
                     fetch('../includes/ajax/shared/localidades/listar_paises.php')
-                        .then(r=>r.json()).then(resp=>{
-                            const data = resp && resp.success ? (resp.data||[]) : [];
+                        .then(r => r.json()).then(resp => {
+                            const data = resp && resp.success ? (resp.data || []) : [];
                             cachePaises = data;
                             preencherSelect('#sel-pais', data, 'Selecione o país', 'id', 'nome');
-                            // Tenta pré-selecionar Brasil se existir
-                            const br = data.find(p=> (p.nome||'').toLowerCase()==='brasil');
-                            if (br){ $('#sel-pais').val(String(br.id)); }
-                        }).catch(()=>{
+                            const br = data.find(p => (p.nome || '').toLowerCase() === 'brasil');
+                            if (br) { $('#sel-pais').val(String(br.id)); }
+                        }).catch(() => {
                             preencherSelect('#sel-pais', [], '—');
                         });
                 }
                 // Estados
-                if (cacheEstados){ preencherSelect('#sel-estado', cacheEstados, 'Selecione o estado', 'id', 'nome'); }
+                if (cacheEstados) { preencherSelect('#sel-estado', cacheEstados, 'Selecione o estado', 'id', 'nome'); }
                 else {
                     fetch('../includes/ajax/shared/localidades/listar_estados.php')
-                        .then(r=>r.json()).then(resp=>{
-                            const data = resp && resp.success ? (resp.data||[]) : [];
+                        .then(r => r.json()).then(resp => {
+                            const data = resp && resp.success ? (resp.data || []) : [];
                             cacheEstados = data;
                             preencherSelect('#sel-estado', data, 'Selecione o estado', 'id', 'nome');
-                        }).catch(()=>{
+                        }).catch(() => {
                             preencherSelect('#sel-estado', [], '—');
                         });
                 }
                 // Se já houver estado selecionado, recarrega municípios
                 const curEstado = $('#estado-id').val();
-                if (curEstado){
+                if (curEstado) {
                     $('#sel-estado').val(curEstado);
                     carregarMunicipios(curEstado, $('#municipio-id').val());
                 } else {
@@ -316,31 +320,31 @@
                 $('#sel-escola').val(curEscola);
             }
 
-            function carregarMunicipios(estadoId, preselectId){
-                if (!estadoId){ preencherSelect('#sel-municipio', [], 'Selecione o município'); return; }
+            function carregarMunicipios(estadoId, preselectId) {
+                if (!estadoId) { preencherSelect('#sel-municipio', [], 'Selecione o município'); return; }
                 fetch(`../includes/ajax/shared/localidades/carregar_municipios.php?estado_id=${encodeURIComponent(estadoId)}`)
-                    .then(r=>r.json()).then(lista=>{
-                        // lista é um array simples [{id, nome}]
+                    .then(r => r.json()).then(lista => {
+                        // lista é um array simples
                         const arr = Array.isArray(lista) ? lista : [];
                         preencherSelect('#sel-municipio', arr, 'Selecione o município', 'id', 'nome');
-                        if (preselectId){ $('#sel-municipio').val(String(preselectId)); }
-                    }).catch(()=>{
+                        if (preselectId) { $('#sel-municipio').val(String(preselectId)); }
+                    }).catch(() => {
                         preencherSelect('#sel-municipio', [], '—');
                     });
             }
 
-            function preencherSelect(sel, data, placeholder, valueKey='id', labelKey='nome'){
+            function preencherSelect(sel, data, placeholder, valueKey = 'id', labelKey = 'nome') {
                 const $s = $(sel);
                 $s.empty();
-                if (placeholder){ $s.append(`<option value="">${placeholder}</option>`); }
-                (data||[]).forEach(it=>{
+                if (placeholder) { $s.append(`<option value="">${placeholder}</option>`); }
+                (data || []).forEach(it => {
                     const v = it[valueKey] != null ? it[valueKey] : it.id;
                     const l = it[labelKey] != null ? it[labelKey] : it.nome;
                     $s.append(`<option value="${v}">${l}</option>`);
                 });
             }
 
-            // Confirmar - registra transferência (baixa da matrícula ativa)
+            // Confirmar - registra transferência
             $('#btn-confirmar').on('click', function () {
                 if (!alunoSelecionado) {
                     alert('Selecione um aluno primeiro.');
@@ -372,7 +376,7 @@
                         params.set('escola', $('#escola-destino').val());
                         params.set('mun', $('#municipio-uf').val());
                         params.set('data', $('#data-transferencia').val());
-                        params.set('auto','1');
+                        params.set('auto', '1');
                         const urlDoc = `documento_transferencia.php?${params.toString()}`;
                         if (confirm('Deseja gerar o PDF de Transferência (+ Histórico)?')) {
                             window.open(urlDoc, '_blank');

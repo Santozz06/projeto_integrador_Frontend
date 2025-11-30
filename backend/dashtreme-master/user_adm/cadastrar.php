@@ -76,7 +76,9 @@
                                     <h5 class="section-title">DISCIPLINAS CADASTRADAS</h5>
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <div></div>
-                                        <input type="text" id="filtro-disciplinas" class="form-control filtro-disciplinas" placeholder="Filtrar por nome/etapa/ano">
+                                        <input type="text" id="filtro-disciplinas"
+                                            class="form-control filtro-disciplinas"
+                                            placeholder="Filtrar por nome/etapa/ano">
                                     </div>
                                     <div class="table-responsive">
                                         <table class="table table-bordered table-striped tabela-disciplinas-cadastrar">
@@ -232,10 +234,10 @@
                             });
                         }
                     })
-                    .fail(function(){ });
+                    .fail(function () { });
             }
 
-            $('#ano-letivo').on('change', function(){
+            $('#ano-letivo').on('change', function () {
                 $('#etapa-serie').val('');
                 carregarEtapas();
             });
@@ -282,7 +284,7 @@
                     });
             }
 
-            // Delegação de eventos para Editar/Excluir
+            // eventos para Editar/Excluir
             $(document).on('click', 'button[data-acao="editar"]', function () {
                 const $tr = $(this).closest('tr');
                 const id = $tr.data('id');
@@ -295,7 +297,7 @@
                 $('#nome-disciplina').val(nome);
                 $('#carga-horaria').val(carga);
                 $('#ano-letivo').val(ano);
-                // Garante que a etapa exista na lista; se não existir, adiciona temporariamente
+                // Garante que a etapa exista na lista
                 const $etapa = $('#etapa-serie');
                 if (!$etapa.find(`option[value="${etapa}"]`).length && etapa) {
                     $etapa.append($('<option>', { value: etapa, text: etapa }));
@@ -314,7 +316,7 @@
                 $('#confirmExclusaoModal').modal('show');
             });
 
-            $('#btnConfirmarExclusao').on('click', function(){
+            $('#btnConfirmarExclusao').on('click', function () {
                 if (!disciplinaParaExcluir.id) return;
                 $.post('../includes/ajax/disciplinas/excluir_disciplina.php', { id_disciplina: disciplinaParaExcluir.id })
                     .done(function (resp) {
@@ -336,9 +338,9 @@
             });
 
             // Filtro simples na tabela
-            $('#filtro-disciplinas').on('input', function(){
+            $('#filtro-disciplinas').on('input', function () {
                 const termo = $(this).val().toLowerCase();
-                $('#tbody-disciplinas tr').each(function(){
+                $('#tbody-disciplinas tr').each(function () {
                     const tds = $(this).children();
                     const texto = [tds.eq(0).text(), tds.eq(1).text(), tds.eq(2).text(), tds.eq(3).text()].join(' ').toLowerCase();
                     $(this).toggle(texto.indexOf(termo) !== -1);

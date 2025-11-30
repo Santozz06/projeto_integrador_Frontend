@@ -116,7 +116,7 @@
         let avaliacaoParaRemover = null;
         let avaliacoesCache = [];
 
-        // Elementos DOM
+        // Elementos
         const btnSalvar = document.getElementById('btnSalvar');
         const btnCancelar = document.getElementById('btnCancelar');
         const formTitle = document.getElementById('formTitle');
@@ -206,7 +206,6 @@
                     if (res && res.success && Array.isArray(res.data) && res.data.length) {
                         $disc.append('<option value="" disabled selected>-- Selecione --</option>');
                         res.data.forEach(function (d) {
-                            // Usamos o nome como valor pois a tabela de Avaliações armazena texto
                             const nome = d.Nome_Disciplina || '';
                             if (nome) { $disc.append('<option value="' + nome + '">' + nome + '</option>'); }
                         });
@@ -224,7 +223,6 @@
         }
 
         function formatarData(dataString) {
-            // Evita bug de timezone ao criar Date com yyyy-mm-dd
             if (!dataString) return '';
             const parts = dataString.split('-');
             if (parts.length !== 3) return dataString;
@@ -273,7 +271,7 @@
         function editarAvaliacao(id) {
             const avaliacao = avaliacoesCache.find(a => a.ID_Avaliacao === id);
             if (avaliacao) {
-                // Seleciona a disciplina correspondente; se não existir na lista, adiciona temporariamente
+                // Seleciona a disciplina correspondente
                 const sel = document.getElementById('disciplina');
                 let found = false;
                 for (let i = 0; i < sel.options.length; i++) {

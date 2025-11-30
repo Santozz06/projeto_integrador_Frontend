@@ -14,12 +14,12 @@ $usuarioCRUD = new UsuarioCRUD($pdo);
 $turmaCRUD = new TurmaCRUD($pdo);
 $vinculoCRUD = new VinculoCRUD($pdo);
 
-// Buscar turmas ativas (sempre necessário)
+// Buscar turmas ativas 
 $turmas = $turmaCRUD->listarTodas();
 
 // Buscar lista de alunos e servidores para seleção
-$alunos = $usuarioCRUD->listarAlunos(1, 100); // Limite de 100 alunos
-$servidores = $usuarioCRUD->listarProfessores(1, 100); // Limite de 100 servidores
+$alunos = $usuarioCRUD->listarAlunos(1, 100);
+$servidores = $usuarioCRUD->listarProfessores(1, 100);
 
 // Inicializar variáveis
 $usuario = null;
@@ -40,7 +40,6 @@ if (!$modoSelecao) {
     } else {
         $usuario = $usuarioCRUD->buscarProfessorCompleto($id);
         $nome = $usuario['Nome_Completo'] ?? '';
-        // Servidores: usar matrícula de professor quando existir; fallback para Registro/Login
         $matricula = $usuario['Matricula'] ?? ($usuario['Registro'] ?? ($usuario['Login'] ?? ''));
     }
 
@@ -91,13 +90,13 @@ if (!$modoSelecao) {
                         <p class="text-muted">Selecione um usuário para gerenciar seus vínculos com turmas</p>
                     <?php else: ?>
                         <p class="text-muted">Gerenciando vínculos do <?= $tipo ?>:
-                            <strong><?= htmlspecialchars($nome) ?></strong></p>
+                            <strong><?= htmlspecialchars($nome) ?></strong>
+                        </p>
                     <?php endif; ?>
                 </div>
             </div>
 
             <?php if ($modoSelecao): ?>
-                <!-- MODO SELEÇÃO: Quando não há usuário específico selecionado -->
                 <div class="row">
                     <!-- Seleção de Alunos -->
                     <div class="col-md-6">
@@ -195,7 +194,6 @@ if (!$modoSelecao) {
                 </div>
 
             <?php else: ?>
-                <!-- MODO GERENCIAMENTO: Quando há um usuário específico selecionado -->
 
                 <!-- Dados do usuário -->
                 <div class="card mb-4">

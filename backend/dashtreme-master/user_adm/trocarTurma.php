@@ -3,7 +3,7 @@
 <html lang="pt-br">
 
 <head>
-    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trocar de Turma - SAS</title>
@@ -88,7 +88,7 @@
             $sel.empty().append('<option value="">Selecione a nova turma...</option>');
             if (resp.success && resp.data) {
               resp.data.forEach(t => {
-                const label = `${t.Nome_Turma}${t.Etapa ? ' ('+t.Etapa+')' : ''}`;
+                const label = `${t.Nome_Turma}${t.Etapa ? ' (' + t.Etapa + ')' : ''}`;
                 $sel.append(`<option value="${t.ID_Turma}">${label}</option>`);
               });
             } else {
@@ -114,12 +114,12 @@
               alert('Aluno não encontrado.');
               return;
             }
-            // pega o primeiro da lista (pode evoluir para lista selecionável)
+            // pega o primeiro da lista
             const a = resp.data[0];
             aluno = a;
             $('#resultadoNome').text(a.Nome_Completo || 'Aluno');
             $('#resultadoMatricula').text(a.Matricula || '—');
-            const turmaAtual = a.Nome_Turma ? `${a.Nome_Turma}${a.Etapa ? ' ('+a.Etapa+')' : ''}` : '—';
+            const turmaAtual = a.Nome_Turma ? `${a.Nome_Turma}${a.Etapa ? ' (' + a.Etapa + ')' : ''}` : '—';
             $('#resultadoTurma').text(turmaAtual);
             $('#resultadoBusca').removeClass('d-none');
             $('html, body').animate({ scrollTop: $('#resultadoBusca').offset().top - 100 }, 300);
@@ -155,7 +155,6 @@
               return;
             }
             alert('Troca realizada com sucesso.');
-            // opcional: atualizar turma atual na UI
             const novaOptText = $('#novaTurma option:selected').text();
             $('#resultadoTurma').text(novaOptText || '—');
           })

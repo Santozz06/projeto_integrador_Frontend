@@ -116,7 +116,7 @@
             // Estado global simples
             let turmas = [];
             let disciplinas = [];
-            let dadosNotas = []; // resposta do backend para tabela
+            let dadosNotas = [];
             let turmaSelecionada = null;
             let disciplinaSelecionada = null;
 
@@ -148,7 +148,7 @@
                 carregarNotas();
             });
 
-            // Trimestre: troca o contexto de notas (recarrega dados do trimestre selecionado)
+            // Trimestre: recarrega dados do trimestre selecionado
             $('#trimestre').on('change', function () {
                 carregarNotas();
             });
@@ -291,7 +291,6 @@
                         res.data.forEach(ano => $sel.append(`<option value="${ano}">${ano}</option>`));
                     }
                 } catch (e) {
-                    // mantém opções estáticas se falhar
                 }
             }
 

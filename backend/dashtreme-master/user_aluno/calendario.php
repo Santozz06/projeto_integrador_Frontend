@@ -173,20 +173,20 @@
                 center: 'title',
                 right: ''
             },
-            dayMaxEvents: 3, // Limita a quantidade de eventos mostrados por dia
+            dayMaxEvents: 3,
             dayPopoverFormat: { month: 'short', day: 'numeric' },
-            eventDisplay: 'list-item', // Exibe eventos como lista
+            eventDisplay: 'list-item',
             views: {
                 dayGridMonth: {
-                    dayHeaderFormat: { weekday: 'short' }, // Só mostra a abreviação do dia
-                    dayMaxEventRows: 4 // Quantidade máxima de linhas de eventos
+                    dayHeaderFormat: { weekday: 'short' },
+                    dayMaxEventRows: 4
                 }
             },
             navLinks: true,
             editable: false,
             selectable: false,
             businessHours: {
-                daysOfWeek: [1, 2, 3, 4, 5], // Segunda a sexta
+                daysOfWeek: [1, 2, 3, 4, 5],
                 startTime: '07:00',
                 endTime: '18:00'
             },
@@ -219,7 +219,6 @@
                     start: fetchInfo.startStr,
                     end: fetchInfo.endStr,
                     ano: $('#ano-select').val() || ''
-                    // sem 'publico' para incluir 'todos' + 'alunos' via sessão
                 };
                 $.getJSON('../includes/ajax/calendario/listar_eventos.php', params)
                     .done(function (res) {
@@ -257,7 +256,7 @@
                     showEvent = false;
                 }
                 if (ano && (event.extendedProps.ano_letivo && String(event.extendedProps.ano_letivo) !== String(ano))) {
-                    // Mantém eventos globais (ano_letivo null)
+                    // Mantém eventos globais 
                     showEvent = false;
                 }
                 event.setProp('display', showEvent ? 'auto' : 'none');

@@ -100,7 +100,7 @@
           return;
         }
 
-        // Criar wrapper limpo para geração do PDF (evita efeitos do tema)
+        // Criar wrapper limpo para geração do PDF 
         function _createCleanWrapper(sourceEl) {
           try {
             var clone = sourceEl.cloneNode(true);
@@ -130,7 +130,7 @@
         var source = document.getElementById('doc');
         var cleanEl = _createCleanWrapper(source);
 
-        // Injetar estilos temporários que escondem overlays/pseudo-elements
+
         function _injectCleanStyles() {
           if (document.getElementById('pdf-clean-style')) return;
           var s = document.createElement('style'); s.id = 'pdf-clean-style';

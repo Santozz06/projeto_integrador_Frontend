@@ -106,7 +106,6 @@
             let turmaSelecionada = null;
             let disciplinaSelecionada = null;
 
-            // init
             carregarAnos().then(() => {
                 const anoAtual = new Date().getFullYear();
                 if ($(`#ano-letivo option[value="${anoAtual}"]`).length) {
@@ -127,7 +126,6 @@
                 disciplinaSelecionada = $(this).val() ? parseInt($(this).val(), 10) : null;
                 carregarNotas();
             });
-            // Trimestre muda o conjunto de 4 notas (não desabilita inputs)
             $('#trimestre').on('change', function () {
                 carregarNotas();
             });
@@ -305,7 +303,6 @@
                         .fail(function (xhr) { try { const r = JSON.parse(xhr.responseText); reject(new Error(r.message || 'Erro no servidor')); } catch { reject(new Error('Erro no servidor')); } });
                 });
             }
-            // Sem restrição por trimestre: as 4 notas sempre editáveis, variam por trimestre selecionado
         });
     </script>
 </body>

@@ -145,7 +145,7 @@
                 });
             }
 
-            $ano.on('change', function(){
+            $ano.on('change', function () {
                 const val = $(this).val();
                 if (val) carregarTurmas(val);
             });
@@ -173,7 +173,7 @@
 
                 // Limpa a tabela
                 $('#attendance-table tbody').empty();
-                $.getJSON('../includes/ajax/admin/turmas/listar_frequencia_por_turma.php', { turma_id: turmaId }, function(resp){
+                $.getJSON('../includes/ajax/admin/turmas/listar_frequencia_por_turma.php', { turma_id: turmaId }, function (resp) {
                     if (!resp.success) {
                         $('#attendance-data').html('<tr><td colspan="6" class="text-center">Erro ao carregar frequência</td></tr>');
                         return;
@@ -186,19 +186,19 @@
 
                     let totalPresent = 0;
                     let totalAbsent = 0;
-                    let totalJustified = 0; 
+                    let totalJustified = 0;
 
                     let tableContent = '';
-                        alunos.forEach(a => {
+                    alunos.forEach(a => {
                         const perc = a.Percentual;
                         totalPresent += parseInt(a.Presentes || 0, 10);
                         totalAbsent += parseInt(a.Faltas || 0, 10);
                         totalJustified += parseInt(a.Justificadas || 0, 10);
-                        const iniciais = (function(name){
+                        const iniciais = (function (name) {
                             if (!name) return '';
                             const parts = name.trim().split(/\s+/);
                             const first = parts[0] ? parts[0][0] : '';
-                            const last = parts.length > 1 ? parts[parts.length-1][0] : '';
+                            const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
                             return (first + last).toUpperCase();
                         })(a.Nome_Completo);
                         tableContent += `
@@ -261,7 +261,7 @@
                     const $hideOnPrint = $('.no-print, .dataTables_info, .dataTables_paginate, .dataTables_length, .dataTables_filter');
                     const $menuElems = $('#sidebar-wrapper, .topbar-nav, .navbar');
                     $hideOnPrint.hide();
-                    $menuElems.hide(); // garante ocultar menu/lateral/topo
+                    $menuElems.hide();
 
                     // Força estilos de impressão
                     $('body').addClass('printing');

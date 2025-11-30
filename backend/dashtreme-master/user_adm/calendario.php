@@ -227,13 +227,13 @@
 
             var tiposEventos = [];
 
-            // Funções auxiliares para modais (faz binding antes do calendário iniciar)
+            // Funções auxiliares para modais 
             function abrirModalAdicionarEvento() {
                 currentEvent = null;
                 const $form = $('#form-evento');
                 if ($form.length) { $form[0].reset(); }
                 atualizarSelectsTipos();
-                // Valor padrão: agora arredondado para hora cheia
+                // Valor padrão
                 const agora = new Date();
                 const pad = n => (n < 10 ? ('0' + n) : n);
                 const isoLocal = agora.getFullYear() + '-' + pad(agora.getMonth() + 1) + '-' + pad(agora.getDate()) + 'T' + pad(agora.getHours()) + ':00';
@@ -250,7 +250,7 @@
                 });
             }
 
-            // Bind global (delegado) para garantir funcionamento mesmo se elementos forem recriados
+            // Bind global 
             $(document).on('click', '#btn-adicionar', abrirModalAdicionarEvento);
             $(document).on('click', '#btn-gerenciar-tipos', abrirModalGerenciarTipos);
 

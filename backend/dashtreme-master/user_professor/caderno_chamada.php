@@ -11,63 +11,65 @@
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-    <link rel="stylesheet" href="../css/style.css?v=<?=time()?>">
+    <link rel="stylesheet" href="../css/style.css?v=<?= time() ?>">
 
 <body class="bg-theme bg-theme1 user_professor_caderno_chamada">
     <?php
     require("menu_padrao.php");
     ?>
 
-        <!-- Conteúdo Principal -->
-        <div class="content-wrapper">
-            <div class="container-presenca">
-                <h2>Caderno de Chamada</h2>
+    <!-- Conteúdo Principal -->
+    <div class="content-wrapper">
+        <div class="container-presenca">
+            <h2>Caderno de Chamada</h2>
 
-                <div class="filtros">
-                    <select id="turmaSelect">
-                        <option value="" disabled selected>-- Escolha uma turma --</option>
-                    </select>
-                    <input type="date" id="dataPresenca" />
+            <div class="filtros">
+                <select id="turmaSelect">
+                    <option value="" disabled selected>-- Escolha uma turma --</option>
+                </select>
+                <input type="date" id="dataPresenca" />
+            </div>
+
+            <div class="filtros" style="margin-top: -5px;">
+                <div style="flex:1; min-width:200px;">
+                    <label for="mesRelatorio"
+                        style="display:block; font-size:12px; opacity:.9; margin-bottom:4px;">Relatório mensal</label>
+                    <input type="month" id="mesRelatorio"
+                        style="width:100%; padding:10px; border-radius:8px; border:1px solid #71affe; background:rgba(255,255,255,.1); color:#fff;" />
                 </div>
-
-                <div class="filtros" style="margin-top: -5px;">
-                    <div style="flex:1; min-width:200px;">
-                        <label for="mesRelatorio" style="display:block; font-size:12px; opacity:.9; margin-bottom:4px;">Relatório mensal</label>
-                        <input type="month" id="mesRelatorio" style="width:100%; padding:10px; border-radius:8px; border:1px solid #71affe; background:rgba(255,255,255,.1); color:#fff;" />
-                    </div>
-                    <div style="display:flex; gap:10px; align-items:flex-end;">
-                        <button class="btn btn-salvar" id="btnExportCsv" title="Exportar CSV">Exportar CSV</button>
-                        <button class="btn btn-salvar" id="btnExportPdf" title="Exportar PDF">Exportar PDF</button>
-                    </div>
-                </div>
-
-                <div class="info-aula">
-                    <p><strong>Data:</strong> <span id="dataInfo"></span></p>
-                    <p><strong>Turma:</strong> <span id="turmaInfo"></span></p>
-                </div>
-
-                <table class="table-presenca">
-                    <thead>
-                        <tr>
-                            <th>Matrícula</th>
-                            <th>Nome</th>
-                            <th>Presença</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaAlunos">
-                        <!-- JS irá preencher -->
-                    </tbody>
-                </table>
-
-                <div class="btn-group">
-                    <button class="btn btn-cancelar"
-                        onclick="window.location.href='caderno_chamada.php'">Cancelar</button>
-                    <button class="btn btn-salvar" type="button" onclick="marcarTodos('presente')">Marcar todos presentes</button>
-                    <button class="btn btn-salvar" onclick="salvarPresenca()">Salvar</button>
+                <div style="display:flex; gap:10px; align-items:flex-end;">
+                    <button class="btn btn-salvar" id="btnExportCsv" title="Exportar CSV">Exportar CSV</button>
+                    <button class="btn btn-salvar" id="btnExportPdf" title="Exportar PDF">Exportar PDF</button>
                 </div>
             </div>
+
+            <div class="info-aula">
+                <p><strong>Data:</strong> <span id="dataInfo"></span></p>
+                <p><strong>Turma:</strong> <span id="turmaInfo"></span></p>
+            </div>
+
+            <table class="table-presenca">
+                <thead>
+                    <tr>
+                        <th>Matrícula</th>
+                        <th>Nome</th>
+                        <th>Presença</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaAlunos">
+                    <!-- JS irá preencher -->
+                </tbody>
+            </table>
+
+            <div class="btn-group">
+                <button class="btn btn-cancelar" onclick="window.location.href='caderno_chamada.php'">Cancelar</button>
+                <button class="btn btn-salvar" type="button" onclick="marcarTodos('presente')">Marcar todos
+                    presentes</button>
+                <button class="btn btn-salvar" onclick="salvarPresenca()">Salvar</button>
+            </div>
         </div>
-        <div class="overlay toggle-menu"></div>
+    </div>
+    <div class="overlay toggle-menu"></div>
     </div>
 
     <!-- Scripts -->
@@ -81,92 +83,90 @@
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.1/dist/jspdf.plugin.autotable.min.js"></script>
 
     <script>
-        // Evita reinicializar o sidebar-menu aqui (app-script.js já faz isso globalmente)
-        $(function(){ inicializar(); });
+        $(function () { inicializar(); });
 
         let turmaAtual = null;
         let alunosCache = [];
-        let presencasMap = {}; // { ID_Matricula: 'P'|'A'|'J' }
+        let presencasMap = {};
 
-        function inicializar(){
+        function inicializar() {
             const hoje = new Date().toISOString().split('T')[0];
             $('#dataPresenca').val(hoje);
             carregarTurmas();
-            $('#turmaSelect').on('change', function(){ turmaAtual = this.value; atualizarInfo(); carregarAlunosEPresencas(); });
-            $('#dataPresenca').on('change', function(){ atualizarInfo(); carregarPresencas(); });
-            $('.btn-salvar').on('click', function(e){ e.preventDefault(); salvarPresenca(); });
-            $('#btnExportCsv').on('click', function(e){ e.preventDefault(); exportarMensal('csv'); });
-            $('#btnExportPdf').on('click', function(e){ e.preventDefault(); exportarMensal('pdf'); });
-            // Seta mês atual
+            $('#turmaSelect').on('change', function () { turmaAtual = this.value; atualizarInfo(); carregarAlunosEPresencas(); });
+            $('#dataPresenca').on('change', function () { atualizarInfo(); carregarPresencas(); });
+            $('.btn-salvar').on('click', function (e) { e.preventDefault(); salvarPresenca(); });
+            $('#btnExportCsv').on('click', function (e) { e.preventDefault(); exportarMensal('csv'); });
+            $('#btnExportPdf').on('click', function (e) { e.preventDefault(); exportarMensal('pdf'); });
             const now = new Date();
-            $('#mesRelatorio').val(`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`);
+            $('#mesRelatorio').val(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`);
         }
 
-        function atualizarInfo(){
+        function atualizarInfo() {
             const turmaTxt = $('#turmaSelect option:selected').text() || '';
             const data = $('#dataPresenca').val();
             $('#turmaInfo').text(turmaTxt);
-            if (data){ const p = data.split('-'); $('#dataInfo').text(`${p[2]}/${p[1]}/${p[0]}`); }
+            if (data) { const p = data.split('-'); $('#dataInfo').text(`${p[2]}/${p[1]}/${p[0]}`); }
         }
 
-        function carregarTurmas(){
+        function carregarTurmas() {
             const $sel = $('#turmaSelect');
             $sel.prop('disabled', true).empty().append('<option value="" disabled selected>Carregando turmas...</option>');
 
             const anoAtual = new Date().getFullYear();
 
-            function popular(res){
+            function popular(res) {
                 $sel.empty().append('<option value="" disabled selected>-- Escolha uma turma --</option>');
-                if (res && res.success && Array.isArray(res.data) && res.data.length){
-                    res.data.forEach(t => $sel.append(`<option value="${t.ID_Turma}">${t.Nome_Turma} (${t.Turno||''})</option>`));
+                if (res && res.success && Array.isArray(res.data) && res.data.length) {
+                    res.data.forEach(t => $sel.append(`<option value="${t.ID_Turma}">${t.Nome_Turma} (${t.Turno || ''})</option>`));
                     $sel.prop('disabled', false);
                 } else {
                     $sel.append('<option value="" disabled>Nenhuma turma encontrada</option>');
                 }
             }
 
-            // 1) tenta com ano corrente; 2) se vazio, tenta sem filtrar por ano
+            // 1) tenta com ano atual
             $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano: anoAtual })
-                .done(function(res){
-                    if (res && res.success && Array.isArray(res.data) && res.data.length){
+                .done(function (res) {
+                    if (res && res.success && Array.isArray(res.data) && res.data.length) {
                         popular(res);
                     } else {
                         $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php')
-                          .done(popular)
-                          .fail(function(){ $sel.empty().append('<option value="" disabled>Falha ao carregar turmas</option>'); });
+                            .done(popular)
+                            .fail(function () { $sel.empty().append('<option value="" disabled>Falha ao carregar turmas</option>'); });
                     }
                 })
-                .fail(function(){ $sel.empty().append('<option value="" disabled>Falha ao carregar turmas</option>'); });
+                .fail(function () { $sel.empty().append('<option value="" disabled>Falha ao carregar turmas</option>'); });
         }
 
-        function carregarAlunosEPresencas(){
-            if (!turmaAtual){ $('#tabelaAlunos').html(''); return; }
+        function carregarAlunosEPresencas() {
+            if (!turmaAtual) { $('#tabelaAlunos').html(''); return; }
             // Carrega alunos
             $.getJSON('../includes/ajax/admin/turmas/listar_alunos_por_turma.php', { turma_id: turmaAtual })
-                .done(function(res){ alunosCache = (res && res.success && Array.isArray(res.data)) ? res.data : []; renderTabela(); carregarPresencas(); })
-                .fail(function(){ alunosCache = []; renderTabela(); });
+                .done(function (res) { alunosCache = (res && res.success && Array.isArray(res.data)) ? res.data : []; renderTabela(); carregarPresencas(); })
+                .fail(function () { alunosCache = []; renderTabela(); });
         }
 
-        function carregarPresencas(){
-            if (!turmaAtual){ return; }
+        function carregarPresencas() {
+            if (!turmaAtual) { return; }
             const data = $('#dataPresenca').val();
-            if (!data){ return; }
+            if (!data) { return; }
             $.getJSON('../includes/ajax/professor/presencas/listar.php', { turma_id: turmaAtual, data })
-                .done(function(res){
+                .done(function (res) {
                     presencasMap = {};
-                    if (res && res.success && Array.isArray(res.data)){
-                        res.data.forEach(r => { presencasMap[parseInt(r.ID_Matricula,10)] = (r.Status||'P'); });
+                    if (res && res.success && Array.isArray(res.data)) {
+                        res.data.forEach(r => { presencasMap[parseInt(r.ID_Matricula, 10)] = (r.Status || 'P'); });
                     }
                     // aplica seleção nas linhas
                     aplicarPresencasNaTabela();
                 })
-                .fail(function(){ });
+                .fail(function () { });
         }
 
-        function renderTabela(){
+        function renderTabela() {
             const $tbody = $('#tabelaAlunos');
             $tbody.empty();
-            if (!alunosCache.length){
+            if (!alunosCache.length) {
                 $tbody.append('<tr><td colspan="3">Nenhum aluno encontrado para esta turma.</td></tr>');
                 return;
             }
@@ -188,7 +188,7 @@
             });
         }
 
-        function aplicarPresencasNaTabela(){
+        function aplicarPresencasNaTabela() {
             Object.keys(presencasMap).forEach(idMatStr => {
                 const idMat = parseInt(idMatStr, 10);
                 const cod = presencasMap[idMat];
@@ -197,22 +197,21 @@
                 else if (cod === 'J') val = 'justificado';
                 $(`input[name="p_${idMat}"][value="${val}"]`).prop('checked', true);
             });
-            // Default para os demais: presente
-            $('#tabelaAlunos tr').each(function(){
-                const idMat = parseInt($(this).attr('data-idmatricula'),10);
-                if (!presencasMap[idMat]){
+            $('#tabelaAlunos tr').each(function () {
+                const idMat = parseInt($(this).attr('data-idmatricula'), 10);
+                if (!presencasMap[idMat]) {
                     $(`input[name="p_${idMat}"][value="presente"]`).prop('checked', true);
                 }
             });
         }
 
-        function salvarPresenca(){
-            if (!turmaAtual){ alert('Selecione uma turma.'); return; }
+        function salvarPresenca() {
+            if (!turmaAtual) { alert('Selecione uma turma.'); return; }
             const data = $('#dataPresenca').val();
-            if (!data){ alert('Selecione a data.'); return; }
+            if (!data) { alert('Selecione a data.'); return; }
             const updates = [];
-            $('#tabelaAlunos tr').each(function(){
-                const idMat = parseInt($(this).attr('data-idmatricula'),10);
+            $('#tabelaAlunos tr').each(function () {
+                const idMat = parseInt($(this).attr('data-idmatricula'), 10);
                 const val = $(`input[name="p_${idMat}"]:checked`).val();
                 updates.push({ id_matricula: idMat, status: val });
             });
@@ -222,58 +221,58 @@
                 contentType: 'application/json; charset=utf-8',
                 data: JSON.stringify({ turma_id: turmaAtual, data, updates }),
                 dataType: 'json'
-            }).done(function(res){
-                if (res && res.success){ alert('Presenças salvas com sucesso!'); carregarPresencas(); }
+            }).done(function (res) {
+                if (res && res.success) { alert('Presenças salvas com sucesso!'); carregarPresencas(); }
                 else { alert(res && res.message ? res.message : 'Falha ao salvar'); }
-            }).fail(function(xhr){
+            }).fail(function (xhr) {
                 let msg = 'Erro ao salvar presenças';
-                try { const r = JSON.parse(xhr.responseText); if (r.message) msg = r.message; } catch{}
+                try { const r = JSON.parse(xhr.responseText); if (r.message) msg = r.message; } catch { }
                 alert(msg);
             });
         }
 
-        function marcarTodos(tipo){
+        function marcarTodos(tipo) {
             if (tipo !== 'presente' && tipo !== 'ausente' && tipo !== 'justificado') return;
-            $('#tabelaAlunos tr').each(function(){
+            $('#tabelaAlunos tr').each(function () {
                 const idMat = $(this).attr('data-idmatricula');
                 $(`input[name="p_${idMat}"][value="${tipo}"]`).prop('checked', true);
             });
         }
 
-        function exportarMensal(formato){
-            if (!turmaAtual){ alert('Selecione uma turma.'); return; }
+        function exportarMensal(formato) {
+            if (!turmaAtual) { alert('Selecione uma turma.'); return; }
             const mes = $('#mesRelatorio').val();
-            if (!mes){ alert('Selecione o mês do relatório.'); return; }
-            if (formato === 'csv'){
+            if (!mes) { alert('Selecione o mês do relatório.'); return; }
+            if (formato === 'csv') {
                 const url = `../includes/ajax/professor/presencas/relatorio_mensal.php?turma_id=${encodeURIComponent(turmaAtual)}&mes=${encodeURIComponent(mes)}&formato=csv`;
                 window.open(url, '_blank');
                 return;
             }
-            if (formato === 'pdf'){
+            if (formato === 'pdf') {
                 // Busca JSON e gera PDF no cliente
                 $.getJSON('../includes/ajax/professor/presencas/relatorio_mensal.php', { turma_id: turmaAtual, mes: mes, formato: 'json' })
-                    .done(function(res){
-                        if (!res || !res.success){ alert('Falha ao gerar relatório.'); return; }
+                    .done(function (res) {
+                        if (!res || !res.success) { alert('Falha ao gerar relatório.'); return; }
                         // Garante nome da turma
                         const dados = res.data || {};
-                        if (!dados.turma_nome){
+                        if (!dados.turma_nome) {
                             const nomeSel = $('#turmaSelect option:selected').text();
                             if (nomeSel) dados.turma_nome = nomeSel;
                         }
                         gerarPdfMensal(dados);
                     })
-                    .fail(function(){ alert('Erro ao carregar dados do relatório.'); });
+                    .fail(function () { alert('Erro ao carregar dados do relatório.'); });
             }
         }
 
-        function gerarPdfMensal(data){
-            if (!window.jspdf || !window.jspdf.jsPDF){
+        function gerarPdfMensal(data) {
+            if (!window.jspdf || !window.jspdf.jsPDF) {
                 alert('Biblioteca de PDF não carregada. Verifique sua conexão com a internet.');
                 return;
             }
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ orientation: 'landscape', format: 'a4' }); // sempre A4
-            if (typeof doc.autoTable !== 'function'){
+            const doc = new jsPDF({ orientation: 'landscape', format: 'a4' });
+            if (typeof doc.autoTable !== 'function') {
                 alert('Plugin AutoTable não carregado. Aguarde alguns segundos e tente novamente.');
                 return;
             }
@@ -284,11 +283,11 @@
 
             // Larguras (mm)
             const wMat = 22;
-            const wNome = 68; // ligeiramente menor para caber mais dias
+            const wNome = 68;
             const wDia = 7;
             const wTot = 8;
             const wPerc = 14;
-            const fixedWidth = wMat + wNome + (3 * wTot) + wPerc; // parte fixa sem dias
+            const fixedWidth = wMat + wNome + (3 * wTot) + wPerc;
 
             // Quantos dias cabem por tabela em A4
             const dias = Array.isArray(data.dias) ? data.dias : [];
@@ -326,7 +325,7 @@
                     row.push(l.totais.P);
                     row.push(l.totais.A);
                     row.push(l.totais.J);
-                    row.push(l.percentual !== null ? (l.percentual+'%') : '');
+                    row.push(l.percentual !== null ? (l.percentual + '%') : '');
                     body.push(row);
                 });
 

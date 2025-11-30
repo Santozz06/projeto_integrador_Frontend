@@ -92,7 +92,7 @@ if (isset($_GET['editarServidor']) && !empty($_GET['editarServidor'])) {
     }
 }
 
-// processa formulário
+
 // Funções auxiliares para AJAX (renderização das linhas de tabela)
 function renderLinhasAlunos(array $alunos, $editId = null): string
 {
@@ -139,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = $_POST['email'];
             $id_aluno = $_POST['id_aluno'] ?? null;
 
-            // email duplicado?
+            // email duplicado
             $email_existente = $usuarioCRUD->emailExiste($email, $id_aluno);
             if ($email_existente) {
                 throw new Exception("O email '$email' já está cadastrado para outro usuário.");

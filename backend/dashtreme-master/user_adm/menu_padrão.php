@@ -1,11 +1,14 @@
 <?php
-// Assume bootstrap já foi incluído antes do menu via página principal.
-if (session_status() === PHP_SESSION_NONE) { @session_start(); }
-$nome_menu = isset($_SESSION['user_name']) ? trim((string)$_SESSION['user_name']) : 'Administrador';
-$email_menu = isset($_SESSION['user_email']) ? trim((string)$_SESSION['user_email']) : 'admin@escola.com';
-function gerarIniciais($nome) {
+if (session_status() === PHP_SESSION_NONE) {
+    @session_start();
+}
+$nome_menu = isset($_SESSION['user_name']) ? trim((string) $_SESSION['user_name']) : 'Administrador';
+$email_menu = isset($_SESSION['user_email']) ? trim((string) $_SESSION['user_email']) : 'admin@escola.com';
+function gerarIniciais($nome)
+{
     $nome = trim($nome);
-    if ($nome === '') return 'US';
+    if ($nome === '')
+        return 'US';
     $parts = preg_split('/\s+/u', $nome);
     $first = mb_substr($parts[0], 0, 1, 'UTF-8');
     $last = count($parts) > 1 ? mb_substr(end($parts), 0, 1, 'UTF-8') : (mb_strlen($parts[0], 'UTF-8') > 1 ? mb_substr($parts[0], 1, 1, 'UTF-8') : $first);
@@ -15,127 +18,131 @@ $iniciais_menu = gerarIniciais($nome_menu);
 ?>
 <nav id="menu_padrao" class="bg-theme bg-theme1">
     <div id="wrapper">
-            <!-- Sidebar -->
-            <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
-                <div class="brand-logo">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
+            <div class="brand-logo">
+                <a href="home.php">
+                    <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
+                    <h5 class="logo-text">Sistema Acadêmico Santos</h5>
+                </a>
+            </div>
+            <ul class="sidebar-menu do-nicescrol">
+                <li class="sidebar-header">NAVEGAÇÃO PRINCIPAL</li>
+                <li>
                     <a href="home.php">
-                        <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
-                        <h5 class="logo-text">Sistema Acadêmico Santos</h5>
+                        <i class="zmdi zmdi-view-dashboard"></i> <span>Home</span>
                     </a>
-                </div>
-                <ul class="sidebar-menu do-nicescrol">
-                    <li class="sidebar-header">NAVEGAÇÃO PRINCIPAL</li>
-                    <li>
-                        <a href="home.php">
-                            <i class="zmdi zmdi-view-dashboard"></i> <span>Home</span>
+                </li>
+                <li>
+                    <a href="cadastro.php">
+                        <i class="zmdi zmdi-accounts"></i> <span>Cadastro</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="cadastro.php#aluno"><i class="zmdi zmdi-accounts-alt"></i> Alunos</a></li>
+                        <li><a href="cadastroTurmas.php"><i class="zmdi zmdi-group-work"></i> Turmas</a></li>
+                        <li><a href="cadastro.php#servidor"><i class="zmdi zmdi-account-box"></i> Servidores</a>
+                        </li>
+                        <li><a href="gerenciarVinculos.php"><i class="zmdi zmdi-link"></i> Gerenciar vínculos</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="relatorios.php">
+                        <i class="zmdi zmdi-chart"></i> <span>Relatórios</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="atestados.php">
+                        <i class="zmdi zmdi-file-text"></i> <span>Atestados</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="atestado_matricula.php"><i class="zmdi zmdi-assignment-account"></i> Atestado
+                                de
+                                matrícula</a></li>
+                        <li><a href="atestado_frequencia.php"><i class="zmdi zmdi-time-countdown"></i>
+                                Frequência</a>
+                        </li>
+                        <li><a href="historico.php"><i class="zmdi zmdi-assignment"></i> Histórico</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="matricula.php">
+                        <i class="zmdi zmdi-assignment-check"></i> <span>Matrícula</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="transferencias.php"><i class="zmdi zmdi-account-add"></i> Transferências</a>
+                        </li>
+                        <li><a href="rematriculas.php"><i class="zmdi zmdi-refresh"></i> Rematrículas</a></li>
+                    </ul>
+                <li>
+                    <a href="disciplinas.php">
+                        <i class="zmdi zmdi-book"></i> <span>Disciplinas</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="cadastrar.php"><i class="zmdi zmdi-plus-circle"></i> Cadastrar</a></li>
+                        <li><a href="notas.php"><i class="zmdi zmdi-check-circle"></i> Notas</a></li>
+                        <li><a href="atribuirDisciplinas.php"><i class="zmdi zmdi-assignment"></i> Atribuir a
+                                Professores</a></li>
+                        <li><a href="horarios.php"><i class="zmdi zmdi-time"></i> Horários de Aulas</a></li>
+                        <li><a href="caderno_chamada.php"><i class="zmdi zmdi-accounts-list"></i> Caderno de Chamada</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="academico.php">
+                        <i class="zmdi zmdi-graduation-cap"></i> <span>Acadêmico</span>
+                        <i class="zmdi zmdi-caret-down float-right"></i>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li><a href="calendario.php"><i class="zmdi zmdi-calendar"></i> Calendário</a></li>
+                        <li><a href="documentos.php"><i class="zmdi zmdi-file"></i> Documentos</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Topbar -->
+        <header class="topbar-nav">
+            <nav class="navbar navbar-expand fixed-top">
+                <ul class="navbar-nav mr-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link toggle-menu" href="javascript:void();">
+                            <i class="icon-menu menu-icon"></i>
                         </a>
-                    </li>
-                    <li>
-                        <a href="cadastro.php">
-                            <i class="zmdi zmdi-accounts"></i> <span>Cadastro</span>
-                            <i class="zmdi zmdi-caret-down float-right"></i>
-                        </a>
-                        <ul class="sidebar-submenu">
-                            <li><a href="cadastro.php#aluno"><i class="zmdi zmdi-accounts-alt"></i> Alunos</a></li>
-                            <li><a href="cadastroTurmas.php"><i class="zmdi zmdi-group-work"></i> Turmas</a></li>
-                            <li><a href="cadastro.php#servidor"><i class="zmdi zmdi-account-box"></i> Servidores</a>
-                            </li>
-                            <li><a href="gerenciarVinculos.php"><i class="zmdi zmdi-link"></i> Gerenciar vínculos</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="relatorios.php">
-                            <i class="zmdi zmdi-chart"></i> <span>Relatórios</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="atestados.php">
-                            <i class="zmdi zmdi-file-text"></i> <span>Atestados</span>
-                            <i class="zmdi zmdi-caret-down float-right"></i>
-                        </a>
-                        <ul class="sidebar-submenu">
-                            <li><a href="atestado_matricula.php"><i class="zmdi zmdi-assignment-account"></i> Atestado
-                                    de
-                                    matrícula</a></li>
-                            <li><a href="atestado_frequencia.php"><i class="zmdi zmdi-time-countdown"></i>
-                                    Frequência</a>
-                            </li>
-                            <li><a href="historico.php"><i class="zmdi zmdi-assignment"></i> Histórico</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="matricula.php">
-                            <i class="zmdi zmdi-assignment-check"></i> <span>Matrícula</span>
-                            <i class="zmdi zmdi-caret-down float-right"></i>
-                        </a>
-                        <ul class="sidebar-submenu">
-                            <li><a href="transferencias.php"><i class="zmdi zmdi-account-add"></i> Transferências</a>
-                            </li>
-                            <li><a href="rematriculas.php"><i class="zmdi zmdi-refresh"></i> Rematrículas</a></li>
-                        </ul>
-                    <li>
-                        <a href="disciplinas.php">
-                            <i class="zmdi zmdi-book"></i> <span>Disciplinas</span>
-                            <i class="zmdi zmdi-caret-down float-right"></i>
-                        </a>
-                        <ul class="sidebar-submenu">
-                            <li><a href="cadastrar.php"><i class="zmdi zmdi-plus-circle"></i> Cadastrar</a></li>
-                            <li><a href="notas.php"><i class="zmdi zmdi-check-circle"></i> Notas</a></li>
-                            <li><a href="atribuirDisciplinas.php"><i class="zmdi zmdi-assignment"></i> Atribuir a Professores</a></li>
-                            <li><a href="horarios.php"><i class="zmdi zmdi-time"></i> Horários de Aulas</a></li>
-                            <li><a href="caderno_chamada.php"><i class="zmdi zmdi-accounts-list"></i> Caderno de Chamada</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="academico.php">
-                            <i class="zmdi zmdi-graduation-cap"></i> <span>Acadêmico</span>
-                            <i class="zmdi zmdi-caret-down float-right"></i>
-                        </a>
-                        <ul class="sidebar-submenu">
-                            <li><a href="calendario.php"><i class="zmdi zmdi-calendar"></i> Calendário</a></li>
-                            <li><a href="documentos.php"><i class="zmdi zmdi-file"></i> Documentos</a></li>
-                        </ul>
                     </li>
                 </ul>
-            </div>
 
-            <!-- Topbar -->
-            <header class="topbar-nav">
-                <nav class="navbar navbar-expand fixed-top">
-                    <ul class="navbar-nav mr-auto align-items-center">
-                        <li class="nav-item">
-                            <a class="nav-link toggle-menu" href="javascript:void();">
-                                <i class="icon-menu menu-icon"></i>
-                            </a>
-                        </li>
-                    </ul>
-
-                    <ul class="navbar-nav align-items-center right-nav-link">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
-                                <span class="user-profile"><span class="avatar-initials"><?php echo htmlspecialchars($iniciais_menu); ?></span></span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-right">
-                                <li class="dropdown-item user-details">
-                                    <a href="javaScript:void();">
-                                        <div class="media">
-                                            <div class="avatar-initials align-self-start mr-3"><?php echo htmlspecialchars($iniciais_menu); ?></div>
-                                            <div class="media-body">
-                                                <h6 class="mt-2 user-title"><?php echo htmlspecialchars($nome_menu); ?></h6>
-                                                <p class="user-subtitle"><?php echo htmlspecialchars($email_menu); ?></p>
-                                            </div>
+                <ul class="navbar-nav align-items-center right-nav-link">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
+                            <span class="user-profile"><span
+                                    class="avatar-initials"><?php echo htmlspecialchars($iniciais_menu); ?></span></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li class="dropdown-item user-details">
+                                <a href="javaScript:void();">
+                                    <div class="media">
+                                        <div class="avatar-initials align-self-start mr-3">
+                                            <?php echo htmlspecialchars($iniciais_menu); ?></div>
+                                        <div class="media-body">
+                                            <h6 class="mt-2 user-title"><?php echo htmlspecialchars($nome_menu); ?></h6>
+                                            <p class="user-subtitle"><?php echo htmlspecialchars($email_menu); ?></p>
                                         </div>
-                                    </a>
-                                </li>
-                                <li class="dropdown-divider"></li>
-                                <li class="dropdown-item">
-                                    <a href="../auth/logout.php" id="logout-btn" onclick="return confirm('Deseja sair?')">
-                                        <i class="icon-power mr-2"></i> Sair
-                                    </a>
-                                </li>
-                        </li>
-                    </ul>
-                </nav>
-            </header>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="dropdown-divider"></li>
+                            <li class="dropdown-item">
+                                <a href="../auth/logout.php" id="logout-btn" onclick="return confirm('Deseja sair?')">
+                                    <i class="icon-power mr-2"></i> Sair
+                                </a>
+                            </li>
+                    </li>
+                </ul>
+            </nav>
+        </header>
 </nav>

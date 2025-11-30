@@ -358,7 +358,6 @@
             // Gerar PDF
             html2pdf().set(options).from(element).save()
                 .then(() => {
-                    // Restaurar estilos originais se necessário
                     if (originalStyles) {
                         element.setAttribute('style', originalStyles);
                     } else {
@@ -368,7 +367,6 @@
                 .catch(error => {
                     console.error('Erro ao gerar PDF:', error);
                     alert('Erro ao gerar PDF. Tente novamente.');
-                    // Restaurar estilos originais em caso de erro
                     if (originalStyles) {
                         element.setAttribute('style', originalStyles);
                     } else {
@@ -387,7 +385,7 @@
                     if (btn) btn.disabled = false;
                     clearInterval(iv);
                 }
-                if (++tries > 50) { // ~5s timeout
+                if (++tries > 50) {
                     if (btn) btn.disabled = false;
                     clearInterval(iv);
                 }

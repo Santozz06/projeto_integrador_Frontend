@@ -113,10 +113,8 @@
             </div>
 
         </div>
-        <!-- End container-fluid -->
     </div>
     <!--End content-wrapper-->
-    <!--Overlay-->
     <div class="overlay toggle-menu"></div>
 
     <script src="../assets/js/jquery.min.js"></script>

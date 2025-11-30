@@ -162,7 +162,6 @@
             document.getElementById('municipio-uf').textContent = munuf || '—';
             document.getElementById('data-transferencia').textContent = data ? new Date(data).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR');
 
-            // Turma/Turno atuais (opcional): podemos exibir via uma busca simplificada
             if (!alunoId) { return; }
             // Carrega matricula ativa para exibir turma/turno
             fetch(`../includes/ajax/admin/matriculas/obter_matricula_ativa.php?aluno_id=${encodeURIComponent(alunoId)}`)

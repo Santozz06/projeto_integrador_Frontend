@@ -12,72 +12,72 @@
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
     <link rel="stylesheet" href="../css/style.css">
-    
+
 </head>
 
 <body class="bg-theme bg-theme1 user_professor_home">
     <?php
     require("menu_padrao.php");
     ?>
-    
 
-        <!-- Conteúdo principal -->
-        <div class="content-wrapper">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="welcome-message">
-                            <h4 class="welcome-title">Bem-vindo(a), Professor(a)!</h4>
-                            <p class="welcome-text">Aqui você pode gerenciar suas turmas, registrar presenças, lançar
-                                notas e acompanhar o desempenho dos alunos.</p>
 
-                            <div class="quick-stats">
-                                <div class="stat-item">
-                                    <div class="stat-value" id="stat-turmas">-</div>
-                                    <div class="stat-label">Turmas</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value" id="stat-alunos">-</div>
-                                    <div class="stat-label">Alunos</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value" id="stat-disciplinas">-</div>
-                                    <div class="stat-label">Disciplinas</div>
-                                </div>
+    <!-- Conteúdo principal -->
+    <div class="content-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="welcome-message">
+                        <h4 class="welcome-title">Bem-vindo(a), Professor(a)!</h4>
+                        <p class="welcome-text">Aqui você pode gerenciar suas turmas, registrar presenças, lançar
+                            notas e acompanhar o desempenho dos alunos.</p>
+
+                        <div class="quick-stats">
+                            <div class="stat-item">
+                                <div class="stat-value" id="stat-turmas">-</div>
+                                <div class="stat-label">Turmas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="stat-alunos">-</div>
+                                <div class="stat-label">Alunos</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="stat-disciplinas">-</div>
+                                <div class="stat-label">Disciplinas</div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="row row-cards">
-                    <!-- Horários e Salas de Aula -->
-                    <div class="col-lg-6">
-                        <div class="dashboard-card" id="panel-horarios">
-                            <h5 class="card-title"><i class="zmdi zmdi-time mr-2"></i> Horários e Salas de Aula</h5>
-                            <div class="empty-message">Carregando horários...</div>
-                        </div>
-                    </div>
-                    <!-- Eventos Próximos -->
-                    <div class="col-lg-6">
-                        <div class="dashboard-card" id="panel-eventos-proximos">
-                            <h5 class="card-title"><i class="zmdi zmdi-calendar-note mr-2"></i> Eventos Próximos</h5>
-                            <div class="empty-message">Carregando eventos...</div>
-                        </div>
+            <div class="row row-cards">
+                <!-- Horários e Salas de Aula -->
+                <div class="col-lg-6">
+                    <div class="dashboard-card" id="panel-horarios">
+                        <h5 class="card-title"><i class="zmdi zmdi-time mr-2"></i> Horários e Salas de Aula</h5>
+                        <div class="empty-message">Carregando horários...</div>
                     </div>
                 </div>
+                <!-- Eventos Próximos -->
+                <div class="col-lg-6">
+                    <div class="dashboard-card" id="panel-eventos-proximos">
+                        <h5 class="card-title"><i class="zmdi zmdi-calendar-note mr-2"></i> Eventos Próximos</h5>
+                        <div class="empty-message">Carregando eventos...</div>
+                    </div>
+                </div>
+            </div>
 
-                <div class="row section-gap">
-                    <!-- Avaliações -->
-                    <div class="col-lg-12">
-                        <div class="dashboard-card" id="panel-avaliacoes">
-                            <h5 class="card-title"><i class="zmdi zmdi-check-circle mr-2"></i> Avaliações</h5>
-                            <div class="empty-message">Carregando avaliações...</div>
-                        </div>
+            <div class="row section-gap">
+                <!-- Avaliações -->
+                <div class="col-lg-12">
+                    <div class="dashboard-card" id="panel-avaliacoes">
+                        <h5 class="card-title"><i class="zmdi zmdi-check-circle mr-2"></i> Avaliações</h5>
+                        <div class="empty-message">Carregando avaliações...</div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="overlay toggle-menu"></div>
+    </div>
+    <div class="overlay toggle-menu"></div>
 
     <!-- Scripts -->
     <script src="../assets/js/jquery.min.js"></script>
@@ -86,7 +86,6 @@
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
     <script>
-        // Inicialização da página (sem redirecionamentos via localStorage)
         document.addEventListener('DOMContentLoaded', function () {
             const username = (localStorage.getItem('username') || 'Professor');
             $('.user-title').text(username);
@@ -94,17 +93,17 @@
             loadProfessorData();
         });
 
-        // Função para carregar dados do professor (via backend)
+        // Função para carregar dados do professor
         function loadProfessorData() {
             // Atualiza nome
             const nome = localStorage.getItem('username') || 'Professor';
             $('.user-title').text(nome);
             $('.welcome-title').text('Bem-vindo, ' + nome.split(' ')[0] + '!');
 
-            // Ano letivo fixo solicitado (2025)
+            // Ano letivo fixo 
             const anoAtual = 2025;
 
-            // Carrega estatísticas do dashboard (filtradas por 2025)
+            // Carrega estatísticas do dashboard 
             $.getJSON('../includes/ajax/professor/dashboard_stats.php', { ano: anoAtual })
                 .done(function (res) {
                     if (res && res.success && res.data) {
@@ -119,7 +118,7 @@
                     $('#stat-turmas, #stat-alunos, #stat-disciplinas').text('0');
                 });
 
-            // Carrega avisos (eventos do calendário) para os próximos 30 dias
+            // Carrega avisos 
             const start = new Date();
             const end = new Date();
             end.setDate(end.getDate() + 30);
@@ -128,7 +127,6 @@
             $.getJSON('../includes/ajax/calendario/listar_eventos.php', { start: toISO(start), end: toISO(end) })
                 .done(function (res) {
                     let eventos = (res && res.success && Array.isArray(res.data)) ? res.data : [];
-                    // Ordena por data
                     eventos.sort((a, b) => (a.start || '').localeCompare(b.start || ''));
 
                     // Popula painel de Eventos Próximos
@@ -158,22 +156,22 @@
                     $('#panel-eventos-proximos').append('<div class="empty-message">Não foi possível carregar os eventos</div>');
                 });
 
-            // Carrega Avaliações do professor (próximas)
+            // Carrega Avaliações do professor 
             $.getJSON('../includes/ajax/professor/avaliacoes/listar_professor.php', { futuras: 1, limit: 8 })
-                .done(function(res){
+                .done(function (res) {
                     var avs = (res && res.success && Array.isArray(res.data)) ? res.data : [];
                     var html = '';
                     if (avs.length === 0) {
                         html = '<div class="empty-message">Nenhuma avaliação agendada</div>';
                     } else {
-                        for (var i = 0; i < avs.length; i++){
+                        for (var i = 0; i < avs.length; i++) {
                             var av = avs[i];
-                            var dt = (av.Data || '').split('T')[0] || av.Data; // Data é DATE
+                            var dt = (av.Data || '').split('T')[0] || av.Data;
                             var parts = (dt || '').split('-');
                             var dataBR = (parts.length === 3) ? (parts[2] + '/' + parts[1] + '/' + parts[0]) : dt;
                             var turma = (av.Nome_Turma || ('Turma ' + av.ID_Turma));
                             var disc = av.Disciplina || '';
-                            html += ''+
+                            html += '' +
                                 '<div class="event-item">' +
                                 '  <div class="event-date">' + dataBR + '</div>' +
                                 '  <div class="event-title">' + turma + '</div>' +
@@ -185,48 +183,46 @@
                     $('#panel-avaliacoes').find('.event-item, .empty-message').remove();
                     $('#panel-avaliacoes').append(html);
                 })
-                .fail(function(){
+                .fail(function () {
                     $('#panel-avaliacoes').find('.event-item, .empty-message').remove();
                     $('#panel-avaliacoes').append('<div class="empty-message">Não foi possível carregar as avaliações</div>');
                 });
 
-            // Carrega horários do professor somente do ano de 2025 (fixo)
+            // Carrega horários do professor somente do ano de 2025 
             $.getJSON('../includes/ajax/professor/horarios.php', { ano: anoAtual })
-                .done(function(res){
+                .done(function (res) {
                     const dados = (res && res.success && Array.isArray(res.data)) ? res.data : [];
-                    const NOMES = {1:'Segunda-feira',2:'Terça-feira',3:'Quarta-feira',4:'Quinta-feira',5:'Sexta-feira',6:'Sábado',7:'Domingo'};
+                    const NOMES = { 1: 'Segunda-feira', 2: 'Terça-feira', 3: 'Quarta-feira', 4: 'Quinta-feira', 5: 'Sexta-feira', 6: 'Sábado', 7: 'Domingo' };
                     let html = '';
-                    if (dados.length === 0){
+                    if (dados.length === 0) {
                         html = '<div class="empty-message">Nenhum horário cadastrado</div>';
                     } else {
-                        dados.slice(0,6).forEach(aula => {
-                            const hi = (aula.Hora_Inicio||'').substring(0,5);
-                            const hf = (aula.Hora_Fim||'').substring(0,5);
+                        dados.slice(0, 6).forEach(aula => {
+                            const hi = (aula.Hora_Inicio || '').substring(0, 5);
+                            const hf = (aula.Hora_Fim || '').substring(0, 5);
                             html += `
                                 <div class="class-item">
                                     <div class="class-name">${aula.Nome_Disciplina} - ${aula.Nome_Turma}</div>
-                                    <div class="class-time">${NOMES[aula.Dia_Semana]||aula.Dia_Semana}, ${hi} - ${hf}</div>
+                                    <div class="class-time">${NOMES[aula.Dia_Semana] || aula.Dia_Semana}, ${hi} - ${hf}</div>
                                     <div class="class-room">${aula.Sala ? ('Sala ' + aula.Sala) : ''}</div>
                                 </div>`;
                         });
-                        if (dados.length > 6){
+                        if (dados.length > 6) {
                             html += '<div class="empty-message">Mais aulas disponíveis em Horários</div>';
                         }
                     }
                     $('#panel-horarios').find('.class-item, .empty-message').remove();
                     $('#panel-horarios').append(html);
                 })
-                .fail(function(){
+                .fail(function () {
                     $('#panel-horarios').find('.class-item, .empty-message').remove();
                     $('#panel-horarios').append('<div class="empty-message">Não foi possível carregar os horários</div>');
                 });
 
-            // Estatísticas já carregadas acima com ano fixo
-
-            // Logout é tratado via link ../logout.php no menu
         }
 
-    
+
     </script>
-    </body>
-    </html>
+</body>
+
+</html>
