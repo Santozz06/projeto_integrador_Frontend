@@ -19,79 +19,80 @@
     require("menu_padrao.php");
     ?>
 
-        <!-- Conteúdo principal -->
-        <div class="content-wrapper">
-            <div class="container-select">
-                <h2>Visualizar Avaliações</h2>
+    <!-- Conteúdo principal -->
+    <div class="content-wrapper">
+        <div class="container-select">
+            <h2>Visualizar Avaliações</h2>
 
-                <select id="selectTurma" class="form-select">
-                    <option value="" disabled selected>-- Escolha uma turma --</option>
-                </select>
+            <select id="selectTurma" class="form-select">
+                <option value="" disabled selected>-- Escolha uma turma --</option>
+            </select>
 
 
-                <div id="avaliacoesContainer" class="avaliacoes-container" style="display:none;">
-                    <div class="card-section">
-                        <h4 id="formTitle">Nova Avaliação</h4>
-                        <div class="form-group">
-                            <label for="disciplina">Disciplina</label>
-                            <select class="form-control" id="disciplina">
-                                <option value="" disabled selected>Carregue uma turma</option>
-                            </select>
-                            <small id="disciplinaHelp" class="form-text text-muted" style="display:none;">Nenhuma disciplina vinculada a você nesta turma.</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="tipo">Tipo</label>
-                            <select class="form-control" id="tipo">
-                                <option value="Prova">Prova</option>
-                                <option value="Trabalho">Trabalho</option>
-                                <option value="Simulado">Simulado</option>
-                                <option value="Redação">Redação</option>
-                                <option value="Atividade Avaliativa">Atividade Avaliativa</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="data">Data</label>
-                            <input type="date" class="form-control" id="data">
-                        </div>
-                        <div class="btn-group">
-                            <button class="btn btn-primary" id="btnSalvar">Adicionar Avaliação</button>
-                            <button class="btn btn-secondary" id="btnCancelar">Cancelar</button>
-                        </div>
+            <div id="avaliacoesContainer" class="avaliacoes-container" style="display:none;">
+                <div class="card-section">
+                    <h4 id="formTitle">Nova Avaliação</h4>
+                    <div class="form-group">
+                        <label for="disciplina">Disciplina</label>
+                        <select class="form-control" id="disciplina">
+                            <option value="" disabled selected>Carregue uma turma</option>
+                        </select>
+                        <small id="disciplinaHelp" class="form-text text-muted" style="display:none;">Nenhuma disciplina
+                            vinculada a você nesta turma.</small>
                     </div>
+                    <div class="form-group">
+                        <label for="tipo">Tipo</label>
+                        <select class="form-control" id="tipo">
+                            <option value="Prova">Prova</option>
+                            <option value="Trabalho">Trabalho</option>
+                            <option value="Simulado">Simulado</option>
+                            <option value="Redação">Redação</option>
+                            <option value="Atividade Avaliativa">Atividade Avaliativa</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="data">Data</label>
+                        <input type="date" class="form-control" id="data">
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="btnSalvar">Adicionar Avaliação</button>
+                        <button class="btn btn-secondary" id="btnCancelar">Cancelar</button>
+                    </div>
+                </div>
 
-                    <div class="card-section">
-                        <h4>Avaliações Registradas</h4>
-                        <div class="table-responsive">
-                            <table class="avaliacoes-table">
-                                <thead>
-                                    <tr>
-                                        <th>Disciplina</th>
-                                        <th>Tipo</th>
-                                        <th>Data</th>
-                                        <th>Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="avaliacoesLista">
-                                    <!-- Avaliações serão inseridas aqui via JavaScript -->
-                                </tbody>
-                            </table>
-                        </div>
+                <div class="card-section">
+                    <h4>Avaliações Registradas</h4>
+                    <div class="table-responsive">
+                        <table class="avaliacoes-table">
+                            <thead>
+                                <tr>
+                                    <th>Disciplina</th>
+                                    <th>Tipo</th>
+                                    <th>Data</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="avaliacoesLista">
+                                <!-- Avaliações serão inseridas aqui via JavaScript -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Modal de confirmação -->
-        <div class="modal-overlay" id="confirmModal">
-            <div class="modal-content">
-                <h4 id="modalMessage">Tem certeza que deseja remover esta avaliação?</h4>
-                <div class="modal-actions">
-                    <button class="btn btn-primary" id="confirmYes">Sim</button>
-                    <button class="btn btn-secondary" id="confirmNo">Não</button>
-                </div>
+    <!-- Modal de confirmação -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-content">
+            <h4 id="modalMessage">Tem certeza que deseja remover esta avaliação?</h4>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="confirmYes">Sim</button>
+                <button class="btn btn-secondary" id="confirmNo">Não</button>
             </div>
         </div>
-        <div class="overlay toggle-menu"></div>
+    </div>
+    <div class="overlay toggle-menu"></div>
     </div>
 
     <!-- Scripts -->
@@ -100,14 +101,14 @@
     <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
-   
-    
+
+
     <script>
         $(function () {
             carregarTurmasSelect();
             // Visualizar via botão ou ao mudar a turma
-            $('#btnVisualizar').on('click', function(e){ e.preventDefault(); carregarAvaliacoes(); });
-            $('#selectTurma').on('change', function(){ carregarAvaliacoes(); });
+            $('#btnVisualizar').on('click', function (e) { e.preventDefault(); carregarAvaliacoes(); });
+            $('#selectTurma').on('change', function () { carregarAvaliacoes(); });
         });
 
         let turmaAtual = null;
@@ -129,14 +130,14 @@
         confirmYes.addEventListener('click', confirmarRemocao);
         confirmNo.addEventListener('click', fecharModal);
 
-        function carregarTurmasSelect(){
+        function carregarTurmasSelect() {
             const ano = 2025;
             const $sel = $('#selectTurma');
             $sel.prop('disabled', true).empty().append('<option value="" disabled selected>Carregando turmas...</option>');
-            $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano, all: 1 })
-                .done(function(res){
+            $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano })
+                .done(function (res) {
                     $sel.empty().append('<option value="" disabled selected>-- Escolha uma turma --</option>');
-                    if (res && res.success && Array.isArray(res.data) && res.data.length){
+                    if (res && res.success && Array.isArray(res.data) && res.data.length) {
                         res.data.forEach(t => {
                             const label = `${t.Nome_Turma} (${t.Turno || ''} - ${t.Ano_Letivo || ''})`;
                             $sel.append(`<option value="${t.ID_Turma}">${label}</option>`);
@@ -146,7 +147,7 @@
                         $sel.append('<option value="" disabled>Nenhuma turma encontrada</option>');
                     }
                 })
-                .fail(function(){
+                .fail(function () {
                     $sel.empty().append('<option value="" disabled>Falha ao carregar turmas</option>');
                 });
         }
@@ -164,10 +165,10 @@
             const $lista = $('#avaliacoesLista');
             $lista.html('<tr><td colspan="4" class="empty-message">Carregando avaliações...</td></tr>');
             $.getJSON('../includes/ajax/professor/avaliacoes/listar.php', { turma_id: turmaAtual })
-                .done(function(res){
+                .done(function (res) {
                     $lista.empty();
                     avaliacoesCache = (res && res.success && Array.isArray(res.data)) ? res.data : [];
-                    if (avaliacoesCache.length === 0){
+                    if (avaliacoesCache.length === 0) {
                         $lista.html('<tr><td colspan="4" class="empty-message">Nenhuma avaliação registrada</td></tr>');
                     } else {
                         avaliacoesCache.forEach(av => {
@@ -189,25 +190,25 @@
                         });
                     }
                 })
-                .fail(function(){
+                .fail(function () {
                     $lista.html('<tr><td colspan="4" class="empty-message">Erro ao carregar avaliações</td></tr>');
                 });
         }
 
-        function carregarDisciplinas(turmaId){
+        function carregarDisciplinas(turmaId) {
             const $disc = $('#disciplina');
             const $help = $('#disciplinaHelp');
             $help.hide();
             $disc.prop('disabled', true).empty().append('<option value="" disabled selected>Carregando disciplinas...</option>');
             $.getJSON('../includes/ajax/shared/academico/listar_disciplinas_por_turma.php', { turma_id: turmaId })
-                .done(function(res){
+                .done(function (res) {
                     $disc.empty();
-                    if (res && res.success && Array.isArray(res.data) && res.data.length){
+                    if (res && res.success && Array.isArray(res.data) && res.data.length) {
                         $disc.append('<option value="" disabled selected>-- Selecione --</option>');
-                        res.data.forEach(function(d){
+                        res.data.forEach(function (d) {
                             // Usamos o nome como valor pois a tabela de Avaliações armazena texto
                             const nome = d.Nome_Disciplina || '';
-                            if (nome){ $disc.append('<option value="'+ nome +'">'+ nome +'</option>'); }
+                            if (nome) { $disc.append('<option value="' + nome + '">' + nome + '</option>'); }
                         });
                         $disc.prop('disabled', false);
                     } else {
@@ -216,7 +217,7 @@
                         $help.show();
                     }
                 })
-                .fail(function(){
+                .fail(function () {
                     $disc.empty().append('<option value="" disabled selected>Erro ao carregar</option>');
                     $disc.prop('disabled', true);
                 });

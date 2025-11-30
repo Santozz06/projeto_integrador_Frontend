@@ -64,8 +64,10 @@ $semana = [1 => 'Segunda-feira', 2 => 'Terça-feira', 3 => 'Quarta-feira', 4 => 
                     <select class="form-control" id="disciplina_id" name="disciplina_id" required>
                       <option value="">Selecione...</option>
                       <?php foreach ($disciplinas as $d): ?>
-                        <option value="<?= $d['ID_Disciplina'] ?>" data-prof="<?= $d['ID_Professor'] ?>">
-                          <?= htmlspecialchars($d['Nome_Disciplina']) ?></option>
+                        <option value="<?= $d['ID_Disciplina'] ?>" data-prof="<?= $d['ID_Professor'] ?>"
+                          data-ano="<?= $t['Ano_Letivo'] ?>">
+                          <?= htmlspecialchars($d['Nome_Disciplina']) ?>
+                        </option>
                       <?php endforeach; ?>
                     </select>
                   </div>
@@ -214,6 +216,27 @@ $semana = [1 => 'Segunda-feira', 2 => 'Terça-feira', 3 => 'Quarta-feira', 4 => 
     $('#disciplina_id').on('change', function () {
       const prof = $(this).find(':selected').data('prof');
       if (prof) $('#professor_id').val(prof);
+    });
+
+    $('#turma_id').on('change', function () {
+      const turmaId = $(this).val();
+      if (turmaId) {
+        $.getJSON('../includes/ajax/horarios/listar_professores_por_turma.php', { turma_id: turmaId })
+          .done(function (response) {
+            const $professorSelect = $('#professor_id');
+            $professorSelect.empty().append('<option value="">Selecione...</option>');
+            if (response.success && Array.isArray(response.data)) {
+              response.data.forEach(prof => {
+                $professorSelect.append(`<option value="${prof.ID_Professor}">${prof.Nome_Completo}</option>`);
+              });
+            }
+          })
+          .fail(() => {
+            alert('Erro ao carregar professores para a turma selecionada.');
+          });
+      } else {
+        $('#professor_id').empty().append('<option value="">Selecione...</option>');
+      }
     });
 
     $('#btnLimpar').on('click', function () {

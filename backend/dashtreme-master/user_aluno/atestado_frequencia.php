@@ -38,17 +38,8 @@
                             <a href="ensino.php" class="btn btn-primary btn-voltar-custom">
                                 <i class="zmdi zmdi-arrow-left mr-1"></i> VOLTAR
                             </a>
-
-                            <h5 class="mb-4">Selecione um ano para emitir o atestado de frequência</h5>
-
-                            <div id="lista-anos">
-                                <div class="text-muted">Carregando anos disponíveis…</div>
-                            </div>
-
-                            <div class="mt-4 pt-3 border-top">
-                                <p class="text-faint">Selecione um ano escolar acima para imprimir seu atestado
-                                    de frequência.</p>
-                            </div>
+                            <button id="gerar-atestado" class="btn btn-success mt-3">Gerar Atestado</button>
+                            <div id="pdf-container" style="display:none;"></div>
                         </div>
                     </div>
                 </div>
@@ -66,55 +57,89 @@
     <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         (function () {
-            function badgeClass(status) {
-                if (!status) return 'badge-warning';
-                var s = ('' + status).toLowerCase();
-                if (s === 'matriculado' || s === 'ativa' || s === 'ativo') return 'badge-info';
-                if (s === 'aprovado' || s === 'concluido') return 'badge-success';
-                return 'badge-warning';
+            async function buscarDadosAtestado() {
+                const resp = await fetch('../includes/ajax/aluno/frequencia_resumo.php');
+                if (!resp.ok) return null;
+                return await resp.json();
             }
 
-            function renderAnos(anos) {
-                var $container = $('#lista-anos');
-                $container.empty();
-                if (!Array.isArray(anos) || anos.length === 0) {
-                    $container.append('<div class="text-muted">Nenhum ano letivo encontrado para seu usuário.</div>');
+            function limparTemaParaPDF() {
+                if (document.getElementById('force-clean-style')) return;
+                const style = document.createElement('style');
+                style.id = 'force-clean-style';
+                style.appendChild(document.createTextNode(`
+            html, body { background: #ffffff !important; background-image: none !important; }
+            * { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; box-shadow: none !important; text-shadow: none !important; filter: none !important; }
+            #pageloader-overlay, .overlay, .overlay.toggle-menu, .modal-backdrop, .modal-backdrop.show, .menu-overlay, .sidebar-wrapper, .sidebar-menu { display: none !important; }
+            body::before, body::after, html::before, html::after { display: none !important; content: none !important; }
+        `));
+                document.head.appendChild(style);
+            }
+
+            function restaurarTema() {
+                const style = document.getElementById('force-clean-style');
+                if (style) style.remove();
+            }
+
+            async function gerarAtestado() {
+                const dados = await buscarDadosAtestado();
+                if (!dados || !dados.success || !dados.data) {
+                    alert('Não foi possível obter os dados do atestado.');
                     return;
                 }
-                anos.forEach(function (item) {
-                    var ano = item.ano || '';
-                    var serie = item.serie ? (' - ' + item.serie) : '';
-                    var status = item.status || '';
-                    var bc = badgeClass(status);
-                    var html = [
-                        '<a class="year-option" href="frequencia_detalhes.php?ano=' + encodeURIComponent(ano) + '">',
-                        '  <span class="year-title">' + ano + serie + '</span>',
-                        '  <span class="badge ' + bc + ' status-badge year-status">' + (status || '') + '</span>',
-                        '</a>'
-                    ].join('');
-                    $container.append(html);
+                const d = dados.data;
+                const dataAtual = new Date();
+                const dia = String(dataAtual.getDate()).padStart(2, '0');
+                const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
+                const anoCorrente = dataAtual.getFullYear();
+                const dataFormatada = `${dia}/${mes}/${anoCorrente}`;
+
+                const pdfContent = `
+        <div id="doc" style="width: 210mm; min-height: 297mm; padding: 25mm; font-family: 'Times New Roman', serif; font-size: 16px; color: #000;">
+            <div style="text-align: center; margin-bottom: 40px;">
+                <div>República Federativa do Brasil</div>
+                <div>Ministério da Educação</div>
+                <div style="font-weight: bold;">${d.turma || 'Escola'}</div>
+            </div>
+            <div style="text-align: center; font-weight: bold; font-size: 22px; margin: 60px 0;">ATESTADO DE FREQUÊNCIA</div>
+            <div style="text-align: justify; margin-bottom: 40px;">
+                Atestamos, para os fins que se fizerem necessários, que o(a) estudante <strong>${d.nome || ''}</strong>, matrícula nº <strong>${d.matricula || ''}</strong>, matriculado(a) na turma <strong>${d.turma || ''}</strong>, obteve frequência de <strong>${d.percentual != null ? d.percentual + '%' : '-'}</strong> no ano letivo de <strong>${d.ano || ''}</strong>.
+            </div>
+            <div style="text-align: right;">Parobé - RS, ${dataFormatada}</div>
+            <div class="autenticidade" style="margin-top:40px; font-size:14px;">
+                Para verificar a autenticidade deste documento, acesse:<br>
+                <a href="http://meusite.com/autenticacao" target="_blank">http://meusite.com/autenticacao</a>
+            </div>
+            <div class="codigo" style="margin-top:10px; font-size:14px;">
+                Código de verificação: <span>[XXXX-YYYY-ZZZZ]</span>
+            </div>
+        </div>
+        `;
+                const pdfContainer = document.getElementById('pdf-container');
+                pdfContainer.innerHTML = pdfContent;
+                pdfContainer.style.display = 'block';
+                limparTemaParaPDF();
+                html2pdf().set({
+                    margin: 10,
+                    filename: 'atestado_frequencia.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, logging: false },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                }).from(pdfContainer).save().then(() => {
+                    pdfContainer.style.display = 'none';
+                    restaurarTema();
+                }).catch(err => {
+                    pdfContainer.style.display = 'none';
+                    restaurarTema();
                 });
             }
 
-            $(function () {
-                $.ajax({
-                    url: '../includes/ajax/aluno/anos_matriculas.php',
-                    method: 'GET',
-                    dataType: 'json',
-                    cache: false
-                }).done(function (resp) {
-                    if (resp && resp.success && Array.isArray(resp.anos)) {
-                        renderAnos(resp.anos);
-                    } else {
-                        $('#lista-anos').html('<div class="text-warning">Nao foi possivel carregar os anos (resposta invalida).</div>');
-                    }
-                }).fail(function (xhr) {
-                    var msg = 'Falha ao carregar anos';
-                    if (xhr && xhr.responseJSON && xhr.responseJSON.message) msg += ': ' + xhr.responseJSON.message;
-                    $('#lista-anos').html('<div class="text-danger">' + msg + '</div>');
-                });
+            document.addEventListener('DOMContentLoaded', () => {
+                const btn = document.getElementById('gerar-atestado');
+                if (btn) btn.addEventListener('click', gerarAtestado);
             });
         })();
     </script>

@@ -3030,6 +3030,11 @@ body.user_aluno_atestado_frequencia .btn-voltar-custom:hover {
 body.user_aluno_atestado_frequencia .btn-voltar-custom i {
   color: inherit;
 }
+/* Espaçamento e centralização do botão Gerar Atestado */
+body.user_aluno_atestado_frequencia .card-body #gerar-atestado {
+  display: block;
+  margin: 30px auto 0 auto;
+}
 body.user_aluno_atestado_frequencia .year-option {
   cursor: pointer;
   transition: all 0.3s ease;

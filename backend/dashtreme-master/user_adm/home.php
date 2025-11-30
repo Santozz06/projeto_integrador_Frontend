@@ -17,6 +17,9 @@ try {
   $anoLetivoAtual = date('Y');
 }
 
+
+$anoLetivoAtual = date('Y') === '2025' ? '2025' : $anoLetivoAtual;
+
 // Total de matrículas ativas no ano letivo atual
 $totalMatriculas = 0;
 try {
@@ -254,7 +257,6 @@ try {
   <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
   <!-- sidebar-menu js -->
   <script src="../assets/js/sidebar-menu.js"></script>
-  <!-- loader scripts removed: jquery.loading-indicator.js not present -->
   <!-- Custom scripts -->
   <script src="../assets/js/app-script.js"></script>
 

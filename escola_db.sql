@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db
--- Tempo de geração: 28/11/2025 às 02:03
+-- Tempo de geração: 30/11/2025 às 18:09
 -- Versão do servidor: 8.0.44
 -- Versão do PHP: 8.3.26
 
@@ -35,6 +35,13 @@ CREATE TABLE `Acompanhamento_NEE` (
   `Acompanhamento_Especializado` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Despejando dados para a tabela `Acompanhamento_NEE`
+--
+
+INSERT INTO `Acompanhamento_NEE` (`ID_Acompanhamento`, `ID_Aluno`, `Tipo`, `Descricao`, `Acompanhamento_Especializado`) VALUES
+(1, 13, 'NEE', '', '{\"aee\":0,\"salaAee\":0,\"monitor\":0,\"interprete\":1,\"materialAdaptado\":0,\"tecnologiaAssistiva\":0}');
+
 -- --------------------------------------------------------
 
 --
@@ -52,7 +59,11 @@ CREATE TABLE `Alunos` (
 
 INSERT INTO `Alunos` (`ID_Aluno`, `Matricula`) VALUES
 (3, '12345'),
-(8, 'aluno2');
+(8, 'aluno2'),
+(9, 'aluno20252'),
+(12, 'aluno20253'),
+(13, 'aluno20254'),
+(16, 'exem');
 
 -- --------------------------------------------------------
 
@@ -125,7 +136,8 @@ CREATE TABLE `Calendario_Academico` (
 --
 
 INSERT INTO `Calendario_Academico` (`ID_Evento`, `Nome_Evento`, `Descricao`, `Data_Inicio`, `Data_Fim`, `Tipo_Evento`, `Publico_Alvo`, `Criado_Por`, `Ano_Letivo`, `Google_Event_Id`, `Google_Calendar_Id`) VALUES
-(1, 'Consciencia Negra', '', '2025-11-20 00:00:00', '2025-11-20 00:00:00', 'feriado', 'todos', NULL, NULL, NULL, NULL);
+(1, 'Consciencia Negra', '', '2025-11-20 00:00:00', '2025-11-20 00:00:00', 'feriado', 'todos', NULL, NULL, NULL, NULL),
+(2, 'Apresentação do projeto integrador', '', '2025-12-01 07:00:00', '2025-12-01 23:59:00', 'evento', 'alunos', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -148,7 +160,8 @@ CREATE TABLE `Disciplinas` (
 
 INSERT INTO `Disciplinas` (`ID_Disciplina`, `Nome_Disciplina`, `Carga_Horaria`, `Ano_Letivo`, `Etapa`, `ID_Professor`) VALUES
 (1, 'Português', 20, 2025, '9º Ano', NULL),
-(2, 'Matemática', 20, 2025, '9º Ano', NULL);
+(2, 'Matemática', 20, 2025, '9º Ano', NULL),
+(3, 'Geografia', 20, 2025, '5º Ano', NULL);
 
 -- --------------------------------------------------------
 
@@ -264,7 +277,8 @@ CREATE TABLE `Horarios` (
 
 INSERT INTO `Horarios` (`ID_Horario`, `ID_Turma`, `ID_Disciplina`, `ID_Professor`, `Dia_Semana`, `Hora_Inicio`, `Hora_Fim`, `Sala`, `Ano_Letivo`, `Observacao`) VALUES
 (1, 1, 1, 6, 5, '07:30:00', '08:50:00', 'S20', 2025, ''),
-(2, 1, 2, 6, 1, '07:45:00', '09:15:00', 's21', 2025, '');
+(2, 1, 2, 6, 1, '07:45:00', '09:15:00', 's21', 2025, ''),
+(4, 3, 3, 14, 3, '07:33:00', '08:55:00', 's24', 2025, '');
 
 -- --------------------------------------------------------
 
@@ -289,7 +303,10 @@ CREATE TABLE `Matriculas` (
 
 INSERT INTO `Matriculas` (`ID_Matricula`, `ID_Aluno`, `ID_Turma`, `Data_Matricula`, `Status`, `Data_Saida`, `Tipo_Matricula`, `Ano_Letivo`) VALUES
 (1, 3, 1, '2025-11-14', 'Ativa', NULL, 'Vinculo', 2025),
-(2, 8, 2, '2025-11-26', 'Ativa', NULL, 'Vinculo', 2025);
+(2, 8, 2, '2025-11-26', 'Ativa', NULL, 'Vinculo', 2025),
+(4, 9, 1, '2025-11-30', 'Ativa', NULL, 'Vinculo', 2025),
+(5, 12, 2, '2025-11-30', 'Ativa', NULL, 'Vinculo', 2025),
+(6, 13, 1, '2025-11-30', 'Ativa', NULL, 'Vinculo', 2025);
 
 -- --------------------------------------------------------
 
@@ -5918,7 +5935,23 @@ INSERT INTO `Notas` (`ID_Nota`, `ID_Matricula`, `ID_Disciplina`, `Trimestre`, `E
 (1, 1, 1, 1, '1', 10.00, NULL),
 (2, 1, 1, 1, '2', 7.00, NULL),
 (3, 1, 1, 1, '3', 9.00, NULL),
-(4, 1, 1, 1, '4', 8.00, NULL);
+(4, 1, 1, 1, '4', 8.00, NULL),
+(5, 2, 3, 1, '1', 10.00, NULL),
+(6, 2, 3, 1, '2', 9.00, NULL),
+(7, 2, 3, 1, '3', 8.00, NULL),
+(8, 2, 3, 1, '4', 7.00, NULL),
+(9, 5, 3, 1, '1', 7.00, NULL),
+(10, 5, 3, 1, '2', 7.00, NULL),
+(11, 5, 3, 1, '3', 7.00, NULL),
+(12, 5, 3, 1, '4', 8.00, NULL),
+(13, 2, 2, 1, '1', 8.00, NULL),
+(14, 2, 2, 1, '2', 6.00, NULL),
+(15, 2, 2, 1, '3', 5.00, NULL),
+(16, 2, 2, 1, '4', 9.00, NULL),
+(17, 5, 2, 1, '1', 4.00, NULL),
+(18, 5, 2, 1, '2', 8.00, NULL),
+(19, 5, 2, 1, '3', 3.00, NULL),
+(20, 5, 2, 1, '4', 9.00, NULL);
 
 -- --------------------------------------------------------
 
@@ -5944,8 +5977,7 @@ CREATE TABLE `Ocorrencias` (
 INSERT INTO `Ocorrencias` (`ID_Ocorrencia`, `ID_Turma`, `ID_Matricula`, `Data`, `Tipo`, `Descricao`, `ID_Professor`, `DataHoraRegistro`) VALUES
 (1, 1, 1, '2025-11-19', 'Indisciplina', 'exemplo.', 6, '2025-11-19 18:27:55'),
 (3, 1, 1, '2025-11-26', 'teste', 'exemplo', 6, '2025-11-26 18:41:20'),
-(4, 1, 1, '2025-11-21', 'atrasado', 'chegou atrasado', 6, '2025-11-26 18:42:58'),
-(5, 1, 1, '2025-11-21', 'atrasado', 'chegou atrasado', 6, '2025-11-26 18:43:17');
+(4, 1, 1, '2025-11-21', 'atrasado', 'chegou atrasado', 6, '2025-11-26 18:42:58');
 
 -- --------------------------------------------------------
 
@@ -6280,7 +6312,10 @@ CREATE TABLE `Presencas` (
 
 INSERT INTO `Presencas` (`ID_Presenca`, `ID_Turma`, `ID_Matricula`, `ID_Disciplina`, `Data`, `Status`, `ID_Professor`, `DataHoraRegistro`) VALUES
 (1, 1, 1, NULL, '2025-11-19', 'P', 6, '2025-11-19 18:25:44'),
-(4, 1, 1, NULL, '2025-11-26', 'A', 6, '2025-11-26 18:38:28');
+(4, 1, 1, NULL, '2025-11-26', 'A', 6, '2025-11-26 18:38:28'),
+(8, 1, 1, NULL, '2025-11-30', 'P', 6, '2025-11-30 18:06:25'),
+(9, 1, 4, NULL, '2025-11-30', 'P', 6, '2025-11-30 18:06:25'),
+(10, 1, 6, NULL, '2025-11-30', 'P', 6, '2025-11-30 18:06:25');
 
 -- --------------------------------------------------------
 
@@ -6301,7 +6336,9 @@ CREATE TABLE `Professores` (
 --
 
 INSERT INTO `Professores` (`ID_Professor`, `Formacao`, `Data_Ingresso`, `Area_Atuacao`, `Matricula`) VALUES
-(6, 'Graduação Completa', '2025-10-17', NULL, 'Prof202501');
+(6, 'Graduação Completa', '2025-10-17', NULL, 'Prof202501'),
+(14, 'Doutorado', '2025-11-11', NULL, 'prof20252'),
+(15, 'Mestrado', '2025-11-05', NULL, 'prof20253');
 
 -- --------------------------------------------------------
 
@@ -6323,7 +6360,8 @@ CREATE TABLE `Professores_Disciplinas` (
 
 INSERT INTO `Professores_Disciplinas` (`ID_ProfDisc`, `ID_Professor`, `ID_Disciplina`, `Ano_Letivo`, `ID_Turma`) VALUES
 (1, 6, 1, 2025, NULL),
-(2, 6, 2, 2025, NULL);
+(2, 6, 2, 2025, NULL),
+(3, 14, 3, 2025, NULL);
 
 -- --------------------------------------------------------
 
@@ -6341,7 +6379,10 @@ CREATE TABLE `Professores_Turmas` (
 --
 
 INSERT INTO `Professores_Turmas` (`ID_Professor`, `ID_Turma`) VALUES
-(6, 1);
+(6, 1),
+(15, 2),
+(14, 3),
+(14, 4);
 
 -- --------------------------------------------------------
 
@@ -6379,7 +6420,9 @@ CREATE TABLE `Turmas` (
 
 INSERT INTO `Turmas` (`ID_Turma`, `Nome_Turma`, `Etapa`, `Ano_Letivo`, `Turno`, `Capacidade_Alunos`, `Sala`) VALUES
 (1, 'Informática', '9º Ano', 2025, 'Matutino', 32, 'S20'),
-(2, 'Turma A', '4º Ano', 2025, 'Vespertino', 30, '102');
+(2, 'Turma A', '4º Ano', 2025, 'Vespertino', 30, '102'),
+(3, 'Turma B', '5º Ano', 2025, 'Matutino', 30, 'S23'),
+(4, 'Turma C', '6º Ano', 2026, 'Integral', 33, 'S24');
 
 -- --------------------------------------------------------
 
@@ -6427,7 +6470,13 @@ INSERT INTO `Usuarios` (`ID_Usuario`, `Login`, `Senha`, `Nome_Completo`, `Data_N
 (1, 'admin', '$2y$10$WiD.7lwd7whyNKeX8XgSnuI8YYK5po3yE76tocXjLiSdn2v6auYqe', 'Administrador do Sistema', '1980-01-01', 'M', '12345678901', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'admin@escola.com', NULL, 0, 1, 1, NULL, NULL, NULL, NULL),
 (3, 'alunoteste1@gmail.com', '$2y$10$rmHW.Z7MmFz652i7R6J/aOq5jvq.Md1ccwyfSpoPI8lhxGDB9X0dC', 'Aluno teste 1', '2025-10-08', 'Masculino', '33416344014', NULL, '2025-11-06', 'SSP', '43', 'Parda', 'rua sei la, 21 - nao sei', '21', 'casa', 'nao sei', 43, 4314050, '51994477553', '51999996666', 'alunoteste1@gmail.com', '95630000', 0, 0, 1, NULL, 'Brasil', 'Taquara/RS', 'Pedro e Ana'),
 (6, 'servidorteste1@gmail.com', '$2y$10$H6YE3rlhq6HXK3jy.oLGweevQrYVx6aKc5/H50zG4KeH5iDEuAwJ6', 'servidor teste 1', '1985-11-08', 'Masculino', '64984751029', '0000222233', NULL, 'SSP', '33', 'Branca', 'Travessa Tocantins, 23 - Centro', '23', 'casa', 'Centro', 33, 3304557, '4798555555', '', 'servidorteste1@gmail.com', '20010040', 0, 0, 1, 'Solteiro(a)', 'Brasil', 'Rio de Janeiro/RJ', 'Pedro e Roberta'),
-(8, 'felipe@gmail.com', '$2y$10$x6uC2tKNJMHw.knootmapOtfBMoAt.rILU8CCRNvqigXxcXI7oqpC', 'Felipe Kauan dos Santos', '2006-05-21', 'Masculino', '94483552031', NULL, '2025-11-06', 'SSP', '43', 'Branca', 'rua teste, 1 - centro', '1', 'casa', 'centro', 43, 4314050, '51977745220', '51977745222', 'felipe@gmail.com', '95630000', 0, 0, 1, NULL, 'Brasil', 'Parobé/RS', 'Solange e Carlos');
+(8, 'felipe@gmail.com', '$2y$10$x6uC2tKNJMHw.knootmapOtfBMoAt.rILU8CCRNvqigXxcXI7oqpC', 'Felipe Kauan dos Santos', '2006-05-21', 'Masculino', '94483552031', NULL, '2025-11-06', 'SSP', '43', 'Branca', 'rua teste, 1 - centro', '1', 'casa', 'centro', 43, 4314050, '51977745220', '51977745222', 'felipe@gmail.com', '95630000', 0, 0, 1, NULL, 'Brasil', 'Parobé/RS', 'Solange e Carlos'),
+(9, 'joaopedro@gmail.com', '$2y$10$BJYgUwLSD5KI4YNKQPS69uf2q69Crn0ksoIp1PyWRukYYMN.wuj.G', 'João Pedro da Silva', '2008-10-30', 'Masculino', '19998605008', NULL, '2025-11-24', 'SSP', '35', 'Parda', 'Avenida do Estado, 12 - Centro', '12', 'de 2602 a 4400 - lado par', 'Centro', 35, 3550308, '11993322122', '11993322122', 'joaopedro@gmail.com', '01025020', 0, 0, 1, NULL, 'Brasil', 'São Paulo/SP', 'Rodrigo Silva e Beatriz Silva'),
+(12, 'rogerioaguiar@gmail.com', '$2y$10$UKxzk4bkH.lIEd75VDU.Puh66uD.ontaNNPjDXiBSS/tKJHtDAGnS', 'Rogerio Aguiar', '2010-11-10', 'Masculino', '80341318060', NULL, '2014-10-08', 'SJS', '35', 'Branca', 'Avenida Exterior, 12 - Centro', '12', 'casa', 'Centro', 35, 3550308, '11998864442', '11998332556', 'rogerioaguiar@gmail.com', '01015100', 0, 0, 1, NULL, 'Brasil', 'São Paulo/SP', 'Vilmar Aguiar e Maria Aguiar'),
+(13, 'vanessasouza@gmail.com', '$2y$10$WjLP426VIbmPRqc2tBE7x.wk1y1cOrj.Vkvqei0QzhVz0ea.LCrK.', 'Vanessa Souza', '2005-10-06', 'Feminino', '04398725024', NULL, '2025-11-12', 'SSP', '31', 'Branca', 'Praça Ramatis, 32 - Aparecida', '32', 'casa', 'Aparecida', 31, 3106200, '31993232112', '31967622211', 'vanessasouza@gmail.com', '31235090', 1, 0, 1, NULL, 'Brasil', 'Belo Horizonte/MG', 'Ana Souza e Julio Souza'),
+(14, 'anasantos@gmail.com', '$2y$10$w9Xcd1QiL3zrccNM5Ze0NenJnG43/fwsuDSfqafwTLiyDZdYVUGAO', 'Ana dos Santos', '1990-10-16', 'Feminino', '55583143037', '11133322445', NULL, 'SSP', '27', 'Preta', 'Praça Wilson de Morais Santos, 31 - Aparecida', '31', 'casa', 'Aparecida', 31, 3106200, '31998224442', '31998331222', 'anasantos@gmail.com', '31235170', 0, 0, 1, 'Casado(a)', 'Brasil', 'Alto Horizonte/GO', 'Mauricio dos Santos e Luisa dos Santos'),
+(15, 'amandasantana@gmail.com', '$2y$10$NPOEUHO29nvx//ubE1EDLOanJFkDxyX8DeG8YU0h82SWNUnzw0udS', 'Amanda Santana', '1992-11-24', 'Feminino', '43594449076', '11344422344', NULL, 'SSP', '53', 'Branca', 'Área Especial Área Especial, 333 - Arapoanga (Planaltina)', '333', 'casa', 'Arapoanga (Planaltina)', 53, 5300108, '41998223232', '41988277232', 'amandasantana@gmail.com', '73368100', 0, 0, 1, 'Solteiro(a)', 'Brasil', 'Brasília/DF', 'João Santana e Larissa Santana'),
+(16, 'exem@gmail.com', '$2y$10$JG91OY71hOk13E7aAh3TZeoWUz1i3fAePyKaOG0nXpzqzKrSSWVRW', 'exemplo silva', '2025-11-06', 'Masculino', '53325561012', NULL, '2025-11-05', 'CTPS', '27', 'Amarela', 'rua teste, 33 - jardidm', '33', 'casa', 'jardidm', 43, 4314050, '44244242313', '24213213124', 'exem@gmail.com', '95630000', 0, 0, 0, NULL, 'Brasil', 'Apuí/AM', 'exem e testes');
 
 --
 -- Índices para tabelas despejadas
@@ -6627,7 +6676,7 @@ ALTER TABLE `Usuarios`
 -- AUTO_INCREMENT de tabela `Acompanhamento_NEE`
 --
 ALTER TABLE `Acompanhamento_NEE`
-  MODIFY `ID_Acompanhamento` int NOT NULL AUTO_INCREMENT;
+  MODIFY `ID_Acompanhamento` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `Atividades`
@@ -6645,13 +6694,13 @@ ALTER TABLE `Avaliacoes`
 -- AUTO_INCREMENT de tabela `Calendario_Academico`
 --
 ALTER TABLE `Calendario_Academico`
-  MODIFY `ID_Evento` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `ID_Evento` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `Disciplinas`
 --
 ALTER TABLE `Disciplinas`
-  MODIFY `ID_Disciplina` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `ID_Disciplina` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `Documentos`
@@ -6669,19 +6718,19 @@ ALTER TABLE `Frequencias`
 -- AUTO_INCREMENT de tabela `Horarios`
 --
 ALTER TABLE `Horarios`
-  MODIFY `ID_Horario` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `ID_Horario` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `Matriculas`
 --
 ALTER TABLE `Matriculas`
-  MODIFY `ID_Matricula` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `ID_Matricula` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de tabela `Notas`
 --
 ALTER TABLE `Notas`
-  MODIFY `ID_Nota` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `ID_Nota` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT de tabela `Ocorrencias`
@@ -6705,13 +6754,13 @@ ALTER TABLE `Planos_Ensino`
 -- AUTO_INCREMENT de tabela `Presencas`
 --
 ALTER TABLE `Presencas`
-  MODIFY `ID_Presenca` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `ID_Presenca` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de tabela `Professores_Disciplinas`
 --
 ALTER TABLE `Professores_Disciplinas`
-  MODIFY `ID_ProfDisc` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `ID_ProfDisc` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `Tipos_Eventos`
@@ -6723,13 +6772,13 @@ ALTER TABLE `Tipos_Eventos`
 -- AUTO_INCREMENT de tabela `Turmas`
 --
 ALTER TABLE `Turmas`
-  MODIFY `ID_Turma` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `ID_Turma` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `Usuarios`
 --
 ALTER TABLE `Usuarios`
-  MODIFY `ID_Usuario` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `ID_Usuario` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- Restrições para tabelas despejadas

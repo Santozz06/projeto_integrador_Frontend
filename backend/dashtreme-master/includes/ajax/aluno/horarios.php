@@ -10,8 +10,8 @@ try {
         exit;
     }
 
-    $alunoId = (int)$_SESSION['usuario_id'];
-    $ano = isset($_GET['ano']) ? (int)$_GET['ano'] : null; 
+    $alunoId = (int) $_SESSION['usuario_id'];
+    $ano = isset($_GET['ano']) ? (int) $_GET['ano'] : null;
 
     // Matriculas ativas do aluno 
     $params = [$alunoId];
@@ -19,7 +19,10 @@ try {
                FROM Matriculas m
                INNER JOIN Turmas t ON t.ID_Turma = m.ID_Turma
                WHERE m.ID_Aluno = ? AND m.Status = 'Ativa'";
-    if ($ano) { $sqlMat .= " AND m.Ano_Letivo = ?"; $params[] = $ano; }
+    if ($ano) {
+        $sqlMat .= " AND m.Ano_Letivo = ?";
+        $params[] = $ano;
+    }
     $sqlMat .= " ORDER BY m.Ano_Letivo DESC";
 
     $stm = $pdo->prepare($sqlMat);
@@ -33,26 +36,38 @@ try {
                     FROM Matriculas m
                     INNER JOIN Turmas t ON t.ID_Turma = m.ID_Turma
                     WHERE m.ID_Aluno = ?";
-        if ($ano) { $sqlMat2 .= " AND m.Ano_Letivo = ?"; $params2[] = $ano; }
+        if ($ano) {
+            $sqlMat2 .= " AND m.Ano_Letivo = ?";
+            $params2[] = $ano;
+        }
         $sqlMat2 .= " ORDER BY m.Ano_Letivo DESC LIMIT 1";
         $stm2 = $pdo->prepare($sqlMat2);
         $stm2->execute($params2);
         $one = $stm2->fetchAll(PDO::FETCH_ASSOC);
-        if (!$one) { echo json_encode(['success' => true, 'data' => []]); exit; }
+        if (!$one) {
+            echo json_encode(['success' => true, 'data' => []]);
+            exit;
+        }
         $mats = $one;
     }
 
     // Coletar IDs de turma
-    $turmas = array_map(function($m){ return (int)$m['ID_Turma']; }, $mats);
+    $turmas = array_map(function ($m) {
+        return (int) $m['ID_Turma'];
+    }, $mats);
     $place = implode(',', array_fill(0, count($turmas), '?'));
 
     $sql = "SELECT h.*, t.Nome_Turma, d.Nome_Disciplina
             FROM Horarios h
             INNER JOIN Turmas t ON t.ID_Turma = h.ID_Turma
             INNER JOIN Disciplinas d ON d.ID_Disciplina = h.ID_Disciplina
-            WHERE h.ID_Turma IN ($place)";
+            WHERE h.ID_Turma IN ($place) AND d.Ano_Letivo = t.Ano_Letivo";
     $params2 = $turmas;
-    if ($ano) { $sql .= " AND (h.Ano_Letivo = ? OR t.Ano_Letivo = ?)"; $params2[] = $ano; $params2[] = $ano; }
+    if ($ano) {
+        $sql .= " AND (h.Ano_Letivo = ? OR t.Ano_Letivo = ?)";
+        $params2[] = $ano;
+        $params2[] = $ano;
+    }
     $sql .= " ORDER BY h.Dia_Semana ASC, h.Hora_Inicio ASC";
 
     $st = $pdo->prepare($sql);

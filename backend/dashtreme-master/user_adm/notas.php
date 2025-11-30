@@ -109,7 +109,7 @@
     <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
-    
+
 
     <script>
         $(document).ready(function () {
@@ -222,7 +222,6 @@
                     tbody.append(row);
                 });
 
-                // As 4 notas ficam sempre ativas; trimestre apenas troca o conjunto carregado
             }
 
             // Atualização da média ao editar
@@ -250,8 +249,9 @@
                     const val = $(this).val();
                     return { id_matricula: idMatricula, etapa: etapa, nota: val === '' ? null : parseFloat(val) };
                 }).get();
-
+                if (updates.length === 0) { alert('Nenhuma nota para salvar.'); return; }
                 try {
+                    console.log('salvarNotas payload', { turma_id: turmaSelecionada, disciplina_id: disciplinaSelecionada, trimestre: $('#trimestre').val(), updates });
                     await salvarNotas(disciplinaSelecionada, updates);
                     alert('Notas salvas com sucesso.');
                 } catch (e) {
@@ -364,7 +364,7 @@
                 });
             }
 
-            // Removido: não restringimos inputs por trimestre; 4 notas pertencem ao trimestre atual
+
         });
     </script>
 </body>

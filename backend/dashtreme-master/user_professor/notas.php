@@ -73,7 +73,8 @@
                                         </thead>
                                         <tbody></tbody>
                                     </table>
-                                    <div id="no-results" class="no-results">Nenhum aluno encontrado com os filtros selecionados.</div>
+                                    <div id="no-results" class="no-results">Nenhum aluno encontrado com os filtros
+                                        selecionados.</div>
                                 </div>
 
                                 <div class="btn-group">
@@ -98,7 +99,7 @@
     <script src="../assets/js/app-script.js"></script>
 
     <script>
-        $(function(){
+        $(function () {
             let turmas = [];
             let disciplinas = [];
             let dadosNotas = [];
@@ -118,46 +119,46 @@
             });
 
             $('#ano-letivo').on('change', atualizarTurmas);
-            $('#turma').on('change', function(){
+            $('#turma').on('change', function () {
                 turmaSelecionada = $(this).val() ? parseInt($(this).val(), 10) : null;
                 atualizarDisciplinas();
             });
-            $('#disciplina').on('change', function(){
+            $('#disciplina').on('change', function () {
                 disciplinaSelecionada = $(this).val() ? parseInt($(this).val(), 10) : null;
                 carregarNotas();
             });
             // Trimestre muda o conjunto de 4 notas (não desabilita inputs)
-            $('#trimestre').on('change', function(){
+            $('#trimestre').on('change', function () {
                 carregarNotas();
             });
 
-            $('#btn-cancelar').click(function(){
+            $('#btn-cancelar').click(function () {
                 if (confirm('Deseja realmente cancelar? Todas as alterações não salvas serão perdidas.')) {
                     carregarNotas();
                 }
             });
 
-            function calcularMedia(notasArray){
+            function calcularMedia(notasArray) {
                 const nums = notasArray.filter(n => n !== null && n !== '' && !isNaN(parseFloat(n))).map(Number);
                 if (nums.length === 0) return '0.0';
-                const soma = nums.reduce((a,v)=>a+v,0);
-                return (soma/nums.length).toFixed(1);
+                const soma = nums.reduce((a, v) => a + v, 0);
+                return (soma / nums.length).toFixed(1);
             }
-            function determinarStatus(media){
+            function determinarStatus(media) {
                 const m = parseFloat(media);
-                if (m >= 7) return {texto:'Aprovado', classe:'status-aprovado'};
-                if (m >= 5) return {texto:'Recuperação', classe:'status-recuperacao'};
-                return {texto:'Reprovado', classe:'status-reprovado'};
+                if (m >= 7) return { texto: 'Aprovado', classe: 'status-aprovado' };
+                if (m >= 5) return { texto: 'Recuperação', classe: 'status-recuperacao' };
+                return { texto: 'Reprovado', classe: 'status-reprovado' };
             }
-            function avatarFromNome(nome){
-                const parts = (nome||'').trim().split(/\s+/);
-                const ini = (parts[0]?parts[0][0]:'') + (parts[parts.length-1]?parts[parts.length-1][0]:'');
+            function avatarFromNome(nome) {
+                const parts = (nome || '').trim().split(/\s+/);
+                const ini = (parts[0] ? parts[0][0] : '') + (parts[parts.length - 1] ? parts[parts.length - 1][0] : '');
                 return ini.toUpperCase();
             }
-            function renderTabela(data){
+            function renderTabela(data) {
                 const tbody = $('#tabela-notas tbody');
                 tbody.empty();
-                if (!data || data.length===0){ $('#no-results').show(); return; } else { $('#no-results').hide(); }
+                if (!data || data.length === 0) { $('#no-results').show(); return; } else { $('#no-results').hide(); }
                 data.forEach(item => {
                     const notas = [item.Notas['1'], item.Notas['2'], item.Notas['3'], item.Notas['4']];
                     const media = calcularMedia(notas);
@@ -181,46 +182,53 @@
                 aplicarFiltroTrimestre();
             }
 
-            $(document).on('input change', '.input-nota', function(){
+            $(document).on('input change', '.input-nota', function () {
                 const row = $(this).closest('tr');
-                const valores = row.find('.input-nota').map(function(){ const v=$(this).val(); return v===''?null:parseFloat(v); }).get();
+                const valores = row.find('.input-nota').map(function () { const v = $(this).val(); return v === '' ? null : parseFloat(v); }).get();
                 const media = calcularMedia(valores);
                 row.find('.media').text(media);
                 const status = determinarStatus(media);
                 row.find('.status-cell').removeClass('status-aprovado status-reprovado status-recuperacao').addClass(status.classe).text(status.texto);
             });
 
-            $(document).on('click', '.btn-salvar', async function(){
-                if (!disciplinaSelecionada){ alert('Selecione uma disciplina.'); return; }
+            $(document).on('click', '.btn-salvar', async function () {
+                if (!disciplinaSelecionada) { alert('Selecione uma disciplina.'); return; }
+                if (!turmaSelecionada) { alert('Selecione uma turma.'); return; }
                 const row = $(this).closest('tr');
                 const idMatricula = parseInt(row.data('id-matricula'), 10);
-                const updates = row.find('.input-nota').map(function(){
+                const updates = row.find('.input-nota').map(function () {
                     const etapa = $(this).data('etapa').toString();
                     const val = $(this).val();
                     return { id_matricula: idMatricula, etapa: etapa, nota: val === '' ? null : parseFloat(val) };
                 }).get();
-                try { await salvarNotas(disciplinaSelecionada, updates); alert('Notas salvas com sucesso.'); }
-                catch(e){ alert('Erro ao salvar notas: ' + (e?.message || e)); }
+                if (updates.length === 0) { alert('Nenhuma nota para salvar.'); return; }
+                try {
+                    console.log('salvarNotas payload', { turma_id: turmaSelecionada, disciplina_id: disciplinaSelecionada, trimestre: $('#trimestre').val(), updates });
+                    await salvarNotas(disciplinaSelecionada, updates);
+                    alert('Notas salvas com sucesso.');
+                } catch (e) {
+                    alert('Erro ao salvar notas: ' + (e?.message || e));
+                }
             });
 
-            $('#btn-salvar-todos').on('click', async function(){
-                if (!disciplinaSelecionada){ alert('Selecione uma disciplina.'); return; }
+            $('#btn-salvar-todos').on('click', async function () {
+                if (!disciplinaSelecionada) { alert('Selecione uma disciplina.'); return; }
                 const updates = [];
-                $('#tabela-notas tbody tr').each(function(){
+                $('#tabela-notas tbody tr').each(function () {
                     const row = $(this);
                     const idMatricula = parseInt(row.data('id-matricula'), 10);
-                    row.find('.input-nota').each(function(){
+                    row.find('.input-nota').each(function () {
                         const etapa = $(this).data('etapa').toString();
                         const val = $(this).val();
                         updates.push({ id_matricula: idMatricula, etapa: etapa, nota: val === '' ? null : parseFloat(val) });
                     });
                 });
-                if (updates.length === 0){ alert('Nada para salvar.'); return; }
+                if (updates.length === 0) { alert('Nada para salvar.'); return; }
                 try { await salvarNotas(disciplinaSelecionada, updates); alert('Todas as notas foram salvas com sucesso!'); }
-                catch(e){ alert('Erro ao salvar notas: ' + (e?.message || e)); }
+                catch (e) { alert('Erro ao salvar notas: ' + (e?.message || e)); }
             });
 
-            async function carregarAnos(){
+            async function carregarAnos() {
                 try {
                     const res = await $.getJSON('../includes/ajax/shared/academico/listar_anos_letivos.php');
                     const $sel = $('#ano-letivo');
@@ -228,9 +236,9 @@
                     if (res.success && Array.isArray(res.data)) {
                         res.data.forEach(ano => $sel.append(`<option value="${ano}">${ano}</option>`));
                     }
-                } catch(e) { }
+                } catch (e) { }
             }
-            async function atualizarTurmas(){
+            async function atualizarTurmas() {
                 const ano = $('#ano-letivo').val();
                 try {
                     const res = await $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano });
@@ -250,11 +258,11 @@
                 renderTabela([]);
                 aplicarFiltroTrimestre();
             }
-            async function atualizarDisciplinas(){
+            async function atualizarDisciplinas() {
                 const $sel = $('#disciplina');
                 $sel.empty();
                 $sel.append('<option value="">Todas disciplinas</option>');
-                if (!turmaSelecionada){ disciplinas = []; renderTabela([]); return; }
+                if (!turmaSelecionada) { disciplinas = []; renderTabela([]); return; }
                 try {
                     const res = await $.getJSON('../includes/ajax/shared/academico/listar_disciplinas_por_turma.php', { turma_id: turmaSelecionada });
                     disciplinas = (res.success && Array.isArray(res.data)) ? res.data : [];
@@ -264,28 +272,28 @@
                 renderTabela([]);
                 aplicarFiltroTrimestre();
             }
-            async function carregarNotas(){
-                if (!turmaSelecionada || !disciplinaSelecionada){ renderTabela([]); return; }
+            async function carregarNotas() {
+                if (!turmaSelecionada || !disciplinaSelecionada) { renderTabela([]); return; }
                 return new Promise((resolve) => {
                     $.ajax({
                         url: '../includes/ajax/notas/listar_notas.php',
                         method: 'GET',
                         dataType: 'json',
                         data: { turma_id: turmaSelecionada, disciplina_id: disciplinaSelecionada, trimestre: $('#trimestre').val() }
-                    }).done(function(res){
+                    }).done(function (res) {
                         dadosNotas = (res.success && Array.isArray(res.data)) ? res.data : [];
                         renderTabela(dadosNotas);
                         resolve();
-                    }).fail(function(xhr){
+                    }).fail(function (xhr) {
                         let msg = 'Erro ao listar alunos/notas';
-                        try { const r = JSON.parse(xhr.responseText); if (r.message) msg = r.message; } catch {}
+                        try { const r = JSON.parse(xhr.responseText); if (r.message) msg = r.message; } catch { }
                         alert(msg);
                         dadosNotas = []; renderTabela([]);
                         resolve();
                     });
                 });
             }
-            function salvarNotas(disciplinaId, updates){
+            function salvarNotas(disciplinaId, updates) {
                 return new Promise((resolve, reject) => {
                     $.ajax({
                         url: '../includes/ajax/notas/salvar_notas.php',
@@ -293,8 +301,8 @@
                         contentType: 'application/json; charset=utf-8',
                         data: JSON.stringify({ turma_id: turmaSelecionada, disciplina_id: disciplinaId, trimestre: parseInt($('#trimestre').val(), 10), updates }),
                         dataType: 'json'
-                    }).done(function(res){ if (res && res.success) resolve(res); else reject(new Error(res && res.message ? res.message : 'Falha ao salvar')); })
-                    .fail(function(xhr){ try { const r = JSON.parse(xhr.responseText); reject(new Error(r.message || 'Erro no servidor')); } catch { reject(new Error('Erro no servidor')); } });
+                    }).done(function (res) { if (res && res.success) resolve(res); else reject(new Error(res && res.message ? res.message : 'Falha ao salvar')); })
+                        .fail(function (xhr) { try { const r = JSON.parse(xhr.responseText); reject(new Error(r.message || 'Erro no servidor')); } catch { reject(new Error('Erro no servidor')); } });
                 });
             }
             // Sem restrição por trimestre: as 4 notas sempre editáveis, variam por trimestre selecionado

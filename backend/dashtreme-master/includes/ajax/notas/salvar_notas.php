@@ -4,7 +4,9 @@ header('Content-Type: application/json');
 
 try {
     // Exigir autenticado e permitir admin ou professor
-    if (function_exists('verificarAuth')) { verificarAuth(null); }
+    if (function_exists('verificarAuth')) {
+        verificarAuth(null);
+    }
     if (!isset($_SESSION['user_type']) || !in_array($_SESSION['user_type'], ['admin', 'professor'])) {
         http_response_code(403);
         echo json_encode(['success' => false, 'message' => 'Acesso negado']);
@@ -22,7 +24,7 @@ try {
 
     if (!$json && isset($_POST['disciplina_id']) && isset($_POST['updates'])) {
         $json = [
-            'disciplina_id' => (int)$_POST['disciplina_id'],
+            'disciplina_id' => (int) $_POST['disciplina_id'],
             'updates' => is_string($_POST['updates']) ? json_decode($_POST['updates'], true) : $_POST['updates']
         ];
     }
@@ -33,14 +35,19 @@ try {
         exit;
     }
 
-    $disciplinaId = isset($json['disciplina_id']) ? (int)$json['disciplina_id'] : 0;
-    $turmaId = isset($json['turma_id']) ? (int)$json['turma_id'] : 0;
-    $trimestre = isset($json['trimestre']) ? (int)$json['trimestre'] : 1;
+    $disciplinaId = isset($json['disciplina_id']) ? (int) $json['disciplina_id'] : 0;
+    $turmaId = isset($json['turma_id']) ? (int) $json['turma_id'] : 0;
+    $trimestre = isset($json['trimestre']) ? (int) $json['trimestre'] : 1;
     $updates = isset($json['updates']) && is_array($json['updates']) ? $json['updates'] : [];
 
-    if ($disciplinaId <= 0 || empty($updates)) {
+    if ($disciplinaId <= 0) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Parâmetros obrigatórios ausentes (disciplina_id/updates)']);
+        echo json_encode(['success' => false, 'message' => 'O parâmetro disciplina_id é obrigatório e deve ser maior que 0.']);
+        exit;
+    }
+    if (empty($updates)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'O parâmetro updates é obrigatório e não pode estar vazio.']);
         exit;
     }
 
@@ -52,7 +59,7 @@ try {
             exit;
         }
         $stmtPT = $pdo->prepare('SELECT 1 FROM Professores_Turmas WHERE ID_Professor = ? AND ID_Turma = ?');
-        $stmtPT->execute([(int)$_SESSION['usuario_id'], $turmaId]);
+        $stmtPT->execute([(int) $_SESSION['usuario_id'], $turmaId]);
         if (!$stmtPT->fetchColumn()) {
             http_response_code(403);
             echo json_encode(['success' => false, 'message' => 'Acesso negado à turma informada']);
@@ -60,7 +67,9 @@ try {
         }
     }
 
-    if ($trimestre < 1 || $trimestre > 4) { $trimestre = 1; }
+    if ($trimestre < 1 || $trimestre > 4) {
+        $trimestre = 1;
+    }
 
     // Garantir coluna Trimestre na tabela Notas
     try {
@@ -78,7 +87,9 @@ try {
     try {
         $check2 = $pdo->query("SHOW COLUMNS FROM Notas LIKE 'Trimestre'");
         $hasTri = $check2->rowCount() > 0;
-    } catch (Throwable $e) { $hasTri = false; }
+    } catch (Throwable $e) {
+        $hasTri = false;
+    }
 
     if ($hasTri) {
         $stmtSel = $pdo->prepare('SELECT ID_Nota FROM Notas WHERE ID_Matricula = ? AND ID_Disciplina = ? AND Trimestre = ? AND Etapa = ?');
@@ -97,8 +108,10 @@ try {
     if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'professor' && $turmaId > 0) {
         $idsCheck = [];
         foreach ($updates as $u) {
-            $idMatricula = isset($u['id_matricula']) ? (int)$u['id_matricula'] : 0;
-            if ($idMatricula > 0) { $idsCheck[] = $idMatricula; }
+            $idMatricula = isset($u['id_matricula']) ? (int) $u['id_matricula'] : 0;
+            if ($idMatricula > 0) {
+                $idsCheck[] = $idMatricula;
+            }
         }
         if ($idsCheck) {
             $in = implode(',', array_fill(0, count($idsCheck), '?'));
@@ -113,25 +126,36 @@ try {
         }
     }
 
+    // Validar se a disciplina pertence ao ano letivo da turma
+    $stmtDisciplinaAno = $pdo->prepare('SELECT 1 FROM Disciplinas d
+                                        INNER JOIN Turmas t ON d.Ano_Letivo = t.Ano_Letivo
+                                        WHERE d.ID_Disciplina = ? AND t.ID_Turma = ?');
+    $stmtDisciplinaAno->execute([$disciplinaId, $turmaId]);
+    if (!$stmtDisciplinaAno->fetchColumn()) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'A disciplina não pertence ao ano letivo da turma informada.']);
+        exit;
+    }
+
     foreach ($updates as $u) {
-        $idMatricula = isset($u['id_matricula']) ? (int)$u['id_matricula'] : 0;
-        $etapa = isset($u['etapa']) ? trim((string)$u['etapa']) : '';
+        $idMatricula = isset($u['id_matricula']) ? (int) $u['id_matricula'] : 0;
+        $etapa = isset($u['etapa']) ? trim((string) $u['etapa']) : '';
         $nota = array_key_exists('nota', $u) && $u['nota'] !== '' ? $u['nota'] : null; // permitir null
 
         if ($idMatricula <= 0 || $etapa === '') {
-            continue; 
+            continue;
         }
 
         if (!in_array($etapa, ['1', '2', '3', '4'], true)) {
-            continue; 
+            continue;
         }
 
         // Normalizar nota
         if ($nota !== null) {
             if (!is_numeric($nota)) {
-                continue; 
+                continue;
             }
-            $nota = max(0.0, min(10.0, (float)$nota));
+            $nota = max(0.0, min(10.0, (float) $nota));
             $nota = number_format($nota, 2, '.', '');
         }
 

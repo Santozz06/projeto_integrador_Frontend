@@ -1,8 +1,9 @@
 <?php require_once '../includes/bootstrap.php'; ?>
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Caderno de Chamada - Admin</title>
@@ -12,6 +13,7 @@
   <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
   <link rel="stylesheet" href="../css/style.css">
 </head>
+
 <body class="bg-theme bg-theme1 user_adm_cadernoChamada">
   <?php require('menu_padrão.php'); ?>
 
@@ -25,51 +27,68 @@
                 <h4 class="page-title m-0"><i class="zmdi zmdi-accounts-list mr-2"></i> Caderno de Chamada</h4>
               </div>
               <div class="filtros-container">
-                  <div class="filtro-item">
-                    <div class="bold-title">Ano Letivo</div>
-                    <select id="ano-letivo" class="form-control"></select>
-                  </div>
-                  <div class="filtro-item">
-                    <div class="bold-title">Professor (opcional)</div>
-                    <select id="professor" class="form-control">
-                      <option value="">Todos</option>
-                    </select>
-                  </div>
-                  <div class="filtro-item">
-                    <div class="bold-title">Turma</div>
-                    <select id="turma" class="form-control">
-                      <option value="">Selecione ano/professor</option>
-                    </select>
-                  </div>
-                  <div class="filtro-item">
-                    <div class="bold-title">Data Início</div>
-                    <input id="data-ini" type="date" class="form-control" />
-                  </div>
-                  <div class="filtro-item">
-                    <div class="bold-title">Data Fim</div>
-                    <input id="data-fim" type="date" class="form-control" />
-                  </div>
+                <div class="filtro-item">
+                  <div class="bold-title">Ano Letivo</div>
+                  <select id="ano-letivo" class="form-control"></select>
+                </div>
+                <div class="filtro-item">
+                  <div class="bold-title">Professor (opcional)</div>
+                  <select id="professor" class="form-control">
+                    <option value="">Todos</option>
+                  </select>
+                </div>
+                <div class="filtro-item">
+                  <div class="bold-title">Turma</div>
+                  <select id="turma" class="form-control">
+                    <option value="">Selecione ano/professor</option>
+                  </select>
+                </div>
+                <div class="filtro-item">
+                  <div class="bold-title">Data Início</div>
+                  <input id="data-ini" type="date" class="form-control" />
+                </div>
+                <div class="filtro-item">
+                  <div class="bold-title">Data Fim</div>
+                  <input id="data-fim" type="date" class="form-control" />
+                </div>
 
-              <div class="kpi">
-                  <div class="card"><div>Total lançamentos: <strong id="kpi-total">-</strong></div></div>
-                  <div class="card"><div>Presenças: <strong id="kpi-pres">-</strong></div></div>
-                  <div class="card"><div>Faltas: <strong id="kpi-falt">-</strong></div></div>
-                  <div class="card"><div>Percentual médio: <strong id="kpi-perc">-</strong></div></div>
+                <div class="kpi">
+                  <div class="card">
+                    <div>Total lançamentos: <strong id="kpi-total">-</strong></div>
+                  </div>
+                  <div class="card">
+                    <div>Presenças: <strong id="kpi-pres">-</strong></div>
+                  </div>
+                  <div class="card">
+                    <div>Faltas: <strong id="kpi-falt">-</strong></div>
+                  </div>
+                  <div class="card">
+                    <div>Percentual médio: <strong id="kpi-perc">-</strong></div>
+                  </div>
                 </div>
-              <div class="mb-3">
-                  <button id="btn-exportar" class="btn btn-success btn-sm"><i class="zmdi zmdi-download"></i> Exportar CSV</button>
-                  <button id="btn-exportar-pdf" class="btn btn-primary btn-sm ml-2"><i class="zmdi zmdi-file-text"></i> Exportar PDF</button>
+                <div class="mb-3">
+                  <button id="btn-exportar-pdf" class="btn btn-primary btn-sm ml-2"><i class="zmdi zmdi-file-text"></i>
+                    Exportar PDF</button>
                 </div>
-              <div class="kpi" id="resumo-trimestre" style="display:none;">
-                  <div class="card"><div>Trimestre 1 - % Presença: <strong id="tri1-perc">-</strong> | Tot: <span id="tri1-tot">-</span></div></div>
-                  <div class="card"><div>Trimestre 2 - % Presença: <strong id="tri2-perc">-</strong> | Tot: <span id="tri2-tot">-</span></div></div>
-                  <div class="card"><div>Trimestre 3 - % Presença: <strong id="tri3-perc">-</strong> | Tot: <span id="tri3-tot">-</span></div></div>
+                <div class="kpi" id="resumo-trimestre" style="display:none;">
+                  <div class="card">
+                    <div>Trimestre 1 - % Presença: <strong id="tri1-perc">-</strong> | Tot: <span id="tri1-tot">-</span>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div>Trimestre 2 - % Presença: <strong id="tri2-perc">-</strong> | Tot: <span id="tri2-tot">-</span>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div>Trimestre 3 - % Presença: <strong id="tri3-perc">-</strong> | Tot: <span id="tri3-tot">-</span>
+                    </div>
+                  </div>
                 </div>
-            </div>
-            <div class="caderno-table-area">
-              <h5 class="section-title mb-3">REGISTROS DE FREQUÊNCIA</h5>
-              <div class="table-responsive tabela-caderno-wrapper">
-                <table id="tabela-freq" class="table tabela-caderno">
+              </div>
+              <div class="caderno-table-area">
+                <h5 class="section-title mb-3">REGISTROS DE FREQUÊNCIA</h5>
+                <div class="table-responsive tabela-caderno-wrapper">
+                  <table id="tabela-freq" class="table tabela-caderno">
                     <thead>
                       <tr>
                         <th>Aluno</th>
@@ -83,17 +102,17 @@
                       </tr>
                     </thead>
                     <tbody></tbody>
-                </table>
-                <div id="no-results" class="no-results">Nenhum registro encontrado para o período.</div>
+                  </table>
+                  <div id="no-results" class="no-results">Nenhum registro encontrado para o período.</div>
+                </div>
               </div>
             </div>
-          </div>
 
-            </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
   </div>
 
   <div class="overlay toggle-menu"></div>
@@ -104,9 +123,9 @@
   <script src="../assets/js/sidebar-menu.js"></script>
   <script src="../assets/js/app-script.js"></script>
   <script>
-    $(function(){
+    $(function () {
       let turmas = [];
-      function carregarAnos(){
+      function carregarAnos() {
         return $.getJSON('../includes/ajax/shared/academico/listar_anos_letivos.php').then(res => {
           const $sel = $('#ano-letivo');
           $sel.empty();
@@ -118,7 +137,7 @@
           if ($(`#ano-letivo option[value='${anoAtual}']`).length) $sel.val(anoAtual);
         });
       }
-      function carregarProfessores(){
+      function carregarProfessores() {
         return $.getJSON('../includes/ajax/admin/professores/listar_professores.php').then(res => {
           const $sel = $('#professor');
           $sel.find('option:not([value=""])').remove();
@@ -127,7 +146,7 @@
           }
         });
       }
-      function atualizarTurmas(){
+      function atualizarTurmas() {
         const ano = $('#ano-letivo').val();
         const professor = $('#professor').val();
         return $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano, professor_id: professor }).then(res => {
@@ -142,37 +161,37 @@
           }
         });
       }
-      function atualizarPeriodoPadrao(){
+      function atualizarPeriodoPadrao() {
         const hoje = new Date();
-        const first = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().slice(0,10);
-        const last = new Date(hoje.getFullYear(), hoje.getMonth()+1, 0).toISOString().slice(0,10);
+        const first = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().slice(0, 10);
+        const last = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).toISOString().slice(0, 10);
         if (!$('#data-ini').val()) $('#data-ini').val(first);
         if (!$('#data-fim').val()) $('#data-fim').val(last);
       }
-      function carregarFrequencias(){
+      function carregarFrequencias() {
         const turma = $('#turma').val();
-        if (!turma){ renderTabela([]); return; }
+        if (!turma) { renderTabela([]); return; }
         const data_ini = $('#data-ini').val();
         const data_fim = $('#data-fim').val();
         $.ajax({
           url: '../includes/ajax/frequencias/listar_frequencias.php',
           method: 'GET', dataType: 'json',
           data: { turma_id: turma, data_ini, data_fim }
-        }).done(function(res){
+        }).done(function (res) {
           const rows = (res.success && Array.isArray(res.data)) ? res.data : [];
           renderTabela(rows);
           carregarResumoTrimestre();
-        }).fail(function(xhr){
+        }).fail(function (xhr) {
           let msg = 'Erro ao listar frequências';
-          try { const r = JSON.parse(xhr.responseText); if (r.message) msg = r.message; } catch{}
+          try { const r = JSON.parse(xhr.responseText); if (r.message) msg = r.message; } catch { }
           alert(msg);
           renderTabela([]);
         });
       }
-      function renderTabela(rows){
+      function renderTabela(rows) {
         const $tbody = $('#tabela-freq tbody');
         $tbody.empty();
-        if (!rows || rows.length === 0){ $('#no-results').show(); atualizaKpis([]); return; }
+        if (!rows || rows.length === 0) { $('#no-results').show(); atualizaKpis([]); return; }
         $('#no-results').hide();
         rows.forEach(r => {
           const tr = $(`
@@ -190,14 +209,14 @@
         });
         atualizaKpis(rows);
       }
-      function atualizaKpis(rows){
-        if (!rows || rows.length === 0){
+      function atualizaKpis(rows) {
+        if (!rows || rows.length === 0) {
           $('#kpi-total').text('-'); $('#kpi-pres').text('-'); $('#kpi-falt').text('-'); $('#kpi-perc').text('-');
           return;
         }
-        let total=0, pres=0, falt=0; let somaPerc=0, percCount=0;
-        rows.forEach(r => { total += r.Total; pres += r.Presentes; falt += r.Faltas; if (r.Percentual !== null){ somaPerc += r.Percentual; percCount++; } });
-        const percMedio = percCount>0 ? (somaPerc/percCount).toFixed(1) + '%' : '-';
+        let total = 0, pres = 0, falt = 0; let somaPerc = 0, percCount = 0;
+        rows.forEach(r => { total += r.Total; pres += r.Presentes; falt += r.Faltas; if (r.Percentual !== null) { somaPerc += r.Percentual; percCount++; } });
+        const percMedio = percCount > 0 ? (somaPerc / percCount).toFixed(1) + '%' : '-';
         $('#kpi-total').text(total); $('#kpi-pres').text(pres); $('#kpi-falt').text(falt); $('#kpi-perc').text(percMedio);
       }
 
@@ -207,35 +226,25 @@
         .then(() => carregarFrequencias());
 
       // eventos
-      $('#ano-letivo').on('change', function(){ atualizarTurmas().then(carregarFrequencias); });
-      $('#professor').on('change', function(){ atualizarTurmas().then(carregarFrequencias); });
+      $('#ano-letivo').on('change', function () { atualizarTurmas().then(carregarFrequencias); });
+      $('#professor').on('change', function () { atualizarTurmas().then(carregarFrequencias); });
       $('#turma').on('change', carregarFrequencias);
       $('#data-ini, #data-fim').on('change', carregarFrequencias);
 
-      // Exportar CSV
-      $('#btn-exportar').on('click', function(){
-        const turma = $('#turma').val();
-        if (!turma){ alert('Selecione uma turma para exportar.'); return; }
-        const data_ini = $('#data-ini').val();
-        const data_fim = $('#data-fim').val();
-        const url = `../includes/ajax/frequencias/exportar_frequencias_csv.php?turma_id=${encodeURIComponent(turma)}&data_ini=${encodeURIComponent(data_ini)}&data_fim=${encodeURIComponent(data_fim)}`;
-        window.location.href = url;
-      });
-
       // Exportar PDF (print-friendly)
-      $('#btn-exportar-pdf').on('click', function(){
+      $('#btn-exportar-pdf').on('click', function () {
         const turma = $('#turma').val();
-        if (!turma){ alert('Selecione uma turma para exportar.'); return; }
+        if (!turma) { alert('Selecione uma turma para exportar.'); return; }
         const data_ini = $('#data-ini').val();
         const data_fim = $('#data-fim').val();
         const titulo = 'Caderno de Chamada - Relatório';
         // Coleta dados atuais da tabela
         let linhas = '';
-        $('#tabela-freq tbody tr').each(function(){
+        $('#tabela-freq tbody tr').each(function () {
           const tds = $(this).children('td');
-          if (tds.length >= 7){
+          if (tds.length >= 7) {
             const cols = [];
-            for (let i=0;i<7;i++){ cols.push(`<td>${$(tds[i]).text()}</td>`); }
+            for (let i = 0; i < 7; i++) { cols.push(`<td>${$(tds[i]).text()}</td>`); }
             linhas += `<tr>${cols.join('')}</tr>`;
           }
         });
@@ -287,23 +296,23 @@
       });
 
       // Resumo por Trimestre
-      function carregarResumoTrimestre(){
+      function carregarResumoTrimestre() {
         const turma = $('#turma').val();
-        if (!turma){ $('#resumo-trimestre').hide(); return; }
+        if (!turma) { $('#resumo-trimestre').hide(); return; }
         const data_ini = $('#data-ini').val();
         const data_fim = $('#data-fim').val();
         $.ajax({
           url: '../includes/ajax/frequencias/resumo_turma.php',
           method: 'GET', dataType: 'json',
           data: { turma_id: turma, data_ini, data_fim }
-        }).done(function(res){
-          if (res.success && res.data){
-            const t1 = res.data['1'] || { total:0, presentes:0 };
-            const t2 = res.data['2'] || { total:0, presentes:0 };
-            const t3 = res.data['3'] || { total:0, presentes:0 };
-            const p1 = t1.total>0 ? ((t1.presentes/t1.total)*100).toFixed(1)+'%' : '-';
-            const p2 = t2.total>0 ? ((t2.presentes/t2.total)*100).toFixed(1)+'%' : '-';
-            const p3 = t3.total>0 ? ((t3.presentes/t3.total)*100).toFixed(1)+'%' : '-';
+        }).done(function (res) {
+          if (res.success && res.data) {
+            const t1 = res.data['1'] || { total: 0, presentes: 0 };
+            const t2 = res.data['2'] || { total: 0, presentes: 0 };
+            const t3 = res.data['3'] || { total: 0, presentes: 0 };
+            const p1 = t1.total > 0 ? ((t1.presentes / t1.total) * 100).toFixed(1) + '%' : '-';
+            const p2 = t2.total > 0 ? ((t2.presentes / t2.total) * 100).toFixed(1) + '%' : '-';
+            const p3 = t3.total > 0 ? ((t3.presentes / t3.total) * 100).toFixed(1) + '%' : '-';
             $('#tri1-perc').text(p1); $('#tri1-tot').text(t1.total);
             $('#tri2-perc').text(p2); $('#tri2-tot').text(t2.total);
             $('#tri3-perc').text(p3); $('#tri3-tot').text(t3.total);
@@ -311,29 +320,29 @@
           } else {
             $('#resumo-trimestre').hide();
           }
-        }).fail(function(){ $('#resumo-trimestre').hide(); });
+        }).fail(function () { $('#resumo-trimestre').hide(); });
       }
 
       // Detalhes por aluno (expansível)
-      $(document).on('click', '.btn-detalhes', function(){
+      $(document).on('click', '.btn-detalhes', function () {
         const $tr = $(this).closest('tr');
         const mid = $tr.data('id-matricula');
         // Toggle se já existe a linha de detalhes
-        if ($tr.next().hasClass('detalhe-row')){ $tr.next().toggle(); return; }
+        if ($tr.next().hasClass('detalhe-row')) { $tr.next().toggle(); return; }
         const data_ini = $('#data-ini').val();
         const data_fim = $('#data-fim').val();
         $.ajax({
           url: '../includes/ajax/frequencias/listar_frequencias_detalhe.php',
           method: 'GET', dataType: 'json',
           data: { matricula_id: mid, data_ini, data_fim }
-        }).done(function(res){
+        }).done(function (res) {
           const dados = (res.success && Array.isArray(res.data)) ? res.data : [];
           let html = `<div style="padding:8px 12px;">
             <strong>Detalhes por dia:</strong>
             <div class="table-responsive"><table class="table" style="margin:8px 0;">
               <thead><tr><th>Data</th><th>Presença</th></tr></thead>
               <tbody>`;
-          if (dados.length === 0){
+          if (dados.length === 0) {
             html += `<tr><td colspan="2">Sem registros no período.</td></tr>`;
           } else {
             dados.forEach(d => {
@@ -343,13 +352,14 @@
           html += `</tbody></table></div></div>`;
           const $detail = $(`<tr class="detalhe-row"><td colspan="8">${html}</td></tr>`);
           $tr.after($detail);
-        }).fail(function(xhr){
+        }).fail(function (xhr) {
           let msg = 'Erro ao carregar detalhes';
-          try { const r = JSON.parse(xhr.responseText); if (r.message) msg = r.message; } catch{}
+          try { const r = JSON.parse(xhr.responseText); if (r.message) msg = r.message; } catch { }
           alert(msg);
         });
       });
     });
   </script>
 </body>
+
 </html>

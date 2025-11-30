@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="../assets/css/app-style.css">
     <link rel="stylesheet" href="../assets/css/icons.css">
     <link rel="stylesheet" href="../assets/css/sidebar-menu.css">
-    <link rel="stylesheet" href="../css/style.css?v=<?=time()?>">
+    <link rel="stylesheet" href="../css/style.css?v=<?= time() ?>">
 </head>
 
 <body class="bg-theme bg-theme1 user_professor_turmas">
@@ -19,42 +19,42 @@
     require("menu_padrao.php");
     ?>
 
-        <!-- Conteúdo Principal -->
-        <div class="content-wrapper">
-            <div class="container-select">
-                <h2>Selecione a Turma</h2>
-                <select id="selectTurma" class="form-select">
-                    <option value="" disabled selected>-- Escolha uma turma --</option>
-                </select>
+    <!-- Conteúdo Principal -->
+    <div class="content-wrapper">
+        <div class="container-select">
+            <h2>Selecione a Turma</h2>
+            <select id="selectTurma" class="form-select">
+                <option value="" disabled selected>-- Escolha uma turma --</option>
+            </select>
 
-                <button class="btn" id="btnVisualizar">Visualizar</button>
+            <button class="btn" id="btnVisualizar">Visualizar</button>
 
-                <div id="dadosTurma" class="turma-dados">
-                    <div class="card-section">
-                        <h4>Informações da Turma</h4>
-                        <p><strong>Nome da Turma:</strong> <span id="nomeTurma"></span></p>
-                        <p><strong>Professor:</strong> <span id="professorTurma"></span></p>
-                        <p><strong>Turno:</strong> <span id="turnoTurma"></span></p>
-                    </div>
+            <div id="dadosTurma" class="turma-dados">
+                <div class="card-section">
+                    <h4>Informações da Turma</h4>
+                    <p><strong>Nome da Turma:</strong> <span id="nomeTurma"></span></p>
+                    <p><strong>Professor:</strong> <span id="professorTurma"></span></p>
+                    <p><strong>Turno:</strong> <span id="turnoTurma"></span></p>
+                </div>
 
-                    <div class="card-section">
-                        <h4>Lista de Alunos</h4>
-                        <div id="alunosLista"></div>
-                    </div>
+                <div class="card-section">
+                    <h4>Lista de Alunos</h4>
+                    <div id="alunosLista"></div>
+                </div>
 
-                    <div class="card-section">
-                        <h4>Conteúdos</h4>
-                        <ul id="conteudosLista"></ul>
-                    </div>
+                <div class="card-section">
+                    <h4>Conteúdos</h4>
+                    <ul id="conteudosLista"></ul>
+                </div>
 
-                    <div class="card-section">
-                        <h4>Avisos</h4>
-                        <ul id="avisosLista"></ul>
-                    </div>
+                <div class="card-section">
+                    <h4>Avisos</h4>
+                    <ul id="avisosLista"></ul>
                 </div>
             </div>
         </div>
-        <div class="overlay toggle-menu"></div>
+    </div>
+    <div class="overlay toggle-menu"></div>
     </div>
 
     <!-- JS -->
@@ -63,10 +63,9 @@
     <script src="../assets/plugins/simplebar/js/simplebar.js"></script>
     <script src="../assets/js/sidebar-menu.js"></script>
     <script src="../assets/js/app-script.js"></script>
-   
+
     <script>
         $(function () {
-            // Sidebar menu já é inicializado em app-script.js; evitar dupla inicialização
 
             // Carrega turmas do professor para o ano de 2025
             carregarTurmasSelect();
@@ -79,13 +78,13 @@
         });
 
         function carregarTurmasSelect() {
-            const ano = 2025; // filtro solicitado
+            const ano = 2025;
             const $sel = $('#selectTurma');
             $sel.prop('disabled', true).empty()
                 .append('<option value="" disabled selected>Carregando turmas...</option>');
 
-                // Busca diretamente todas as turmas de 2025 (sem restringir por professor)
-                $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano, all: 1 })
+            // Busca apenas as turmas relevantes para o professor logado
+            $.getJSON('../includes/ajax/admin/turmas/listar_turmas.php', { ano })
                 .done(function (res) {
                     $sel.empty().append('<option value="" disabled selected>-- Escolha uma turma --</option>');
                     if (res && res.success && Array.isArray(res.data) && res.data.length) {
@@ -94,8 +93,8 @@
                             $sel.append(`<option value="${t.ID_Turma}">${label}</option>`);
                         });
                         $sel.prop('disabled', false);
-                        } else {
-                            $sel.append('<option value="" disabled>Nenhuma turma encontrada</option>');
+                    } else {
+                        $sel.append('<option value="" disabled>Nenhuma turma encontrada</option>');
                     }
                 })
                 .fail(function () {
